@@ -334,6 +334,8 @@ func events(from process: Process, pipe: Pipe) -> AsyncStream<FoundryEvent> {
 - **`Observations`** (SE-0475, 6.2): async-последовательность транзакционных
   изменений `@Observable`-состояния — `Observations { model.status }` — современная
   замена KVO/`objectWillChange`. Ближайший аналог `StateFlow`-подписки.
+  Рантайм — macOS 26+, вне нашего deployment target (15): fallback —
+  `AsyncStream` или `withObservationTracking`-цикл, см. [03](03-swiftui-architecture.md).
 
 ---
 

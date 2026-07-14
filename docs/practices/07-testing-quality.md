@@ -2,7 +2,7 @@
 
 > Серия practices · [оглавление](README.md)
 
-Контекст: foundry-desktop — SwiftUI-приложение (Swift 6.3, Xcode 26.x, macOS 26),
+Контекст: foundry-desktop — SwiftUI-приложение (Swift 6.2.x, Xcode 26.x, target macOS 15),
 основной автор кода — AI-агент через CLI. Тесты — главный механизм, которым агент
 проверяет собственную работу, поэтому весь стек качества обязан быть запускаемым
 и парсируемым из терминала. Про сборку и CI — [глава 08](08-project-tooling-distribution.md).
