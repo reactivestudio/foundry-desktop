@@ -4,7 +4,7 @@
 
 Эта глава — про **поведение**: что должно происходить при клике, шорткате, drag'е и перезапуске, чтобы foundry-desktop ощущался родным Mac-приложением, а не Electron-подделкой или iPad-портом. Визуальный слой (Liquid Glass, типографика, паттерны экранов) — в [05-ui-design.md](05-ui-design.md). Код сцен, окон и state-менеджмента — в [03-swiftui-architecture.md](03-swiftui-architecture.md).
 
-Таргет: **macOS 26 SDK (Tahoe), Xcode 26**. macOS 27 "Golden Gate" (осень 2026) поведенческих конвенций не меняет — только шлифует визуал.
+Таргет: сборка против **macOS 26 SDK (Xcode 26)**, **deployment target — macOS 15 Sequoia**. Поведенческие конвенции главы от версии macOS не зависят; редкие 15+-пометки (`.pointerStyle`) уже в пределах таргета.
 
 ---
 
