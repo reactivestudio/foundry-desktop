@@ -91,13 +91,26 @@
       return oc;
     }
 
-    // База — РЕЗКАЯ сфера на всю площадь (правый лимб чёткий, без гало).
-    // Размытие добавляется поверх только СЛЕВА, нарастая к краю → правее центра резко.
-    x.drawImage(spherePass(1.2 * u), 0, 0);
-    x.drawImage(maskLR(spherePass(5 * u),  0.30 * S, 0.50 * S, true), 0, 0);
-    x.drawImage(maskLR(spherePass(12 * u), 0.20 * S, 0.42 * S, true), 0, 0);
-    x.drawImage(maskLR(spherePass(30 * u), 0.10 * S, 0.32 * S, true), 0, 0);
-    x.drawImage(maskLR(spherePass(92 * u), 0.00 * S, 0.22 * S, true), 0, 0);
+    // Сфера на офскрине: сильный блюр слева → резко к центру и правее (пред-версия).
+    var sph = document.createElement('canvas'); sph.width = S; sph.height = S;
+    var sx = sph.getContext('2d');
+    sx.drawImage(spherePass(92 * u), 0, 0);                                  // сильный левый блюр
+    sx.drawImage(maskLR(spherePass(30 * u), 0.04 * S, 0.30 * S, false), 0, 0);
+    sx.drawImage(maskLR(spherePass(12 * u), 0.18 * S, 0.40 * S, false), 0, 0);
+    sx.drawImage(maskLR(spherePass(5 * u),  0.32 * S, 0.46 * S, false), 0, 0);
+    sx.drawImage(maskLR(spherePass(1.2 * u), 0.42 * S, 0.52 * S, false), 0, 0); // центр/правее — резко
+    // keep-маска: ореол разрешён ТОЛЬКО слева от центра; справа — строго силуэт сферы.
+    var km = document.createElement('canvas'); km.width = S; km.height = S;
+    var kx = km.getContext('2d');
+    var lg = kx.createLinearGradient(0.44 * S, 0, 0.58 * S, 0);
+    lg.addColorStop(0, 'rgba(0,0,0,1)'); lg.addColorStop(1, 'rgba(0,0,0,0)');
+    kx.fillStyle = lg; kx.fillRect(0, 0, S, S);          // левая половина — гало сохраняем
+    kx.fillStyle = '#000';
+    kx.beginPath(); kx.arc(cx, cy, R + 1 * u, 0, 7); kx.fill(); // внутри сферы — сохраняем везде
+    sx.globalCompositeOperation = 'destination-in';
+    sx.drawImage(km, 0, 0);
+    sx.globalCompositeOperation = 'source-over';
+    x.drawImage(sph, 0, 0);
 
     // левое растворение в фон
     x.save();
