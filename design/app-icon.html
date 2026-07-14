@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>foundry-desktop — генератор иконки</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+    background: #0a0a0f; color: #cfd2e0;
+    font: 14px/1.5 -apple-system, "SF Pro Display", system-ui, sans-serif;
+  }
+  .icon { border-radius: 22.5%; overflow: hidden; width: 320px; height: 320px;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+  .icon canvas { width: 100%; height: 100%; display: block; }
+  button { font: inherit; color: #cfd2e0; background: #1a1b26; border: 1px solid #2b2d3f;
+           border-radius: 8px; padding: 8px 16px; cursor: pointer; }
+  button:hover { border-color: #4845f5; }
+  code { font-family: ui-monospace, monospace; color: #8f96d8; }
+</style>
+</head>
+<body>
+  <div class="icon"><canvas id="icon" width="1024" height="1024"></canvas></div>
+  <button id="dl">Скачать PNG 1024×1024</button>
+  <div>foundry-desktop · «Восход», вариант A · палитра webphone</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // Палитра webphone — токены проекта
+  var P = {
+    bgTop: '#050510', bgHalo: '#161A2C',
+    rimCore: 'rgba(226, 240, 255, 0.95)',
+    vig: 'rgba(5, 5, 16, 0.6)',
+    leftShade: 'rgba(5, 5, 16, 0.55)',
+    // Ход: Sky → Blue → Royal → Navy → Void (равномерно, дизеринг убирает бандинг)
+    ramp: [
+      [0.00, '#79C6F7'], [0.08, '#45B2F3'], [0.16, '#38AFF5'], [0.26, '#3D74F8'],
+      [0.37, '#4845F5'], [0.48, '#3A34E0'], [0.58, '#2F2BD6'], [0.68, '#2621B0'],
+      [0.77, '#1B1690'], [0.85, '#130F5E'], [0.92, '#0C0938'], [0.97, '#080723'],
+      [1.00, '#050510']
+    ]
+  };
+
+  function draw(canvas) {
+    var x = canvas.getContext('2d');
+    var S = canvas.width, u = S / 1024;
+    var cx = 532 * u, cy = 866 * u, R = 491 * u;
+
+    // фон: чистая темнота + мягкая дымка ТОЛЬКО слева от центра
+    // (правее центра фон чёрный — без свечения)
+    x.fillStyle = P.bgTop; x.fillRect(0, 0, S, S);
+    (function haze() {
+      var oc = document.createElement('canvas'); oc.width = S; oc.height = S;
+      var o = oc.getContext('2d');
+      o.filter = 'blur(' + 55 * u + 'px)';
+      var hz = o.createRadialGradient(0.40 * S, 0.44 * S, 0, 0.40 * S, 0.44 * S, 0.46 * S);
+      hz.addColorStop(0, P.bgHalo); hz.addColorStop(1, 'rgba(0,0,0,0)');
+      o.fillStyle = hz;
+      o.beginPath(); o.arc(0.40 * S, 0.44 * S, 0.52 * S, 0, 7); o.fill();
+      o.filter = 'none';
+      o.globalCompositeOperation = 'destination-in';
+      var mg = o.createLinearGradient(0.30 * S, 0, 0.54 * S, 0);
+      mg.addColorStop(0, 'rgba(0,0,0,1)'); mg.addColorStop(1, 'rgba(0,0,0,0)');
+      o.fillStyle = mg; o.fillRect(0, 0, S, S);
+      x.globalAlpha = 0.9; x.drawImage(oc, 0, 0); x.globalAlpha = 1;
+    })();
+    var g;
+
+    // сфера с заданным размытием (источник света вынесен за верхне-правый лимб)
+    function spherePass(blurPx) {
+      var oc = document.createElement('canvas'); oc.width = S; oc.height = S;
+      var o = oc.getContext('2d');
+      o.filter = 'blur(' + blurPx + 'px)';
+      var rg = o.createRadialGradient(895 * u, 405 * u, 40 * u, 895 * u, 405 * u, 1180 * u);
+      for (var i = 0; i < P.ramp.length; i++) rg.addColorStop(P.ramp[i][0], P.ramp[i][1]);
+      o.fillStyle = rg;
+      o.beginPath(); o.arc(cx, cy, R, 0, 7); o.fill();
+      return oc;
+    }
+    // маска: invert=false → видно правее x1; invert=true → видно левее x0
+    function maskLR(oc, x0, x1, invert) {
+      var o = oc.getContext('2d');
+      o.globalCompositeOperation = 'destination-in';
+      var mg = o.createLinearGradient(x0, 0, x1, 0);
+      mg.addColorStop(0, invert ? 'rgba(0,0,0,1)' : 'rgba(0,0,0,0)');
+      mg.addColorStop(1, invert ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,1)');
+      o.fillStyle = mg; o.fillRect(0, 0, S, S);
+      return oc;
+    }
+
+    // Сфера на офскрине: сильный блюр слева → резко к центру и правее (пред-версия).
+    var sph = document.createElement('canvas'); sph.width = S; sph.height = S;
+    var sx = sph.getContext('2d');
+    sx.drawImage(spherePass(92 * u), 0, 0);                                  // сильный левый блюр
+    sx.drawImage(maskLR(spherePass(30 * u), 0.04 * S, 0.30 * S, false), 0, 0);
+    sx.drawImage(maskLR(spherePass(12 * u), 0.18 * S, 0.40 * S, false), 0, 0);
+    sx.drawImage(maskLR(spherePass(5 * u),  0.32 * S, 0.46 * S, false), 0, 0);
+    sx.drawImage(maskLR(spherePass(1.2 * u), 0.42 * S, 0.52 * S, false), 0, 0); // центр/правее — резко
+    // keep-маска: ореол разрешён ТОЛЬКО слева от центра; справа — строго силуэт сферы.
+    var km = document.createElement('canvas'); km.width = S; km.height = S;
+    var kx = km.getContext('2d');
+    var lg = kx.createLinearGradient(0.30 * S, 0, 0.52 * S, 0);
+    lg.addColorStop(0, 'rgba(0,0,0,1)'); lg.addColorStop(1, 'rgba(0,0,0,0)');
+    kx.fillStyle = lg; kx.fillRect(0, 0, S, S);          // гало плавно в ноль к центру (0.52)
+    kx.fillStyle = '#000';
+    kx.beginPath(); kx.arc(cx, cy, R + 1 * u, 0, 7); kx.fill(); // внутри сферы — сохраняем везде
+    sx.globalCompositeOperation = 'destination-in';
+    sx.drawImage(km, 0, 0);
+    sx.globalCompositeOperation = 'source-over';
+    x.drawImage(sph, 0, 0);
+
+    // левое растворение в фон
+    x.save();
+    x.filter = 'blur(' + 70 * u + 'px)';
+    g = x.createRadialGradient(10 * u, 660 * u, 0, 10 * u, 660 * u, 400 * u);
+    g.addColorStop(0, P.leftShade); g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = g; x.beginPath(); x.arc(10 * u, 660 * u, 400 * u, 0, 7); x.fill();
+    x.restore();
+
+    // световой серп — изящный полумесяц: плавно набухает в середине,
+    // утончается к тонким остриям на концах; цвет от ледяного в пике к sky
+    (function rim() {
+      var oc = document.createElement('canvas'); oc.width = S; oc.height = S;
+      var o = oc.getContext('2d');
+      o.lineCap = 'round';
+      var peak = -24 * Math.PI / 180, half = 66 * Math.PI / 180, sigma = 40 * Math.PI / 180, steps = 380;
+      function col(bell) {
+        var r = Math.round(0x9b + (0xEE - 0x9b) * bell);
+        var gg = Math.round(0xd6 + (0xF6 - 0xd6) * bell);
+        return 'rgba(' + r + ',' + gg + ',255,1)';
+      }
+      // ширина ∝ pow(bell, powrW): powrW<1 — фуллер в середине, тонкие острия
+      function pass(rad, wBase, powrW, powrA, aScale) {
+        for (var s = 0; s < steps; s++) {
+          var a0 = peak - half + (2 * half) * s / steps;
+          var a1 = peak - half + (2 * half) * (s + 1) / steps;
+          var mid = 0.5 * (a0 + a1);
+          var bell = Math.exp(-Math.pow((mid - peak) / sigma, 2));
+          o.lineWidth = wBase * Math.pow(bell, powrW);   // → 0 к остриям
+          o.globalAlpha = Math.pow(bell, powrA) * aScale;
+          o.strokeStyle = col(bell);
+          o.beginPath(); o.arc(cx, cy, rad, a0, a1 + 0.004); o.stroke();
+        }
+      }
+      pass(R + 0.2 * u, 8.5 * u, 0.55, 1.1, 0.18);   // мягкий блум-полумесяц у кромки
+      pass(R + 0.9 * u, 3.4 * u, 0.75, 0.85, 0.40);  // чёткое ядро-полумесяц (сильнее приглушено)
+      x.save(); x.filter = 'blur(' + 0.8 * u + 'px)'; x.globalAlpha = 1;
+      x.drawImage(oc, 0, 0); x.restore();
+    })();
+
+    // нижняя виньетка
+    g = x.createLinearGradient(0, S, 0, 0.70 * S);
+    g.addColorStop(0, P.vig); g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = g; x.fillRect(0, 0.66 * S, S, 0.34 * S);
+
+    // треугольный дизеринг против бандинга
+    var id = x.getImageData(0, 0, S, S), d = id.data, amp = 7.5;
+    for (var i2 = 0; i2 < d.length; i2 += 4) {
+      var n = (Math.random() + Math.random() - 1.0) * amp;
+      d[i2] += n; d[i2 + 1] += n; d[i2 + 2] += n;
+    }
+    x.putImageData(id, 0, 0);
+  }
+
+  var canvas = document.getElementById('icon');
+  draw(canvas);
+  document.getElementById('dl').addEventListener('click', function () {
+    var a = document.createElement('a');
+    a.download = 'foundry-app-icon-1024.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  });
+})();
+</script>
+</body>
+</html>
