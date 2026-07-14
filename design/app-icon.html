@@ -49,15 +49,25 @@
     var S = canvas.width, u = S / 1024;
     var cx = 532 * u, cy = 866 * u, R = 491 * u;
 
-    // фон: чистая темнота + мягкая радиальная дымка над лимбом (без горизонтальных швов)
+    // фон: чистая темнота + мягкая дымка ТОЛЬКО слева от центра
+    // (правее центра фон чёрный — без свечения)
     x.fillStyle = P.bgTop; x.fillRect(0, 0, S, S);
-    x.save();
-    x.filter = 'blur(' + 60 * u + 'px)';
-    var g = x.createRadialGradient(0.58 * S, 0.40 * S, 0, 0.58 * S, 0.40 * S, 0.54 * S);
-    g.addColorStop(0, P.bgHalo); g.addColorStop(1, 'rgba(0,0,0,0)');
-    x.globalAlpha = 0.9; x.fillStyle = g;
-    x.beginPath(); x.arc(0.58 * S, 0.40 * S, 0.62 * S, 0, 7); x.fill();
-    x.restore();
+    (function haze() {
+      var oc = document.createElement('canvas'); oc.width = S; oc.height = S;
+      var o = oc.getContext('2d');
+      o.filter = 'blur(' + 55 * u + 'px)';
+      var hz = o.createRadialGradient(0.40 * S, 0.44 * S, 0, 0.40 * S, 0.44 * S, 0.46 * S);
+      hz.addColorStop(0, P.bgHalo); hz.addColorStop(1, 'rgba(0,0,0,0)');
+      o.fillStyle = hz;
+      o.beginPath(); o.arc(0.40 * S, 0.44 * S, 0.52 * S, 0, 7); o.fill();
+      o.filter = 'none';
+      o.globalCompositeOperation = 'destination-in';
+      var mg = o.createLinearGradient(0.30 * S, 0, 0.54 * S, 0);
+      mg.addColorStop(0, 'rgba(0,0,0,1)'); mg.addColorStop(1, 'rgba(0,0,0,0)');
+      o.fillStyle = mg; o.fillRect(0, 0, S, S);
+      x.globalAlpha = 0.9; x.drawImage(oc, 0, 0); x.globalAlpha = 1;
+    })();
+    var g;
 
     // сфера с заданным размытием (источник света вынесен за верхне-правый лимб)
     function spherePass(blurPx) {
@@ -70,21 +80,24 @@
       o.beginPath(); o.arc(cx, cy, R, 0, 7); o.fill();
       return oc;
     }
-    function maskLR(oc, x0, x1) {
+    // маска: invert=false → видно правее x1; invert=true → видно левее x0
+    function maskLR(oc, x0, x1, invert) {
       var o = oc.getContext('2d');
       o.globalCompositeOperation = 'destination-in';
       var mg = o.createLinearGradient(x0, 0, x1, 0);
-      mg.addColorStop(0, 'rgba(0,0,0,0)'); mg.addColorStop(1, 'rgba(0,0,0,1)');
+      mg.addColorStop(0, invert ? 'rgba(0,0,0,1)' : 'rgba(0,0,0,0)');
+      mg.addColorStop(1, invert ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,1)');
       o.fillStyle = mg; o.fillRect(0, 0, S, S);
       return oc;
     }
 
-    // прогрессивный блюр: сильный у левого края → резко у центра и правее
-    x.drawImage(spherePass(92 * u), 0, 0);
-    x.drawImage(maskLR(spherePass(30 * u), 0.04 * S, 0.30 * S), 0, 0);
-    x.drawImage(maskLR(spherePass(12 * u), 0.18 * S, 0.40 * S), 0, 0);
-    x.drawImage(maskLR(spherePass(5 * u),  0.32 * S, 0.46 * S), 0, 0);
-    x.drawImage(maskLR(spherePass(1.2 * u), 0.42 * S, 0.52 * S), 0, 0);
+    // База — РЕЗКАЯ сфера на всю площадь (правый лимб чёткий, без гало).
+    // Размытие добавляется поверх только СЛЕВА, нарастая к краю → правее центра резко.
+    x.drawImage(spherePass(1.2 * u), 0, 0);
+    x.drawImage(maskLR(spherePass(5 * u),  0.30 * S, 0.50 * S, true), 0, 0);
+    x.drawImage(maskLR(spherePass(12 * u), 0.20 * S, 0.42 * S, true), 0, 0);
+    x.drawImage(maskLR(spherePass(30 * u), 0.10 * S, 0.32 * S, true), 0, 0);
+    x.drawImage(maskLR(spherePass(92 * u), 0.00 * S, 0.22 * S, true), 0, 0);
 
     // левое растворение в фон
     x.save();
