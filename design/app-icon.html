@@ -130,6 +130,27 @@
     sx.globalCompositeOperation = 'source-over';
     x.drawImage(sph, 0, 0);
 
+    // Моушен-блюр слева (максимальный): тянем более чёткий источник сферы строго
+    // горизонтально влево; много сэмплов → непрерывный смаз без ghost-копий;
+    // хвост-комета затухает; к центру плавно в ноль — правая половина чёткая.
+    (function motionLeft() {
+      var mc = document.createElement('canvas'); mc.width = S; mc.height = S;
+      var mo = mc.getContext('2d');
+      var src = spherePass(6 * u);            // чёткий источник — чтобы смаз читался
+      var N = 120, maxShift = 410 * u, wsum = 0, i;
+      for (i = 1; i <= N; i++) { var t = i / N; wsum += (1 - t); }
+      for (i = 1; i <= N; i++) {
+        var tt = i / N;
+        mo.globalAlpha = (1 - tt) / wsum;     // затухающий хвост, сумма весов = 1
+        mo.drawImage(src, -maxShift * tt, 0); // смаз строго влево
+      }
+      mo.globalCompositeOperation = 'destination-in';
+      var mg = mo.createLinearGradient(0.05 * S, 0, 0.44 * S, 0);
+      mg.addColorStop(0, 'rgba(0,0,0,1)'); mg.addColorStop(1, 'rgba(0,0,0,0)');
+      mo.fillStyle = mg; mo.fillRect(0, 0, S, S);   // только слева, в ноль к центру
+      x.globalAlpha = 0.86; x.drawImage(mc, 0, 0); x.globalAlpha = 1;
+    })();
+
     // левое растворение в фон
     x.save();
     x.filter = 'blur(' + 70 * u + 'px)';
