@@ -1,0 +1,1952 @@
+<title>foundry-desktop · UI макеты (тёмная тема)</title>
+<style>
+  :root {
+    /* — палитра (13-tokens.md, единственный источник) — */
+    --brand-ultramarine: #2F5CFF;
+    --brand-purple: #8B5CF6;
+    --brand-magenta: #D65CFF;
+    --brand-cyan: #58C7FF;
+
+    /* поверхности: elevation светлотой */
+    --bg-base: #07060B;
+    --bg-surface: #0D0C14;
+    --bg-raised: #14121E;
+    --bg-overlay: #1B1828;
+
+    /* текст: альфа-белый */
+    --t-primary: rgba(255,255,255,0.96);
+    --t-secondary: rgba(255,255,255,0.70);
+    --t-tertiary: rgba(255,255,255,0.50);
+    --t-disabled: rgba(255,255,255,0.38);
+    --t-accent: #7C9AFF;
+    --t-accent-muted: #6B8CFF;
+
+    /* бордеры */
+    --b-subtle: rgba(255,255,255,0.08);
+    --b-default: rgba(255,255,255,0.12);
+    --b-strong: rgba(255,255,255,0.20);
+
+    /* семантика */
+    --sem-success: #4ADE80;
+    --sem-warning: #FBBF24;
+    --sem-error: #F87171;
+    --sem-info: var(--brand-cyan);
+
+    /* дифф */
+    --diff-add-bg: rgba(74,222,128,0.12);
+    --diff-add-word: rgba(74,222,128,0.25);
+    --diff-rem-bg: rgba(248,113,113,0.12);
+    --diff-rem-word: rgba(248,113,113,0.25);
+
+    /* шкала отступов */
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+    --s5: 24px; --s6: 32px; --s8: 48px; --s10: 64px;
+
+    /* радиусы */
+    --r-s: 4px; --r-m: 6px; --r-l: 10px; --r-xl: 14px; --r-full: 999px;
+
+    /* типографика */
+    --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, monospace;
+
+    --glow-accent: 0 0 10px rgba(47,92,255,0.40), 0 0 36px rgba(47,92,255,0.15);
+    --glow-live: 0 0 10px rgba(88,199,255,0.45), 0 0 30px rgba(88,199,255,0.15);
+  }
+
+  * { box-sizing: border-box; }
+
+  body { margin: 0; }
+
+  .page {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--t-primary);
+    /* «рабочий стол»: почти чёрный + приглушённая аврора бренда */
+    background:
+      radial-gradient(90% 70% at 12% -8%, rgba(47,92,255,0.16), transparent 55%),
+      radial-gradient(70% 60% at 88% 4%, rgba(139,92,246,0.14), transparent 52%),
+      radial-gradient(60% 60% at 65% 108%, rgba(214,92,255,0.10), transparent 55%),
+      #050409;
+    min-height: 100vh;
+    padding: clamp(20px, 4vw, 56px) clamp(16px, 4vw, 56px) 96px;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  /* ——— заголовок страницы ——— */
+  .eyebrow {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--t-tertiary);
+    display: flex; align-items: center; gap: var(--s2);
+    margin-bottom: var(--s4);
+  }
+  .eyebrow .dot { width: 7px; height: 7px; border-radius: var(--r-full); background: var(--brand-cyan); box-shadow: var(--glow-live); }
+
+  h1.page-title {
+    font-size: clamp(28px, 4vw, 40px); line-height: 1.06; font-weight: 700;
+    letter-spacing: -0.02em; margin: 0 0 var(--s3); text-wrap: balance;
+    max-width: 22ch;
+  }
+  h1.page-title em {
+    font-style: normal;
+    background: linear-gradient(100deg, var(--brand-ultramarine), var(--brand-purple) 55%, var(--brand-magenta));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lede {
+    font-size: 15px; line-height: 1.55; color: var(--t-secondary);
+    max-width: 62ch; margin: 0 0 var(--s5);
+  }
+
+  /* легенда токенов */
+  .legend { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); margin-bottom: var(--s8); padding-top: var(--s4); border-top: 1px solid var(--b-subtle); }
+  .legend-group { display: flex; flex-direction: column; gap: var(--s2); }
+  .legend-group .cap { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-tertiary); }
+  .swatches { display: flex; gap: var(--s1); }
+  .swatch { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--t-secondary); }
+  .swatch i { width: 14px; height: 14px; border-radius: var(--r-s); display: inline-block; border: 1px solid var(--b-subtle); }
+
+  /* ——— секции ——— */
+  section.block { margin-bottom: var(--s10); }
+  .sec-head { margin-bottom: var(--s5); }
+  .sec-num {
+    font-family: var(--font-mono); font-size: 11px; color: var(--t-accent);
+    letter-spacing: 0.04em;
+  }
+  .sec-head h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin: 6px 0 6px; }
+  .sec-head p { margin: 0; color: var(--t-secondary); max-width: 68ch; font-size: 13.5px; }
+
+  /* ——— окно macOS ——— */
+  .win {
+    border-radius: var(--r-xl);
+    background: var(--bg-base);
+    border: 1px solid var(--b-default);
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
+  .titlebar {
+    height: 44px; display: flex; align-items: center; gap: var(--s3);
+    padding: 0 var(--s4);
+    background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+    border-bottom: 1px solid var(--b-subtle);
+    backdrop-filter: blur(20px);
+  }
+  .lights { display: flex; gap: 8px; }
+  .lights i { width: 12px; height: 12px; border-radius: var(--r-full); display: inline-block; }
+  .lights .r { background: #FF5F57; } .lights .y { background: #FEBC2E; } .lights .g { background: #28C840; }
+  .win-title { font-size: 12px; color: var(--t-tertiary); font-weight: 500; }
+  .titlebar .spacer { flex: 1; }
+  .tb-btn {
+    height: 26px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px;
+    border-radius: var(--r-m); color: var(--t-secondary); font-size: 12px;
+    border: 1px solid transparent;
+  }
+  .tb-btn.icon { width: 28px; justify-content: center; padding: 0; }
+  .tb-btn:hover { background: rgba(255,255,255,0.06); }
+
+  /* трёхпанельная сетка */
+  .three { display: grid; grid-template-columns: 232px minmax(0,1fr) 340px; min-height: 640px; }
+  @media (max-width: 900px){ .three { grid-template-columns: 1fr; } .pane.sidebar,.pane.inspector{ display:none; } }
+
+  .pane { min-width: 0; }
+  .pane.sidebar {
+    background: rgba(255,255,255,0.022);
+    backdrop-filter: blur(30px);
+    border-right: 1px solid var(--b-subtle);
+    padding: var(--s4) var(--s3);
+    display: flex; flex-direction: column; gap: var(--s5);
+  }
+  /* граница списка↔инспектора — перепадом светлоты (base→surface), без линейки */
+  .pane.list { background: var(--bg-base); display: flex; flex-direction: column; }
+  .pane.inspector { background: var(--bg-surface); display: flex; flex-direction: column; }
+
+  /* сайдбар */
+  .side-label { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-tertiary); padding: 0 var(--s2) var(--s1); }
+  .side-item {
+    display: flex; align-items: center; gap: var(--s2); height: 28px; padding: 0 var(--s2);
+    border-radius: var(--r-m); color: var(--t-secondary); font-size: 13px; cursor: default;
+  }
+  .side-item:hover { background: rgba(255,255,255,0.06); }
+  .side-item.sel { background: rgba(47,92,255,0.14); color: var(--t-primary); }
+  .side-item .ico { width: 16px; text-align: center; color: var(--t-tertiary); font-size: 13px; }
+  .side-item.sel .ico { color: var(--t-accent); }
+  .side-item .grow { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .count { font-size: 11px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
+  /* счётчик — нейтральный, чтобы не спорить с настоящим акцентом (выбор строки) */
+  .count.pill { background: rgba(255,255,255,0.10); color: var(--t-secondary); border-radius: var(--r-full); padding: 1px 7px; font-weight: 600; font-size: 10px; }
+  .side-sec { display: flex; flex-direction: column; gap: 2px; }
+  .side-foot { margin-top: auto; display: flex; align-items: center; gap: var(--s2); padding: var(--s2); border-top: 1px solid var(--b-subtle); color: var(--t-tertiary); font-size: 12px; }
+  .orb {
+    width: 18px; height: 18px; border-radius: var(--r-full);
+    background: radial-gradient(circle at 35% 30%, var(--brand-cyan), var(--brand-ultramarine) 45%, var(--brand-purple) 78%, var(--brand-magenta));
+    box-shadow: 0 0 10px rgba(88,199,255,0.5), 0 0 22px rgba(139,92,246,0.35);
+    flex: none;
+  }
+
+  /* список ревью */
+  .list-head {
+    height: 44px; display: flex; align-items: center; gap: var(--s3); padding: 0 var(--s4);
+    border-bottom: 1px solid var(--b-subtle); position: sticky; top: 0;
+    background: var(--bg-base);
+  }
+  .list-head h3 { font-size: 13px; font-weight: 600; margin: 0; }
+  .seg { display: inline-flex; background: rgba(255,255,255,0.05); border-radius: var(--r-m); padding: 2px; gap: 2px; }
+  .seg span { font-size: 11px; padding: 3px 9px; border-radius: 4px; color: var(--t-tertiary); }
+  .seg span.on { background: rgba(255,255,255,0.10); color: var(--t-primary); }
+
+  /* заголовок группы на одной левой оси с именами change'ей (44px = pad+рейл+gap) */
+  .group-cap {
+    display: flex; align-items: center; gap: var(--s2);
+    font-size: 11px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--t-tertiary); padding: var(--s5) var(--s4) var(--s2) 44px;
+  }
+  .group-cap .n { color: var(--t-disabled); }
+  .group-cap.attn { color: var(--sem-warning); }
+
+  /* воздух вместо линеек (Бирман): группируют пробел + рейл статус-точек, не border */
+  .row {
+    display: grid; grid-template-columns: auto 1fr auto; gap: var(--s1) var(--s3);
+    padding: var(--s3) var(--s4);
+    align-items: start; cursor: default;
+  }
+  .row:hover { background: rgba(255,255,255,0.06); }
+  .row.sel { background: rgba(47,92,255,0.14); box-shadow: inset 2px 0 0 var(--brand-ultramarine); }
+  .row .status { grid-row: 1 / span 2; width: 16px; display: flex; justify-content: center; padding-top: 3px; }
+  .sdot { width: 8px; height: 8px; border-radius: var(--r-full); flex: none; }
+  .sdot.wait { background: var(--brand-ultramarine); }
+  /* live-точки пульсируют только альфой — единственный glow в окне держит орб (13 §12) */
+  .sdot.live { background: var(--brand-cyan); animation: pulse 1.8s ease-in-out infinite; }
+  .sdot.warn { background: var(--sem-warning); }
+  .sdot.err { background: var(--sem-error); }
+  @keyframes pulse { 0%,100%{ opacity: 1; } 50%{ opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce){ .sdot.live { animation: none; } }
+
+  .row .branch { font-family: var(--font-mono); font-size: 12px; color: var(--t-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .meta { grid-column: 2; display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+  .row .time { grid-column: 3; grid-row: 1; font-size: 11px; color: var(--t-tertiary); }
+  .row .stat { grid-column: 3; grid-row: 2; font-family: var(--font-mono); font-size: 11px; text-align: right; }
+  .stat .add { color: var(--sem-success); } .stat .rem { color: var(--sem-error); }
+
+  .chip {
+    font-size: 11px; padding: 1px 7px; border-radius: var(--r-s);
+    color: var(--t-secondary); background: rgba(255,255,255,0.06); border: 1px solid var(--b-subtle);
+    display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+  }
+  /* стадия — нейтральная категория; ультрамарин зарезервирован за действие и выбор */
+  .chip.stage { color: var(--t-secondary); background: rgba(255,255,255,0.06); border-color: var(--b-subtle); }
+  .chip.proj { color: var(--t-tertiary); }
+  .chip.warn { color: var(--sem-warning); background: rgba(251,191,36,0.14); border-color: rgba(251,191,36,0.30); }
+  .chip.err { color: var(--sem-error); background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.30); }
+  .chip.live { color: var(--brand-cyan); background: rgba(88,199,255,0.14); border-color: rgba(88,199,255,0.30); }
+  /* инлайн-команда в строке (Бирман: микро-таблица; Hover is over — всегда видима) */
+  .mini-act { font-size: 11px; padding: 2px 8px; border-radius: var(--r-s); border: 1px solid var(--b-strong); color: var(--t-secondary); background: transparent; white-space: nowrap; }
+  .mini-act:hover { background: rgba(255,255,255,0.06); }
+  .mini-act.pri { border-color: rgba(47,92,255,0.5); color: var(--t-accent); }
+  .anchor-mark { font-size: 11px; color: var(--t-tertiary); }
+
+  /* ——— §1 инбокс: анатомия строки (мнемо-имена Admiral · прогресс-объект · якоря Onetwotrip) ——— */
+  .row2 { display: grid; grid-template-columns: 16px 1fr auto; column-gap: var(--s3); row-gap: 3px;
+    padding: 9px var(--s4); align-items: center; position: relative; cursor: default; }
+  .row2:hover { background: rgba(255,255,255,0.04); }
+  .row2.sel { background: rgba(47,92,255,0.12); box-shadow: inset 2px 0 0 var(--brand-ultramarine); }
+  .row2 .r2-dot { grid-row: 1 / span 2; align-self: center; display: flex; justify-content: center; }
+  .r2-name { grid-column: 2; display: flex; align-items: center; gap: 7px; min-width: 0; }
+  .r2-pict { color: var(--t-tertiary); font-size: 12px; flex: none; width: 14px; text-align: center; }
+  .r2-title { font-size: 13px; font-weight: 600; color: var(--t-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .r2-tag { font-size: 10px; color: var(--sem-warning); border: 1px solid rgba(251,191,36,0.35); border-radius: var(--r-full); padding: 0 6px; flex: none; }
+  .r2-tag.risk { color: var(--t-accent); border-color: rgba(47,92,255,0.4); }
+  .r2-sub { grid-column: 2; display: flex; align-items: center; gap: var(--s2); min-width: 0; }
+  .r2-branch { font-family: var(--font-mono); font-size: 11px; color: var(--t-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .r2-stage { font-size: 11px; color: var(--t-tertiary); flex: none; }
+  .r2-right { grid-column: 3; grid-row: 1 / span 2; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; text-align: right; }
+  .r2-time { font-size: 11px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
+  .r2-time .anch { color: var(--sem-warning); }
+  .r2-b2 { display: flex; align-items: center; gap: var(--s2); }
+  .r2-stat { font-family: var(--font-mono); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .r2-stat .add { color: var(--sem-success); } .r2-stat .rem { color: var(--sem-error); }
+  .r2-stat.dim { color: var(--t-tertiary); }
+  /* закреплённая полоса «пишется сейчас» у нижней кромки (FXPro/Admiral) */
+  .live-band { margin-top: auto; border-top: 1px solid rgba(88,199,255,0.22); background: rgba(88,199,255,0.03); }
+  .live-band .lb-cap { display: flex; align-items: center; gap: var(--s2); padding: var(--s3) var(--s4) 4px 44px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: var(--brand-cyan); }
+  .group-cap .norm { color: var(--t-disabled); font-weight: 400; text-transform: none; letter-spacing: 0; }
+  /* инфостиль-фильтр в шапке (FXPro always-active) */
+  .filter-ghost { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t-tertiary); }
+  .filter-ghost .fkey { font-family: var(--font-mono); font-size: 10px; border: 1px solid var(--b-subtle); border-radius: 3px; padding: 0 4px; color: var(--t-tertiary); }
+  .filter-token { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--t-accent);
+    background: rgba(47,92,255,0.12); border: 1px solid rgba(47,92,255,0.3); border-radius: var(--r-full); padding: 2px 4px 2px 9px; }
+  .filter-token .x { width: 14px; height: 14px; border-radius: var(--r-full); background: rgba(255,255,255,0.1); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; color: var(--t-secondary); }
+  .side-item .base { font-size: 10px; color: var(--t-disabled); margin-left: 3px; }
+  .side-hint { font-size: 10px; color: var(--t-disabled); padding: 6px var(--s2) 0; line-height: 1.45; }
+
+  /* инспектор */
+  .insp-head { padding: var(--s4); border-bottom: 1px solid var(--b-subtle); }
+  .insp-head .branch { font-family: var(--font-mono); font-size: 13px; color: var(--t-primary); margin-bottom: 6px; }
+  .insp-head .sub { font-size: 12px; color: var(--t-tertiary); display: flex; gap: var(--s2); flex-wrap: wrap; }
+
+  /* CRISPY-степпер */
+  .stepper { display: flex; align-items: center; padding: var(--s4) var(--s4) var(--s3); gap: 0; }
+  .step-cap { padding: 0 var(--s4) var(--s4); border-bottom: 1px solid var(--b-subtle); font-size: 11px; color: var(--t-tertiary); }
+  .step-cap b { color: var(--t-primary); font-weight: 600; }
+  .step-cap .nxt { color: var(--t-disabled); }
+  .step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; position: relative; }
+  .step .node {
+    width: 20px; height: 20px; border-radius: var(--r-full); display: flex; align-items: center; justify-content: center;
+    font-size: 10px; border: 1.5px solid var(--b-strong); color: var(--t-tertiary); background: var(--bg-surface); z-index: 1;
+  }
+  .step.done .node { background: rgba(74,222,128,0.16); border-color: var(--sem-success); color: var(--sem-success); }
+  .step.now .node { background: var(--brand-ultramarine); border-color: var(--brand-ultramarine); color: #fff; }
+  .step .lbl { font-size: 9px; color: var(--t-tertiary); letter-spacing: 0.02em; text-align: center; }
+  .step.now .lbl { color: var(--t-primary); }
+  .step:not(:last-child)::after { content: ""; position: absolute; top: 10px; left: 60%; right: -40%; height: 1.5px; background: var(--b-subtle); }
+  .step.done:not(:last-child)::after { background: rgba(74,222,128,0.4); }
+
+  /* превью артефакта */
+  .artifact { flex: 1; padding: var(--s4); overflow: hidden; font-size: 13px; color: var(--t-secondary); line-height: 1.55; }
+  .artifact h4 { font-size: 15px; font-weight: 600; color: var(--t-primary); margin: 0 0 var(--s2); }
+  .artifact .kv { font-size: 11px; color: var(--t-tertiary); margin-bottom: var(--s3); }
+  .artifact p { margin: 0 0 var(--s2); }
+  .artifact ul { margin: 0 0 var(--s3); padding-left: 18px; }
+  .artifact li { margin-bottom: 3px; }
+  .artifact code { font-family: var(--font-mono); font-size: 11px; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: var(--r-s); color: var(--t-accent); }
+
+  /* нижняя панель действий */
+  .actionbar { border-top: 1px solid var(--b-subtle); padding: var(--s3) var(--s4); background: rgba(255,255,255,0.02); display: flex; flex-direction: column; gap: var(--s3); }
+  .comment-field {
+    background: var(--bg-base); border: 1px solid var(--b-default); border-radius: var(--r-m);
+    padding: var(--s2) var(--s3); font-size: 12px; color: var(--t-tertiary); min-height: 34px;
+  }
+  .btns { display: flex; flex-wrap: wrap; gap: var(--s2); justify-content: flex-end; align-items: center; }
+  .btns .hint { margin-right: auto; font-size: 11px; color: var(--t-tertiary); }
+  .btn {
+    height: 28px; padding: 0 12px; border-radius: var(--r-m); font-size: 13px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; cursor: default;
+    white-space: nowrap; flex: none;
+  }
+  .btn kbd { font-family: var(--font-mono); font-size: 11px; opacity: 0.8; }
+  .btn.secondary { color: var(--sem-warning); border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.08); }
+  .btn.secondary:hover { background: rgba(251,191,36,0.14); }
+  .btn.primary { background: var(--brand-ultramarine); color: #fff; }
+  .btn.primary:hover { box-shadow: var(--glow-accent); }
+  .btn.ghost { color: var(--t-secondary); border-color: var(--b-strong); }
+
+  /* ——— галерея вариантов ——— */
+  .variants { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4); }
+  @media (max-width: 820px){ .variants { grid-template-columns: 1fr; } }
+  .variant .mini {
+    border-radius: var(--r-l); border: 1px solid var(--b-default); overflow: hidden; background: var(--bg-base);
+    box-shadow: 0 20px 40px -16px rgba(0,0,0,0.7);
+    aspect-ratio: 16 / 11;
+  }
+  .mini-bar { height: 22px; display: flex; align-items: center; gap: 5px; padding: 0 9px; border-bottom: 1px solid var(--b-subtle); background: rgba(255,255,255,0.04); }
+  .mini-bar i { width: 7px; height: 7px; border-radius: var(--r-full); }
+  .variant h3 { font-size: 14px; font-weight: 600; margin: var(--s3) 0 4px; }
+  .variant p { font-size: 12px; color: var(--t-secondary); margin: 0; }
+  .variant .tag { font-size: 10px; font-family: var(--font-mono); color: var(--t-accent); }
+
+  /* мини-раскладки (схематичные) */
+  .mini-body { display: flex; height: calc(100% - 22px); }
+  .col-side { width: 22%; background: rgba(255,255,255,0.03); border-right: 1px solid var(--b-subtle); padding: 7px 5px; display: flex; flex-direction: column; gap: 4px; }
+  .col-side b, .skel { display: block; height: 5px; border-radius: 2px; background: rgba(255,255,255,0.10); }
+  .col-side b.on { background: rgba(47,92,255,0.5); }
+  .col-list { flex: 1; padding: 7px 6px; display: flex; flex-direction: column; gap: 5px; border-right: 1px solid var(--b-subtle); }
+  .col-insp { width: 34%; background: var(--bg-surface); padding: 7px 6px; display: flex; flex-direction: column; gap: 5px; }
+  .skel.w-40 { width: 40%; } .skel.w-60 { width: 60%; } .skel.w-80 { width: 80%; }
+  .skel.acc { background: rgba(47,92,255,0.45); }
+  .skel.cy { background: rgba(88,199,255,0.5); }
+  .skel.tall { height: 26px; }
+  /* канбан-мини */
+  .kanban { display: flex; gap: 5px; flex: 1; padding: 7px 6px; overflow: hidden; }
+  .kcol { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .kcard { background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: 3px; height: 16px; }
+  .kcard.now { border-color: rgba(47,92,255,0.5); box-shadow: 0 0 8px rgba(47,92,255,0.3); }
+  /* мульти-окно мини */
+  .multi { position: relative; flex: 1; }
+  .float-win { position: absolute; border: 1px solid var(--b-strong); border-radius: 4px; background: var(--bg-raised); box-shadow: 0 8px 20px -6px rgba(0,0,0,0.8); }
+  .fw-1 { inset: 8px 34% 20% 8px; }
+  .fw-2 { inset: 24% 8px 8px 42%; box-shadow: 0 8px 24px -4px rgba(0,0,0,0.9), var(--glow-accent); }
+  .fw-bar { height: 8px; border-bottom: 1px solid var(--b-subtle); border-radius: 4px 4px 0 0; background: rgba(255,255,255,0.05); }
+
+  /* ——— дифф-ревью ——— */
+  .diffwin .diff-head { display: flex; align-items: center; gap: var(--s3); padding: var(--s3) var(--s4); border-bottom: 1px solid var(--b-subtle); background: var(--bg-surface); }
+  .diff-head .path { font-family: var(--font-mono); font-size: 12px; color: var(--t-secondary); }
+  .diff-head .path b { color: var(--t-primary); font-weight: 600; }
+  .diff { font-family: var(--font-mono); font-size: 12px; line-height: 1.7; background: var(--bg-surface); overflow-x: auto; }
+  .dline { display: grid; grid-template-columns: 44px 44px 1fr; }
+  .dline .ln { text-align: right; padding-right: 10px; color: var(--t-tertiary); user-select: none; }
+  .dline .code { padding-left: 12px; white-space: pre; color: var(--t-secondary); }
+  .dline.add { background: var(--diff-add-bg); }
+  .dline.add .code { color: #b9f5cf; }
+  .dline.add .code .w { background: var(--diff-add-word); border-radius: 2px; }
+  .dline.rem { background: var(--diff-rem-bg); }
+  .dline.rem .code { color: #f6c0c0; }
+  .dline.rem .code .w { background: var(--diff-rem-word); border-radius: 2px; }
+  .dline .gutter { color: var(--t-disabled); }
+  .tok-kw { color: var(--brand-magenta); } .tok-ty { color: var(--brand-cyan); } .tok-str { color: var(--sem-success); } .tok-fn { color: var(--t-accent); } .tok-num { color: #d9a2ff; }
+
+  .comment-thread { border-top: 1px solid var(--b-subtle); background: var(--bg-base); padding: var(--s4); display: flex; gap: var(--s3); }
+  .avatar { width: 26px; height: 26px; border-radius: var(--r-full); flex: none; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+  .avatar.you { background: rgba(47,92,255,0.2); color: var(--t-accent); border: 1px solid rgba(47,92,255,0.4); }
+  .comment-body .who { font-size: 12px; }
+  .comment-body .who b { font-weight: 600; }
+  .comment-body .who .role { color: var(--t-tertiary); margin-left: 6px; font-size: 11px; }
+  .comment-body p { margin: 4px 0 0; font-size: 13px; color: var(--t-secondary); }
+  .comment-body .anchor { font-family: var(--font-mono); font-size: 11px; color: var(--t-accent); background: rgba(47,92,255,0.10); padding: 1px 6px; border-radius: var(--r-s); }
+  /* тип комментария читается цветом до текста (Action-Договоры) */
+  .ctype { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 1px 6px; border-radius: var(--r-s); border: 1px solid transparent; }
+  .ctype.block { color: var(--sem-error); background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.3); }
+  .ctype.bug { color: var(--sem-warning); background: rgba(251,191,36,0.14); border-color: rgba(251,191,36,0.3); }
+  .ctype.q { color: var(--brand-cyan); background: rgba(88,199,255,0.14); border-color: rgba(88,199,255,0.3); }
+  .ctype.nit { color: var(--t-secondary); background: rgba(255,255,255,0.06); border-color: var(--b-subtle); }
+
+  /* ——— §3 дифф dual-panel: чеклист (Action-Договоры) · скобки (FXPro) · кросс-ссылки (Jurist) ——— */
+  .diff-dual { display: grid; grid-template-columns: minmax(0,1fr) 268px; }
+  @media (max-width: 860px){ .diff-dual { grid-template-columns: 1fr; } }
+  .diff-main { min-width: 0; border-right: 1px solid var(--b-subtle); display: flex; flex-direction: column; }
+  /* скобочный коннектор + ховер-группа связанных ханков (FXPro) */
+  .hgroup { position: relative; }
+  .hgroup:hover { background: rgba(124,154,255,0.05); }
+  .hgroup.g1 { box-shadow: inset 2px 0 0 rgba(124,154,255,0.45); }
+  .hgroup.g2 { box-shadow: inset 2px 0 0 rgba(139,92,246,0.45); }
+  .hg-head { display: flex; align-items: center; gap: var(--s2); padding: 5px var(--s4) 3px 44px; flex-wrap: wrap; }
+  .hg-tag { font-size: 10px; color: var(--t-accent); background: rgba(47,92,255,0.12); border: 1px solid rgba(47,92,255,0.25); border-radius: var(--r-full); padding: 1px 8px; font-family: var(--font-ui); }
+  .hg-link { font-size: 10px; color: var(--t-accent); border-bottom: 1px dashed rgba(124,154,255,0.5); font-family: var(--font-ui); }
+  .hg-xref { color: var(--t-tertiary); font-size: 10px; font-family: var(--font-ui); }
+
+  .risk-panel { background: var(--bg-surface); padding: var(--s4); display: flex; flex-direction: column; }
+  .rp-cap { font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--t-tertiary); }
+  .rp-sum { font-size: 12px; color: var(--t-secondary); margin: 4px 0 var(--s3); }
+  .rp-sum b { font-variant-numeric: tabular-nums; }
+  .rp-sum b.warn { color: var(--sem-warning); }
+  .rp-list { display: flex; flex-direction: column; }
+  .rp-item { display: grid; grid-template-columns: 18px 1fr; gap: var(--s2); align-items: start; padding: 8px 0; border-top: 1px solid var(--b-subtle); font-size: 12px; }
+  .rp-ic { width: 16px; height: 16px; border-radius: var(--r-s); display: flex; align-items: center; justify-content: center; font-size: 10px; flex: none; margin-top: 1px; }
+  .rp-ic.ok { color: var(--sem-success); background: rgba(74,222,128,0.14); }
+  .rp-ic.warn { color: var(--sem-warning); background: rgba(251,191,36,0.14); }
+  .rp-ic.err { color: var(--sem-error); background: rgba(248,113,113,0.14); }
+  .rp-ic.none { color: var(--t-disabled); background: rgba(255,255,255,0.05); }
+  .rp-tx { color: var(--t-secondary); line-height: 1.4; }
+  .rp-tx .jump { display: inline-block; font-size: 10px; color: var(--t-accent); margin-top: 2px; border-bottom: 1px dashed rgba(124,154,255,0.5); }
+  .rp-rel { margin-top: var(--s4); border-top: 1px solid var(--b-subtle); padding-top: var(--s3); }
+  .rp-rel .rel-cap { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--t-tertiary); margin-bottom: 6px; }
+  .rp-rel a { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t-accent); padding: 4px 0; }
+  .rp-rel a .ri { color: var(--t-tertiary); width: 14px; text-align: center; flex: none; }
+
+  /* ——— аналитика ——— */
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s4); }
+  @media (max-width: 820px){ .kpis { grid-template-columns: repeat(2,1fr); } }
+  .kpi { background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l); padding: var(--s4); }
+  .kpi .cap { font-size: 11px; color: var(--t-tertiary); letter-spacing: 0.03em; }
+  .kpi .num { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin: 6px 0 2px; font-variant-numeric: tabular-nums; }
+  .kpi .num small { font-size: 14px; font-weight: 600; color: var(--t-tertiary); }
+  .kpi .delta { font-size: 11px; font-family: var(--font-mono); }
+  .kpi .delta.up { color: var(--sem-success); } .kpi .delta.down { color: var(--sem-warning); }
+  .kpi svg { margin-top: var(--s3); display: block; width: 100%; height: 34px; }
+
+  .small-mult { margin-top: var(--s5); background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l); padding: var(--s5); }
+  .small-mult h3 { font-size: 14px; font-weight: 600; margin: 0 0 var(--s2); }
+  .small-mult .sub { font-size: 12px; color: var(--t-tertiary); margin: 0 0 var(--s5); }
+  .bars { display: grid; grid-template-columns: repeat(8, 1fr); gap: var(--s3); align-items: end; }
+  @media (max-width: 640px){ .bars { grid-template-columns: repeat(4,1fr); } }
+  .bar-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bar-track { width: 100%; height: 84px; display: flex; align-items: flex-end; }
+  .bar-fill { width: 100%; border-radius: 3px 3px 0 0; background: linear-gradient(180deg, rgba(47,92,255,0.85), rgba(47,92,255,0.35)); }
+  .bar-fill.warn { background: linear-gradient(180deg, rgba(251,191,36,0.85), rgba(251,191,36,0.3)); }
+  .bar-cell .bl { font-size: 9px; color: var(--t-tertiary); letter-spacing: 0.02em; }
+  .bar-cell .bv { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* лог-панель */
+  .logwin { margin-top: var(--s5); }
+  .log-head { display: flex; align-items: center; gap: var(--s2); padding: var(--s3) var(--s4); border-bottom: 1px solid var(--b-subtle); background: var(--bg-surface); }
+  .log-head .live { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--brand-cyan); }
+  .log-head .live i { width: 7px; height: 7px; border-radius: var(--r-full); background: var(--brand-cyan); box-shadow: var(--glow-live); animation: pulse 1.8s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce){ .log-head .live i { animation: none; } }
+  .log { font-family: var(--font-mono); font-size: 12px; line-height: 1.7; padding: var(--s3) var(--s4); background: var(--bg-surface); color: var(--t-secondary); overflow-x: auto; }
+  .log .l { display: flex; gap: var(--s3); white-space: pre; }
+  .log .ts { color: var(--t-disabled); }
+  .log .ok { color: var(--sem-success); } .log .cy { color: var(--brand-cyan); } .log .wr { color: var(--sem-warning); } .log .dim { color: var(--t-tertiary); }
+  .log-pill { display: inline-flex; align-items: center; gap: 6px; margin: var(--s3) var(--s4) 0; padding: 3px 10px; border-radius: var(--r-full); background: rgba(47,92,255,0.14); border: 1px solid rgba(47,92,255,0.3); color: var(--t-accent); font-size: 11px; }
+
+  .caption { font-size: 12px; line-height: 1.65; color: var(--t-tertiary); margin-top: var(--s3); max-width: 92ch; }
+  .caption b { color: var(--t-secondary); font-weight: 600; }
+  .caption code { font-family: var(--font-mono); }
+
+  footer.note { margin-top: var(--s10); padding-top: var(--s5); border-top: 1px solid var(--b-subtle); color: var(--t-tertiary); font-size: 12px; line-height: 1.6; max-width: 74ch; }
+  footer.note code { font-family: var(--font-mono); color: var(--t-accent); }
+
+  /* ——— §5 состояния и экстремумы ——— */
+  .states-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4); }
+  @media (max-width: 900px){ .states-grid { grid-template-columns: 1fr; } }
+  .state-card {
+    background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l);
+    padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); min-height: 150px;
+  }
+  .state-card .sc-cap { font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--t-tertiary); }
+  .state-card .sc-note { font-size: 11px; color: var(--t-tertiary); margin-top: auto; line-height: 1.5; }
+  .state-card .sc-note b { color: var(--t-secondary); font-weight: 600; }
+  .btn-col { display: flex; flex-direction: column; gap: var(--s2); align-items: flex-start; }
+  .btn-line { display: flex; align-items: center; gap: var(--s2); }
+  .btn-line .bl-cap { font-size: 11px; color: var(--t-tertiary); font-family: var(--font-mono); min-width: 62px; }
+  .btn.on-glow { box-shadow: var(--glow-accent); }
+  .btn.pressed { background: #2749c9; }
+  .btn.disabled { background: rgba(255,255,255,0.08); color: var(--t-disabled); }
+  .btn.loading { background: var(--brand-ultramarine); color: rgba(255,255,255,0.7); }
+  .spin { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.35); border-top-color: #fff; display: inline-block; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){ .spin { animation: none; } }
+
+  .demo-row { display: flex; flex-direction: column; gap: 4px; }
+  .drow { display: flex; align-items: center; gap: var(--s2); height: 30px; padding: 0 var(--s2); border-radius: var(--r-m); font-size: 12px; color: var(--t-secondary); }
+  .drow.rest {} .drow.hover { background: rgba(255,255,255,0.06); }
+  .drow.sel { background: rgba(47,92,255,0.14); color: var(--t-primary); }
+  .drow.focus { background: rgba(47,92,255,0.14); color: var(--t-primary); outline: 2px solid var(--brand-ultramarine); outline-offset: 2px; }
+  .drow .m { font-family: var(--font-mono); font-size: 11px; }
+  .drow .dp { color: var(--t-tertiary); font-size: 11px; width: 12px; text-align: center; flex: none; }
+
+  .field-demo { background: var(--bg-base); border: 1px solid var(--b-default); border-radius: var(--r-m); padding: 7px 10px; font-size: 12px; color: var(--t-tertiary); }
+  .field-demo.focus { border-color: var(--brand-ultramarine); outline: 2px solid rgba(47,92,255,0.4); outline-offset: 1px; color: var(--t-primary); }
+
+  .chips-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s2); text-align: center; padding: var(--s4) 0; flex: 1; }
+  .empty .big-orb { width: 40px; height: 40px; border-radius: var(--r-full);
+    background: radial-gradient(circle at 35% 30%, var(--brand-cyan), var(--brand-ultramarine) 45%, var(--brand-purple) 78%, var(--brand-magenta));
+    box-shadow: 0 0 14px rgba(88,199,255,0.4), 0 0 30px rgba(139,92,246,0.3); }
+  .empty .glyph { width: 40px; height: 40px; border-radius: var(--r-m); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--t-disabled); border: 1.5px solid var(--b-default); }
+  .empty .et { font-size: 13px; color: var(--t-secondary); } .empty .es { font-size: 11px; color: var(--t-tertiary); max-width: 26ch; }
+
+  .extreme-row { display: grid; grid-template-columns: auto 1fr auto; gap: 4px var(--s2); align-items: center; padding: 6px var(--s2); border-radius: var(--r-m); }
+  .extreme-row:hover { background: rgba(255,255,255,0.06); }
+  .extreme-row .st { width: 8px; height: 8px; border-radius: 50%; }
+  .extreme-row .nm { font-family: var(--font-mono); font-size: 12px; color: var(--t-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .extreme-row .ct { font-size: 11px; }
+
+  .degraded { display: flex; align-items: flex-start; gap: var(--s2); padding: var(--s2) var(--s3); border-radius: var(--r-m); font-size: 12px; line-height: 1.4; }
+  .degraded.warn { background: rgba(251,191,36,0.10); border: 1px solid rgba(251,191,36,0.28); color: var(--t-secondary); }
+  .degraded.err { background: rgba(248,113,113,0.10); border: 1px solid rgba(248,113,113,0.28); color: var(--t-secondary); }
+  .degraded .di { flex: none; } .degraded.warn .di { color: var(--sem-warning); } .degraded.err .di { color: var(--sem-error); }
+  .degraded a { color: var(--t-accent); text-decoration: none; }
+
+  .skel-line { height: 10px; border-radius: 3px; background: rgba(255,255,255,0.06); animation: skelpulse 2s ease-in-out infinite; }
+  @keyframes skelpulse { 0%,100%{ opacity:0.45; } 50%{ opacity:0.9; } }
+  @media (prefers-reduced-motion: reduce){ .skel-line { animation: none; } }
+
+  /* ——— §6 канбан-борд ——— */
+  .board { display: grid; grid-auto-flow: column; grid-auto-columns: 168px; gap: var(--s3); padding: var(--s4); overflow-x: auto; background: var(--bg-base); }
+  .kb-col { display: flex; flex-direction: column; gap: var(--s2); min-height: 420px; }
+  .kb-col-head { display: flex; align-items: center; gap: 6px; padding: 4px 6px; position: sticky; top: 0; }
+  .kb-col-head .kbt { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--t-secondary); }
+  .kb-col-head .kbn { font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; margin-left: auto; }
+  .kb-col-head .kdot { width: 6px; height: 6px; border-radius: 50%; background: var(--t-disabled); }
+  .kb-col.now .kdot { background: var(--brand-ultramarine); }
+  .kb-card {
+    background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l);
+    padding: var(--s3); display: flex; flex-direction: column; gap: 6px; cursor: default;
+  }
+  .kb-card:hover { border-color: var(--b-strong); background: #100e18; }
+  .kb-card.now { border-color: rgba(47,92,255,0.5); box-shadow: inset 0 0 0 1px rgba(47,92,255,0.25); }
+  .kb-card.drag { border-color: var(--b-strong); opacity: 0.9; transform: rotate(-1.5deg); box-shadow: 0 16px 32px -8px rgba(0,0,0,0.8); }
+  /* карта = мнемо-имя основным, ветка вторичной, пиктограмма типа (парность с §1); колонка = стадия, чип стадии не дублируем */
+  .kb-card .kc-top { display: flex; align-items: flex-start; gap: 5px; min-width: 0; }
+  .kb-card .kc-pict { color: var(--t-tertiary); font-size: 11px; width: 12px; text-align: center; flex: none; line-height: 1.4; }
+  .kb-card .kc-title { font-size: 12px; font-weight: 600; line-height: 1.3; color: var(--t-primary); min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .kb-card .kc-branch { font-family: var(--font-mono); font-size: 10px; color: var(--t-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kb-card .kc-meta { display: flex; align-items: center; gap: 6px; }
+  .kb-card .kc-foot { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
+  .kb-slot { border: 1.5px dashed rgba(47,92,255,0.5); border-radius: var(--r-l); height: 54px; background: rgba(47,92,255,0.06); }
+  .mini-av { width: 16px; height: 16px; border-radius: 50%; background: rgba(47,92,255,0.2); border: 1px solid rgba(47,92,255,0.4); display: inline-flex; align-items: center; justify-content: center; font-size: 8px; color: var(--t-accent); }
+
+  /* оверлей-инспектор поверх борда */
+  .overlay-demo { position: relative; }
+  .board-scrim { position: absolute; inset: 0; background: rgba(0,0,0,0.45); border-radius: 0 0 var(--r-xl) var(--r-xl); }
+  .overlay-insp {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 340px; background: var(--bg-overlay);
+    border-left: 1px solid var(--b-default); box-shadow: -20px 0 50px -10px rgba(0,0,0,0.7);
+    display: flex; flex-direction: column;
+  }
+  @media (max-width: 720px){ .overlay-insp { width: 100%; } }
+
+  /* ——— §7 мульти-окно ——— */
+  .scene {
+    position: relative; border-radius: var(--r-xl); padding: var(--s6);
+    background:
+      radial-gradient(60% 50% at 20% 0%, rgba(47,92,255,0.14), transparent 60%),
+      radial-gradient(50% 50% at 90% 100%, rgba(214,92,255,0.10), transparent 60%),
+      #060510;
+    border: 1px solid var(--b-subtle); overflow: hidden;
+  }
+  .stage-row { display: grid; grid-template-columns: 1.15fr 1fr; gap: var(--s5); align-items: start; }
+  @media (max-width: 820px){ .stage-row { grid-template-columns: 1fr; } }
+  .win.sm { box-shadow: 0 30px 60px -20px rgba(0,0,0,0.7); }
+  .win.sm.focused { box-shadow: 0 30px 70px -16px rgba(0,0,0,0.8), 0 0 0 1px rgba(47,92,255,0.3); }
+  .win.sm .titlebar { height: 36px; }
+  .win.sm.dim { opacity: 0.72; }
+  .winlabel { font-size: 11px; font-family: var(--font-mono); color: var(--t-accent); margin-bottom: 6px; display: block; }
+  .mini-list-row { display: flex; align-items: center; gap: var(--s2); padding: 7px var(--s3); border-bottom: 1px solid var(--b-subtle); font-size: 12px; }
+  .mini-list-row.sel { background: rgba(47,92,255,0.14); box-shadow: inset 2px 0 0 var(--brand-ultramarine); }
+  .mini-list-row .mb { font-family: var(--font-mono); font-size: 11px; color: var(--t-secondary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mini-list-row .mpict { color: var(--t-tertiary); font-size: 11px; width: 12px; text-align: center; flex: none; }
+  .mini-list-row .mm { font-size: 12px; color: var(--t-secondary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mini-list-row.sel .mm { color: var(--t-primary); }
+
+  /* ——— §8 оверлеи ——— */
+  .overlays-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4); }
+  @media (max-width: 900px){ .overlays-grid { grid-template-columns: 1fr; } }
+  .ov-stage { position: relative; background: var(--bg-base); border: 1px solid var(--b-subtle); border-radius: var(--r-l); min-height: 276px; padding: var(--s4); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .ov-scrim { position: absolute; inset: 0; background: rgba(0,0,0,0.45); }
+  .ov-label { position: absolute; top: 10px; left: 12px; font-size: 11px; font-family: var(--font-mono); color: var(--t-accent); z-index: 2; }
+
+  .cmdk { position: relative; z-index: 1; width: 100%; max-width: 300px; background: var(--bg-raised); border: 1px solid var(--b-default); border-radius: var(--r-l); box-shadow: 0 20px 50px -12px rgba(0,0,0,0.8); overflow: hidden; }
+  .cmdk-input { display: flex; align-items: center; gap: var(--s2); padding: var(--s3); border-bottom: 1px solid var(--b-subtle); font-size: 13px; color: var(--t-tertiary); }
+  .cmdk-input .k { margin-left: auto; font-family: var(--font-mono); font-size: 11px; }
+  .cmdk-sec { font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--t-tertiary); padding: 8px 12px 2px; }
+  .cmdk-item { display: flex; align-items: center; gap: var(--s2); padding: 8px var(--s3); font-size: 13px; color: var(--t-secondary); }
+  .cmdk-item.on { background: rgba(47,92,255,0.14); color: var(--t-primary); }
+  .cmdk-item .i { width: 16px; text-align: center; color: var(--t-tertiary); }
+  .cmdk-item.on .i { color: var(--t-accent); }
+  .cmdk-item .k { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--t-tertiary); }
+  .cmdk-foot { display: flex; gap: var(--s3); padding: 8px var(--s3); border-top: 1px solid var(--b-subtle); font-size: 10px; color: var(--t-tertiary); }
+  .cmdk-foot span { display: inline-flex; align-items: center; gap: 4px; }
+  .cmdk-foot kbd { font-family: var(--font-mono); color: var(--t-secondary); }
+
+  .toast { position: relative; z-index: 1; display: flex; align-items: center; gap: var(--s3); background: var(--bg-raised); border: 1px solid var(--b-default); border-radius: var(--r-l); padding: var(--s3); box-shadow: 0 16px 40px -12px rgba(0,0,0,0.8); overflow: hidden; }
+  .toast .ic { color: var(--sem-success); flex: none; }
+  .toast .tx { font-size: 13px; color: var(--t-secondary); }
+  .toast .tx b { color: var(--t-primary); font-family: var(--font-mono); font-weight: 600; font-size: 12px; }
+  .toast .undo { margin-left: var(--s2); color: var(--t-accent); font-size: 12px; border: 1px solid var(--b-strong); border-radius: var(--r-m); padding: 3px 10px; white-space: nowrap; }
+  .toast .bar { position: absolute; left: 0; bottom: 0; height: 2px; width: 62%; background: var(--brand-ultramarine); opacity: 0.6; }
+
+  .modal { position: relative; z-index: 1; width: 100%; max-width: 300px; background: var(--bg-overlay); border: 1px solid var(--b-default); border-radius: var(--r-xl); padding: var(--s4); box-shadow: 0 24px 60px -12px rgba(0,0,0,0.85); }
+  .modal h4 { font-size: 16px; font-weight: 600; margin: 0 0 var(--s2); }
+  .modal p { font-size: 13px; color: var(--t-secondary); margin: 0 0 var(--s4); line-height: 1.5; }
+  .modal .mbtns { display: flex; gap: var(--s2); justify-content: flex-end; }
+
+  /* ——— §4 аналитика v2 (синтез референсов через канон) ——— */
+  .kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s3); }
+  .kpi-ic { width: 28px; height: 28px; border-radius: var(--r-m); background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--t-secondary); }
+  .delta-pill { font-size: 11px; font-family: var(--font-mono); padding: 2px 7px; border-radius: var(--r-full); display: inline-flex; gap: 3px; align-items: center; }
+  .delta-pill.up { color: var(--sem-success); background: rgba(74,222,128,0.14); }
+  .delta-pill.down { color: var(--sem-warning); background: rgba(251,191,36,0.14); }
+  .kpi .prev { font-size: 11px; color: var(--t-tertiary); margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+  .hero-chart { margin-top: var(--s5); background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l); padding: var(--s5); }
+  .hc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; margin-bottom: var(--s4); }
+  .hc-title { font-size: 14px; font-weight: 600; }
+  .hc-big { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; margin: 4px 0 2px; }
+  .hc-sub { font-size: 12px; color: var(--t-tertiary); }
+  .hero-chart svg { display: block; width: 100%; height: auto; }
+
+  .analytics-two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); margin-top: var(--s4); }
+  @media (max-width: 820px){ .analytics-two { grid-template-columns: 1fr; } }
+  .apanel { background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l); padding: var(--s5); }
+  .apanel h3 { font-size: 14px; font-weight: 600; margin: 0 0 var(--s1); }
+  .apanel .sub { font-size: 12px; color: var(--t-tertiary); margin: 0 0 var(--s4); }
+
+  /* пропорц-бар тик-сегментами (Activity Summary → канон) */
+  .prop-bar { display: flex; gap: 3px; height: 16px; margin-bottom: var(--s4); }
+  .prop-seg { border-radius: 3px; background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.22) 0 1.5px, transparent 1.5px 5px); }
+  .prop-legend { display: flex; flex-direction: column; gap: var(--s2); }
+  .pl-row { display: grid; grid-template-columns: 10px 1fr auto auto; align-items: center; gap: var(--s2); font-size: 12px; }
+  .pl-row .pd { width: 8px; height: 8px; border-radius: 2px; }
+  .pl-row .pn { color: var(--t-secondary); }
+  .pl-row .pc { font-family: var(--font-mono); color: var(--t-primary); }
+  .pl-row .pp { font-family: var(--font-mono); color: var(--t-tertiary); width: 38px; text-align: right; }
+
+  /* health-scorecard (NextGen → канон): лейбл + сегмент-бар + счётчик */
+  .sc-summary { display: flex; gap: var(--s3); font-size: 11px; color: var(--t-tertiary); margin-bottom: var(--s4); }
+  .sc-summary b { font-variant-numeric: tabular-nums; }
+  .scorecard { display: flex; flex-direction: column; gap: var(--s3); }
+  .sc-row { display: grid; grid-template-columns: 116px 1fr 34px; align-items: center; gap: var(--s3); }
+  .sc-lbl { font-size: 12px; color: var(--t-secondary); display: flex; align-items: center; gap: 6px; }
+  .sc-track { height: 8px; border-radius: var(--r-full); background: rgba(255,255,255,0.06); overflow: hidden; }
+  .sc-fill { height: 100%; border-radius: var(--r-full); }
+  .sc-count { font-family: var(--font-mono); font-size: 12px; color: var(--t-primary); text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* история прогонов: таймлайн-скаттер + карточка (Notion-automation → канон) */
+  .runhist { margin-top: var(--s4); background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l); padding: var(--s5); }
+  .rh-plot { position: relative; height: 150px; margin-top: var(--s4); }
+  .rh-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 100% 50px; }
+  .rh-ylab { position: absolute; left: 0; font-size: 10px; color: var(--t-tertiary); font-family: var(--font-mono); transform: translateY(-50%); }
+  .rh-dot { position: absolute; width: 9px; height: 9px; border-radius: var(--r-full); transform: translate(-50%,-50%); background: rgba(255,255,255,0.22); }
+  .rh-dot.ok { background: var(--sem-success); }
+  .rh-dot.err { background: var(--sem-error); }
+  .rh-dot.live { background: var(--brand-cyan); animation: pulse 1.8s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce){ .rh-dot.live { animation: none; } }
+  .rh-xaxis { display: flex; justify-content: space-between; margin-top: var(--s2); font-size: 10px; color: var(--t-tertiary); }
+  .rh-card { position: absolute; width: 232px; background: var(--bg-raised); border: 1px solid var(--b-default); border-radius: var(--r-l); box-shadow: 0 16px 40px -12px rgba(0,0,0,0.8); padding: var(--s3); z-index: 2; }
+  .rh-card .rc-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .rh-card .rc-t { font-size: 13px; font-weight: 600; }
+  .rh-card .rc-time { font-size: 11px; color: var(--t-tertiary); font-family: var(--font-mono); }
+  .rh-card .rc-desc { font-size: 12px; color: var(--t-secondary); margin: 6px 0 var(--s3); line-height: 1.45; }
+  .rh-card .rc-btns { display: flex; gap: var(--s2); }
+  .rh-card .rc-btns .btn { flex: 1; justify-content: center; height: 26px; }
+  .rh-card .rc-pager { display: flex; justify-content: space-between; align-items: center; margin-top: var(--s2); font-size: 11px; color: var(--t-tertiary); }
+  /* график как орган пакетного выбора: протяжка по диапазону → массовое действие (Superpedestrian) */
+  .rh-brush { position: absolute; top: 0; bottom: 0; z-index: 1; border-radius: var(--r-s);
+    background: rgba(47,92,255,0.10); border-left: 1.5px solid rgba(47,92,255,0.55); border-right: 1.5px solid rgba(47,92,255,0.55); }
+  .rh-brush .bh { position: absolute; top: 50%; width: 6px; height: 22px; border-radius: 3px; background: var(--brand-ultramarine); transform: translateY(-50%); }
+  .rh-brush .bh.l { left: -4px; } .rh-brush .bh.r { right: -4px; }
+  .rh-dot.sel { box-shadow: 0 0 0 3px rgba(47,92,255,0.35); }
+  .rh-batchbar { display: flex; align-items: center; gap: var(--s3); margin-top: var(--s3); padding: 6px 6px 6px var(--s3);
+    background: var(--bg-overlay); border: 1px solid var(--b-default); border-radius: var(--r-full); }
+  .rh-batchbar .bb-tx { font-size: 12px; color: var(--t-secondary); }
+  .rh-batchbar .bb-tx b { color: var(--t-primary); font-variant-numeric: tabular-nums; }
+  .rh-batchbar .bb-tx .fail { color: var(--sem-warning); }
+  .rh-batchbar .bb-sp { flex: 1; }
+  .rh-batchbar .btn { height: 26px; }
+  .rh-batchbar .bb-x { width: 24px; height: 24px; border-radius: var(--r-full); display: flex; align-items: center; justify-content: center; color: var(--t-tertiary); font-size: 12px; }
+
+  /* ——— §9 flow-map пайплайна (FlexiFo/Aivora → канон) ——— */
+  .flowwrap { display: grid; grid-template-columns: 1fr 252px; }
+  @media (max-width: 860px){ .flowwrap { grid-template-columns: 1fr; } }
+  .flow-canvas { position: relative; height: 380px; overflow: hidden;
+    background: radial-gradient(70% 90% at 30% 8%, rgba(47,92,255,0.08), transparent 60%), var(--bg-base);
+    border-right: 1px solid var(--b-subtle); }
+  @media (max-width: 860px){ .flow-canvas { border-right: none; border-bottom: 1px solid var(--b-subtle); } }
+  .flow-canvas svg.edges { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+  .fnode { position: absolute; width: 19.6%; height: 16.8%; min-height: 58px;
+    background: var(--bg-raised); border: 1px solid var(--b-default); border-radius: var(--r-l);
+    padding: 8px 10px; display: flex; flex-direction: column; justify-content: center; gap: 2px; z-index: 2; }
+  .fnode.sel { border-color: rgba(47,92,255,0.55); box-shadow: 0 0 0 1px rgba(47,92,255,0.45), var(--glow-accent); }
+  .fnode.empty { opacity: 0.5; border-style: dashed; background: transparent; }
+  .fn-top { display: flex; align-items: center; gap: 6px; }
+  .fn-ic { width: 22px; height: 22px; flex: none; border-radius: var(--r-s); background: rgba(47,92,255,0.16);
+    color: var(--t-accent); display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .fn-name { font-size: 12.5px; font-weight: 600; color: var(--t-primary); }
+  .fn-mk { margin-left: auto; font-size: 11px; line-height: 1; }
+  .fn-mk.ok { color: var(--sem-success); }
+  .fn-mk.warn { color: var(--sem-warning); }
+  .fn-mk.err { color: var(--sem-error); }
+  .fn-mk.live { color: var(--brand-cyan); animation: pulse 1.8s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce){ .fn-mk.live { animation: none; } }
+  .fn-meta { font-size: 11px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; padding-left: 28px; }
+  .fl-term { position: absolute; z-index: 2; display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-family: var(--font-mono); padding: 3px 9px; border-radius: var(--r-full); transform: translate(-50%,-50%); white-space: nowrap; }
+  .fl-term.ok { color: var(--sem-success); background: rgba(74,222,128,0.14); border: 1px solid rgba(74,222,128,0.3); }
+  .fl-term.start { color: var(--t-tertiary); background: rgba(255,255,255,0.05); border: 1px solid var(--b-subtle); }
+  .fl-elabel { position: absolute; z-index: 2; font-size: 10px; font-family: var(--font-mono);
+    color: var(--sem-warning); background: var(--bg-base); padding: 1px 5px; transform: translate(-50%,-50%); white-space: nowrap; }
+  .flow-insp { padding: var(--s4); display: flex; flex-direction: column; gap: var(--s2); }
+  .fi-head { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .fi-sub { font-size: 11px; color: var(--t-tertiary); margin-bottom: var(--s2); }
+  .fi-row { display: flex; align-items: center; gap: var(--s2); padding: 9px 0; border-top: 1px solid var(--b-subtle); font-size: 12px; }
+  .fi-row .mb { font-family: var(--font-mono); font-size: 11px; color: var(--t-secondary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fi-row .st { font-size: 11px; flex: none; }
+  .fi-row .st.live { color: var(--brand-cyan); }
+  .fi-row .st.warn { color: var(--sem-warning); }
+  .fi-note { font-size: 11px; color: var(--t-tertiary); line-height: 1.5; margin-top: auto; padding-top: var(--s3); }
+  .fi-btns { display: flex; gap: var(--s2); margin-top: var(--s3); }
+  .fi-btns .btn { flex: 1; justify-content: center; height: 28px; }
+
+  /* ——— §10 настройки: плотность/тема/поведение (Untitled UI → канон) ——— */
+  .setgrid { display: grid; grid-template-columns: 190px 1fr; }
+  @media (max-width: 760px){ .setgrid { grid-template-columns: 1fr; } }
+  .set-nav { border-right: 1px solid var(--b-subtle); padding: var(--s3); display: flex; flex-direction: column; gap: 2px; }
+  @media (max-width: 760px){ .set-nav { border-right: none; border-bottom: 1px solid var(--b-subtle); flex-direction: row; flex-wrap: wrap; } }
+  .set-nav a { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: var(--r-m); font-size: 13px; color: var(--t-secondary); }
+  .set-nav a .i { width: 16px; text-align: center; color: var(--t-tertiary); }
+  .set-nav a.on { background: rgba(47,92,255,0.14); color: var(--t-primary); box-shadow: inset 2px 0 0 var(--brand-ultramarine); }
+  .set-nav a.on .i { color: var(--t-accent); }
+  .set-body { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s6); }
+  .set-sec > .cap { font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--t-tertiary); margin-bottom: 4px; }
+  .set-sec > .subcap { font-size: 12px; color: var(--t-tertiary); margin: 0 0 var(--s3); }
+  .density-row, .theme-row { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--s3); }
+  @media (max-width: 620px){ .density-row, .theme-row { grid-template-columns: 1fr; } }
+  .dcard { border: 1px solid var(--b-default); border-radius: var(--r-l); padding: var(--s3); background: var(--bg-surface); }
+  .dcard.sel { border-color: rgba(47,92,255,0.55); box-shadow: 0 0 0 1px rgba(47,92,255,0.45); background: rgba(47,92,255,0.06); }
+  .dc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .dc-name { font-size: 13px; font-weight: 600; }
+  .dc-radio { width: 16px; height: 16px; border-radius: var(--r-full); border: 1.5px solid var(--b-strong); flex: none; }
+  .dcard.sel .dc-radio { border-color: var(--brand-ultramarine); background: radial-gradient(circle, var(--brand-ultramarine) 0 40%, transparent 46%); }
+  .dc-prev { border-radius: var(--r-s); background: var(--bg-base); border: 1px solid var(--b-subtle); padding: 8px; display: flex; flex-direction: column; }
+  .dc-prev .pr { height: 6px; border-radius: 2px; background: rgba(255,255,255,0.13); }
+  .dc-prev .pr.a { background: rgba(124,154,255,0.5); }
+  .dc-meta { font-size: 11px; color: var(--t-tertiary); font-family: var(--font-mono); margin-top: 8px; }
+  .tcard { border: 1px solid var(--b-default); border-radius: var(--r-l); padding: var(--s3); }
+  .tcard.sel { border-color: rgba(47,92,255,0.55); box-shadow: 0 0 0 1px rgba(47,92,255,0.45); }
+  .tcard.locked { opacity: 0.55; }
+  .tc-win { height: 62px; border-radius: var(--r-s); border: 1px solid var(--b-subtle); overflow: hidden; display: flex; flex-direction: column; }
+  .tc-bar { height: 13px; display: flex; align-items: center; gap: 3px; padding: 0 5px; }
+  .tc-bar i { width: 5px; height: 5px; border-radius: var(--r-full); }
+  .tc-body { flex: 1; position: relative; }
+  .tc-orb { position: absolute; width: 20px; height: 20px; border-radius: var(--r-full); right: 8px; bottom: 8px;
+    background: radial-gradient(circle at 35% 30%, #9db4ff, #2F5CFF 60%, #6a2fff); }
+  .tcard.sel .tc-orb { box-shadow: 0 0 10px rgba(47,92,255,0.55); }
+  .tc-name { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; font-size: 12px; }
+  .tc-name .lock { color: var(--t-tertiary); }
+  .toggle-list { display: flex; flex-direction: column; }
+  .tg-row { display: flex; align-items: center; gap: var(--s3); padding: 12px 0; border-top: 1px solid var(--b-subtle); }
+  .tg-row:first-child { border-top: none; }
+  .tg-row .tg-tx { flex: 1; }
+  .tg-row .tg-tx b { font-size: 13px; font-weight: 500; display: block; }
+  .tg-row .tg-tx span { font-size: 11.5px; color: var(--t-tertiary); }
+  .tg-row .tg-tx code { font-family: var(--font-mono); color: var(--t-accent); font-size: 11px; }
+  .sw { width: 36px; height: 21px; border-radius: var(--r-full); background: rgba(255,255,255,0.14); position: relative; flex: none; }
+  .sw::after { content: ""; position: absolute; width: 17px; height: 17px; border-radius: var(--r-full); background: #fff; top: 2px; left: 2px; }
+  .sw.on { background: var(--brand-ultramarine); }
+  .sw.on::after { left: 17px; }
+
+  /* появление */
+  @media (prefers-reduced-motion: no-preference){
+    .win, .variant, .kpi, .small-mult { animation: rise 0.5s ease-out both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  }
+</style>
+
+<div class="page">
+<div class="wrap">
+
+  <div class="eyebrow"><span class="dot"></span> foundry-desktop · UI-макеты · тёмная тема</div>
+  <h1 class="page-title">Пульт управления <em>лупами CRISPY</em></h1>
+  <p class="lede">
+    Один эксперт-разработчик держит десяток параллельных change'ей в восьми стадиях пайплайна.
+    Экран отвечает на три вопроса без единого клика: что горит, что ждёт ревью, что пишется прямо сейчас.
+    Всё — из токенов <code style="font-family:var(--font-mono);color:var(--t-accent)">13-tokens.md</code>; ни одного сырого значения.
+  </p>
+
+  <div class="legend">
+    <div class="legend-group">
+      <span class="cap">Поверхности · elevation светлотой</span>
+      <div class="swatches">
+        <span class="swatch"><i style="background:#07060B"></i>base</span>
+        <span class="swatch"><i style="background:#0D0C14"></i>surface</span>
+        <span class="swatch"><i style="background:#14121E"></i>raised</span>
+        <span class="swatch"><i style="background:#1B1828"></i>overlay</span>
+      </div>
+    </div>
+    <div class="legend-group">
+      <span class="cap">Бренд · орб «свет в темноте»</span>
+      <div class="swatches">
+        <span class="swatch"><i style="background:#2F5CFF"></i>ультрамарин</span>
+        <span class="swatch"><i style="background:#8B5CF6"></i>пурпур</span>
+        <span class="swatch"><i style="background:#D65CFF"></i>маджента</span>
+        <span class="swatch"><i style="background:#58C7FF"></i>циан</span>
+      </div>
+    </div>
+    <div class="legend-group">
+      <span class="cap">Семантика = состояние + форма</span>
+      <div class="swatches">
+        <span class="swatch"><i style="background:#4ADE80"></i>принято</span>
+        <span class="swatch"><i style="background:#FBBF24"></i>на доработку</span>
+        <span class="swatch"><i style="background:#F87171"></i>ошибка</span>
+        <span class="swatch"><i style="background:#58C7FF"></i>живое</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ——————————————————— §1 ГЛАВНОЕ ОКНО ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">01 — основной макет</span>
+      <h2>Главное окно: сайдбар · инбокс ревью · инспектор</h2>
+      <p>Асимметричный трёхпанельник по мотиву «Секьюриджи»: узкий список слева, широкая деталь справа, а зона «требуют внимания» всегда прижата к верху и не тонет в потоке. Плотность десктопная, хром — системный Liquid Glass, данные — на <code style="font-family:var(--font-mono);font-size:11px;color:var(--t-accent)">bg.base</code>.</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — ревью</span>
+        <div class="spacer"></div>
+        <span class="tb-btn icon" title="Поиск ⌘K">⌕</span>
+        <span class="tb-btn icon" title="Новый change">＋</span>
+      </div>
+
+      <div class="three">
+        <!-- сайдбар -->
+        <aside class="pane sidebar">
+          <div class="side-sec">
+            <div class="side-label">Проекты</div>
+            <div class="side-item sel"><span class="ico">◆</span><span class="grow">foundry-desktop</span><span class="count pill">3</span></div>
+            <div class="side-item"><span class="ico">◆</span><span class="grow">crispy-core</span><span class="count pill">2</span></div>
+            <div class="side-item"><span class="ico">◇</span><span class="grow">memory-vault</span><span class="count">1</span></div>
+            <div class="side-item"><span class="ico">◇</span><span class="grow">books</span></div>
+          </div>
+          <div class="side-sec">
+            <div class="side-label">Фильтр очереди</div>
+            <div class="side-item sel"><span class="ico">▾</span><span class="grow">Все на ревью</span><span class="count pill">5</span></div>
+            <div class="side-item"><span class="ico">⚑</span><span class="grow">Требуют решения</span><span class="count" style="color:var(--sem-warning)">2</span></div>
+            <div class="side-item"><span class="ico">◷</span><span class="grow">Ждут твоего ревью</span><span class="count">3<span class="base">/2</span></span></div>
+            <div class="side-item"><span class="ico">◉</span><span class="grow">Пишутся сейчас</span><span class="count">2</span></div>
+            <div class="side-item"><span class="ico">✓</span><span class="grow">Готово сегодня</span><span class="count">9</span></div>
+            <div class="side-hint">Клик по счётчику — фильтр списка. Виджет-сводка и есть пульт: отдельной панели фильтров нет.</div>
+          </div>
+          <div class="side-foot"><span class="orb"></span><span>Claude активен · 2 лупа</span></div>
+        </aside>
+
+        <!-- список ревью -->
+        <div class="pane list">
+          <div class="list-head">
+            <span class="filter-token">Все на ревью <span class="x">✕</span></span>
+            <div style="flex:1"></div>
+            <span class="filter-ghost"><span class="fkey">A–Z</span> печатай — фильтр</span>
+            <div class="seg"><span class="on">Инбокс</span><span>Канбан</span><span>Лог</span></div>
+          </div>
+
+          <!-- секции по приоритету, не по проекту (Superpedestrian); заголовки в инфостиле (Бирман) -->
+          <div class="group-cap attn">⚑ Требуют решения <span class="n">· 2</span></div>
+
+          <div class="row2">
+            <div class="r2-dot"><span class="sdot err"></span></div>
+            <div class="r2-name"><span class="r2-pict">⚑</span><span class="r2-title">Контраст по APCA</span></div>
+            <div class="r2-sub">
+              <span class="r2-branch">feat/apc-contrast</span><span class="r2-stage">· PR · CI упал</span>
+            </div>
+            <div class="r2-right">
+              <span class="r2-time">4 мин</span>
+              <div class="r2-b2"><span class="r2-stat"><span class="add">+96</span> <span class="rem">−12</span></span><span class="mini-act pri">Открыть лог</span></div>
+            </div>
+          </div>
+          <div class="row2">
+            <div class="r2-dot"><span class="sdot warn"></span></div>
+            <div class="r2-name"><span class="r2-pict">⚑</span><span class="r2-title">Детектор зависших лупов</span></div>
+            <div class="r2-sub">
+              <span class="r2-branch">fix/loop-stall-detector</span><span class="r2-stage">· Implement · crispy-core</span>
+            </div>
+            <div class="r2-right">
+              <span class="r2-time">40 мин</span>
+              <div class="r2-b2"><span class="r2-stat"><span class="add">+41</span> <span class="rem">−8</span></span><span class="mini-act pri">Прервать</span></div>
+            </div>
+          </div>
+
+          <div class="group-cap">◷ Ждут твоего ревью <span class="n">· 3</span> <span class="norm">· норма 2</span></div>
+
+          <div class="row2 sel">
+            <div class="r2-dot"><span class="sdot wait"></span></div>
+            <div class="r2-name"><span class="r2-pict">✦</span><span class="r2-title">Токены тёмной темы</span></div>
+            <div class="r2-sub">
+              <span class="r2-branch">feat/dark-theme-tokens</span><span class="r2-stage">· Design · стадия 3 из 8</span>
+            </div>
+            <div class="r2-right">
+              <span class="r2-time">12 мин</span>
+              <span class="r2-stat"><span class="add">+214</span> <span class="rem">−38</span></span>
+            </div>
+          </div>
+          <div class="row2">
+            <div class="r2-dot"><span class="sdot wait"></span></div>
+            <div class="r2-name"><span class="r2-pict">⟳</span><span class="r2-title">Хранилище инбокса</span><span class="r2-tag risk">крупный дифф</span></div>
+            <div class="r2-sub">
+              <span class="r2-branch">refactor/inbox-store</span><span class="r2-stage">· Structure · стадия 4 из 8</span>
+            </div>
+            <div class="r2-right">
+              <span class="r2-time">31 мин</span>
+              <span class="r2-stat"><span class="add">+120</span> <span class="rem">−204</span></span>
+            </div>
+          </div>
+          <div class="row2">
+            <div class="r2-dot"><span class="sdot wait"></span></div>
+            <div class="r2-name"><span class="r2-pict">¶</span><span class="r2-title">Стадии CRISPY</span></div>
+            <div class="r2-sub">
+              <span class="r2-branch">docs/crispy-stages</span><span class="r2-stage">· Plan · стадия 5 из 8 · memory-vault</span>
+            </div>
+            <div class="r2-right">
+              <span class="r2-time">1 ч · <span class="anch">★ дольше всех</span></span>
+              <span class="r2-stat"><span class="add">+58</span></span>
+            </div>
+          </div>
+
+          <!-- закреплённая полоса in-flight у нижней кромки (FXPro/Admiral) -->
+          <div class="live-band">
+            <div class="lb-cap">◉ Claude пишет сейчас <span class="n" style="color:var(--t-disabled)">· 2 из 3 слотов</span></div>
+            <div class="row2">
+              <div class="r2-dot"><span class="sdot live"></span></div>
+              <div class="r2-name"><span class="r2-pict">✦</span><span class="r2-title">Орб-лоадер</span></div>
+              <div class="r2-sub">
+                <span class="r2-branch">feat/orb-loader</span><span class="r2-stage">· Implement</span>
+              </div>
+              <div class="r2-right">
+                <span class="r2-time" style="color:var(--brand-cyan)">пишет…</span>
+                <span class="r2-stat dim">+310 …</span>
+              </div>
+            </div>
+            <div class="row2">
+              <div class="r2-dot"><span class="sdot live"></span></div>
+              <div class="r2-name"><span class="r2-pict">⌕</span><span class="r2-title">Liquid Glass</span></div>
+              <div class="r2-sub">
+                <span class="r2-branch">research/liquid-glass</span><span class="r2-stage">· Research · crispy-core</span>
+              </div>
+              <div class="r2-right">
+                <span class="r2-time" style="color:var(--brand-cyan)">ищет…</span>
+                <span class="r2-stat dim">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- инспектор -->
+        <aside class="pane inspector">
+          <div class="insp-head">
+            <div class="branch">feat/dark-theme-tokens</div>
+            <div class="sub"><span>foundry-desktop</span><span>·</span><span>ждёт ревью</span><span>·</span><span>12 мин</span></div>
+          </div>
+
+          <div class="stepper">
+            <div class="step done" title="Questions — пройдена"><span class="node">✓</span></div>
+            <div class="step done" title="Research — пройдена"><span class="node">✓</span></div>
+            <div class="step now" title="Design — текущая"><span class="node">3</span></div>
+            <div class="step" title="Structure"><span class="node">4</span></div>
+            <div class="step" title="Plan"><span class="node">5</span></div>
+            <div class="step" title="Worktree"><span class="node">6</span></div>
+            <div class="step" title="Implement"><span class="node">7</span></div>
+            <div class="step" title="PR"><span class="node">8</span></div>
+          </div>
+          <div class="step-cap"><span>Стадия 3 из 8</span> · <b>Design</b> <span class="nxt">→ Structure</span></div>
+
+          <div class="artifact">
+            <h4>Design · токены тёмной темы</h4>
+            <div class="kv">artifact.md · стадия Design · 214 строк</div>
+            <p>Тема одна — тёмная. Elevation кодируется <b>светлотой</b>, не тенью: четыре поверхности <code>base → surface → raised → overlay</code> с шагом ΔL ≈ 0.03 в OKLCH.</p>
+            <p>Текст — альфа-белый (<code>92 / 70 / 50 / 38%</code>); ни один цвет палитры не идёт текстом — ссылки <code>#7C9AFF</code>.</p>
+            <ul>
+              <li>request changes — <b>warning</b>, не error;</li>
+              <li>«в работе» — циан, «ждёт ревью» — ультрамарин;</li>
+              <li>один glow и один акцент на зону.</li>
+            </ul>
+          </div>
+
+          <div class="actionbar">
+            <div class="comment-field">Комментарий к ревью… <span style="color:var(--t-disabled)">(⌘⏎ — принять)</span></div>
+            <div class="btns">
+              <span class="btn secondary">Вернуть на доработку <kbd>⇧⌘R</kbd></span>
+              <span class="btn primary">Принять <kbd>⌘⏎</kbd></span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+    <div class="caption"><b>Дизайн-решения (каждое — из проекта бюро):</b> строка названа <b>мнемо-именем</b>, а хеш-ветка ушла во вторую строку — «Контраст по APCA» ищется глазом быстрее, чем <code style="font-family:var(--font-mono)">feat/apc-contrast</code> (Admiral). Тип change'а — <b>пиктограмма-якорь</b> в начале, опознаётся периферией (Главбух). Позиция в 8 стадиях CRISPY — <b>словами в строке</b> («стадия 3 из 8»), а графический прогресс не дублируется: живёт в большом степпере инспектора, где заливается объект (Admiral + УВЛ Горбунова — убрать лишний рейл из строки). Секции — <b>по приоритету, не по проекту</b>: решать → ждёт → пишется (Superpedestrian), а заголовки в инфостиле-глаголах (Бирман). Подсвечены ровно <b>две опорные строки</b> — «дольше всех» и «крупный дифф», остальное нейтрально (Onetwotrip). Счётчик в сайдбаре <b>и есть фильтр</b> — отдельной панели нет (Superpedestrian). Число получает <b>базлайн</b>: «3 · норма 2» (Бирман). Live-лупы — <b>в закреплённой полосе</b> у нижней кромки, не вперемешку с очередью (FXPro). Печать где угодно фильтрует — поле не ловит фокус (FXPro).</div>
+  </section>
+
+  <!-- ——————————————————— §2 ВАРИАНТЫ РАСКЛАДКИ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">02 — варианты раскладки</span>
+      <h2>Три схемы под три режима работы</h2>
+      <p>Одно окно ≠ один макет. Инбокс — для «разгрести очередь», канбан — для «увидеть весь пайплайн», мульти-окно — для «глубокое ревью на втором мониторе». Данные и токены общие, меняется композиция.</p>
+    </div>
+
+    <div class="variants">
+      <!-- A -->
+      <div class="variant">
+        <div class="mini">
+          <div class="mini-bar"><i class="r" style="background:#FF5F57"></i><i class="y" style="background:#FEBC2E"></i><i class="g" style="background:#28C840"></i></div>
+          <div class="mini-body">
+            <div class="col-side"><b class="on"></b><b></b><b></b><b style="width:70%"></b></div>
+            <div class="col-list">
+              <span class="skel w-80"></span><span class="skel acc w-60"></span><span class="skel w-80"></span><span class="skel w-60"></span><span class="skel cy w-40"></span>
+            </div>
+            <div class="col-insp"><span class="skel w-60"></span><span class="skel tall"></span><span class="skel w-80"></span><span class="skel acc w-40"></span></div>
+          </div>
+        </div>
+        <span class="tag">A · три панели</span>
+        <h3>Инбокс + инспектор</h3>
+        <p>Дефолт. Разгрести очередь ревью по одному change'у, деталь всегда справа. Ширина от 960px; уже 1100px — инспектор становится overlay.</p>
+      </div>
+
+      <!-- B -->
+      <div class="variant">
+        <div class="mini">
+          <div class="mini-bar"><i class="r" style="background:#FF5F57"></i><i class="y" style="background:#FEBC2E"></i><i class="g" style="background:#28C840"></i></div>
+          <div class="mini-body">
+            <div class="col-side"><b class="on"></b><b></b><b style="width:70%"></b></div>
+            <div class="kanban">
+              <div class="kcol"><span class="bl" style="font-size:7px;color:var(--t-tertiary)"></span><div class="kcard"></div><div class="kcard"></div></div>
+              <div class="kcol"><div class="kcard"></div></div>
+              <div class="kcol"><div class="kcard now"></div><div class="kcard"></div></div>
+              <div class="kcol"><div class="kcard"></div></div>
+              <div class="kcol"><div class="kcard"></div><div class="kcard"></div></div>
+              <div class="kcol"><div class="kcard"></div></div>
+            </div>
+          </div>
+        </div>
+        <span class="tag">B · канбан-борд</span>
+        <h3>Весь пайплайн сразу</h3>
+        <p>8 колонок CRISPY, карточки едут по стадиям, горизонтальный скролл. Деталь — overlay-инспектор поверх борда. Для «где застряло».</p>
+      </div>
+
+      <!-- C -->
+      <div class="variant">
+        <div class="mini">
+          <div class="mini-bar"><i class="r" style="background:#FF5F57"></i><i class="y" style="background:#FEBC2E"></i><i class="g" style="background:#28C840"></i></div>
+          <div class="mini-body">
+            <div class="multi">
+              <div class="float-win fw-1"><div class="fw-bar"></div><div style="padding:6px;display:flex;flex-direction:column;gap:4px"><span class="skel w-80"></span><span class="skel acc w-60"></span><span class="skel w-60"></span></div></div>
+              <div class="float-win fw-2"><div class="fw-bar"></div><div style="padding:6px;display:flex;flex-direction:column;gap:4px"><span class="skel w-60"></span><span class="skel tall"></span><span class="skel w-80"></span><span class="skel w-40"></span></div></div>
+            </div>
+          </div>
+        </div>
+        <span class="tag">C · мульти-окно</span>
+        <h3>Ревью в отдельном окне</h3>
+        <p>Главное окно — очередь; двойной клик по change'у открывает дифф+комменты отдельным окном на втором мониторе. Нативные мак-окна, не имитация.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ——————————————————— §3 РЕВЬЮ АРТЕФАКТА ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">03 — ревью change'а</span>
+      <h2>Дифф с типизированными комментариями</h2>
+      <p>По модели GitHub, но плотнее и на моно-шкале: номера строк tabular и вправо, подсветка синтаксиса на фирменной гамме, слово-в-слово изменения, комментарий привязан к строке. Вердикт — в нижней панели.</p>
+    </div>
+
+    <div class="win diffwin">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">feat/orb-loader — ревью диффа</span>
+        <div class="spacer"></div>
+        <span class="tb-btn">Файлы <span style="color:var(--t-tertiary)">3</span></span>
+        <span class="tb-btn icon" title="Следующий комментарий">▾</span>
+      </div>
+
+      <div class="diff-head">
+        <span class="path">Sources/Foundry/UI/<b>OrbLoaderView.swift</b></span>
+        <div class="spacer" style="flex:1"></div>
+        <span class="stat" style="font-family:var(--font-mono);font-size:12px"><span class="add" style="color:var(--sem-success)">+18</span> <span class="rem" style="color:var(--sem-error)">−6</span></span>
+      </div>
+
+      <div class="diff-dual">
+        <!-- левая: дифф + связанные ханки скобками + комментарий -->
+        <div class="diff-main">
+          <div class="diff">
+            <div class="dline"><span class="ln">42</span><span class="ln"></span><span class="code gutter">  private var pulse: Double = 1.0</span></div>
+
+            <!-- ханк-группа 1: свечение орба (FXPro скобка + кросс-ссылки Jurist) -->
+            <div class="hgroup g1">
+              <div class="hg-head"><span class="hg-tag">свечение орба</span><span class="hg-xref">связано:</span><span class="hg-link">change «Токены тёмной темы»</span><span class="hg-xref">·</span><span class="hg-link">правило 13 §12 «один glow»</span></div>
+              <div class="dline rem"><span class="ln">43</span><span class="ln"></span><span class="code">-    <span class="tok-kw">let</span> ring = Circle().<span class="tok-fn">stroke</span>(.<span class="w">gray</span>, lineWidth: <span class="tok-num">2</span>)</span></div>
+              <div class="dline add"><span class="ln"></span><span class="ln">43</span><span class="code">+    <span class="tok-kw">let</span> ring = Circle().<span class="tok-fn">stroke</span>(<span class="w"><span class="tok-ty">Brand</span>.gradient</span>, lineWidth: <span class="tok-num">2</span>)</span></div>
+              <div class="dline add"><span class="ln"></span><span class="ln">44</span><span class="code">+      .<span class="tok-fn">shadow</span>(color: <span class="tok-ty">Brand</span>.cyan.<span class="tok-fn">opacity</span>(<span class="tok-num">0.45</span>), radius: <span class="tok-num">10</span>)</span></div>
+            </div>
+
+            <div class="dline"><span class="ln">44</span><span class="ln">45</span><span class="code gutter">  </span></div>
+            <div class="dline"><span class="ln">45</span><span class="ln">46</span><span class="code gutter">    <span class="tok-kw">var</span> body: <span class="tok-kw">some</span> <span class="tok-ty">View</span> {</span></div>
+
+            <!-- ханк-группа 2: пульс кольца -->
+            <div class="hgroup g2">
+              <div class="hg-head"><span class="hg-tag" style="color:var(--brand-purple);border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.12)">пульс кольца</span><span class="hg-xref">связано:</span><span class="hg-link">CRISPY · стадия Implement</span></div>
+              <div class="dline rem"><span class="ln">46</span><span class="ln"></span><span class="code">-      ring.<span class="tok-fn">scaleEffect</span>(<span class="w"><span class="tok-num">1.0</span></span>)</span></div>
+              <div class="dline add"><span class="ln"></span><span class="ln">47</span><span class="code">+      ring.<span class="tok-fn">scaleEffect</span>(<span class="w">pulse</span>).<span class="tok-fn">animation</span>(.<span class="tok-fn">easeInOut</span>(duration: <span class="tok-num">1.8</span>).<span class="tok-fn">repeatForever</span>())</span></div>
+            </div>
+          </div>
+
+          <div class="comment-thread">
+            <div class="avatar you">Я</div>
+            <div class="comment-body">
+              <div class="who"><span class="ctype bug">баг</span> <b>Ты</b><span class="role">ревьюер · строка 44</span></div>
+              <p><span class="anchor">L44</span> Радиус свечения захардкожен. Возьми из токена — <code style="font-family:var(--font-mono);color:var(--t-accent);font-size:11px">glow.live</code> уже двухслойный (blur 10 @40% + 30 @15%). И проверь: один glow в поле зрения, тут рядом орб.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- правая: чеклист рисков CRISPY (Action-Договоры) — ревью как направленное сканирование -->
+        <aside class="risk-panel">
+          <div class="rp-cap">Чеклист ревью · CRISPY</div>
+          <div class="rp-sum"><b class="warn">2 замечания</b> · <b>3</b> ок · <b>1</b> не проверено</div>
+          <div class="rp-list">
+            <div class="rp-item"><span class="rp-ic err">✗</span><span class="rp-tx">Значения из токенов, не числом<span class="jump">→ L44 · radius 10 → glow.live</span></span></div>
+            <div class="rp-item"><span class="rp-ic warn">▲</span><span class="rp-tx">Один glow в поле зрения<span class="jump">→ рядом орб — проверить</span></span></div>
+            <div class="rp-item"><span class="rp-ic none">○</span><span class="rp-tx">Анимация уважает reduce-motion<span class="jump">→ нет @media reduce</span></span></div>
+            <div class="rp-item"><span class="rp-ic ok">✓</span><span class="rp-tx">Семантика = цвет + форма</span></div>
+            <div class="rp-item"><span class="rp-ic ok">✓</span><span class="rp-tx">Нет сырых цветов текстом</span></div>
+            <div class="rp-item"><span class="rp-ic ok">✓</span><span class="rp-tx">change остаётся латиницей</span></div>
+          </div>
+          <div class="rp-rel">
+            <div class="rel-cap">Связанные change'и</div>
+            <a><span class="ri">◆</span> Токены тёмной темы <span style="color:var(--t-tertiary);font-size:10px;margin-left:auto">источник Brand.gradient</span></a>
+            <a><span class="ri">¶</span> Стадии CRISPY <span style="color:var(--t-tertiary);font-size:10px;margin-left:auto">правило glow</span></a>
+          </div>
+        </aside>
+      </div>
+
+      <div class="actionbar">
+        <div class="btns">
+          <span class="hint">2 замечания по чеклисту · вернётся автору как request changes</span>
+          <span class="btn ghost">Отмена</span>
+          <span class="btn secondary">Вернуть на доработку <kbd>⇧⌘R</kbd></span>
+          <span class="btn primary">Принять <kbd>⌘⏎</kbd></span>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>Дизайн-решения (бюро):</b> <b>dual-panel «дифф + чеклист рисков CRISPY»</b> справа — ревью как направленное сканирование, а не свободное чтение (Action-Договоры); статус пункта — <b>трёхзначковая система</b> ✓ ок / ▲ уточнить / ✗ отклонено / ○ не проверено, цвет+форма (Action). Связанные ханки собраны <b>скобкой с ховер-подсветкой группы</b> и подписаны «свечение орба» / «пульс кольца» (FXPro). <b>Кросс-ссылки</b> прямо в диффе: на change-источник и на пункт правила <code style="font-family:var(--font-mono)">13 §12</code> (Jurist-Laws). Термины канона: «Принять» / «Вернуть на доработку»; красный диффа = error, но request changes = warning.</div>
+  </section>
+
+  <!-- ——————————————————— §4 АНАЛИТИКА ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">04 — аналитика лупов</span>
+      <h2>Аналитика: цифра, тренд, распределение, здоровье</h2>
+      <p>KPI держит взгляд и даёт исторический базлайн («пред. неделя»). Hero-график — одна серия с целевым SLA-пунктиром и точкой наведения. Ниже — где сейчас change'и по стадиям и исходы прогонов. Цвет только на значимом, оси от нуля, lie factor = 1.</p>
+    </div>
+
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+      <linearGradient id="g-cyan" x1="0" y1="0" x2="0" y2="34" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#58C7FF" stop-opacity="0.26"/><stop offset="1" stop-color="#58C7FF" stop-opacity="0"/></linearGradient>
+      <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="34" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4ADE80" stop-opacity="0.24"/><stop offset="1" stop-color="#4ADE80" stop-opacity="0"/></linearGradient>
+      <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="34" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FBBF24" stop-opacity="0.24"/><stop offset="1" stop-color="#FBBF24" stop-opacity="0"/></linearGradient>
+    </defs></svg>
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi-top"><span class="kpi-ic">⟳</span><span class="delta-pill up">▲ 7</span></div>
+        <div class="cap">Лупов за неделю</div>
+        <div class="num">42</div>
+        <div class="prev">Пред. неделя: 35</div>
+        <svg viewBox="0 0 120 34" preserveAspectRatio="none">
+          <polygon points="0,26 20,24 40,25 60,18 80,20 100,12 120,8 120,34 0,34" fill="url(#g-cyan)"/>
+          <polyline points="0,26 20,24 40,25 60,18 80,20 100,12 120,8" fill="none" stroke="#6B8CFF" stroke-width="1.5"/>
+          <polyline points="100,12 120,8" fill="none" stroke="#58C7FF" stroke-width="2"/>
+          <circle cx="120" cy="8" r="2.5" fill="#58C7FF"/>
+        </svg>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><span class="kpi-ic">◷</span><span class="delta-pill up">▼ 48с</span></div>
+        <div class="cap">Средняя длительность</div>
+        <div class="num">6<small>м</small> 12<small>с</small></div>
+        <div class="prev">Пред. неделя: 7м 00с</div>
+        <svg viewBox="0 0 120 34" preserveAspectRatio="none">
+          <polygon points="0,10 20,12 40,11 60,16 80,15 100,20 120,24 120,34 0,34" fill="url(#g-green)"/>
+          <polyline points="0,10 20,12 40,11 60,16 80,15 100,20 120,24" fill="none" stroke="#6B8CFF" stroke-width="1.5"/>
+          <polyline points="100,20 120,24" fill="none" stroke="#4ADE80" stroke-width="2"/>
+          <circle cx="120" cy="24" r="2.5" fill="#4ADE80"/>
+        </svg>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><span class="kpi-ic">✓</span><span class="delta-pill up">▲ 4пп</span></div>
+        <div class="cap">Авто-approve</div>
+        <div class="num">71<small>%</small></div>
+        <div class="prev">Пред. неделя: 67%</div>
+        <svg viewBox="0 0 120 34" preserveAspectRatio="none">
+          <polygon points="0,22 20,20 40,21 60,16 80,17 100,13 120,11 120,34 0,34" fill="url(#g-cyan)"/>
+          <polyline points="0,22 20,20 40,21 60,16 80,17 100,13 120,11" fill="none" stroke="#6B8CFF" stroke-width="1.5"/>
+          <polyline points="100,13 120,11" fill="none" stroke="#58C7FF" stroke-width="2"/>
+          <circle cx="120" cy="11" r="2.5" fill="#58C7FF"/>
+        </svg>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top"><span class="kpi-ic">↩</span><span class="delta-pill down">▲ 3</span></div>
+        <div class="cap">Вернули на доработку</div>
+        <div class="num">12</div>
+        <div class="prev">Пред. неделя: 9</div>
+        <svg viewBox="0 0 120 34" preserveAspectRatio="none">
+          <polygon points="0,24 20,22 40,20 60,21 80,16 100,15 120,10 120,34 0,34" fill="url(#g-amber)"/>
+          <polyline points="0,24 20,22 40,20 60,21 80,16 100,15 120,10" fill="none" stroke="#6B8CFF" stroke-width="1.5"/>
+          <polyline points="100,15 120,10" fill="none" stroke="#FBBF24" stroke-width="2"/>
+          <circle cx="120" cy="10" r="2.5" fill="#FBBF24"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- hero-график пропускной способности (Chainview/Cashflow → канон) -->
+    <div class="hero-chart">
+      <div class="hc-head">
+        <div>
+          <div class="hc-title">Пропускная способность</div>
+          <div class="hc-big">7,5 <span style="font-size:14px;font-weight:600;color:var(--t-tertiary)">лупов/день</span></div>
+          <div class="hc-sub">14 дней · сегодня 7 · цель 8/день</div>
+        </div>
+        <div class="seg"><span class="on">День</span><span>Неделя</span><span>Месяц</span></div>
+      </div>
+      <svg viewBox="0 0 760 212" preserveAspectRatio="xMidYMid meet" role="img" aria-label="График пропускной способности">
+        <defs>
+          <linearGradient id="hero-area" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2F5CFF" stop-opacity="0.28"/><stop offset="1" stop-color="#2F5CFF" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- сетка + подписи оси Y -->
+        <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
+          <line x1="40" y1="40" x2="748" y2="40"/><line x1="40" y1="85" x2="748" y2="85"/><line x1="40" y1="130" x2="748" y2="130"/>
+        </g>
+        <g fill="rgba(255,255,255,0.5)" font-size="10" font-family="ui-monospace,Menlo,monospace" text-anchor="end">
+          <text x="30" y="44">9</text><text x="30" y="89">6</text><text x="30" y="134">3</text>
+        </g>
+        <!-- целевой SLA-базлайн -->
+        <line x1="40" y1="55" x2="748" y2="55" stroke="#FBBF24" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.7"/>
+        <text x="748" y="50" fill="#FBBF24" font-size="10" text-anchor="end" opacity="0.85">цель 8</text>
+        <!-- area + линия -->
+        <polygon fill="url(#hero-area)" points="40,115 94,107 149,100 203,85 258,92 312,70 367,77 421,47 476,40 530,32 585,62 639,55 694,70 748,62 748,175 40,175"/>
+        <polyline fill="none" stroke="#6B8CFF" stroke-width="2" stroke-linejoin="round" points="40,115 94,107 149,100 203,85 258,92 312,70 367,77 421,47 476,40 530,32 585,62 639,55 694,70 748,62"/>
+        <polyline fill="none" stroke="#58C7FF" stroke-width="2.5" points="694,70 748,62"/>
+        <!-- crosshair на пике -->
+        <line x1="530" y1="20" x2="530" y2="175" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        <circle cx="530" cy="32" r="3.5" fill="#58C7FF"/>
+        <g>
+          <rect x="470" y="6" width="132" height="24" rx="6" fill="#14121E" stroke="rgba(255,255,255,0.12)"/>
+          <text x="482" y="22" fill="rgba(255,255,255,0.92)" font-size="11" font-family="ui-monospace,Menlo,monospace">ср 12.07 · 9 лупов</text>
+        </g>
+        <!-- эндпоинт -->
+        <circle cx="748" cy="62" r="3.5" fill="#58C7FF"/>
+        <!-- подписи оси X -->
+        <g fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="middle">
+          <text x="149" y="198">10.07</text><text x="367" y="198">12.07</text><text x="585" y="198">14.07</text><text x="748" y="198" text-anchor="end" fill="#58C7FF">сегодня</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- two-up: распределение + здоровье (Activity Summary + NextGen → канон) -->
+    <div class="analytics-two">
+      <div class="apanel">
+        <h3>Где сейчас change'и</h3>
+        <p class="sub">18 открытых по стадиям. Скопление в Implement — узкое место.</p>
+        <div class="prop-bar">
+          <div class="prop-seg" style="width:45%;background-color:rgba(251,191,36,0.75)"></div>
+          <div class="prop-seg" style="width:17%;background-color:rgba(47,92,255,0.75)"></div>
+          <div class="prop-seg" style="width:11%;background-color:rgba(47,92,255,0.6)"></div>
+          <div class="prop-seg" style="width:11%;background-color:rgba(47,92,255,0.48)"></div>
+          <div class="prop-seg" style="width:16%;background-color:rgba(47,92,255,0.34)"></div>
+        </div>
+        <div class="prop-legend">
+          <div class="pl-row"><span class="pd" style="background:#FBBF24"></span><span class="pn">Implement</span><span class="pc">8</span><span class="pp">45%</span></div>
+          <div class="pl-row"><span class="pd" style="background:rgba(47,92,255,0.75)"></span><span class="pn">PR</span><span class="pc">3</span><span class="pp">17%</span></div>
+          <div class="pl-row"><span class="pd" style="background:rgba(47,92,255,0.6)"></span><span class="pn">Design</span><span class="pc">2</span><span class="pp">11%</span></div>
+          <div class="pl-row"><span class="pd" style="background:rgba(47,92,255,0.48)"></span><span class="pn">Questions</span><span class="pc">2</span><span class="pp">11%</span></div>
+          <div class="pl-row"><span class="pd" style="background:rgba(47,92,255,0.34)"></span><span class="pn">Research · Structure · Plan</span><span class="pc">3</span><span class="pp">16%</span></div>
+        </div>
+      </div>
+
+      <div class="apanel">
+        <h3>Здоровье лупов</h3>
+        <p class="sub">Исходы 48 прогонов за 7 дней. Узкое место — фейлы CI на PR.</p>
+        <div class="sc-summary"><span><b style="color:var(--sem-success)">42</b> принято</span><span><b style="color:var(--sem-warning)">4</b> на доработку</span><span><b style="color:var(--sem-error)">2</b> упало</span></div>
+        <div class="scorecard">
+          <div class="sc-row"><span class="sc-lbl"><span class="sdot" style="background:var(--sem-success)"></span>Принято</span><div class="sc-track"><div class="sc-fill" style="width:87%;background:var(--sem-success)"></div></div><span class="sc-count">42</span></div>
+          <div class="sc-row"><span class="sc-lbl"><span class="sdot" style="background:var(--sem-warning)"></span>На доработку</span><div class="sc-track"><div class="sc-fill" style="width:18%;background:var(--sem-warning)"></div></div><span class="sc-count">4</span></div>
+          <div class="sc-row"><span class="sc-lbl"><span class="sdot" style="background:var(--sem-error)"></span>Упал CI</span><div class="sc-track"><div class="sc-fill" style="width:9%;background:var(--sem-error)"></div></div><span class="sc-count">2</span></div>
+          <div class="sc-row"><span class="sc-lbl"><span class="sdot" style="background:var(--brand-cyan)"></span>Прервано вручную</span><div class="sc-track"><div class="sc-fill" style="width:5%;background:var(--brand-cyan)"></div></div><span class="sc-count">1</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- история прогонов -->
+    <div class="runhist">
+      <div class="hc-head">
+        <div>
+          <div class="hc-title">История прогонов · feat/orb-loader</div>
+          <div class="hc-sub">53 прогона · зелёный — принято, красный — упал, циан — идёт сейчас</div>
+        </div>
+        <div class="seg"><span>7д</span><span class="on">30д</span><span>Всё</span></div>
+      </div>
+      <div class="rh-plot">
+        <div class="rh-grid"></div>
+        <!-- выделенный диапазон (протяжка) -->
+        <div class="rh-brush" style="left:6%;width:31%"><span class="bh l"></span><span class="bh r"></span></div>
+        <span class="rh-ylab" style="top:8px">06:00</span>
+        <span class="rh-ylab" style="top:75px">14:00</span>
+        <span class="rh-ylab" style="top:142px">22:00</span>
+        <!-- точки прогонов -->
+        <span class="rh-dot" style="left:12%;top:60%"></span>
+        <span class="rh-dot ok" style="left:20%;top:78%"></span>
+        <span class="rh-dot" style="left:24%;top:30%"></span>
+        <span class="rh-dot err sel" style="left:33%;top:66%"></span>
+        <span class="rh-dot ok" style="left:41%;top:82%"></span>
+        <span class="rh-dot" style="left:47%;top:24%"></span>
+        <span class="rh-dot ok" style="left:55%;top:70%"></span>
+        <span class="rh-dot" style="left:62%;top:48%"></span>
+        <span class="rh-dot ok" style="left:70%;top:86%"></span>
+        <span class="rh-dot err" style="left:78%;top:40%"></span>
+        <span class="rh-dot" style="left:85%;top:62%"></span>
+        <span class="rh-dot live" style="left:95%;top:52%"></span>
+        <!-- карточка прогона -->
+        <div class="rh-card" style="left:40%;top:-8px">
+          <div class="rc-top"><span class="rc-t">Прогон #53</span><span class="rc-time">сегодня 18:44</span></div>
+          <div class="rc-desc">Implement → тест упал (pulse не сбрасывался) → правка <code style="font-family:var(--font-mono);font-size:11px;color:var(--t-accent)">.onDisappear</code> → зелёный.</div>
+          <div class="rc-btns"><span class="btn ghost">Открыть</span><span class="btn secondary" style="color:var(--t-accent);border-color:rgba(47,92,255,0.5);background:transparent">Сравнить</span></div>
+          <div class="rc-pager"><span>← Раньше</span><span>1 / 5</span><span>Позже →</span></div>
+        </div>
+      </div>
+      <div class="rh-batchbar">
+        <span class="bb-tx">Выделено <b>16–24 июн</b> · <b>4</b> прогона, <b class="fail">1 упал</b></span>
+        <span class="bb-sp"></span>
+        <span class="btn secondary" style="color:var(--t-accent);border-color:rgba(47,92,255,0.5);background:transparent">Перезапустить упавший</span>
+        <span class="btn ghost">Сравнить 4</span>
+        <span class="bb-x">✕</span>
+      </div>
+      <div class="rh-xaxis"><span>16 июн</span><span>23 июн</span><span>30 июн</span><span>7 июл</span><span style="color:var(--brand-cyan)">сегодня</span></div>
+    </div>
+
+    <!-- лог -->
+    <div class="win logwin">
+      <div class="log-head">
+        <span class="live"><i></i> live · feat/orb-loader</span>
+        <div class="spacer" style="flex:1"></div>
+        <span style="font-size:11px;color:var(--t-tertiary)">стадия Implement · 3м 04с</span>
+      </div>
+      <div class="log">
+        <div class="l"><span class="ts">18:42:01</span><span class="dim">worktree</span><span>создан .worktrees/orb-loader</span></div>
+        <div class="l"><span class="ts">18:42:09</span><span class="cy">claude</span><span>читаю OrbLoaderView.swift, 3 файла в контексте</span></div>
+        <div class="l"><span class="ts">18:43:22</span><span class="ok">edit</span><span>OrbLoaderView.swift +18 −6</span></div>
+        <div class="l"><span class="ts">18:44:05</span><span class="wr">test</span><span>OrbLoaderTests: 1 упал — pulse не сбрасывается</span></div>
+        <div class="l"><span class="ts">18:44:48</span><span class="cy">claude</span><span>правлю: .onDisappear { pulse = 1.0 }</span></div>
+      </div>
+      <div class="log-pill">↓ 3 новых строки</div>
+      <div style="height:12px"></div>
+    </div>
+    <div class="caption"><b>Синтез через канон:</b> KPI-базлайн из Quick Stats, crosshair+target из Chainview/Cashflow, тик-пропорция из Activity Summary, scorecard из NextGen — но в наших токенах: семантика=цвет+форма, один акцент, tabular, без 3D и зебр. <b>История прогонов — орган пакетного выбора</b> (Superpedestrian): протяжка по диапазону дат выделяет прогоны и открывает контекстную панель массового действия — «перезапустить упавший», «сравнить 4»; спарклайны из пассивных стали управляющими.</div>
+  </section>
+
+  <!-- ——————————————————— §5 СОСТОЯНИЯ И ЭКСТРЕМУМЫ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">05 — состояния и экстремумы</span>
+      <h2>Как экран держится на реальных данных</h2>
+      <p>Макет собран не на lorem: длинные имена, нули и 999+, оборванный стрим, устаревший снапшот. У каждого контрола — все состояния из токенов. Пустое агентное состояние показывает орб, обычное — нейтральную пиктограмму.</p>
+    </div>
+
+    <div class="states-grid">
+      <!-- кнопки -->
+      <div class="state-card">
+        <span class="sc-cap">Кнопки · состояния</span>
+        <div class="btn-col">
+          <div class="btn-line"><span class="bl-cap">rest</span><span class="btn primary">Принять</span></div>
+          <div class="btn-line"><span class="bl-cap">hover</span><span class="btn primary on-glow">Принять</span></div>
+          <div class="btn-line"><span class="bl-cap">pressed</span><span class="btn primary pressed">Принять</span></div>
+          <div class="btn-line"><span class="bl-cap">loading</span><span class="btn loading"><span class="spin"></span> Принимаю…</span></div>
+          <div class="btn-line"><span class="bl-cap">disabled</span><span class="btn disabled">Принять</span></div>
+        </div>
+        <div class="sc-note">Один glow — только на hover primary. Secondary «Вернуть» — янтарный контур, не заливка.</div>
+      </div>
+
+      <!-- строки списка -->
+      <div class="state-card">
+        <span class="sc-cap">Строка · rest / hover / выбор / фокус</span>
+        <div class="demo-row">
+          <div class="drow rest"><span class="sdot wait"></span><span class="dp">⟳</span><span>Хранилище инбокса</span></div>
+          <div class="drow hover"><span class="sdot wait"></span><span class="dp">¶</span><span>Стадии CRISPY</span></div>
+          <div class="drow sel"><span class="sdot wait"></span><span class="dp">✦</span><span>Токены тёмной темы</span></div>
+          <div class="drow focus"><span class="sdot live"></span><span class="dp">✦</span><span>Орб-лоадер</span></div>
+        </div>
+        <div class="sc-note">Выбор — заливка ультрамарин 14%. Фокус клавиатуры — ринг 2px, offset 2px, всегда виден.</div>
+      </div>
+
+      <!-- поля и фокус -->
+      <div class="state-card">
+        <span class="sc-cap">Поле · покой и фокус</span>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="field-demo">Комментарий к ревью…</div>
+          <div class="field-demo focus">Радиус свечения захардкожен — возьми glow.live│</div>
+        </div>
+        <span class="sc-cap" style="margin-top:6px">Бейджи · семантика = цвет + форма</span>
+        <div class="chips-wrap">
+          <span class="chip stage">Design</span>
+          <span class="chip live">◉ live</span>
+          <span class="chip warn">⚠ на доработку</span>
+          <span class="chip err">✕ CI упал</span>
+          <span class="chip" style="color:var(--sem-success);background:rgba(74,222,128,0.14);border-color:rgba(74,222,128,0.3)">✓ принято</span>
+        </div>
+        <div class="sc-note">Цвет всегда дублирован иконкой — читается при дейтеранопии.</div>
+      </div>
+
+      <!-- пустое агентное -->
+      <div class="state-card">
+        <span class="sc-cap">Пустое · связано с агентом</span>
+        <div class="empty">
+          <span class="big-orb"></span>
+          <span class="et">Очередь пуста</span>
+          <span class="es">Claude разобрал все change'и. Запусти новый луп — ⌘N.</span>
+        </div>
+      </div>
+
+      <!-- пустое нейтральное -->
+      <div class="state-card">
+        <span class="sc-cap">Пустое · нейтральное</span>
+        <div class="empty">
+          <span class="glyph">◔</span>
+          <span class="et">Нет комментариев</span>
+          <span class="es">Выдели строку в диффе, чтобы оставить типизированный комментарий.</span>
+        </div>
+      </div>
+
+      <!-- экстремумы -->
+      <div class="state-card">
+        <span class="sc-cap">Экстремумы · длина и счётчики</span>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div class="extreme-row" title="feat/redesign-inbox-inspector-with-cross-project-review-queue">
+            <span class="st" style="background:var(--brand-ultramarine)"></span>
+            <span class="nm">feat/redesign-inbox-inspector-with-cross…</span>
+            <span class="ct" style="color:var(--t-tertiary)">999+</span>
+          </div>
+          <div class="extreme-row">
+            <span class="st" style="background:var(--sem-success)"></span>
+            <span class="nm">fix/a</span>
+            <span class="ct" style="color:var(--t-tertiary)">1</span>
+          </div>
+          <div class="extreme-row">
+            <span class="st" style="background:var(--t-disabled)"></span>
+            <span class="nm" style="color:var(--t-tertiary)">пусто — 0 change'ей</span>
+            <span class="ct" style="color:var(--t-disabled)">0</span>
+          </div>
+        </div>
+        <div class="sc-note">Длинное имя — усечение с тултипом на полное; счётчик tabular, 999+ не ломает строку.</div>
+      </div>
+
+      <!-- деградация -->
+      <div class="state-card" style="grid-column: span 2">
+        <span class="sc-cap">Деградированные состояния</span>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="degraded err"><span class="di">✕</span><span>foundry CLI недоступен — не могу запускать лупы. Проверь путь в настройках. <a href="#">Открыть настройки</a></span></div>
+          <div class="degraded warn"><span class="di">⚠</span><span>Стрим оборвался 40 с назад. Показан последний снапшот лога; переподключаюсь…</span></div>
+          <div class="degraded warn"><span class="di">⚠</span><span>Снапшот диффа устарел во время ревью — автор дописал 2 файла. <a href="#">Обновить дифф</a></span></div>
+        </div>
+        <div class="sc-note">Ошибка говорит <b>что случилось и что делать</b>, без «Ой!» и извинений. Обрыв стрима не гасит данные — показываем снапшот.</div>
+      </div>
+
+      <!-- скелетон -->
+      <div class="state-card">
+        <span class="sc-cap">Загрузка · скелетон</span>
+        <div style="display:flex;flex-direction:column;gap:10px;flex:1;justify-content:center">
+          <div class="skel-line" style="width:70%"></div>
+          <div class="skel-line" style="width:90%"></div>
+          <div class="skel-line" style="width:55%"></div>
+          <div class="skel-line" style="width:80%"></div>
+        </div>
+        <div class="sc-note">Индикатор — только после 200–300 мс; мгновенное не мигает спиннером (порог Доэрти 400 мс).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ——————————————————— §6 КАНБАН-БОРД (вариант B) ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">06 — вариант B, развёрнуто</span>
+      <h2>Канбан всего пайплайна с overlay-инспектором</h2>
+      <p>Восемь колонок CRISPY, карточки едут по стадиям, борд скроллится горизонтально. Деталь открывается не новым экраном, а drawer'ом поверх борда (паттерн 2026: card → side-drawer). Одна кнопка «Перекомпоновать» вместо ручного ресайза колонок — приём fxpro.</p>
+    </div>
+
+    <div class="win overlay-demo">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — канбан · foundry-desktop</span>
+        <div class="spacer"></div>
+        <span class="tb-btn">Перекомпоновать</span>
+        <span class="tb-btn icon" title="Поиск ⌘K">⌕</span>
+        <span class="tb-btn icon" title="Новый change">＋</span>
+      </div>
+
+      <div class="board">
+        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Questions</span><span class="kbn">2</span></div>
+          <div class="kb-card"><div class="kc-top"><span class="kc-pict">✦</span><span class="kc-title">Центр уведомлений</span></div><span class="kc-branch">feat/notif-center</span><div class="kc-foot"><span class="mini-av">Ð</span><span>8 мин</span></div></div>
+          <div class="kb-card"><div class="kc-top"><span class="kc-pict">⟳</span><span class="kc-title">Swift 6</span></div><span class="kc-branch">chore/bump-swift6</span><div class="kc-foot"><span class="mini-av">Ð</span><span>22 мин</span></div></div>
+        </div>
+        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Research</span><span class="kbn">1</span></div>
+          <div class="kb-card now"><div class="kc-top"><span class="kc-pict">⌕</span><span class="kc-title">Liquid Glass</span></div><span class="kc-branch">research/liquid-glass</span><div class="kc-foot"><span class="mini-av">◍</span><span style="color:var(--brand-cyan)">◉ ищет…</span></div></div>
+        </div>
+        <div class="kb-col now"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Design</span><span class="kbn">2</span></div>
+          <div class="kb-card"><div class="kc-top"><span class="kc-pict">✦</span><span class="kc-title">Токены тёмной темы</span></div><span class="kc-branch">feat/dark-theme-tokens</span><div class="kc-foot"><span style="color:var(--sem-success)">+214</span><span>12 мин</span></div></div>
+          <div class="kb-slot"></div>
+        </div>
+        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Structure</span><span class="kbn">1</span></div>
+          <div class="kb-card drag"><div class="kc-top"><span class="kc-pict">⟳</span><span class="kc-title">Хранилище инбокса</span></div><span class="kc-branch">refactor/inbox-store</span><div class="kc-foot"><span style="color:var(--sem-error)">−204</span><span>перетаскивается</span></div></div>
+        </div>
+        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Plan</span><span class="kbn">1</span></div>
+          <div class="kb-card"><div class="kc-top"><span class="kc-pict">¶</span><span class="kc-title">Стадии CRISPY</span></div><span class="kc-branch">docs/crispy-stages</span><div class="kc-foot"><span class="mini-av">Ð</span><span>1 ч</span></div></div>
+        </div>
+        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Worktree</span><span class="kbn">0</span></div></div>
+        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Implement</span><span class="kbn">2</span></div>
+          <div class="kb-card now"><div class="kc-top"><span class="kc-pict">✦</span><span class="kc-title">Орб-лоадер</span></div><span class="kc-branch">feat/orb-loader</span><div class="kc-meta"><span class="chip live">◉ пишет…</span></div><div class="kc-foot"><span style="color:var(--brand-cyan)">+310…</span><span>сейчас</span></div></div>
+          <div class="kb-card"><div class="kc-top"><span class="kc-pict">⚑</span><span class="kc-title">Детектор зависших лупов</span></div><span class="kc-branch">fix/loop-stall-detector</span><div class="kc-meta"><span class="chip warn">⚠ завис 40 мин</span></div></div>
+        </div>
+        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">PR</span><span class="kbn">1</span></div>
+          <div class="kb-card"><div class="kc-top"><span class="kc-pict">⚑</span><span class="kc-title">Контраст по APCA</span></div><span class="kc-branch">feat/apc-contrast</span><div class="kc-meta"><span class="chip err">✕ CI упал</span></div><div class="kc-foot"><span></span><span>4 мин</span></div></div>
+        </div>
+      </div>
+
+      <!-- overlay-инспектор -->
+      <div class="board-scrim"></div>
+      <aside class="overlay-insp">
+        <div class="insp-head">
+          <div class="branch">feat/dark-theme-tokens</div>
+          <div class="sub"><span>Design</span><span>·</span><span>ждёт ревью</span><span>·</span><span>12 мин</span></div>
+        </div>
+        <div class="artifact" style="flex:1">
+          <h4>Design · токены тёмной темы</h4>
+          <div class="kv">artifact.md · 214 строк · перетащи карточку, чтобы сменить стадию</div>
+          <p>Elevation — светлотой; текст альфа-белый; request changes — warning. Полный дифф — в отдельном окне (двойной клик).</p>
+          <ul><li>4 поверхности base→overlay;</li><li>один glow на зону;</li><li>change остаётся латиницей.</li></ul>
+        </div>
+        <div class="actionbar">
+          <div class="btns">
+            <span class="hint">Esc — закрыть</span>
+            <span class="btn secondary">Вернуть</span>
+            <span class="btn primary">Принять <kbd>⌘⏎</kbd></span>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <div class="caption"><b>Дизайн-решения:</b> карта — та же анатомия, что строка инбокса: <b>мнемо-имя</b> основным, ветка-хеш вторичной, <b>пиктограмма типа</b> в начале (парность экранов). Чип стадии на карте <b>не дублируется</b> — колонка и есть стадия (УВЛ); остаются только чипы, несущие новое: «пишет…», «завис», «CI упал». Drawer поверх борда вместо смены экрана; перетаскивание — карта наклонена и с тенью, целевой слот подсвечен ультрамарином; «в работе» пульсирует цианом; активная колонка помечена glow-точкой (одно свечение в зоне).</div>
+  </section>
+
+  <!-- ——————————————————— §7 МУЛЬТИ-ОКНО (вариант C) ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">07 — вариант C, развёрнуто</span>
+      <h2>Глубокое ревью в отдельном окне</h2>
+      <p>Двойной клик по change'у отрывает дифф+комменты в самостоятельное нативное окно — на второй монитор. Главное окно остаётся очередью и тускнеет, когда фокус на ревью. Хоткеи ходят за фокусом: ⌘⏎ принимает в том окне, что активно.</p>
+    </div>
+
+    <div class="scene">
+      <div class="stage-row">
+        <!-- главное окно, неактивное -->
+        <div>
+          <span class="winlabel">окно 1 · очередь (не в фокусе)</span>
+          <div class="win sm dim">
+            <div class="titlebar"><div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div><span class="win-title">foundry — ревью</span></div>
+            <div>
+              <div class="group-cap" style="padding:12px 16px 6px">Ждут твоего ревью · 3</div>
+              <div class="mini-list-row sel"><span class="sdot wait"></span><span class="mpict">✦</span><span class="mm">Токены тёмной темы</span><span style="color:var(--t-tertiary);font-size:11px">↗ окно 2</span></div>
+              <div class="mini-list-row"><span class="sdot wait"></span><span class="mpict">⟳</span><span class="mm">Хранилище инбокса</span></div>
+              <div class="mini-list-row"><span class="sdot wait"></span><span class="mpict">¶</span><span class="mm">Стадии CRISPY</span></div>
+              <div class="group-cap" style="padding:12px 16px 6px">Claude пишет сейчас · 2</div>
+              <div class="mini-list-row"><span class="sdot live"></span><span class="mpict">✦</span><span class="mm">Орб-лоадер</span></div>
+              <div class="mini-list-row"><span class="sdot live"></span><span class="mpict">⌕</span><span class="mm">Liquid Glass</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- окно ревью, в фокусе -->
+        <div>
+          <span class="winlabel" style="color:var(--brand-cyan)">окно 2 · ревью диффа (в фокусе)</span>
+          <div class="win sm focused">
+            <div class="titlebar"><div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div><span class="win-title">feat/dark-theme-tokens — дифф</span></div>
+            <div class="diff-head"><span class="path">docs/design/<b>13-tokens.md</b></span><div class="spacer" style="flex:1"></div><span style="font-family:var(--font-mono);font-size:11px"><span style="color:var(--sem-success)">+214</span> <span style="color:var(--sem-error)">−38</span></span></div>
+            <div class="diff">
+              <div class="dline"><span class="ln">54</span><span class="ln">54</span><span class="code gutter">  | `bg.hover` | white @ 6% | hover строк |</span></div>
+              <div class="dline rem"><span class="ln">55</span><span class="ln"></span><span class="code">-  | `bg.selected` | <span class="w">#1a2a55</span> | выбор |</span></div>
+              <div class="dline add"><span class="ln"></span><span class="ln">55</span><span class="code">+  | `bg.selected` | <span class="w">ultramarine @ 14%</span> | выбор |</span></div>
+              <div class="dline add"><span class="ln"></span><span class="ln">56</span><span class="code">+  | `scrim` | black @ 50% | подложка модалок |</span></div>
+            </div>
+            <div class="actionbar">
+              <div class="btns"><span class="hint">фокус здесь → ⌘⏎ примет этот change</span><span class="btn secondary">Вернуть</span><span class="btn primary">Принять <kbd>⌘⏎</kbd></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>Мак-нативность:</b> реальные окна (не имитация-панели) — своя позиция, свой полноэкранный режим, Mission Control видит оба; неактивное окно приглушено на 28%, активное держит тонкую ультрамарин-обводку; закрытие окна 2 не трогает очередь.</div>
+  </section>
+
+  <!-- ——————————————————— §8 ОВЕРЛЕИ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">08 — оверлеи (добавлено по аудиту)</span>
+      <h2>Командная палитра, тост с Undo, оправданная модалка</h2>
+      <p>Три слоя, которых не хватало в первом проходе. ⌘K — сердце мак-тула: всё достижимо с клавиатуры. Деструктив закрывается <b>Undo</b> в тосте, а не «Вы уверены?». Модалка — только когда решение короткое и обязательное.</p>
+    </div>
+
+    <div class="overlays-grid">
+      <!-- командная палитра -->
+      <div class="ov-stage">
+        <span class="ov-label">⌘K — палитра</span>
+        <div class="ov-scrim"></div>
+        <div class="cmdk">
+          <div class="cmdk-input">⌕ <span style="color:var(--t-primary)">запус│</span><span class="k">⌘K</span></div>
+          <div class="cmdk-sec">Действия</div>
+          <div class="cmdk-item on"><span class="i">⚡</span> Запустить луп…<span class="k">⌘N</span></div>
+          <div class="cmdk-item"><span class="i">▷</span> Повторить стадию<span class="k">⌘R</span></div>
+          <div class="cmdk-sec">Недавнее</div>
+          <div class="cmdk-item"><span class="i">◆</span> feat/dark-theme-tokens<span class="k">↵</span></div>
+          <div class="cmdk-foot"><span><kbd>↑↓</kbd> навигация</span><span><kbd>↵</kbd> выбрать</span><span><kbd>esc</kbd> закрыть</span></div>
+        </div>
+      </div>
+
+      <!-- тост с undo -->
+      <div class="ov-stage">
+        <span class="ov-label">тост · Undo</span>
+        <div class="toast">
+          <span class="ic">✓</span>
+          <span class="tx">Принят <b>feat/dark-theme-tokens</b></span>
+          <span class="undo">Отменить <span style="font-family:var(--font-mono);opacity:0.7">⌘Z</span></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+
+      <!-- модалка -->
+      <div class="ov-stage">
+        <span class="ov-label">модалка</span>
+        <div class="ov-scrim"></div>
+        <div class="modal">
+          <h4>Запустить луп по 3 change'ам?</h4>
+          <p>Claude пройдёт стадии Design → PR по выбранным. Прервать можно в любой момент из очереди.</p>
+          <div class="mbtns">
+            <span class="btn ghost">Отмена</span>
+            <span class="btn primary">Запустить 3 лупа <kbd>⌘⏎</kbd></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>Дисциплина:</b> тост живёт 4–6 с (полоса-таймер), с Undo — не меньше 6; модалка оправдана только коротким обязательным решением, иначе — inline/инспектор; в палитре выделен первый пункт, Enter запускает его.</div>
+  </section>
+
+  <!-- ——————————————————— §9 FLOW-MAP ПАЙПЛАЙНА ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">09 — пайплайн как граф</span>
+      <h2>Флоу-карта: где какой change по стадиям CRISPY</h2>
+      <p>Тот же пайплайн, что в канбане, но как граф связанных нодов — видно топологию и петлю доработки, а не только колонки. Узел нейтральный, тип стадии кодирует <b>icon-chip</b>, а состояние — маркер <b>цвет + форма</b> (кружок / кольцо / треугольник / крестик), не одна заливка. Рёбра пунктиром — воздух вместо линеек (приём FlexiFo, фильтр через канон).</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — пайплайн · foundry-desktop</span>
+        <div class="spacer"></div>
+        <span class="tb-btn">Перекомпоновать</span>
+        <span class="tb-btn icon" title="Поиск ⌘K">⌕</span>
+      </div>
+
+      <div class="flowwrap">
+        <div class="flow-canvas">
+          <svg class="edges" viewBox="0 0 1000 380" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <marker id="arU" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L6,3.5 L0,7 z" fill="#6B8CFF"/></marker>
+              <marker id="arC" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L6,3.5 L0,7 z" fill="#58C7FF"/></marker>
+              <marker id="arW" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L6,3.5 L0,7 z" fill="#FBBF24"/></marker>
+              <marker id="arG" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L6,3.5 L0,7 z" fill="#4ADE80"/></marker>
+            </defs>
+            <!-- вход -->
+            <path d="M4,80 L30,80" stroke="#6B8CFF" stroke-width="1.5" fill="none" opacity="0.5" stroke-dasharray="4 4"/>
+            <!-- ряд 1 → -->
+            <path d="M228,80 L275,80" stroke="#58C7FF" stroke-width="1.6" fill="none" stroke-dasharray="4 4" marker-end="url(#arC)"/>
+            <path d="M473,80 L520,80" stroke="#6B8CFF" stroke-width="1.6" fill="none" stroke-dasharray="4 4" marker-end="url(#arU)"/>
+            <path d="M718,80 L765,80" stroke="#6B8CFF" stroke-width="1.6" fill="none" stroke-dasharray="4 4" marker-end="url(#arU)"/>
+            <!-- поворот вниз S→Plan -->
+            <path d="M865,112 L865,246" stroke="#6B8CFF" stroke-width="1.6" fill="none" stroke-dasharray="4 4" marker-end="url(#arU)"/>
+            <!-- ряд 2 ← -->
+            <path d="M767,280 L720,280" stroke="#6B8CFF" stroke-width="1.6" fill="none" stroke-dasharray="4 4" marker-end="url(#arU)"/>
+            <path d="M522,280 L475,280" stroke="#6B8CFF" stroke-width="1.6" fill="none" stroke-dasharray="4 4" marker-end="url(#arU)"/>
+            <path d="M277,280 L230,280" stroke="#6B8CFF" stroke-width="1.6" fill="none" stroke-dasharray="4 4" marker-end="url(#arU)"/>
+            <!-- петля доработки PR→Implement -->
+            <path d="M152,248 Q262,204 353,250" stroke="#FBBF24" stroke-width="1.6" fill="none" stroke-dasharray="3 4" marker-end="url(#arW)"/>
+            <!-- принят PR→готово -->
+            <path d="M130,312 L130,344" stroke="#4ADE80" stroke-width="1.6" fill="none" marker-end="url(#arG)"/>
+          </svg>
+
+          <!-- ряд 1 -->
+          <div class="fnode" style="left:3.2%;top:12.6%">
+            <div class="fn-top"><span class="fn-ic">？</span><span class="fn-name">Questions</span><span class="fn-mk ok">●</span></div>
+            <div class="fn-meta">2 в очереди</div>
+          </div>
+          <div class="fnode" style="left:27.7%;top:12.6%">
+            <div class="fn-top"><span class="fn-ic">⌕</span><span class="fn-name">Research</span><span class="fn-mk live">◉</span></div>
+            <div class="fn-meta">1 · идёт поиск</div>
+          </div>
+          <div class="fnode" style="left:52.2%;top:12.6%">
+            <div class="fn-top"><span class="fn-ic">◈</span><span class="fn-name">Design</span><span class="fn-mk ok">●</span></div>
+            <div class="fn-meta">2 готово</div>
+          </div>
+          <div class="fnode" style="left:76.7%;top:12.6%">
+            <div class="fn-top"><span class="fn-ic">⧉</span><span class="fn-name">Structure</span><span class="fn-mk ok">●</span></div>
+            <div class="fn-meta">1 готово</div>
+          </div>
+          <!-- ряд 2 (обратный ход) -->
+          <div class="fnode" style="left:76.7%;top:65.3%">
+            <div class="fn-top"><span class="fn-ic">☰</span><span class="fn-name">Plan</span><span class="fn-mk ok">●</span></div>
+            <div class="fn-meta">1 готово</div>
+          </div>
+          <div class="fnode empty" style="left:52.2%;top:65.3%">
+            <div class="fn-top"><span class="fn-ic">⌥</span><span class="fn-name">Worktree</span><span class="fn-mk" style="color:var(--t-disabled)">○</span></div>
+            <div class="fn-meta">пусто</div>
+          </div>
+          <div class="fnode sel" style="left:27.7%;top:65.3%">
+            <div class="fn-top"><span class="fn-ic">⚙</span><span class="fn-name">Implement</span><span class="fn-mk warn">▲</span></div>
+            <div class="fn-meta">2 · узкое место</div>
+          </div>
+          <div class="fnode" style="left:3.2%;top:65.3%">
+            <div class="fn-top"><span class="fn-ic">⇡</span><span class="fn-name">PR</span><span class="fn-mk err">✕</span></div>
+            <div class="fn-meta">1 · CI упал</div>
+          </div>
+
+          <!-- метки рёбер и терминаторы -->
+          <span class="fl-elabel" style="left:26.2%;top:52%">на доработку</span>
+          <span class="fl-term ok" style="left:13%;top:93%">принят ✓</span>
+        </div>
+
+        <!-- инспектор выбранного узла -->
+        <aside class="flow-insp">
+          <div class="fi-head"><span class="fn-ic" style="width:20px;height:20px">⚙</span> Implement</div>
+          <div class="fi-sub">узкое место · 2 change'а · дольше нормы</div>
+          <div class="fi-row"><span class="st live">◉</span><span class="mb">feat/orb-loader</span><span style="color:var(--brand-cyan);font-size:11px">пишет…</span></div>
+          <div class="fi-row"><span class="st warn">▲</span><span class="mb">fix/loop-stall-detector</span><span style="color:var(--sem-warning);font-size:11px">завис 40 мин</span></div>
+          <div class="fi-note">Норма стадии — до 25 мин. Один луп встал: перезапуск стадии или ручной разбор в отдельном окне.</div>
+          <div class="fi-btns">
+            <span class="btn ghost">Открыть</span>
+            <span class="btn secondary">Перезапустить</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+    <div class="caption"><b>Приёмы:</b> топология вместо колонок — видно петлю «на доработку» (амбер, назад к Implement) и выход «принят» (зелёный); тип стадии — icon-chip, состояние — маркер цвет+форма (кружок/кольцо/треугольник/крестик, различимы без цвета); один активный узел держит glow; пустая стадия — пунктир, приглушена; числа tabular. Клик по узлу — инспектор справа (dual-panel, Action-Договоры).</div>
+  </section>
+
+  <!-- ——————————————————— §10 НАСТРОЙКИ · ПЛОТНОСТЬ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">10 — настройки, оформление</span>
+      <h2>Плотность, тема и поведение под одного оператора</h2>
+      <p>Десктоп живёт годами — плотность и тон подстраивают под себя. Пресеты плотности и темы — карточками-<b>мини-превью реального результата</b>, а не абстрактным ползунком (приём Untitled UI). Тумблеры — в инфостиле Бирмана: утвердительно, без «не показывать». Выделение — единственным акцентом, ультрамарином.</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — настройки</span>
+      </div>
+
+      <div class="setgrid">
+        <nav class="set-nav">
+          <a class="on"><span class="i">◐</span> Оформление</a>
+          <a><span class="i">⚡</span> Лупы</a>
+          <a><span class="i">◈</span> Модели</a>
+          <a><span class="i">⌘</span> Клавиши</a>
+          <a><span class="i">⎇</span> Интеграции</a>
+          <a><span class="i">ⓘ</span> О программе</a>
+        </nav>
+
+        <div class="set-body">
+          <!-- плотность -->
+          <div class="set-sec">
+            <div class="cap">Плотность списков</div>
+            <p class="subcap">Шаг между строками инбокса и канбана. Меняется вживую.</p>
+            <div class="density-row">
+              <div class="dcard">
+                <div class="dc-head"><span class="dc-name">Компактно</span><span class="dc-radio"></span></div>
+                <div class="dc-prev" style="gap:4px"><span class="pr"></span><span class="pr a"></span><span class="pr"></span><span class="pr"></span></div>
+                <div class="dc-meta">шаг 8 · больше строк</div>
+              </div>
+              <div class="dcard sel">
+                <div class="dc-head"><span class="dc-name">Уютно</span><span class="dc-radio"></span></div>
+                <div class="dc-prev" style="gap:7px"><span class="pr"></span><span class="pr a"></span><span class="pr"></span></div>
+                <div class="dc-meta">шаг 12 · по умолчанию</div>
+              </div>
+              <div class="dcard">
+                <div class="dc-head"><span class="dc-name">Просторно</span><span class="dc-radio"></span></div>
+                <div class="dc-prev" style="gap:11px"><span class="pr"></span><span class="pr a"></span></div>
+                <div class="dc-meta">шаг 16 · воздух</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- тема -->
+          <div class="set-sec">
+            <div class="cap">Тема поверхностей</div>
+            <p class="subcap">Канон — тёмная. Светлая существует только для экспорта наружу.</p>
+            <div class="theme-row">
+              <div class="tcard sel">
+                <div class="tc-win">
+                  <div class="tc-bar" style="background:#0D0C14"><i style="background:#F87171"></i><i style="background:#FBBF24"></i><i style="background:#4ADE80"></i></div>
+                  <div class="tc-body" style="background:#07060B"><div class="tc-orb"></div></div>
+                </div>
+                <div class="tc-name"><span>Тёмная · канон</span><span class="dc-radio" style="width:14px;height:14px;border-color:var(--brand-ultramarine);background:radial-gradient(circle,var(--brand-ultramarine) 0 40%,transparent 46%)"></span></div>
+              </div>
+              <div class="tcard">
+                <div class="tc-win">
+                  <div class="tc-bar" style="background:#12101c"><i style="background:#F87171"></i><i style="background:#FBBF24"></i><i style="background:#4ADE80"></i></div>
+                  <div class="tc-body" style="background:#050409"><div class="tc-orb"></div></div>
+                </div>
+                <div class="tc-name"><span>Контраст +</span><span class="dc-radio" style="width:14px;height:14px"></span></div>
+              </div>
+              <div class="tcard locked">
+                <div class="tc-win">
+                  <div class="tc-bar" style="background:#e9e9ee"><i style="background:#F87171"></i><i style="background:#FBBF24"></i><i style="background:#4ADE80"></i></div>
+                  <div class="tc-body" style="background:#f6f6f9"><div class="tc-orb"></div></div>
+                </div>
+                <div class="tc-name"><span>Светлая · экспорт</span><span class="lock">🔒</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- поведение -->
+          <div class="set-sec">
+            <div class="cap">Поведение</div>
+            <div class="toggle-list">
+              <div class="tg-row">
+                <div class="tg-tx"><b>Показывать пройденные стадии</b><span>Свёрнутые стадии остаются видны серым, а не скрыты</span></div>
+                <span class="sw on"></span>
+              </div>
+              <div class="tg-row">
+                <div class="tg-tx"><b>Пульсировать на живых лупах</b><span>Циан-точка дышит, пока идёт запись кода</span></div>
+                <span class="sw on"></span>
+              </div>
+              <div class="tg-row">
+                <div class="tg-tx"><b>Мнемо-имена вместо хешей</b><span>«Оранжевый луп» вместо <code>a3f9c2…</code> (приём Admiral)</span></div>
+                <span class="sw on"></span>
+              </div>
+              <div class="tg-row">
+                <div class="tg-tx"><b>Звук при падении CI</b><span>Короткий сигнал, когда прогон стадии упал</span></div>
+                <span class="sw"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>Приёмы:</b> пресет = мини-превью реального шага отступов и стек поверхностей #07060B→#0D0C14→#14121E с орбом — видно результат до выбора (Untitled UI); светлая тема заперта 🔒 — канон один, тёмный; тумблеры утвердительны (Бирман, запрет отрицаний); выбор — один акцент-ультрамарин на весь экран; орб-превью — единственный glow.</div>
+  </section>
+
+  <footer class="note">
+    Все значения — из <code>docs/design/13-tokens.md</code> (единственный источник): поверхности через светлоту,
+    текст альфа-белым, request changes = warning, «в работе» = циан, «ждёт ревью» = ультрамарин, один glow на зону,
+    change остаётся латиницей. Тема одна, тёмная — светлая не проектируется по канону (экспорт наружу — отдельная светлая палитра).
+    Шрифты — системные SF Pro Text / SF Mono, поэтому окна выглядят нативно на macOS.
+    Это макеты-наброски для обсуждения раскладки; дальше — прогон по <code>14-checklist.md</code> на реальных данных и экстремумах.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v2 (по аудиту + разведке).</b> Починено: один glow в поле зрения (live-точки пульсируют альфой);
+    кегли снапнуты к типо-шкале; ультрамарин снят со стадий (акцент = только действие и выбор); степпер без непрозрачных сокращений.
+    Вшито из проектов Бирмана и бюро: инлайн-команды в строках внимания (Superpedestrian/Action), маркер опорной записи (Onetwotrip),
+    прогресс как «N из 8» (Admiral), типизированные комментарии блокер/баг/вопрос/nit (Action), area-спарклайны (OrbitStack).
+    Добавлены оверлеи ⌘K/тост/модалка. Разбор приёмов и мудборд — в <code>reference/ui/</code>
+    (<code>inspiration-birman-bureau.md</code>, <code>moodboard.md</code>, скачанные Behance-референсы в <code>behance/</code>).
+    В бэклоге ещё: виджет-сводка как фильтр, гистограмма пакетного выбора, незыблемые якоря между сценами, скобочный коннектор связанных строк.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v3 (проход по школе, макет отрендерен и просмотрен глазами).</b>
+    Пойман и убран реальный баг — коллизия классов <code>.stage</code> (подложка мульти-окна) с чипами <code>chip stage</code>:
+    паддинг 32px прилипал к пилюлям стадий. По Бирману/Горбунову в главном окне: <b>воздух вместо линеек</b> — сняты
+    межстрочные разделители инбокса и линия список↔инспектор, группировку держат пробел и рейл статус-точек;
+    <b>одна левая ось</b> — заголовки групп сведены на ось имён change'ей; <b>УВЛ</b> — убраны чип «артефакт·md»,
+    невнятная иконка-фильтр, ультрамариновые счётчики погашены до нейтральных, чтобы единственным акцентом зоны осталась выбранная строка.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v4 (синтез пользовательских референсов через канон).</b>
+    Из ~35 присланных макетов взяты отдельные лучшие черты — не копии. Аналитика §4 перестроена:
+    KPI с базлайном «Пред. неделя» (Quick Stats); hero-график с area-заливкой, crosshair-тултипом,
+    точкой-эндпоинтом и пунктирным SLA (Chainview/Cashflow); тик-пропорция «где change'и по стадиям»
+    (Activity Summary); health-scorecard исходов лупов (NextGen); таймлайн истории прогонов с карточкой
+    Сравнить/Детали (Notion-automation). Палитра ⌘K дополнена секциями и легендой навигации (SocAI).
+    Каждая черта переложена на наши токены: семантика=цвет+форма, один акцент/glow, tabular, оси от нуля,
+    радиусы и отступы из шкалы. Полный разбор референсов и мастер-список кандидатов —
+    в <code>reference/ui/user-refs.md</code>.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v5 (два марочных блока из разведки).</b>
+    §9 — <b>флоу-карта пайплайна</b>: тот же CRISPY, но графом связанных нодов со snake-топологией и
+    видимой петлёй доработки (амбер, назад к Implement) и выходом «принят» (зелёный). Узел нейтрален,
+    тип стадии — icon-chip, состояние — маркер цвет+форма (кружок/кольцо/треугольник/крестик,
+    различимы без цвета), рёбра пунктиром, клик по узлу — инспектор справа (FlexiFo/Aivora + dual-panel
+    Action-Договоры). §10 — <b>экран настроек</b>: пресеты плотности и темы карточками-мини-превью
+    реального результата (шаг отступов вживую, стек поверхностей с орбом), светлая тема заперта 🔒
+    (канон один, тёмный), тумблеры в инфостиле Бирмана (Untitled UI + Admiral мнемо-имена). Оба
+    отрендерены и просмотрены глазами. Рецепты — в <code>reference/ui/moodboard.md</code> (Проход 2).
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v8 (проработка всех экранов приёмами бюро).</b>
+    §1 инбокс переосмыслен: мнемо-имена вместо хешей (Admiral), пиктограмма-якорь типа (Главбух),
+    секции по приоритету (Superpedestrian), инфостиль-заголовки (Бирман), счётчик-фильтр вместо панели
+    (Superpedestrian), базлайн у числа (Бирман), две опорные строки (Onetwotrip), закреплённая live-полоса
+    (FXPro), always-active фильтр (FXPro); прогресс-рейл из строки убран (УВЛ) — позиция стадии словами.
+    §3 дифф — <b>dual-panel «дифф + чеклист рисков CRISPY»</b> с трёхзначковой системой ✓▲✗○ (Action-Договоры),
+    <b>скобочные группы ханков</b> с ховером и подписями (FXPro), <b>кросс-ссылки</b> на change-источник и
+    правило (Jurist-Laws). §6 канбан и §7 мульти-окно — карты и мини-строки приведены к анатомии инбокса
+    (мнемо-имя + пиктограмма, чип стадии не дублируется — колонка и есть стадия, УВЛ). §4 — история прогонов
+    стала <b>органом пакетного выбора</b>: протяжка по диапазону дат → массовое «перезапустить упавший /
+    сравнить» (Superpedestrian). §5 состояния и §2 обзор — референс-секции, оставлены как QA и вайрфреймы
+    (сырые ветки для стресс-теста усечения). Все экраны отрендерены и просмотрены глазами; полный бэклог
+    приёмов бюро — в <code>reference/ui/inspiration-birman-bureau.md</code>.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v9 (вычитка отступов и переполнений глазами).</b>
+    Впрыснут аудит-скрипт (headless Chrome) — прошёлся по каждому элементу на переполнение по ширине и перенос
+    в кнопках. Починено: <b>горизонтальный скролл всей страницы</b> — <code>.caption</code> была <code>display:flex</code>
+    без переноса, длинный абзац растягивал полотно на 330px (теперь блочный поток); <b>кнопка «Вернуть на доработку»</b>
+    в футере инспектора ломалась в 3 строки и вылезала за рамки — кнопки получили <code>white-space:nowrap</code>,
+    подсказка-дубль убрана, шорткат ушёл на саму кнопку (как в §3), padding поджат — обе кнопки встали в один ряд
+    в узкой панели; <b>заголовки карт канбана</b> резались в «…» — мнемо-имя теперь переносится в 2 строки целиком
+    (узнаваемость важнее, карта вертикально просторна); <b>лишние блики</b> — свечение орба в пресетах тем осталось
+    только на выбранной теме (один glow на зону, канон), плоские орбы у «Контраст +» и залоченной «Светлой».
+  </footer>
+
+</div>
+</div>
