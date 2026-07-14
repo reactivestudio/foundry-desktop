@@ -120,26 +120,34 @@
     x.fillStyle = g; x.beginPath(); x.arc(10 * u, 660 * u, 400 * u, 0, 7); x.fill();
     x.restore();
 
-    // световой серп — чёткое яркое ядро на правой кромке, колоколообразное затухание
+    // световой серп — изящный полумесяц: плавно набухает в середине,
+    // утончается к тонким остриям на концах; цвет от ледяного в пике к sky
     (function rim() {
       var oc = document.createElement('canvas'); oc.width = S; oc.height = S;
       var o = oc.getContext('2d');
       o.lineCap = 'round';
-      var peak = -22 * Math.PI / 180, half = 58 * Math.PI / 180, sigma = 30 * Math.PI / 180, steps = 260;
-      function stroke(rad, width, color) {
-        o.strokeStyle = color; o.lineWidth = width;
+      var peak = -24 * Math.PI / 180, half = 66 * Math.PI / 180, sigma = 40 * Math.PI / 180, steps = 380;
+      function col(bell) {
+        var r = Math.round(0x9b + (0xEE - 0x9b) * bell);
+        var gg = Math.round(0xd6 + (0xF6 - 0xd6) * bell);
+        return 'rgba(' + r + ',' + gg + ',255,1)';
+      }
+      // ширина ∝ pow(bell, powrW): powrW<1 — фуллер в середине, тонкие острия
+      function pass(rad, wBase, powrW, powrA, aScale) {
         for (var s = 0; s < steps; s++) {
           var a0 = peak - half + (2 * half) * s / steps;
           var a1 = peak - half + (2 * half) * (s + 1) / steps;
           var mid = 0.5 * (a0 + a1);
-          o.globalAlpha = Math.exp(-Math.pow((mid - peak) / sigma, 2));
+          var bell = Math.exp(-Math.pow((mid - peak) / sigma, 2));
+          o.lineWidth = wBase * Math.pow(bell, powrW);   // → 0 к остриям
+          o.globalAlpha = Math.pow(bell, powrA) * aScale;
+          o.strokeStyle = col(bell);
           o.beginPath(); o.arc(cx, cy, rad, a0, a1 + 0.004); o.stroke();
         }
       }
-      // тонкая тёплая подложка + чёткое светлое ядро
-      stroke(R + 0.5 * u, 5.5 * u, 'rgba(120, 175, 255, 0.55)');
-      stroke(R + 1 * u, 3 * u, P.rimCore);
-      x.save(); x.filter = 'blur(' + 1.1 * u + 'px)'; x.globalAlpha = 1;
+      pass(R + 0.2 * u, 8.5 * u, 0.55, 1.1, 0.18);   // мягкий блум-полумесяц у кромки
+      pass(R + 0.9 * u, 3.4 * u, 0.75, 0.85, 0.40);  // чёткое ядро-полумесяц (сильнее приглушено)
+      x.save(); x.filter = 'blur(' + 0.8 * u + 'px)'; x.globalAlpha = 1;
       x.drawImage(oc, 0, 0); x.restore();
     })();
 
