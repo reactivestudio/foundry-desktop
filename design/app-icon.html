@@ -102,9 +102,9 @@
     // keep-маска: ореол разрешён ТОЛЬКО слева от центра; справа — строго силуэт сферы.
     var km = document.createElement('canvas'); km.width = S; km.height = S;
     var kx = km.getContext('2d');
-    var lg = kx.createLinearGradient(0.44 * S, 0, 0.58 * S, 0);
+    var lg = kx.createLinearGradient(0.30 * S, 0, 0.52 * S, 0);
     lg.addColorStop(0, 'rgba(0,0,0,1)'); lg.addColorStop(1, 'rgba(0,0,0,0)');
-    kx.fillStyle = lg; kx.fillRect(0, 0, S, S);          // левая половина — гало сохраняем
+    kx.fillStyle = lg; kx.fillRect(0, 0, S, S);          // гало плавно в ноль к центру (0.52)
     kx.fillStyle = '#000';
     kx.beginPath(); kx.arc(cx, cy, R + 1 * u, 0, 7); kx.fill(); // внутри сферы — сохраняем везде
     sx.globalCompositeOperation = 'destination-in';
@@ -120,20 +120,26 @@
     x.fillStyle = g; x.beginPath(); x.arc(10 * u, 660 * u, 400 * u, 0, 7); x.fill();
     x.restore();
 
-    // световой серп — тонкое чёткое ядро на правой кромке, колоколообразное затухание
+    // световой серп — чёткое яркое ядро на правой кромке, колоколообразное затухание
     (function rim() {
       var oc = document.createElement('canvas'); oc.width = S; oc.height = S;
       var o = oc.getContext('2d');
-      o.lineCap = 'round'; o.strokeStyle = P.rimCore; o.lineWidth = 2.4 * u;
-      var peak = -38 * Math.PI / 180, half = 52 * Math.PI / 180, sigma = 27 * Math.PI / 180, steps = 240;
-      for (var s = 0; s < steps; s++) {
-        var a0 = peak - half + (2 * half) * s / steps;
-        var a1 = peak - half + (2 * half) * (s + 1) / steps;
-        var mid = 0.5 * (a0 + a1);
-        o.globalAlpha = Math.exp(-Math.pow((mid - peak) / sigma, 2));
-        o.beginPath(); o.arc(cx, cy, R + 1 * u, a0, a1 + 0.004); o.stroke();
+      o.lineCap = 'round';
+      var peak = -22 * Math.PI / 180, half = 58 * Math.PI / 180, sigma = 30 * Math.PI / 180, steps = 260;
+      function stroke(rad, width, color) {
+        o.strokeStyle = color; o.lineWidth = width;
+        for (var s = 0; s < steps; s++) {
+          var a0 = peak - half + (2 * half) * s / steps;
+          var a1 = peak - half + (2 * half) * (s + 1) / steps;
+          var mid = 0.5 * (a0 + a1);
+          o.globalAlpha = Math.exp(-Math.pow((mid - peak) / sigma, 2));
+          o.beginPath(); o.arc(cx, cy, rad, a0, a1 + 0.004); o.stroke();
+        }
       }
-      x.save(); x.filter = 'blur(' + 1.4 * u + 'px)'; x.globalAlpha = 0.92;
+      // тонкая тёплая подложка + чёткое светлое ядро
+      stroke(R + 0.5 * u, 5.5 * u, 'rgba(120, 175, 255, 0.55)');
+      stroke(R + 1 * u, 3 * u, P.rimCore);
+      x.save(); x.filter = 'blur(' + 1.1 * u + 'px)'; x.globalAlpha = 1;
       x.drawImage(oc, 0, 0); x.restore();
     })();
 
