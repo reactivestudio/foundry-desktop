@@ -1,0 +1,42 @@
+Copyright (c) 2026 Dmitriy Bushin. All rights reserved.
+
+The source code in this repository is published so that the work can be read,
+studied and discussed in the open. Publishing it does not make it free or
+open-source software. No license is granted except as stated below.
+
+PERMITTED WITHOUT ASKING
+
+  * Reading the code and linking to it.
+  * Forking the repository on GitHub and building the app locally, for the
+    purpose of studying it or proposing a change back to this repository.
+  * Quoting excerpts in discussions, articles and educational material, with
+    attribution.
+
+NOT PERMITTED WITHOUT PRIOR WRITTEN PERMISSION FROM THE COPYRIGHT HOLDER
+
+  * Using this code, in whole or in part, in any other project, commercial or
+    non-commercial.
+  * Copying, modifying, merging, publishing, distributing, sublicensing or
+    selling copies of the code.
+  * Distributing builds of the application.
+
+CONTRIBUTIONS
+
+  By submitting a pull request you agree that your contribution is licensed to
+  the copyright holder under these same terms and becomes part of the project.
+
+THIRD-PARTY MATERIAL
+
+  Files under reference/ are collected as design reference and remain the
+  property of their respective authors; they are not covered by this notice and
+  are not licensed for redistribution. Third-party dependencies are governed by
+  their own licenses.
+
+NO WARRANTY
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

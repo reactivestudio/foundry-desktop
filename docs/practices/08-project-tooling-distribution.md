@@ -24,6 +24,8 @@ Store. Отсюда два сквозных требования этой гла
 | Сайт | DMG через create-dmg; Homebrew — свой tap |
 | CI | GitHub Actions `macos-26`, SPM-кэш, p12→временный keychain, ASC API key |
 | Релизы | MARKETING_VERSION/CURRENT_PROJECT_VERSION, justfile; ⚠️ fastlane не нужен |
+| Changelog | Тело GitHub Release (+ appcast); ⚠️ отдельный `CHANGELOG.md` не нужен (§6.2) |
+| Лицензия | Публичный репо, `LICENSE` = proprietary, all rights reserved |
 
 ---
 
@@ -96,7 +98,7 @@ foundry-desktop/
 │   └── release.sh                  # или рецепты в justfile
 ├── .swift-format
 ├── justfile
-├── CHANGELOG.md
+├── LICENSE
 └── .github/workflows/{ci.yml, release.yml}
 ```
 
@@ -420,10 +422,25 @@ xcodebuild archive \
 
 ### 6.2 Changelog
 
-`CHANGELOG.md` в формате [Keep a Changelog](https://keepachangelog.com); агент
-дописывает секцию `[Unreleased]` в каждом содержательном PR. Релиз-скрипт
-извлекает секцию версии в тело GitHub Release и в `<description>` appcast'а
-(или `sparkle:releaseNotesLink` на HTML). Теги — `v1.4.0`.
+⚠️ **Отдельный `CHANGELOG.md` — не заводим** (правка 2026-07-15). Канал изменений
+для приложения вне App Store — **GitHub Release** (тело релиза) и, когда подключим
+Sparkle, `<description>` appcast'а. Файл в корне стал бы третьей копией того же
+текста — и, как всякая третья копия, протух бы первым.
+
+Замер по 11 известным macOS-приложениям (Ice, Rectangle, Maccy, AltTab, Stats,
+IINA, NetNewsWire, Loop, Whisky, MonitorControl, AeroSpace): `CHANGELOG.md` есть у
+**одного**. Остальные держат `appcast.xml` и/или release notes (у NetNewsWire —
+`Technotes/ReleaseNotes-Mac.markdown`). Формат
+[Keep a Changelog](https://keepachangelog.com) рассчитан на библиотеку, которую
+подключают по версии; у приложения, которое пользователь скачивает и обновляет
+через Sparkle, эту роль уже играет релиз.
+
+Что остаётся обязательным: **теги — `v1.4.0`**, тело релиза пишет человек при
+`gh release create`, версия обязана быть ровно `X.Y.Z` (уборка дистрибутивов в
+`release.yml` опирается на это).
+
+Вернуть отдельный файл будет уместно, только если появится второй потребитель
+истории изменений, которому тело релиза недоступно.
 
 ### 6.3 Релиз — plain-скрипты, не fastlane
 
@@ -446,8 +463,7 @@ release version:
     xcrun stapler staple .build/export/Foundry.app
     npx create-dmg .build/export/Foundry.app .build/
     ./scripts/sparkle/generate_appcast .build/updates
-    gh release create v{{version}} .build/Foundry.zip .build/*.dmg \
-      --notes "$(./scripts/changelog-extract.sh {{version}})"
+    gh release create v{{version}} .build/Foundry.zip .build/*.dmg --notes "$NOTES"
     ./scripts/bump-tap.sh {{version}}
 ```
 
@@ -473,7 +489,8 @@ release version:
       нотарифицированы и застейплены; `spctl -a -vv` зелёный.
 - [ ] Appcast сгенерирован `generate_appcast`, EdDSA-ключ не менялся; приватный
       ключ забэкаплен вне машины.
-- [ ] `CHANGELOG.md` обновлён (секция Unreleased → версия); cask в tap бампнут.
+- [ ] Тело GitHub Release описывает изменения (отдельного `CHANGELOG.md` нет —
+      §6.2); cask в tap бампнут.
 - [ ] CI: версия раннера запинена (`macos-26`, не latest); секреты не светятся в
       логах; временный keychain с `set-key-partition-list`.
 
@@ -492,5 +509,5 @@ release version:
 - Homebrew Acceptable Casks — https://docs.brew.sh/Acceptable-Casks
 - GitHub Actions macOS — https://github.blog/changelog/2026-02-26-macos-26-is-now-generally-available-for-github-hosted-runners/, https://docs.github.com/en/billing/reference/actions-runner-pricing
 - Подпись в CI — https://federicoterzi.com/blog/automatic-code-signing-and-notarization-for-macos-apps-using-github-actions/, https://www.codejam.info/2025/06/github-action-hanging-macos-app-code-signing.html
-- Changelog — https://keepachangelog.com
+- Changelog — https://keepachangelog.com (формат; у нас не применяется — §6.2)
 - fastlane — https://fastlane.tools/
