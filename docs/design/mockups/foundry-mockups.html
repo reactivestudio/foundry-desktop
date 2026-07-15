@@ -147,8 +147,8 @@
   .tb-btn:hover { background: rgba(255,255,255,0.06); }
 
   /* трёхпанельная сетка */
-  .three { display: grid; grid-template-columns: 232px minmax(0,1fr) 340px; min-height: 640px; }
-  @media (max-width: 900px){ .three { grid-template-columns: 1fr; } .pane.sidebar,.pane.inspector{ display:none; } }
+  .three { display: grid; grid-template-columns: 44px 214px minmax(0,1fr) 332px; min-height: 640px; }
+  @media (max-width: 900px){ .three { grid-template-columns: 44px 1fr; } .pane.sidebar,.pane.inspector{ display:none; } }
 
   .pane { min-width: 0; }
   .pane.sidebar {
@@ -163,6 +163,9 @@
   .pane.inspector { background: var(--bg-surface); display: flex; flex-direction: column; }
 
   /* сайдбар */
+  /* раздел назван словом — это плата за рейл из одних иконок:
+     пиктограмма подсвечена, но «где я» отвечает текст, а не догадка */
+  .side-head { font-size: 14px; font-weight: 600; color: var(--t-primary); padding: 0 var(--s2) var(--s2); }
   .side-label { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-tertiary); padding: 0 var(--s2) var(--s1); }
   .side-item {
     display: flex; align-items: center; gap: var(--s2); height: 28px; padding: 0 var(--s2);
@@ -193,7 +196,7 @@
   }
   .list-head h3 { font-size: 13px; font-weight: 600; margin: 0; }
   .seg { display: inline-flex; background: rgba(255,255,255,0.05); border-radius: var(--r-m); padding: 2px; gap: 2px; }
-  .seg span { font-size: 11px; padding: 3px 9px; border-radius: 4px; color: var(--t-tertiary); }
+  .seg span { font-size: 11px; padding: 3px 9px; border-radius: var(--r-s); color: var(--t-tertiary); }
   .seg span.on { background: rgba(255,255,255,0.10); color: var(--t-primary); }
 
   /* заголовок группы на одной левой оси с именами change'ей (44px = pad+рейл+gap) */
@@ -274,7 +277,7 @@
   .group-cap .norm { color: var(--t-disabled); font-weight: 400; text-transform: none; letter-spacing: 0; }
   /* инфостиль-фильтр в шапке (FXPro always-active) */
   .filter-ghost { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t-tertiary); }
-  .filter-ghost .fkey { font-family: var(--font-mono); font-size: 10px; border: 1px solid var(--b-subtle); border-radius: 3px; padding: 0 4px; color: var(--t-tertiary); }
+  .filter-ghost .fkey { font-family: var(--font-mono); font-size: 10px; border: 1px solid var(--b-subtle); border-radius: var(--r-s); padding: 0 4px; color: var(--t-tertiary); }
   .filter-token { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--t-accent);
     background: rgba(47,92,255,0.12); border: 1px solid rgba(47,92,255,0.3); border-radius: var(--r-full); padding: 2px 4px 2px 9px; }
   .filter-token .x { width: 14px; height: 14px; border-radius: var(--r-full); background: rgba(255,255,255,0.1); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; color: var(--t-secondary); }
@@ -349,7 +352,7 @@
   /* мини-раскладки (схематичные) */
   .mini-body { display: flex; height: calc(100% - 22px); }
   .col-side { width: 22%; background: rgba(255,255,255,0.03); border-right: 1px solid var(--b-subtle); padding: 7px 5px; display: flex; flex-direction: column; gap: 4px; }
-  .col-side b, .skel { display: block; height: 5px; border-radius: 2px; background: rgba(255,255,255,0.10); }
+  .col-side b, .skel { display: block; height: 5px; border-radius: var(--r-full); background: rgba(255,255,255,0.10); }
   .col-side b.on { background: rgba(47,92,255,0.5); }
   .col-list { flex: 1; padding: 7px 6px; display: flex; flex-direction: column; gap: 5px; border-right: 1px solid var(--b-subtle); }
   .col-insp { width: 34%; background: var(--bg-surface); padding: 7px 6px; display: flex; flex-direction: column; gap: 5px; }
@@ -360,14 +363,14 @@
   /* канбан-мини */
   .kanban { display: flex; gap: 5px; flex: 1; padding: 7px 6px; overflow: hidden; }
   .kcol { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .kcard { background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: 3px; height: 16px; }
+  .kcard { background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-s); height: 16px; }
   .kcard.now { border-color: rgba(47,92,255,0.5); box-shadow: 0 0 8px rgba(47,92,255,0.3); }
   /* мульти-окно мини */
   .multi { position: relative; flex: 1; }
-  .float-win { position: absolute; border: 1px solid var(--b-strong); border-radius: 4px; background: var(--bg-raised); box-shadow: 0 8px 20px -6px rgba(0,0,0,0.8); }
+  .float-win { position: absolute; border: 1px solid var(--b-strong); border-radius: var(--r-s); background: var(--bg-raised); box-shadow: 0 8px 20px -6px rgba(0,0,0,0.8); }
   .fw-1 { inset: 8px 34% 20% 8px; }
   .fw-2 { inset: 24% 8px 8px 42%; box-shadow: 0 8px 24px -4px rgba(0,0,0,0.9), var(--glow-accent); }
-  .fw-bar { height: 8px; border-bottom: 1px solid var(--b-subtle); border-radius: 4px 4px 0 0; background: rgba(255,255,255,0.05); }
+  .fw-bar { height: 8px; border-bottom: 1px solid var(--b-subtle); border-radius: var(--r-s) var(--r-s) 0 0; background: rgba(255,255,255,0.05); }
 
   /* ——— дифф-ревью ——— */
   .diffwin .diff-head { display: flex; align-items: center; gap: var(--s3); padding: var(--s3) var(--s4); border-bottom: 1px solid var(--b-subtle); background: var(--bg-surface); }
@@ -379,10 +382,10 @@
   .dline .code { padding-left: 12px; white-space: pre; color: var(--t-secondary); }
   .dline.add { background: var(--diff-add-bg); }
   .dline.add .code { color: #b9f5cf; }
-  .dline.add .code .w { background: var(--diff-add-word); border-radius: 2px; }
+  .dline.add .code .w { background: var(--diff-add-word); border-radius: var(--r-s); }
   .dline.rem { background: var(--diff-rem-bg); }
   .dline.rem .code { color: #f6c0c0; }
-  .dline.rem .code .w { background: var(--diff-rem-word); border-radius: 2px; }
+  .dline.rem .code .w { background: var(--diff-rem-word); border-radius: var(--r-s); }
   .dline .gutter { color: var(--t-disabled); }
   .tok-kw { color: var(--brand-magenta); } .tok-ty { color: var(--brand-cyan); } .tok-str { color: var(--sem-success); } .tok-fn { color: var(--t-accent); } .tok-num { color: #d9a2ff; }
 
@@ -452,7 +455,7 @@
   @media (max-width: 640px){ .bars { grid-template-columns: repeat(4,1fr); } }
   .bar-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .bar-track { width: 100%; height: 84px; display: flex; align-items: flex-end; }
-  .bar-fill { width: 100%; border-radius: 3px 3px 0 0; background: linear-gradient(180deg, rgba(47,92,255,0.85), rgba(47,92,255,0.35)); }
+  .bar-fill { width: 100%; border-radius: var(--r-s) var(--r-s) 0 0; background: linear-gradient(180deg, rgba(47,92,255,0.85), rgba(47,92,255,0.35)); }
   .bar-fill.warn { background: linear-gradient(180deg, rgba(251,191,36,0.85), rgba(251,191,36,0.3)); }
   .bar-cell .bl { font-size: 9px; color: var(--t-tertiary); letter-spacing: 0.02em; }
   .bar-cell .bv { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -493,7 +496,7 @@
   .btn.pressed { background: #2749c9; }
   .btn.disabled { background: rgba(255,255,255,0.08); color: var(--t-disabled); }
   .btn.loading { background: var(--brand-ultramarine); color: rgba(255,255,255,0.7); }
-  .spin { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.35); border-top-color: #fff; display: inline-block; animation: spin 0.7s linear infinite; }
+  .spin { width: 12px; height: 12px; border-radius: var(--r-full); border: 1.5px solid rgba(255,255,255,0.35); border-top-color: #fff; display: inline-block; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce){ .spin { animation: none; } }
 
@@ -519,7 +522,7 @@
 
   .extreme-row { display: grid; grid-template-columns: auto 1fr auto; gap: 4px var(--s2); align-items: center; padding: 6px var(--s2); border-radius: var(--r-m); }
   .extreme-row:hover { background: rgba(255,255,255,0.06); }
-  .extreme-row .st { width: 8px; height: 8px; border-radius: 50%; }
+  .extreme-row .st { width: 8px; height: 8px; border-radius: var(--r-full); }
   .extreme-row .nm { font-family: var(--font-mono); font-size: 12px; color: var(--t-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .extreme-row .ct { font-size: 11px; }
 
@@ -529,7 +532,7 @@
   .degraded .di { flex: none; } .degraded.warn .di { color: var(--sem-warning); } .degraded.err .di { color: var(--sem-error); }
   .degraded a { color: var(--t-accent); text-decoration: none; }
 
-  .skel-line { height: 10px; border-radius: 3px; background: rgba(255,255,255,0.06); animation: skelpulse 2s ease-in-out infinite; }
+  .skel-line { height: 10px; border-radius: var(--r-full); background: rgba(255,255,255,0.06); animation: skelpulse 2s ease-in-out infinite; }
   @keyframes skelpulse { 0%,100%{ opacity:0.45; } 50%{ opacity:0.9; } }
   @media (prefers-reduced-motion: reduce){ .skel-line { animation: none; } }
 
@@ -572,7 +575,7 @@
   .kb-col-head .kbrow { display: flex; align-items: center; gap: 6px; }
   .kb-col-head .kbt { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--t-secondary); }
   .kb-col-head .kbn { font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; margin-left: auto; }
-  .kb-col-head .kdot { width: 6px; height: 6px; border-radius: 50%; background: var(--t-disabled); flex: none; }
+  .kb-col-head .kdot { width: 6px; height: 6px; border-radius: var(--r-full); background: var(--t-disabled); flex: none; }
   .kb-col-head .kbart { font-family: var(--font-mono); font-size: 9px; color: var(--t-disabled); padding-left: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .kb-col.now .kdot { background: var(--brand-ultramarine); }
   .kb-col.done .kbt { color: var(--sem-success); }
@@ -610,7 +613,7 @@
   .t-col-head { display: flex; align-items: center; gap: 6px; padding: 3px 4px; }
   .t-col-head .tct { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--t-secondary); }
   .t-col-head .tcn { margin-left: auto; font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
-  .t-col-head .tcd { width: 5px; height: 5px; border-radius: 50%; background: var(--t-disabled); flex: none; }
+  .t-col-head .tcd { width: 5px; height: 5px; border-radius: var(--r-full); background: var(--t-disabled); flex: none; }
   .t-col.live .tcd { background: var(--brand-cyan); }
   .t-col.done .tcd { background: var(--sem-success); }
   .t-card { background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-m); padding: 8px 9px; display: flex; flex-direction: column; gap: 4px; }
@@ -635,8 +638,8 @@
   .sb-skill { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: var(--r-full); background: rgba(139,92,246,0.14); border: 1px solid rgba(139,92,246,0.32); font-family: var(--font-mono); font-size: 9px; color: #C4A6FF; }
   .sb-flag { display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: var(--r-s); font-size: 9px; color: var(--sem-warning); border: 1px solid rgba(251,191,36,0.35); background: rgba(251,191,36,0.10); }
   .sb-body { padding: 9px 11px; font-size: 12px; line-height: 1.65; color: var(--t-secondary); }
-  .sdel { background: rgba(248,113,113,0.16); color: #FFB4B4; text-decoration: line-through; text-decoration-color: rgba(248,113,113,0.6); border-radius: 2px; padding: 0 2px; }
-  .sins { background: rgba(74,222,128,0.16); color: #A7F3C0; border-radius: 2px; padding: 0 2px; }
+  .sdel { background: rgba(248,113,113,0.16); color: #FFB4B4; text-decoration: line-through; text-decoration-color: rgba(248,113,113,0.6); border-radius: var(--r-s); padding: 0 2px; }
+  .sins { background: rgba(74,222,128,0.16); color: #A7F3C0; border-radius: var(--r-s); padding: 0 2px; }
   .sb-note { display: flex; gap: 7px; padding: 7px 11px; border-top: 1px dashed var(--b-subtle); background: rgba(251,191,36,0.04); font-size: 11px; color: var(--t-secondary); line-height: 1.5; }
   .sb-note .snw { color: var(--sem-warning); flex: none; }
 
@@ -702,6 +705,127 @@
   .rv-ch { font-size: 10px; color: var(--t-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .rv-foot { display: flex; align-items: center; justify-content: space-between; font-size: 9px; color: var(--t-tertiary); }
   .rv-skill { font-family: var(--font-mono); font-size: 9px; color: #C4A6FF; }
+
+  /* ——— §16 онбординг ——— */
+  .ob-steps { display: flex; align-items: center; gap: var(--s2); padding: 10px var(--s4); background: var(--bg-surface); border-bottom: 1px solid var(--b-subtle); }
+  .ob-st { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--t-disabled); }
+  .ob-st .obn { width: 17px; height: 17px; border-radius: var(--r-full); border: 1px solid var(--b-default); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; flex: none; }
+  .ob-st.now { color: var(--t-primary); }
+  .ob-st.now .obn { background: var(--brand-ultramarine); border-color: var(--brand-ultramarine); color: #fff; }
+  .ob-st.done { color: var(--t-tertiary); }
+  .ob-st.done .obn { border-color: var(--sem-success); color: var(--sem-success); }
+  .ob-sep { flex: 1; height: 1px; background: var(--b-subtle); max-width: 34px; }
+  .ob-body { padding: var(--s5) var(--s4); background: var(--bg-base); }
+  .ob-h { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+  .ob-sub { font-size: 12px; color: var(--t-tertiary); margin-bottom: var(--s4); }
+
+  /* выбор агента: карточки большие — это развилка архитектуры, а не строка настроек */
+  /* 3 в ряд, остальные ниже — карточка крупная, это развилка архитектуры, а не строка настроек */
+  .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s3); }
+  .agent-card {
+    position: relative; overflow: hidden; isolation: isolate;
+    border: 1px solid var(--b-subtle); border-radius: var(--r-xl); padding: 15px;
+    background: var(--bg-surface); display: flex; flex-direction: column; gap: 11px;
+    min-height: 180px; --vglow: rgba(255,255,255,0.16); --vtint: rgba(255,255,255,0.05); --vedge: rgba(255,255,255,0.14);
+  }
+  .agent-card:hover { border-color: var(--b-default); }
+  /* выбранный элемент = ЯРКАЯ ЗАЛИВКА (user-refs R2 Spark: «Spark берёт полную заливку —
+     можно усилить контраст выбора»). Плюс амбиентное свечение вендора: логотип — источник
+     света. Светится только выбранная — один glow на зону (канон). */
+  .agent-card.sel {
+    border-color: rgba(47,92,255,0.75); background: rgba(47,92,255,0.16);
+    box-shadow: 0 0 0 1px rgba(47,92,255,0.30), 0 16px 42px -14px rgba(47,92,255,0.45);
+  }
+  .agent-card.sel::before {
+    content: ""; position: absolute; z-index: -1; left: -30px; top: -44px; width: 210px; height: 172px;
+    background: radial-gradient(closest-side, var(--vglow), transparent 100%); filter: blur(18px);
+  }
+  .agent-card.sel .agent-desc { color: var(--t-primary); }
+  .agent-card.sel .avendor { color: var(--t-secondary); }
+  .ahead { display: flex; align-items: center; gap: 11px; }
+  /* eyebrow-категория + теги + футер-метрики — анатомия карты из user-refs #21 (Project UI/UX) */
+  .avendor { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-disabled); }
+  .atags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .atag { padding: 2px 7px; border-radius: var(--r-s); background: rgba(255,255,255,0.05); border: 1px solid var(--b-subtle); font-size: 10px; color: var(--t-tertiary); }
+  .agent-card.sel .atag { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.18); color: var(--t-secondary); }
+  /* хоткей-чип: выбор с клавиатуры (user-refs, App Settings «хоткей-чипы Cmd+L») */
+  .akey { font-family: var(--font-mono); font-size: 10px; color: var(--t-disabled); border: 1px solid var(--b-subtle); border-radius: var(--r-s); padding: 0 5px; line-height: 15px; flex: none; }
+  .agent-card.sel .akey { color: var(--t-primary); border-color: rgba(255,255,255,0.28); }
+  .ahead-r { margin-left: auto; display: flex; align-items: center; gap: 6px; align-self: flex-start; }
+  /* плитка логотипа тонируется цветом самого логотипа — приём OrbitStack (иконка + подложка в тон) */
+  .alogo {
+    width: 60px; height: 60px; border-radius: var(--r-xl); flex: none;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--vtint); border: 1px solid var(--vedge);
+  }
+  .agent-card.sel .alogo { box-shadow: 0 0 0 1px var(--vglow), 0 12px 28px -10px var(--vglow); }
+  .atitle { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .agent-name { font-size: 15px; font-weight: 600; color: var(--t-primary); }
+  .avendor { font-size: 11px; color: var(--t-tertiary); }
+  .agent-desc { font-size: 12px; color: var(--t-secondary); line-height: 1.5; }
+  /* факт, а не прогноз: карточка агента и есть проверка окружения */
+  .agent-fact { margin-top: auto; display: flex; flex-wrap: wrap; gap: 3px var(--s3); padding-top: 10px; border-top: 1px solid var(--b-subtle); font-size: 10px; font-family: var(--font-mono); color: var(--t-tertiary); }
+  .agent-fact .ok { color: var(--sem-success); }
+  .agent-fact .no { color: var(--t-disabled); }
+  .agent-fact .w100 { flex-basis: 100%; }
+  /* статус — словом, а не прозрачностью: гасить карточку значит прятать логотип */
+  .asoon { margin-left: auto; align-self: flex-start; flex: none; padding: 2px 8px; border-radius: var(--r-full); border: 1px solid var(--b-subtle); background: rgba(255,255,255,0.04); font-size: 10px; color: var(--t-disabled); }
+  .apick { margin-left: auto; align-self: flex-start; flex: none; font-size: 11px; color: var(--t-accent); white-space: nowrap; }
+  .agent-note { margin-top: var(--s3); font-size: 11px; color: var(--t-tertiary); }
+  .agent-note b { color: var(--t-secondary); font-weight: 600; }
+
+  /* доступ: сначала зачем, потом системный диалог */
+  .ob-two { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: var(--s5); }
+  .perm-item { display: grid; grid-template-columns: 18px 1fr; gap: 2px var(--s2); padding: 9px 0; border-bottom: 1px solid var(--b-subtle); }
+  .perm-ic { color: var(--t-tertiary); font-size: 12px; }
+  .perm-what { font-size: 12px; font-weight: 600; color: var(--t-primary); }
+  .perm-why { grid-column: 2; font-size: 11px; color: var(--t-tertiary); line-height: 1.5; }
+  .perm-item.granted .perm-ic { color: var(--sem-success); }
+  /* мини-превью результата: дерево видно ДО создания (как пресеты §10, как роутинг §13) */
+  .tree { font-family: var(--font-mono); font-size: 11px; line-height: 1.75; color: var(--t-secondary); background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l); padding: 11px 13px; white-space: pre; overflow-x: auto; }
+  .tree .tc { color: var(--t-disabled); }
+  .tree .tn { color: var(--t-accent); }
+  .path-row { display: flex; align-items: center; gap: var(--s2); margin-top: var(--s3); }
+  .path-in { flex: 1; padding: 6px 10px; border-radius: var(--r-m); border: 1px solid var(--b-default); background: var(--bg-base); font-family: var(--font-mono); font-size: 11px; color: var(--t-primary); }
+  .warn-line { display: flex; align-items: flex-start; gap: 7px; margin-top: var(--s3); padding: 8px 10px; border-radius: var(--r-m); border: 1px solid rgba(251,191,36,0.35); background: rgba(251,191,36,0.07); font-size: 11px; color: var(--t-secondary); line-height: 1.5; }
+  .warn-line .wi { color: var(--sem-warning); flex: none; }
+  /* установка компонентов = карта системы: онбординг — единственное место,
+     где человек узнаёт, из чего продукт состоит */
+  .comp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); align-items: stretch; }
+  .comp-card { border: 1px solid var(--b-subtle); border-radius: var(--r-l); padding: 11px; background: var(--bg-surface); display: flex; flex-direction: column; gap: 5px; }
+  .comp-card.here { border-color: rgba(74,222,128,0.32); background: rgba(74,222,128,0.05); }
+  .comp-card.install { border-color: rgba(47,92,255,0.45); background: rgba(47,92,255,0.07); }
+  .comp-card.merge { border-color: rgba(251,191,36,0.38); background: rgba(251,191,36,0.05); }
+  .comp-name { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--t-primary); }
+  .comp-role { font-size: 11px; color: var(--t-secondary); line-height: 1.45; }
+  .comp-where { font-family: var(--font-mono); font-size: 9px; color: var(--t-disabled); }
+  .comp-state { margin-top: auto; padding-top: 6px; font-size: 10px; font-family: var(--font-mono); }
+  .comp-state.ok { color: var(--sem-success); }
+  .comp-state.new { color: var(--t-accent); }
+  .comp-state.warn { color: var(--sem-warning); }
+  .comp-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--t-disabled); }
+  .comp-arrow .ca { font-size: 13px; }
+  .comp-arrow .cl { font-size: 8px; text-align: center; line-height: 1.3; }
+  /* план установки фактом: что добавится, что допишется, что не тронем */
+  .plan-list { font-family: var(--font-mono); font-size: 10px; line-height: 1.85; white-space: pre; overflow-x: auto; background: var(--bg-base); border: 1px solid var(--b-subtle); border-radius: var(--r-m); padding: 9px 11px; color: var(--t-tertiary); }
+  .plan-list .pa { color: var(--sem-success); }
+  .plan-list .pm { color: var(--sem-warning); }
+  .plan-list .pk { color: var(--t-disabled); }
+  .plan-list .pf { color: var(--t-secondary); }
+  /* связи проверяются фактом, а не обещаются */
+  .wire { display: grid; grid-template-columns: 16px 1fr auto; gap: 2px var(--s2); padding: 7px 0; border-bottom: 1px solid var(--b-subtle); align-items: center; }
+  .wire-ic { font-size: 11px; }
+  .wire-ic.ok { color: var(--sem-success); }
+  .wire-ic.wait { color: var(--t-disabled); }
+  .wire-what { font-size: 11px; color: var(--t-primary); }
+  .wire-why { grid-column: 2; font-size: 10px; color: var(--t-tertiary); line-height: 1.4; }
+  .wire-st { font-family: var(--font-mono); font-size: 9px; color: var(--t-tertiary); }
+
+  /* деструктив — красный контур, а не заливка: он должен быть возможен, но не манить */
+  .btn.danger-out { color: var(--sem-error); border-color: rgba(248,113,113,0.45); background: rgba(248,113,113,0.07); }
+  .mbtns .btn.danger-out { margin-right: auto; }
+  .modal .mfact { font-family: var(--font-mono); font-size: 11px; color: var(--t-tertiary); background: var(--bg-base); border: 1px solid var(--b-subtle); border-radius: var(--r-m); padding: 7px 9px; margin: 0 0 var(--s3); }
+  .modal .mlose { color: var(--sem-error); }
   .kb-card {
     background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l);
     padding: var(--s3); display: flex; flex-direction: column; gap: 6px; cursor: default;
@@ -717,7 +841,7 @@
   .kb-card .kc-meta { display: flex; align-items: center; gap: 6px; }
   .kb-card .kc-foot { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
   .kb-slot { border: 1.5px dashed rgba(47,92,255,0.5); border-radius: var(--r-l); height: 54px; background: rgba(47,92,255,0.06); }
-  .mini-av { width: 16px; height: 16px; border-radius: 50%; background: rgba(47,92,255,0.2); border: 1px solid rgba(47,92,255,0.4); display: inline-flex; align-items: center; justify-content: center; font-size: 8px; color: var(--t-accent); }
+  .mini-av { width: 16px; height: 16px; border-radius: var(--r-full); background: rgba(47,92,255,0.2); border: 1px solid rgba(47,92,255,0.4); display: inline-flex; align-items: center; justify-content: center; font-size: 8px; color: var(--t-accent); }
 
   /* оверлей-инспектор поверх борда */
   .overlay-demo { position: relative; }
@@ -807,10 +931,10 @@
 
   /* пропорц-бар тик-сегментами (Activity Summary → канон) */
   .prop-bar { display: flex; gap: 3px; height: 16px; margin-bottom: var(--s4); }
-  .prop-seg { border-radius: 3px; background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.22) 0 1.5px, transparent 1.5px 5px); }
+  .prop-seg { border-radius: var(--r-s); background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.22) 0 1.5px, transparent 1.5px 5px); }
   .prop-legend { display: flex; flex-direction: column; gap: var(--s2); }
   .pl-row { display: grid; grid-template-columns: 10px 1fr auto auto; align-items: center; gap: var(--s2); font-size: 12px; }
-  .pl-row .pd { width: 8px; height: 8px; border-radius: 2px; }
+  .pl-row .pd { width: 8px; height: 8px; border-radius: var(--r-full); }
   .pl-row .pn { color: var(--t-secondary); }
   .pl-row .pc { font-family: var(--font-mono); color: var(--t-primary); }
   .pl-row .pp { font-family: var(--font-mono); color: var(--t-tertiary); width: 38px; text-align: right; }
@@ -847,7 +971,7 @@
   /* график как орган пакетного выбора: протяжка по диапазону → массовое действие (Superpedestrian) */
   .rh-brush { position: absolute; top: 0; bottom: 0; z-index: 1; border-radius: var(--r-s);
     background: rgba(47,92,255,0.10); border-left: 1.5px solid rgba(47,92,255,0.55); border-right: 1.5px solid rgba(47,92,255,0.55); }
-  .rh-brush .bh { position: absolute; top: 50%; width: 6px; height: 22px; border-radius: 3px; background: var(--brand-ultramarine); transform: translateY(-50%); }
+  .rh-brush .bh { position: absolute; top: 50%; width: 6px; height: 22px; border-radius: var(--r-full); background: var(--brand-ultramarine); transform: translateY(-50%); }
   .rh-brush .bh.l { left: -4px; } .rh-brush .bh.r { right: -4px; }
   .rh-dot.sel { box-shadow: 0 0 0 3px rgba(47,92,255,0.35); }
   .rh-batchbar { display: flex; align-items: center; gap: var(--s3); margin-top: var(--s3); padding: 6px 6px 6px var(--s3);
@@ -888,7 +1012,7 @@
   .fl-term.ok { color: var(--sem-success); background: rgba(74,222,128,0.14); border: 1px solid rgba(74,222,128,0.3); }
   .fl-term.start { color: var(--t-tertiary); background: rgba(255,255,255,0.05); border: 1px solid var(--b-subtle); }
   .fl-elabel { position: absolute; z-index: 2; font-size: 10px; font-family: var(--font-mono);
-    color: var(--sem-warning); background: var(--bg-base); padding: 1px 5px; transform: translate(-50%,-50%); white-space: nowrap; }
+    color: var(--sem-warning); background: var(--bg-surface); padding: 1px 5px; transform: translate(-50%,-50%); white-space: nowrap; }
   .flow-insp { padding: var(--s4); display: flex; flex-direction: column; gap: var(--s2); }
   .fi-head { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
   .fi-sub { font-size: 11px; color: var(--t-tertiary); margin-bottom: var(--s2); }
@@ -922,7 +1046,7 @@
   .dc-radio { width: 16px; height: 16px; border-radius: var(--r-full); border: 1.5px solid var(--b-strong); flex: none; }
   .dcard.sel .dc-radio { border-color: var(--brand-ultramarine); background: radial-gradient(circle, var(--brand-ultramarine) 0 40%, transparent 46%); }
   .dc-prev { border-radius: var(--r-s); background: var(--bg-base); border: 1px solid var(--b-subtle); padding: 8px; display: flex; flex-direction: column; }
-  .dc-prev .pr { height: 6px; border-radius: 2px; background: rgba(255,255,255,0.13); }
+  .dc-prev .pr { height: 6px; border-radius: var(--r-full); background: rgba(255,255,255,0.13); }
   .dc-prev .pr.a { background: rgba(124,154,255,0.5); }
   .dc-meta { font-size: 11px; color: var(--t-tertiary); font-family: var(--font-mono); margin-top: 8px; }
   .tcard { border: 1px solid var(--b-default); border-radius: var(--r-l); padding: var(--s3); }
@@ -948,6 +1072,273 @@
   .sw::after { content: ""; position: absolute; width: 17px; height: 17px; border-radius: var(--r-full); background: #fff; top: 2px; left: 2px; }
   .sw.on { background: var(--brand-ultramarine); }
   .sw.on::after { left: 17px; }
+
+  /* ——— §17 скиллы: замыкание петли «ревью → правило» ——— */
+  .skl-dual { display: grid; grid-template-columns: 232px minmax(0,1fr); }
+  .skl-list { background: var(--bg-surface); border-right: 1px solid var(--b-subtle); padding: var(--s2) 0 var(--s3); }
+  .skl-sec { padding: var(--s3) var(--s4) 5px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--t-disabled); }
+  .skl-row { display: grid; grid-template-columns: 13px minmax(0,1fr) auto; align-items: center; gap: var(--s2); padding: 7px var(--s4); }
+  .skl-row:hover { background: rgba(255,255,255,0.03); }
+  .skl-row.sel { background: rgba(47,92,255,0.14); box-shadow: inset 2px 0 0 var(--brand-ultramarine); }
+  /* пиктограмма-якорь рода скилла (Главбух): пишет · ищет · делает · решает */
+  .sr-pict { font-size: 10px; color: var(--t-disabled); text-align: center; }
+  .skl-row.sel .sr-pict { color: var(--t-accent); }
+  .sr-name { font-family: var(--font-mono); font-size: 11px; color: var(--t-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .skl-row.sel .sr-name { color: var(--t-primary); }
+  /* цвет только на значимом (FXPro): из четырёх скиллов с замечаниями горит один */
+  .sr-n { font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
+  .sr-n.hot { color: var(--sem-warning); }
+
+  /* якорь скилла — тот же компонент, что зум в change (Worldchess): координаты не меняются,
+     пришёл ты из ревью или из сайдбара */
+  .skl-pane .za-name { font-family: var(--font-mono); font-size: 13px; font-weight: 500; }
+  .skl-card { background: var(--bg-base); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s4); }
+
+  /* факт вместо оценки: ни рейтинга, ни «здоровья скилла» — счёт и базлайн (Бирман) */
+  .skl-fact { display: grid; grid-template-columns: repeat(3, auto) minmax(0,1fr); gap: var(--s6); align-items: end; padding: var(--s3) var(--s4); border: 1px solid var(--b-subtle); border-radius: var(--r-l); background: var(--bg-surface); }
+  .fct .fn { font-size: 21px; font-weight: 600; color: var(--t-primary); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; line-height: 1.15; }
+  .fct .fn.warn { color: var(--sem-warning); }
+  /* единица набирается мельче числа: считывается число, а не «дн» (Бирман) */
+  .fct .fn .fu { font-size: 13px; font-weight: 400; color: var(--t-tertiary); margin-left: 2px; }
+  .fct .fl { font-size: 10px; color: var(--t-tertiary); margin-top: 3px; }
+  .fct .fb { font-size: 10px; color: var(--t-disabled); margin-top: 2px; }
+  .fct .fb b { color: var(--sem-success); font-weight: 600; }
+
+  /* возвраты по месяцам с отсечкой в момент правки правила: базлайн виден глазом */
+  .spark { justify-self: end; width: 268px; }
+  .sp-bars { position: relative; display: flex; align-items: flex-end; gap: 5px; height: 44px; }
+  .sp-bars i { flex: 1; background: rgba(255,255,255,0.22); border-radius: var(--r-s) var(--r-s) 0 0; height: var(--h); }
+  .sp-bars i.now { background: rgba(255,255,255,0.09); }
+  .sp-cut { position: absolute; top: -3px; bottom: 0; width: 0; border-left: 1px dashed rgba(74,222,128,0.65); }
+  .sp-x { display: flex; justify-content: space-between; margin-top: 5px; font-size: 9px; color: var(--t-disabled); }
+  .sp-x .cut { color: var(--sem-success); }
+
+  /* замечания сгруппированы по причине, а не по времени: повтор — это диагноз, лента — нет */
+  .dg-h { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--t-disabled); }
+  .dg { border: 1px solid var(--b-subtle); border-radius: var(--r-l); overflow: hidden; margin-top: var(--s2); }
+  .dg.open { border-color: rgba(251,191,36,0.4); }
+  .dg-head { display: flex; align-items: center; gap: var(--s3); padding: 9px 11px; background: var(--bg-surface); }
+  .dg-n { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--t-secondary); font-variant-numeric: tabular-nums; min-width: 22px; }
+  .dg.open .dg-n { color: var(--sem-warning); }
+  .dg-what { font-size: 12px; color: var(--t-primary); }
+  /* тот же алфавит ✓▲○, что в чеклисте рисков §3: диагноз читается без цвета */
+  .dg-dx { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; padding: 1px 7px; border-radius: var(--r-s); font-size: 10px; border: 1px solid var(--b-subtle); color: var(--t-tertiary); background: rgba(255,255,255,0.03); }
+  .dg-dx.miss { color: var(--sem-warning); border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.10); }
+  .dg-dx.gone { color: var(--sem-success); border-color: rgba(74,222,128,0.32); background: rgba(74,222,128,0.09); }
+  .dg-body { padding: 10px 11px; display: flex; flex-direction: column; gap: var(--s3); border-top: 1px solid var(--b-subtle); }
+  .dg-ev { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s3); font-size: 11px; color: var(--t-tertiary); align-items: center; }
+  .dg-ev .evl { color: var(--t-disabled); }
+  /* кросс-ссылка на change-источник (Jurist-Laws): замечание доказано, а не заявлено */
+  .ev { display: inline-flex; align-items: center; gap: 4px; color: var(--t-accent); }
+  .ev .p { color: var(--t-disabled); }
+  .dg-fix { border: 1px solid var(--b-subtle); border-radius: var(--r-m); overflow: hidden; }
+  .dg-fix-h { display: flex; align-items: center; gap: var(--s2); padding: 5px 9px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--b-subtle); font-size: 10px; color: var(--t-disabled); text-transform: uppercase; letter-spacing: 0.04em; }
+  .dg-fix-b { padding: 9px 10px; font-size: 12px; line-height: 1.65; color: var(--t-secondary); }
+  .dg-why { font-size: 11px; color: var(--t-tertiary); line-height: 1.5; }
+  .dg-why b { color: var(--t-secondary); font-weight: 600; }
+  .dg-act { display: flex; align-items: center; gap: var(--s2); }
+  .dg-act .hint { margin-right: auto; font-size: 10px; color: var(--t-disabled); }
+
+  /* ——— §18 проект: не папка, а вход роутера ——— */
+  .prj-dual { display: grid; grid-template-columns: 232px minmax(0,1fr); }
+  .prj-list { background: var(--bg-surface); border-right: 1px solid var(--b-subtle); padding: var(--s2) 0 var(--s3); }
+  /* секция = лейбл-категория: счётчик и есть фильтр, отдельной панели фильтров не нужно (Superpedestrian) */
+  .prj-sec { display: flex; align-items: center; gap: 7px; padding: var(--s3) var(--s4) 5px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--t-disabled); }
+  .prj-sec .pc { font-size: 11px; color: var(--t-tertiary); }
+  .prj-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: var(--s2); align-items: center; padding: 7px var(--s4) 7px 30px; }
+  .prj-row:hover { background: rgba(255,255,255,0.03); }
+  .prj-row.sel { background: rgba(47,92,255,0.14); box-shadow: inset 2px 0 0 var(--brand-ultramarine); }
+  .pr-name { font-size: 12px; color: var(--t-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .prj-row.sel .pr-name { color: var(--t-primary); }
+  .pr-n { font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
+
+  .prj-pane .za-pict { font-size: 10px; }
+  .prj-card { background: var(--bg-base); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s4); }
+  .prj-h { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--t-disabled); margin-bottom: var(--s2); }
+  .lbl-row { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+  .lbl-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: var(--r-full); border: 1px solid var(--b-default); background: rgba(255,255,255,0.04); font-size: 11px; color: var(--t-secondary); }
+  .lbl-chip .lk { color: var(--t-disabled); font-size: 9px; }
+  .lbl-chip.cat { border-color: var(--b-strong); color: var(--t-primary); }
+  .lbl-add { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: var(--r-full); border: 1px dashed var(--b-default); font-size: 11px; color: var(--t-disabled); }
+  .lbl-note { font-size: 11px; color: var(--t-tertiary); line-height: 1.5; margin-top: 9px; }
+  .lbl-note a { color: var(--t-accent); text-decoration: none; }
+
+  /* пайплайн выключен — с причиной, а не пустой галочкой */
+  .pp { display: grid; grid-template-columns: 13px minmax(0,1fr) auto; align-items: center; gap: 3px var(--s3); padding: 8px 11px; border: 1px solid var(--b-subtle); border-radius: var(--r-m); }
+  .pp + .pp { margin-top: 5px; }
+  .pp-i { font-size: 10px; color: var(--sem-success); text-align: center; }
+  .pp-name { font-size: 12px; color: var(--t-primary); }
+  .pp-st { font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
+  .pp-why { grid-column: 2/-1; font-size: 10px; color: var(--t-disabled); line-height: 1.45; }
+  .pp.off { background: rgba(255,255,255,0.015); }
+  .pp.off .pp-i { color: var(--t-disabled); }
+  .pp.off .pp-name { color: var(--t-tertiary); }
+
+  /* ——— §19 insights · переделка ——— */
+  .ins-tabs { display: flex; gap: 2px; padding: var(--s2) var(--s4) 0; background: var(--bg-surface); border-bottom: 1px solid var(--b-subtle); }
+  .ins-tab { padding: 7px 13px; font-size: 12px; color: var(--t-tertiary); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .ins-tab.on { color: var(--t-primary); border-bottom-color: var(--brand-ultramarine); }
+  .ins-dual { display: grid; grid-template-columns: minmax(0,1fr) 268px; }
+  .ins-main { padding: var(--s4); background: var(--bg-base); border-right: 1px solid var(--b-subtle); display: flex; flex-direction: column; gap: var(--s4); }
+  .ins-h { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--t-disabled); margin-bottom: var(--s3); }
+
+  /* стадия = одна полоса: первый прогон + переделка. Порядок пайплайновый —
+     видно, что чем правее переделка, тем она дороже */
+  .ib-head, .ib { display: grid; grid-template-columns: 84px minmax(0,1fr) 66px 58px; align-items: center; gap: 3px var(--s3); }
+  .ib-head { font-size: 9px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--t-disabled); padding-bottom: 6px; border-bottom: 1px solid var(--b-subtle); margin-bottom: 6px; }
+  .ib-head .r { text-align: right; }
+  .ib { padding: 3px 0; }
+  .ib-name { font-size: 11px; color: var(--t-secondary); }
+  .ib.off .ib-name { color: var(--t-disabled); }
+  .ib-track { display: flex; height: 13px; gap: 1px; }
+  .ib-base { background: rgba(255,255,255,0.20); border-radius: var(--r-s); }
+  .ib-re { background: rgba(251,191,36,0.60); border-radius: var(--r-s); }
+  .ib-tok { font-family: var(--font-mono); font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; text-align: right; }
+  .ib-ret { font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; text-align: right; }
+  .ib-ret.hot { color: var(--sem-warning); }
+  .ib-ret.zero { color: var(--t-disabled); }
+  .ib-why { grid-column: 2/-1; font-size: 9px; color: var(--t-disabled); }
+  .ib-legend { display: flex; gap: var(--s4); font-size: 10px; color: var(--t-tertiary); margin-top: var(--s3); }
+  .ib-legend i { display: inline-block; width: 9px; height: 9px; border-radius: var(--r-s); margin-right: 6px; vertical-align: -1px; }
+  .ib-legend .lb { background: rgba(255,255,255,0.20); }
+  .ib-legend .lr { background: rgba(251,191,36,0.60); }
+
+  .ins-side { padding: var(--s4); background: var(--bg-surface); display: flex; flex-direction: column; gap: var(--s3); }
+  .rc { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px var(--s2); padding-bottom: 8px; border-bottom: 1px solid var(--b-subtle); }
+  .rc-name { font-size: 11px; color: var(--t-secondary); }
+  .rc-v { font-family: var(--font-mono); font-size: 12px; color: var(--t-secondary); font-variant-numeric: tabular-nums; }
+  .rc.hot .rc-name, .rc.hot .rc-v { color: var(--sem-warning); }
+  .rc-sub { grid-column: 1/-1; font-size: 9px; color: var(--t-disabled); }
+  /* происхождение числа названо: токен — факт из сессии, лимит — оценка (Бирман) */
+  .ins-src { font-size: 10px; color: var(--t-disabled); line-height: 1.5; padding-top: var(--s2); border-top: 1px dashed var(--b-subtle); }
+  .ins-src b { color: var(--t-tertiary); font-weight: 600; }
+
+  /* ——————————————————————————————————————————————————————————————
+     ВОЗДУХ МЕЖДУ ПАНЕЛЯМИ (v15) — касается всех экранов
+     Референс: OrbitStack (reference/ui/behance/orbitstack-02.png) — панель
+     лежит карточкой на подложке, а не примыкает к соседней.
+     Довод: линейка — нарисованный объект, который спорит за внимание; зазор
+     группирует близостью и не стоит ни капли краски. Это тот же приём «воздух
+     вместо линеек», который в ревизии v3 применили к строкам инбокса, — теперь
+     уровнем выше, панель к панели.
+     Стек светлот берём прямо из токенов и наконец применяем честно:
+     окно — base (стол) · панель — surface (карточка на столе) · элемент внутри
+     панели — raised. До этого content-панели были base, а боковые surface —
+     перепад ничего не значил.
+     ——————————————————————————————————————————————————————————————— */
+  .three, .diff-dual, .spec-dual, .route-dual, .ins-dual, .skl-dual, .prj-dual,
+  .flowwrap, .setgrid {
+    gap: var(--s2); padding: var(--s2); background: var(--bg-base);
+  }
+  /* Панель — заливка и радиус, без обводки. Обводка была третьей границей поверх
+     зазора и перепада светлоты: три способа сказать одно и то же — два лишних (УВЛ). */
+  .pane.sidebar, .pane.list, .pane.inspector,
+  .diff-main, .risk-panel, .spec-main, .skill-panel, .route-main, .route-out,
+  .ins-main, .ins-side, .skl-list, .skl-pane, .prj-list, .prj-pane,
+  .flow-canvas, .flow-insp, .set-nav, .set-body {
+    background: var(--bg-surface);
+    border: none;
+    border-radius: var(--r-l);
+    overflow: hidden;
+  }
+  /* линейки-разделители панелей больше не нужны: их работу делает зазор */
+  .pane.sidebar, .diff-main, .spec-main, .route-main, .ins-main, .skl-list, .prj-list,
+  .flow-canvas, .set-nav { border-right: none; }
+  .flow-canvas { background: radial-gradient(70% 90% at 30% 8%, rgba(47,92,255,0.08), transparent 60%), var(--bg-surface); }
+  /* то, что было surface на base, поднимается на raised — иначе сольётся с панелью */
+  .skl-fact, .dg-head, .sb-head { background: var(--bg-raised); }
+  .skl-card, .prj-card { background: none; }
+
+  /* ——— Верхние полосы — не панели, а строки контекста ———
+     Они шли во всю ширину непрозрачным прямоугольником с линейкой снизу: единственные
+     нескруглённые плашки на экране, где всё остальное — карточки. Скруглять их незачем —
+     нечего скруглять: заливка и обводка сняты, информация лежит прямо на подложке окна.
+     Это снова «воздух вместо линеек»: полосу от панелей отделяет зазор. */
+  .zoom-anchor, .ins-tabs, .pipe-bar, .sprint-bar, .tx-bar, .ob-steps, .rv-bar {
+    background: none; border-bottom: none;
+  }
+  /* .list-head липкая — ей нужна непрозрачная заливка, но ровно та же, что у её панели:
+     видно её только когда список уезжает под неё */
+  .list-head { background: var(--bg-surface); border-bottom: none; }
+  /* полоса вкладок больше не плашка — подчёркивание выбранного само по себе */
+  .ins-tabs { padding-left: var(--s3); }
+  /* эти две полосы того же рода — строка контекста, а не панель */
+  .diffwin .diff-head, .zoom-pipe { background: none; border-bottom: none; }
+
+  /* ——————————————————————————————————————————————————————————————
+     ОБВОДКА — НЕ ОФОРМЛЕНИЕ, А СОСТОЯНИЕ (v17)
+     Когда обведено всё, обводка не значит ничего: она есть и у выбранной карточки,
+     и у соседней, разница только в цвете — а цвет мы бережём для другого. Убираем
+     обводку в покое — и она начинает работать: обведено = выбрано или требует
+     внимания. В покое объект держит заливка: raised на surface, surface на base.
+     Тот же довод, что снял обводки с панелей, только внутрь панели.
+     ——————————————————————————————————————————————————————————————— */
+  .kb-card, .t-card, .pipe-tab, .agent-card, .sblock, .dg, .dg-fix, .sig, .pp,
+  .skl-fact, .comp-card, .kpi, .small-mult, .hero-chart, .runhist, .rh-card,
+  .dcard, .dc-prev, .plan-list, .apanel, .ov-stage, .field-demo, .kcard, .tc-win {
+    border: none;
+  }
+  .kb-card, .t-card, .pipe-tab, .agent-card, .sblock, .dg, .sig, .pp,
+  .comp-card, .kpi, .small-mult, .runhist, .dcard, .apanel, .kcard {
+    background: var(--bg-raised);
+  }
+  .dg-fix, .plan-list, .hero-chart, .field-demo { background: rgba(255,255,255,0.03); }
+  /* ховер больше не подсвечивает обводку — её нет; работает заливка */
+  .kb-card:hover { background: var(--bg-overlay); }
+  .agent-card:hover { background: var(--bg-overlay); }
+  /* а вот это — состояния, и тут обводка на месте */
+  .kb-card.now { border: 1px solid rgba(47,92,255,0.55); box-shadow: none; }
+  .kb-card.drag { border: 1px solid var(--b-strong); }
+  .t-card.live { border: 1px solid rgba(88,199,255,0.45); }
+  .pipe-tab.sel { border: 1px solid rgba(47,92,255,0.55); background: rgba(47,92,255,0.12); }
+  .sblock.flagged { border: 1px solid rgba(251,191,36,0.4); }
+  .dg.open { border: 1px solid rgba(251,191,36,0.4); }
+  .sig.low { border: 1px solid rgba(251,191,36,0.32); }
+  .agent-card.sel { border: 1px solid rgba(47,92,255,0.75); }
+  .kcard.now { border: 1px solid rgba(47,92,255,0.5); }
+  .dcard.sel { border: 1px solid rgba(47,92,255,0.55); background: rgba(47,92,255,0.10); box-shadow: none; }
+  /* шапка блока внутри карточки теперь сливалась бы с ней — поднимаем на overlay */
+  .sb-head, .dg-head { background: var(--bg-overlay); }
+
+  /* панель-навигация не тянется во всю высоту окна: шесть пунктов в высокой
+     плашке читаются как пустая коробка, а не как список (§10) */
+  .set-nav { align-self: start; }
+
+  /* ——— рейл разделов (Okashi: «узкий левый icon-rail», user-refs.md) ———
+     Только иконки и альты. Иконка без подписи двусмысленна, поэтому раздел
+     всегда назван словом в шапке соседней панели: где ты находишься, видно
+     текстом, а не только подсветкой пиктограммы.
+     Рейл не добавлен сверху, а забрал навигацию, размазанную по экрану:
+     сегмент «Инбокс · Канбан · Лог» из шапки списка убран (УВЛ). */
+  .rail { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: var(--s2) 0;
+          background: var(--bg-surface); border-radius: var(--r-l); }
+  .rl { position: relative; width: 30px; height: 30px; border-radius: var(--r-m); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--t-tertiary); }
+  .rl:hover { background: rgba(255,255,255,0.06); color: var(--t-secondary); }
+  .rl.sel { background: rgba(47,92,255,0.16); color: var(--t-accent); }
+  .rl-sp { flex: 1; }
+  /* бейдж-счётчик в навигации (Chainview) — нейтральный, кроме требующего решения */
+  .rl-b { position: absolute; top: 1px; right: 1px; min-width: 12px; height: 12px; padding: 0 3px; border-radius: var(--r-full);
+          background: rgba(255,255,255,0.16); color: var(--t-primary); font-size: 8px; font-weight: 600;
+          display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
+  .rl-b.warn { background: var(--sem-warning); color: #201700; }
+  /* альт: в приложении — системный тултип; здесь показан у наведённого пункта */
+  .rl-tip { position: absolute; left: 37px; top: 50%; transform: translateY(-50%); white-space: nowrap; z-index: 6;
+            background: var(--bg-overlay); border: 1px solid var(--b-default); border-radius: var(--r-m);
+            padding: 4px 9px; font-size: 11px; color: var(--t-primary); box-shadow: 0 8px 24px -8px rgba(0,0,0,0.8); }
+  .rl-tip kbd { margin-left: 7px; color: var(--t-disabled); font-family: var(--font-mono); font-size: 9px; }
+
+  /* низ сайдбара — карточка статуса агента (Chainview: промо-карточка внизу сайдбара).
+     Расход лимита здесь тот же, что метрика в §19: цена работы видна всегда, а не только в отчёте */
+  .agent-card-s { margin-top: auto; border-radius: var(--r-m); padding: 9px; background: var(--bg-raised); }
+  .acs-h { display: flex; align-items: center; gap: 7px; }
+  .acs-n { font-size: 11px; color: var(--t-secondary); }
+  .acs-m { margin-left: auto; font-family: var(--font-mono); font-size: 9px; color: var(--t-disabled); }
+  .acs-slots { display: flex; gap: 3px; margin-top: 8px; }
+  .acs-slots i { flex: 1; height: 3px; border-radius: var(--r-full); background: rgba(255,255,255,0.10); }
+  .acs-slots i.on { background: var(--brand-cyan); }
+  .acs-l { display: flex; justify-content: space-between; font-size: 9px; color: var(--t-disabled); margin-top: 7px; }
+  .acs-bar { height: 3px; border-radius: var(--r-full); background: rgba(255,255,255,0.10); margin-top: 3px; overflow: hidden; }
+  .acs-bar i { display: block; height: 100%; width: 62%; background: rgba(255,255,255,0.32); border-radius: var(--r-full); }
 
   /* появление */
   @media (prefers-reduced-motion: no-preference){
@@ -1001,8 +1392,8 @@
   <section class="block">
     <div class="sec-head">
       <span class="sec-num">01 — основной макет</span>
-      <h2>Главное окно: сайдбар · инбокс ревью · инспектор</h2>
-      <p>Асимметричный трёхпанельник по мотиву «Секьюриджи»: узкий список слева, широкая деталь справа, а зона «требуют внимания» всегда прижата к верху и не тонет в потоке. Плотность десктопная, хром — системный Liquid Glass, данные — на <code style="font-family:var(--font-mono);font-size:11px;color:var(--t-accent)">bg.base</code>.</p>
+      <h2>Главное окно: рейл · сайдбар · инбокс ревью · инспектор</h2>
+      <p>Асимметричный панельник по мотиву «Секьюриджи»: узкий список слева, широкая деталь справа, а зона «требуют внимания» всегда прижата к верху и не тонет в потоке. Слева — <b>рейл разделов</b> (Okashi): только иконки и альты. Панели <b>не примыкают</b> — между ними видна подложка окна (OrbitStack): границу держит зазор, а не линейка.</p>
     </div>
 
     <div class="win">
@@ -1015,10 +1406,27 @@
       </div>
 
       <div class="three">
+        <!-- рейл разделов: только иконки и альты (Okashi). Раздел назван словом
+             в шапке соседней панели — иконка одна не отвечает «где я» -->
+        <nav class="rail">
+          <span class="rl sel" title="Инбокс"><span>▤</span><span class="rl-b warn">2</span></span>
+          <span class="rl" title="Канбан"><span>▦</span></span>
+          <span class="rl" title="Ревью артефактов"><span>✓</span><span class="rl-b">5</span></span>
+          <span class="rl" title="Задачи"><span>≡</span></span>
+          <span class="rl" title="Проекты"><span>◇</span></span>
+          <span class="rl" title="Insights"><span>◔</span></span>
+          <span class="rl" title="Скиллы"><span>✎</span>
+            <span class="rl-tip">Скиллы<kbd>⌘7</kbd></span>
+          </span>
+          <span class="rl-sp"></span>
+          <span class="rl" title="Настройки"><span>⚙</span></span>
+        </nav>
+
         <!-- сайдбар -->
         <aside class="pane sidebar">
+          <div class="side-head">Инбокс</div>
           <div class="side-sec">
-            <div class="side-label">Проекты</div>
+            <div class="side-label">Фильтр по проекту</div>
             <div class="side-item sel"><span class="ico">◆</span><span class="grow">foundry-desktop</span><span class="count pill">3</span></div>
             <div class="side-item"><span class="ico">◆</span><span class="grow">crispy-core</span><span class="count pill">2</span></div>
             <div class="side-item"><span class="ico">◇</span><span class="grow">memory-vault</span><span class="count">1</span></div>
@@ -1033,7 +1441,15 @@
             <div class="side-item"><span class="ico">✓</span><span class="grow">Готово сегодня</span><span class="count">9</span></div>
             <div class="side-hint">Клик по счётчику — фильтр списка. Виджет-сводка и есть пульт: отдельной панели фильтров нет.</div>
           </div>
-          <div class="side-foot"><span class="orb"></span><span>Claude активен · 2 лупа</span></div>
+          <!-- карточка статуса агента внизу сайдбара (Chainview): расход лимита —
+               та же метрика, что в §19, но видна всегда, а не только в отчёте -->
+          <div class="agent-card-s">
+            <div class="acs-h"><span class="orb"></span><span class="acs-n">Claude</span><span class="acs-m">Opus 4.8</span></div>
+            <div class="acs-slots"><i class="on"></i><i class="on"></i><i></i></div>
+            <div class="acs-l"><span>2 из 3 слотов заняты</span></div>
+            <div class="acs-l" style="margin-top:9px"><span>Лимит недели</span><span>≈ 62 %</span></div>
+            <div class="acs-bar"><i></i></div>
+          </div>
         </aside>
 
         <!-- список ревью -->
@@ -1042,7 +1458,6 @@
             <span class="filter-token">Все на ревью <span class="x">✕</span></span>
             <div style="flex:1"></div>
             <span class="filter-ghost"><span class="fkey">A–Z</span> печатай — фильтр</span>
-            <div class="seg"><span class="on">Инбокс</span><span>Канбан</span><span>Лог</span></div>
           </div>
 
           <!-- секции по приоритету, не по проекту (Superpedestrian); заголовки в инфостиле (Бирман) -->
@@ -1176,7 +1591,7 @@
         </aside>
       </div>
     </div>
-    <div class="caption"><b>Дизайн-решения (каждое — из проекта бюро):</b> строка названа <b>мнемо-именем</b>, а хеш-ветка ушла во вторую строку — «Контраст по APCA» ищется глазом быстрее, чем <code style="font-family:var(--font-mono)">feat/apc-contrast</code> (Admiral). Тип change'а — <b>пиктограмма-якорь</b> в начале, опознаётся периферией (Главбух). Позиция в 8 стадиях CRISPY — <b>словами в строке</b> («стадия 3 из 8»), а графический прогресс не дублируется: живёт в большом степпере инспектора, где заливается объект (Admiral + УВЛ Горбунова — убрать лишний рейл из строки). Секции — <b>по приоритету, не по проекту</b>: решать → ждёт → пишется (Superpedestrian), а заголовки в инфостиле-глаголах (Бирман). Подсвечены ровно <b>две опорные строки</b> — «дольше всех» и «крупный дифф», остальное нейтрально (Onetwotrip). Счётчик в сайдбаре <b>и есть фильтр</b> — отдельной панели нет (Superpedestrian). Число получает <b>базлайн</b>: «3 · норма 2» (Бирман). Live-лупы — <b>в закреплённой полосе</b> у нижней кромки, не вперемешку с очередью (FXPro). Печать где угодно фильтрует — поле не ловит фокус (FXPro).</div>
+    <div class="caption"><b>Дизайн-решения (каждое — из проекта бюро):</b> строка названа <b>мнемо-именем</b>, а хеш-ветка ушла во вторую строку — «Контраст по APCA» ищется глазом быстрее, чем <code style="font-family:var(--font-mono)">feat/apc-contrast</code> (Admiral). Тип change'а — <b>пиктограмма-якорь</b> в начале, опознаётся периферией (Главбух). Позиция в 8 стадиях CRISPY — <b>словами в строке</b> («стадия 3 из 8»), а графический прогресс не дублируется: живёт в большом степпере инспектора, где заливается объект (Admiral + УВЛ Горбунова — убрать лишний рейл из строки). Секции — <b>по приоритету, не по проекту</b>: решать → ждёт → пишется (Superpedestrian), а заголовки в инфостиле-глаголах (Бирман). Подсвечены ровно <b>две опорные строки</b> — «дольше всех» и «крупный дифф», остальное нейтрально (Onetwotrip). Счётчик в сайдбаре <b>и есть фильтр</b> — отдельной панели нет (Superpedestrian). Число получает <b>базлайн</b>: «3 · норма 2» (Бирман). Live-лупы — <b>в закреплённой полосе</b> у нижней кромки, не вперемешку с очередью (FXPro). Печать где угодно фильтрует — поле не ловит фокус (FXPro). <b>Рейл разделов</b> (Okashi из наших референсов) — только иконки и альты; он не добавлен сверху, а <b>забрал</b> навигацию, размазанную по экрану: сегмент «Инбокс · Канбан · Лог» из шапки списка убран, иначе одно переключение жило бы в двух местах (УВЛ). Плата за иконки без подписей названа и уплачена: <b>раздел назван словом</b> — «Инбокс» стоит в шапке соседней панели, потому что подсветки пиктограммы мало, чтобы ответить «где я»; глифы здесь — заглушки под SF Symbols. Бейдж на пункте рейла <b>янтарный только там, где требуется решение</b> (2), остальные нейтральны — цвет на значимом. <b>Панели не примыкают</b> (OrbitStack): между ними видна подложка окна, и границу держит зазор, а не линейка — то же «воздух вместо линеек», что уже применено к строкам инбокса, только уровнем выше. Перепад светлот теперь наконец что-то значит: окно — base, панель — surface, элемент внутри — raised. <b>Обводки у панелей нет</b>: она была третьей границей поверх зазора и перепада светлоты — три способа сказать одно и то же, два лишних (УВЛ). <b>Полоса под титлбаром — не панель, а строка контекста</b>: без заливки и линейки, информация лежит прямо на подложке. <b>Низ сайдбара — карточка статуса агента</b> (Chainview): слоты и <b>расход недельного лимита</b> — та же метрика, что в §19, но видна всегда, а не только когда откроешь отчёт.</div>
   </section>
 
   <!-- ——————————————————— §2 ВАРИАНТЫ РАСКЛАДКИ ——————————————————— -->
@@ -2101,8 +2516,9 @@
       </div>
 
       <!-- реальный пайплайн именно этого change'а -->
+      <!-- ярлыка «Пайплайн фичи» тут нет: якорь строкой выше уже сказал
+           «Фича · один сервис», а степпер и так очевидно пайплайн (УВЛ) -->
       <div class="zoom-pipe">
-        <span class="zp-lbl">Пайплайн<br>фичи</span>
         <div class="stepper">
           <div class="step done" title="Questions"><span class="node">✓</span><span class="lbl">Questions</span></div>
           <div class="step done" title="Research"><span class="node">✓</span><span class="lbl">Research</span></div>
@@ -2387,6 +2803,634 @@
     <div class="caption"><b>Дизайн-решения:</b> <b>колонки — состояния ревью</b>, не стадии: очередь поперечна пайплайнам, и стадия здесь лишь адрес карточки («Design», «PR»). Тип артефакта — <b>чип формой и словом</b> («спека» / «план» / «дифф»), потому что ревью спеки и ревью диффа — разная работа, и глаз должен делить их до чтения. Каждый артефакт несёт <b>скилл-автора</b>: возврат адресуется скиллу (§12), поэтому автор виден уже в очереди, а возвращённая карточка помечает скилл warning'ом. «Смотрю» — <b>ровно одна карточка</b>: очередь ревью однопоточна, это дисциплина, а не ограничение. «Принято» живёт <b>календарным месяцем</b>, как и на доске change'ей (§6), — одно понятие спринта на весь продукт.</div>
   </section>
 
+  <!-- ——————————————————— §16 ОНБОРДИНГ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">16 — онбординг</span>
+      <h2>Настройка с нуля: агент, компоненты, доступ, первый проект</h2>
+      <p>Пять шагов — и только те, без которых нельзя начать. Тема и плотность сюда не едут: они ничего не блокируют и живут в настройках (§10). Каждый шаг показывает <b>факт</b>, а не обещание: что нашлось, что будет создано, что потеряется.</p>
+    </div>
+
+    <!-- шаг 1: агент -->
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — настройка</span>
+      </div>
+      <div class="ob-steps">
+        <span class="ob-st now"><span class="obn">1</span>Агент</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">2</span>Компоненты</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">3</span>Доступ и структура</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">4</span>Первый проект</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">5</span>Прогон</span>
+      </div>
+      <div class="ob-body">
+        <div class="ob-h">Кто будет писать код</div>
+        <div class="ob-sub">Foundry не пишет сам — он ведёт агента по стадиям. Агента можно сменить позже, пайплайны от него не зависят.</div>
+        <div class="agent-grid">
+          <div class="agent-card sel" style="--vglow:rgba(217,119,87,0.30);--vtint:rgba(217,119,87,0.14);--vedge:rgba(217,119,87,0.34)">
+            <div class="ahead">
+              <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="Claude">
+                  <g stroke="#D97757" stroke-width="5.4" stroke-linecap="round">
+                    <line x1="55" y1="32" x2="9" y2="32"/><line x1="51.9" y1="20.5" x2="12.1" y2="43.5"/>
+                    <line x1="43.5" y1="12.1" x2="20.5" y2="51.9"/><line x1="32" y1="9" x2="32" y2="55"/>
+                    <line x1="20.5" y1="12.1" x2="43.5" y2="51.9"/><line x1="12.1" y1="20.5" x2="51.9" y2="43.5"/>
+                  </g></svg></span>
+              <div class="atitle"><div class="avendor">CLI-агент · Anthropic</div><div class="agent-name">Claude Code</div></div>
+              <div class="ahead-r"><span class="apick">◉ выбран</span><span class="akey">1</span></div>
+            </div>
+            <div class="agent-desc">Ведёт все стадии CRISPY и читает правила из <code style="font-family:var(--font-mono)">~/.claude</code>.</div>
+            <div class="atags"><span class="atag">спеки</span><span class="atag">код</span><span class="atag">worktree</span><span class="atag">MCP</span></div>
+            <div class="agent-fact"><span class="ok">✓ v2.1.4</span><span class="ok">✓ вход · Max</span><span>Opus 4.8</span></div>
+          </div>
+          <div class="agent-card" style="--vtint:rgba(255,255,255,0.07);--vedge:rgba(255,255,255,0.18)">
+            <div class="ahead">
+              <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="OpenAI">
+                  <g fill="none" stroke="#FFFFFF" stroke-width="4.2">
+                    <ellipse cx="32" cy="32" rx="10.5" ry="24"/>
+                    <ellipse cx="32" cy="32" rx="10.5" ry="24" transform="rotate(60 32 32)"/>
+                    <ellipse cx="32" cy="32" rx="10.5" ry="24" transform="rotate(120 32 32)"/>
+                  </g></svg></span>
+              <div class="atitle"><div class="avendor">CLI-агент · OpenAI</div><div class="agent-name">Codex CLI</div></div>
+              <div class="ahead-r"><span class="asoon">скоро</span><span class="akey">2</span></div>
+            </div>
+            <div class="agent-desc">Тот же контракт «стадия → артефакт» — стадии переносятся без переписывания.</div>
+            <div class="atags"><span class="atag">код</span><span class="atag">MCP</span></div>
+            <div class="agent-fact"><span class="no">не установлен</span><span class="no">адаптер в работе</span></div>
+          </div>
+          <div class="agent-card" style="--vtint:rgba(66,133,244,0.14);--vedge:rgba(66,133,244,0.32)">
+            <div class="ahead">
+              <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="Gemini">
+                  <defs><linearGradient id="gemg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#4285F4"/><stop offset="0.55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/>
+                  </linearGradient></defs>
+                  <path d="M32 5 C33.6 19 45 30.4 59 32 C45 33.6 33.6 45 32 59 C30.4 45 19 33.6 5 32 C19 30.4 30.4 19 32 5 Z" fill="url(#gemg)"/></svg></span>
+              <div class="atitle"><div class="avendor">CLI-агент · Google</div><div class="agent-name">Gemini CLI</div></div>
+              <div class="ahead-r"><span class="asoon">скоро</span><span class="akey">3</span></div>
+            </div>
+            <div class="agent-desc">Длинный контекст. Сильная сторона — объёмные Research и Design.</div>
+            <div class="atags"><span class="atag">ресёрч</span><span class="atag">длинный контекст</span></div>
+            <div class="agent-fact"><span class="no">не установлен</span><span class="no">адаптер в работе</span></div>
+          </div>
+          <div class="agent-card" style="--vtint:rgba(201,205,214,0.10);--vedge:rgba(201,205,214,0.22)">
+            <div class="ahead">
+              <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="Cursor">
+                  <path d="M32 6 L56 20 L32 34 L8 20 Z" fill="#EDEFF3"/>
+                  <path d="M8 20 L32 34 L32 61 L8 47 Z" fill="#7E848F"/>
+                  <path d="M56 20 L56 47 L32 61 L32 34 Z" fill="#C3C8D1"/></svg></span>
+              <div class="atitle"><div class="avendor">Редактор · Anysphere</div><div class="agent-name">Cursor</div></div>
+              <div class="ahead-r"><span class="asoon">скоро</span><span class="akey">4</span></div>
+            </div>
+            <div class="agent-desc">CLI-режим. Сильная сторона — точечные правки на Implement.</div>
+            <div class="atags"><span class="atag">код</span><span class="atag">точечные правки</span></div>
+            <div class="agent-fact"><span class="no">не установлен</span><span class="no">адаптер в работе</span></div>
+          </div>
+          <div class="agent-card" style="--vtint:rgba(255,255,255,0.07);--vedge:rgba(255,255,255,0.18)">
+            <div class="ahead">
+              <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="GitHub Copilot">
+                  <path d="M12 25 C12 25 16 14 24 14 C29 14 31 17 32 19 C33 17 35 14 40 14 C48 14 52 25 52 25 C55 27 56 31 56 35 C56 47 46 55 32 55 C18 55 8 47 8 35 C8 31 9 27 12 25 Z" fill="#FFFFFF"/>
+                  <ellipse cx="24" cy="37" rx="4.2" ry="6" fill="#0D0C14"/>
+                  <ellipse cx="40" cy="37" rx="4.2" ry="6" fill="#0D0C14"/></svg></span>
+              <div class="atitle"><div class="avendor">Coding agent · GitHub</div><div class="agent-name">GitHub Copilot</div></div>
+              <div class="ahead-r"><span class="asoon">скоро</span><span class="akey">5</span></div>
+            </div>
+            <div class="agent-desc">Ближе всех к GitHub: PR, ревью и CI без лишнего клея.</div>
+            <div class="atags"><span class="atag">код</span><span class="atag">PR</span><span class="atag">CI</span></div>
+            <div class="agent-fact"><span class="no">не установлен</span><span class="no">адаптер в работе</span></div>
+          </div>
+        </div>
+        <div class="agent-note"><b>Свой адаптер:</b> любой CLI, который умеет контракт «стадия → артефакт», подключается файлом в <code style="font-family:var(--font-mono)">~/.claude/agents/</code> — пайплайны от агента не зависят.</div>
+      </div>
+      <div class="actionbar"><div class="btns"><span class="btn primary">Дальше <kbd>⌘⏎</kbd></span></div></div>
+    </div>
+
+    <!-- шаг 2: компоненты -->
+    <div class="win" style="margin-top:var(--s5)">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — настройка</span>
+      </div>
+      <div class="ob-steps">
+        <span class="ob-st done"><span class="obn">✓</span>Агент</span><span class="ob-sep"></span>
+        <span class="ob-st now"><span class="obn">2</span>Компоненты</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">3</span>Доступ и структура</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">4</span>Первый проект</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">5</span>Прогон</span>
+      </div>
+      <div class="ob-body">
+        <div class="ob-h">Из чего состоит foundry</div>
+        <div class="ob-sub">Три компонента с разными ролями. Ставим недостающие — окно у тебя уже есть.</div>
+
+        <div class="comp-grid" style="grid-template-columns:1fr 54px 1fr 54px 1fr">
+          <div class="comp-card here">
+            <div class="comp-name">foundry-desktop</div>
+            <div class="comp-role">Это окно. Оркестрирует: доски, ревью, очередь. Сам код не пишет.</div>
+            <div class="comp-where">/Applications/Foundry.app</div>
+            <div class="comp-state ok">✓ запущен · v0.4.1</div>
+          </div>
+          <div class="comp-arrow"><span class="ca">→</span><span class="cl">вызывает<br>операции</span></div>
+          <div class="comp-card install">
+            <div class="comp-name">foundry-cli</div>
+            <div class="comp-role">Детерминированное: worktree'ы, файловая структура, git. Без агента — значит воспроизводимо. Он же отдаёт операции агенту по MCP.</div>
+            <div class="comp-where">/usr/local/bin/foundry</div>
+            <div class="comp-state new">→ поставим v0.4.1 · 8 МБ</div>
+          </div>
+          <div class="comp-arrow"><span class="ca">→</span><span class="cl">MCP-сервер<br>для агента</span></div>
+          <div class="comp-card merge">
+            <div class="comp-name">foundry-claude</div>
+            <div class="comp-role">Учит агента стадиям: скиллы, агенты, правила, команды, MCP-регистрация, локальные скрипты.</div>
+            <div class="comp-where">~/.claude/</div>
+            <div class="comp-state warn">▲ папка уже твоя · допишем</div>
+          </div>
+        </div>
+
+        <div class="ob-two" style="margin-top:var(--s5)">
+          <div>
+            <div class="ob-h" style="font-size:13px">Что попадёт в ~/.claude</div>
+            <div class="ob-sub">Твоё не трогаем: только добавляем своё с префиксом и дописываем блок.</div>
+            <div class="plan-list">
+<span class="pa">+</span> <span class="pf">skills/foundry-*</span>          <span class="pk">7 новых · стадии CRISPY</span>
+<span class="pa">+</span> <span class="pf">agents/foundry-*</span>          <span class="pk">4 новых · роли стадий</span>
+<span class="pa">+</span> <span class="pf">commands/foundry-*</span>        <span class="pk">5 новых · /change, /route…</span>
+<span class="pa">+</span> <span class="pf">mcp/foundry-cli.json</span>      <span class="pk">регистрация MCP-сервера</span>
+<span class="pm">~</span> <span class="pf">CLAUDE.md</span>                 <span class="pk">допишем блок foundry в конец,</span>
+                              <span class="pk">твой текст выше не тронем</span>
+<span class="pk">·</span> <span class="pk">skills/my-notes</span>           <span class="pk">твой — не тронем</span>
+<span class="pk">·</span> <span class="pk">settings.json</span>             <span class="pk">твой — не тронем</span>
+            </div>
+            <div class="warn-line"><span class="wi">▲</span><span>Совпало имя: <code style="font-family:var(--font-mono)">commands/foundry-run</code> уже есть. Переименуем наш в <code style="font-family:var(--font-mono)">foundry-run-2</code> — твой останется рабочим.</span></div>
+          </div>
+          <div>
+            <div class="ob-h" style="font-size:13px">Связи</div>
+            <div class="ob-sub">Проверим после установки — фактом, а не обещанием.</div>
+            <div class="wire">
+              <span class="wire-ic ok">✓</span><span class="wire-what">desktop → cli</span><span class="wire-st">готово</span>
+              <span class="wire-why">Окно зовёт CLI для файловых операций напрямую.</span>
+            </div>
+            <div class="wire">
+              <span class="wire-ic wait">○</span><span class="wire-what">cli → агент по MCP</span><span class="wire-st">после установки</span>
+              <span class="wire-why">Claude Code получит операции foundry как MCP-инструменты.</span>
+            </div>
+            <div class="wire">
+              <span class="wire-ic wait">○</span><span class="wire-what">агент → скиллы</span><span class="wire-st">после установки</span>
+              <span class="wire-why">Агент прочитает правила стадий из ~/.claude и научится CRISPY.</span>
+            </div>
+            <div class="wire">
+              <span class="wire-ic ok">✓</span><span class="wire-what">PATH</span><span class="wire-st">/usr/local/bin</span>
+              <span class="wire-why">Каталог уже в PATH — доводить оболочку не придётся.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="actionbar"><div class="btns">
+        <span class="btn ghost">Назад</span>
+        <span class="btn primary">Поставить и связать <kbd>⌘⏎</kbd></span>
+      </div></div>
+    </div>
+
+    <!-- шаг 3: доступ и структура -->
+    <div class="win" style="margin-top:var(--s5)">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — настройка</span>
+      </div>
+      <div class="ob-steps">
+        <span class="ob-st done"><span class="obn">✓</span>Агент</span><span class="ob-sep"></span>
+        <span class="ob-st done"><span class="obn">✓</span>Компоненты</span><span class="ob-sep"></span>
+        <span class="ob-st now"><span class="obn">3</span>Доступ и структура</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">4</span>Первый проект</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">5</span>Прогон</span>
+      </div>
+      <div class="ob-body">
+        <div class="ob-two">
+          <div>
+            <div class="ob-h">Зачем нужен доступ</div>
+            <div class="ob-sub">Сначала объясняем, потом просим — системный диалог не появится внезапно.</div>
+            <div class="perm-item granted">
+              <span class="perm-ic">✓</span><span class="perm-what">Папка ~/foundry</span>
+              <span class="perm-why">Читать и писать: worktree'ы, артефакты стадий, база очереди. Без неё агенту негде работать.</span>
+            </div>
+            <div class="perm-item">
+              <span class="perm-ic">○</span><span class="perm-what">Уведомления</span>
+              <span class="perm-why">Сказать, когда change ждёт твоего ревью или упал CI. Можно пропустить — тогда только значок в меню.</span>
+            </div>
+            <div class="perm-item">
+              <span class="perm-ic">○</span><span class="perm-what">Связка ключей</span>
+              <span class="perm-why">Хранить токен агента в Keychain, а не в файле рядом с кодом.</span>
+            </div>
+          </div>
+          <div>
+            <div class="ob-h">Что будет создано</div>
+            <div class="ob-sub">Структура повторяет модель: стадии кладут артефакты, ревью правит скиллы.</div>
+            <div class="tree">
+<span class="tn">~/foundry/</span>
+├── <span class="tn">projects/</span>    <span class="tc">репозитории и worktree'ы</span>
+├── <span class="tn">artifacts/</span>   <span class="tc">спеки, планы, диффы по стадиям</span>
+├── <span class="tn">skills/</span>      <span class="tc">правила скиллов — сюда едут</span>
+│                <span class="tc">замечания из ревью (§12)</span>
+├── <span class="tn">pipelines/</span>   <span class="tc">пайплайны по типам change'а</span>
+└── <span class="tn">foundry.db</span>   <span class="tc">очередь, прогоны, история</span>
+            </div>
+            <div class="path-row">
+              <span class="path-in">~/foundry</span>
+              <span class="btn ghost">Выбрать…</span>
+            </div>
+            <div class="warn-line"><span class="wi">▲</span><span>В <b>~/foundry</b> уже есть файлы. Создание перезапишет <code style="font-family:var(--font-mono)">projects/</code> и <code style="font-family:var(--font-mono)">foundry.db</code>.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="actionbar"><div class="btns">
+        <span class="btn ghost">Назад</span>
+        <span class="btn primary">Запросить доступ и создать <kbd>⌘⏎</kbd></span>
+      </div></div>
+    </div>
+
+    <!-- модалка: папка не пуста -->
+    <div class="ov-stage" style="margin-top:var(--s5);min-height:250px">
+      <span class="ov-label">модалка · папка не пуста</span>
+      <div class="ov-scrim"></div>
+      <div class="modal" style="max-width:360px">
+        <h4>Перезаписать ~/foundry?</h4>
+        <div class="mfact">3 папки · 128 файлов · 24 МБ<br>последнее изменение — вчера, 18:44</div>
+        <p>Структура перезапишет <b>projects/</b> и <b>foundry.db</b>. <span class="mlose">Файлы удалятся с диска — Undo не будет.</span></p>
+        <div class="mbtns">
+          <span class="btn danger-out">Перезаписать</span>
+          <span class="btn ghost">Отмена</span>
+          <span class="btn primary">Выбрать другую папку</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="caption"><b>Дизайн-решения:</b> в онбординге <b>только блокирующее</b> — агент, компоненты, доступ, первый проект; тема и плотность ничего не блокируют и остаются в §10 (УВЛ: мастер не место для вкусов). <b>Установка — это карта системы</b>, а не чеклист: онбординг — единственное место, где человек узнаёт, из чего продукт состоит, поэтому три компонента показаны с ролями и связями между ними, а не галочками. Роли названы так, чтобы <b>разделение было понятно с одного чтения</b>: cli — детерминированное («без агента — значит воспроизводимо»), foundry-claude — знания агента, desktop — оркестровка. Стрелки подписаны тем, <b>что течёт</b> по связи («вызывает операции», «MCP-сервер для агента»), а не «зависит от». Состояние компонента — <b>факт</b>: «запущен · v0.4.1», «поставим v0.4.1 · 8 МБ», и цвет несёт смысл — зелёный уже есть, ультрамарин поставим, янтарь трогаем твоё. <b>~/.claude — уже твоя папка</b>, поэтому туда не «устанавливают», а <b>дописывают</b>: план показывает по файлам, что добавится (+), что допишется (~) и что <b>не тронем</b> — «твой не тронем» сказано вслух, потому что это главный страх при установке в чужой конфиг. Конфликт имён решён <b>до</b> запуска и не спрашивая: наш переименован, твой остался рабочим — Undo не нужен там, где нечего ломать. <b>Связи проверяются фактом</b> после установки, а не обещаются: «PATH · /usr/local/bin — доводить оболочку не придётся» — видно, что ручной работы не будет. Карточка агента <b>и есть проверка окружения</b>: не «всё готово», а факт — «найден · v2.1.4», «вход выполнен · Max» (факт вместо прогноза, Birdview); отдельного шага «проверим систему» поэтому не нужно. Логотип агента <b>сохраняет свой цвет</b> — это чужая идентичность, единственное законное исключение из правила «один акцент»: терракота Claude не спорит с ультрамарином, потому что не кодирует статус. <b>Выбранный элемент — яркая заливка</b> (R2 Spark из наших референсов: «у нас выбор ультрамарин 14 %, Spark берёт полную заливку — можно усилить контраст выбора»): выбор виден с другого конца стола, а не только рамкой. <b>Логотип — источник света карточки</b>: выбранная ловит амбиентное свечение вендора плиткой и углом; светится только выбранная — один glow на зону. <b>Анатомия карты — из наших референсов</b> (#21 Project UI/UX: «eyebrow-категория · теги · футер-метрики»): eyebrow говорит род и вендора («CLI-агент · Anthropic»), <b>теги — возможности</b> (спеки · код · worktree · MCP), футер — метрики фактом. <b>Плитка логотипа тонирована в цвет самого логотипа</b> — приём OrbitStack; монохромным вендорам тон не выдуман, у них нейтральная плитка. <b>Хоткей-чип</b> 1–5 (App Settings из референсов): выбор с клавиатуры, как и всё в мак-туле. <b>Статус сказан словом, а не прозрачностью</b>: гасить карточку до 40 % значит прятать логотип, ради которого её и смотрят, — поэтому «скоро» это чип, а логотипы вендоров все в полную силу. Альтернативы показаны настоящие (Codex, Gemini, Cursor, Copilot), а не заглушки: видно, что <b>выбор агента — развилка архитектуры</b>, а не хардкод, и что пайплайны от агента не зависят. Доступ объясняется <b>до</b> системного диалога и словами «зачем», а не «разрешите доступ к файлам». Дерево показано <b>до создания</b> — тот же приём, что пресеты плотности (§10) и последствие роутинга (§13): результат виден до нажатия. Структура <b>повторяет доменную модель</b>: <code style="font-family:var(--font-mono)">skills/</code> существует потому, что ревью правит скиллы (§12). Предупреждение живёт <b>в самом экране</b> строкой-warning, а модалка поднимается только на необратимом: канон разрешает модалку, когда решение короткое и обязательное (§8), а Undo невозможен — файлы уйдут с диска. В модалке — <b>факт того, что потеряется</b> (3 папки · 128 файлов · 24 МБ), а не абстрактное «данные будут утеряны», и <b>третий выход</b> «выбрать другую папку»: модалка не ловушка из двух кнопок. <b>Безопасный путь — акцент, деструктив — красный контур, а не заливка</b>: залитая красная кнопка магнитит на необратимое, а модалка поднялась, чтобы остановить. Деструктив ушёл влево от остальных (маковская конвенция), акцент остался справа, где его ищет рука.</div>
+  </section>
+
+  <!-- ——————————————————— §17 СКИЛЛЫ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">17 — скиллы</span>
+      <h2>Куда уходит замечание с ревью</h2>
+      <p>В §12 человек говорит «здесь ошибся <code style="font-family:var(--font-mono)">spec-writer</code>» — и до этого экрана замечание пропадало в файле правил. Петля обрывалась на предпоследнем шаге: <b>система не улучшалась, а просто получала отказы</b>. Скилл — тоже артефакт, и его правило ревьюят так же, как спеку. Экран отвечает на один вопрос: что с этим скиллом не так и что с этим делать.</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">Скиллы — foundry-claude</span>
+        <div class="spacer"></div>
+        <span class="tb-btn">За 9 месяцев</span>
+      </div>
+
+      <div class="skl-dual">
+        <aside class="skl-list">
+          <div class="skl-sec">Есть замечания · 4</div>
+          <div class="skl-row sel">
+            <span class="sr-pict">✎</span><span class="sr-name">spec-writer</span><span class="sr-n hot">14 из 61</span>
+          </div>
+          <div class="skl-row">
+            <span class="sr-pict">⚖</span><span class="sr-name">router</span><span class="sr-n">3 из 61</span>
+          </div>
+          <div class="skl-row">
+            <span class="sr-pict">⚙</span><span class="sr-name">impl-swift</span><span class="sr-n">2 из 44</span>
+          </div>
+          <div class="skl-row">
+            <span class="sr-pict">⚖</span><span class="sr-name">decomposer</span><span class="sr-n">1 из 38</span>
+          </div>
+          <div class="skl-sec">Без замечаний · 3</div>
+          <div class="skl-row">
+            <span class="sr-pict">⌕</span><span class="sr-name">researcher</span><span class="sr-n">0 из 61</span>
+          </div>
+          <div class="skl-row">
+            <span class="sr-pict">✎</span><span class="sr-name">test-writer</span><span class="sr-n">0 из 29</span>
+          </div>
+          <div class="skl-row">
+            <span class="sr-pict">✎</span><span class="sr-name">contract-designer</span><span class="sr-n">0 из 7</span>
+          </div>
+        </aside>
+
+        <div class="skl-pane">
+          <div class="zoom-anchor">
+            <span class="za-back">‹ Ревью · design.md</span>
+            <span class="za-sep">/</span>
+            <span class="za-pict">✎</span>
+            <span class="za-name">spec-writer</span>
+            <span class="za-branch">foundry-claude/skills/spec-writer.md</span>
+            <div class="za-right"><span>пишет спеки и планы</span><span class="za-sep">·</span><span>правило уточняли 22 марта</span></div>
+          </div>
+
+          <div class="skl-card">
+            <div class="skl-fact">
+              <div class="fct">
+                <div class="fn">61</div>
+                <div class="fl">артефакт написал</div>
+                <div class="fb">ноя — июл</div>
+              </div>
+              <div class="fct">
+                <div class="fn warn">14</div>
+                <div class="fl">вернули с ревью</div>
+                <div class="fb">до правки — 1 из 3 · после — <b>1 из 9</b></div>
+              </div>
+              <div class="fct">
+                <div class="fn">9</div>
+                <div class="fl">замечаний ждут правила</div>
+                <div class="fb">5 уже стали правилом</div>
+              </div>
+              <div class="spark">
+                <div class="sp-bars">
+                  <i style="--h:67%"></i>
+                  <i style="--h:100%"></i>
+                  <i style="--h:67%"></i>
+                  <i style="--h:67%"></i>
+                  <i style="--h:67%"></i>
+                  <i style="--h:33%"></i>
+                  <i style="--h:33%"></i>
+                  <i style="--h:33%"></i>
+                  <i class="now" style="--h:4%"></i>
+                  <span class="sp-cut" style="left:55.7%"></span>
+                </div>
+                <div class="sp-x"><span>ноя</span><span class="cut">правило уточнено 22 мар</span><span>июл</span></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="dg-h">Замечания: 14 случаев, 3 причины</div>
+
+              <div class="dg open">
+                <div class="dg-head">
+                  <span class="dg-n">6×</span>
+                  <span class="dg-what">Цвет палитры уходит в текст</span>
+                  <span class="dg-dx miss">▲ правило есть — не применяет</span>
+                </div>
+                <div class="dg-body">
+                  <div class="dg-why"><b>Правило перечисляет палитру, но не запрещает её буквами.</b> Ограничение живёт абзацем ниже — скилл читает список цветов и до него не доходит. Лечится не запретом, а переездом ограничения в тот же абзац, где сама палитра.</div>
+                  <div class="dg-ev">
+                    <span class="evl">Замечено в:</span>
+                    <span class="ev"><span class="p">✦</span>Токены тёмной темы</span>
+                    <span class="ev"><span class="p">✦</span>Орб-иконка приложения</span>
+                    <span class="ev"><span class="p">¶</span>Спека экрана настроек</span>
+                    <span class="evl">и ещё 3</span>
+                  </div>
+                  <div class="dg-fix">
+                    <div class="dg-fix-h"><span>Правка правила</span><span style="margin-left:auto;font-family:var(--font-mono);text-transform:none;letter-spacing:0">skills/spec-writer.md · § Палитра</span></div>
+                    <div class="dg-fix-b">Палитра: ультрамарин #2F5CFF, пурпур #8B5CF6, магента #D65CFF, циан #58C7FF. <span class="sins">Ни один из них не идёт текстом: акцентный текст — только text.accent #7C9AFF. Ультрамарин — заливка и обводка, не буквы.</span></div>
+                  </div>
+                  <div class="dg-act">
+                    <span class="hint">правка уедет в foundry-claude и подействует со следующего прогона</span>
+                    <span class="btn ghost">Править вручную</span>
+                    <span class="btn primary">Принять правку <kbd>⌘⏎</kbd></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dg">
+                <div class="dg-head">
+                  <span class="dg-n">3×</span>
+                  <span class="dg-what">Значения приведены без источника</span>
+                  <span class="dg-dx">○ правила нет</span>
+                </div>
+              </div>
+
+              <div class="dg">
+                <div class="dg-head">
+                  <span class="dg-n">5×</span>
+                  <span class="dg-what">Elevation закодирован тенью вместо светлоты</span>
+                  <span class="dg-dx gone">✓ стало правилом 22 марта · с тех пор 0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>Дизайн-решения:</b> экран существует потому, что <b>модель обещает улучшение системы</b>, а §12 доводил замечание только до файла — без этого вида Foundry просто канбан с автопилотом. <b>Замечания сгруппированы по причине, а не по времени</b>: лента событий тут бесполезна — шесть раз «взял цвет палитры текстом» это не шесть случаев, а <b>один отсутствующий абзац в правиле</b>; повтор и есть диагноз, поэтому счётчик «6×» стоит первым, слева от причины. <b>Два разных диагноза лечатся по-разному</b> и потому названы разными словами: «правило есть — не применяет» (▲ промах, формулировку надо уточнить) и «правила нет» (○ пробел, правило надо написать) — это тот же алфавит ✓▲○, что в чеклисте рисков §3, так что диагноз читается без цвета. <b>Факт вместо оценки</b> (Бирман, Birdview): ни рейтинга, ни «здоровья скилла» на 87 % — только «61 артефакт · 14 вернули». Оценку человек поставит сам, а прогресс-бар качества всё равно был бы выдуман. <b>У числа исторический базис</b> (Бирман): «до правки — 1 из 3, после — 1 из 9» — единственная строка, которая доказывает, что механизм работает вообще. Спарклайн — <b>возвраты по месяцам с отсечкой в момент правки правила</b>: базлайн виден глазом, а не считается в уме; зелёная пунктирная линия — единственный цвет на графике, потому что момент правки и есть значимое (FXPro), сами столбики нейтральны. Неполный текущий месяц <b>показан приглушённым</b>, а не спрятан и не достроен прогнозом. <b>Скилл — тоже артефакт</b>, и правка правила показана <b>тем же диффом</b>, что спека в §12 (те же классы вставки): ревью правила ничем не отличается от ревью спеки. <b>Общего вердикта у скилла нет</b> — поэтому в футере нет кнопки «Принять»: у каждого диагноза своё лечение, и «одобрить скилл целиком» было бы враньём. <b>Третий диагноз — закрытый</b> (✓ «стало правилом 22 марта · с тех пор 0»): он оставлен на экране как доказательство, что петля замыкается, и как якорь для отсечки на графике. Замечание <b>доказано change'ами-источниками</b> (кросс-ссылки, Jurist-Laws), а не заявлено; пиктограмма при ссылке — та же, что в инбоксе (✦ фича, ¶ доки). <b>Цвет только на значимом</b> (FXPro): в списке скиллов из четырёх с замечаниями горит янтарём один — 14 из 61; тройка, двойка и единица нейтральны, потому что это шум, а не сигнал. Секции списка названы <b>фактом, а не оценкой</b>: «есть замечания» / «без замечаний», не «плохие» / «хорошие». Пиктограмма-якорь рода скилла (Главбух): ✎ пишет · ⌕ ищет · ⚙ делает · ⚖ решает. Якорь скилла — <b>тот же компонент, что зум в change</b> (Worldchess): координаты не меняются, пришёл ты из ревью по имени скилла или из сайдбара, и обратный путь «‹ Ревью · design.md» ведёт ровно туда, откуда замечание пришло.</div>
+  </section>
+
+  <!-- ——————————————————— §18 ПРОЕКТ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">18 — проект</span>
+      <h2>Проект — не папка, а вход роутера</h2>
+      <p>Модель начинается с проекта, но экрана под него не было, и лейблы на картах оставались украшением. Между тем <b>категория проекта — один из четырёх признаков роутинга</b> (§13): пометить проект «инфра» значит изменить поведение системы, а не покрасить чип. Отсюда содержание экрана: лейблы и то, какие пайплайны из них следуют.</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">Проекты</span>
+        <div class="spacer"></div>
+        <span class="tb-btn">Июль 2026</span>
+      </div>
+
+      <div class="prj-dual">
+        <aside class="prj-list">
+          <div class="prj-sec"><span class="pc">▣</span>Инфра · 2</div>
+          <div class="prj-row"><span class="pr-name">deploy-pipeline</span><span class="pr-n">4</span></div>
+          <div class="prj-row"><span class="pr-name">metrics-collector</span><span class="pr-n">2</span></div>
+
+          <div class="prj-sec"><span class="pc">◆</span>Утилиты · 3</div>
+          <div class="prj-row"><span class="pr-name">foundry-cli</span><span class="pr-n">3</span></div>
+          <div class="prj-row"><span class="pr-name">log-viewer</span><span class="pr-n">1</span></div>
+          <div class="prj-row"><span class="pr-name">schema-tools</span><span class="pr-n">0</span></div>
+
+          <div class="prj-sec"><span class="pc">●</span>Бизнес · 2</div>
+          <div class="prj-row sel"><span class="pr-name">foundry-desktop</span><span class="pr-n">12</span></div>
+          <div class="prj-row"><span class="pr-name">billing-api</span><span class="pr-n">5</span></div>
+        </aside>
+
+        <div class="prj-pane">
+          <div class="zoom-anchor">
+            <span class="za-back">‹ Проекты</span>
+            <span class="za-sep">/</span>
+            <span class="za-pict">●</span>
+            <span class="za-name">foundry-desktop</span>
+            <span class="za-branch">~/dev/foundry-desktop</span>
+            <div class="za-right"><span>спринт — июль 2026</span></div>
+          </div>
+
+          <div class="prj-card">
+            <div class="skl-fact">
+              <div class="fct">
+                <div class="fn">12</div>
+                <div class="fl">change'ей в июле</div>
+                <div class="fb">в июне было 9</div>
+              </div>
+              <div class="fct">
+                <div class="fn">3</div>
+                <div class="fl">ждут ревью</div>
+                <div class="fb">старшему — 2 дня</div>
+              </div>
+              <div class="fct">
+                <div class="fn">6<span class="fu">дн</span></div>
+                <div class="fl">медиана change'а</div>
+                <div class="fb">в июне — 8 дн</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="prj-h">Лейблы</div>
+              <div class="lbl-row">
+                <span class="lbl-chip cat"><span class="lk">●</span>бизнес</span>
+                <span class="lbl-chip"><span class="lk">сервис</span>foundry-desktop</span>
+                <span class="lbl-chip"><span class="lk">стек</span>swift</span>
+                <span class="lbl-chip"><span class="lk">стек</span>macos</span>
+                <span class="lbl-add">+ лейбл</span>
+              </div>
+              <div class="lbl-note">Категория и стек — <b>вход роутера</b>: из них следуют тип change'а и пайплайн (<a href="#">§13 роутинг</a>). Остальные лейблы только группируют.</div>
+            </div>
+
+            <div>
+              <div class="prj-h">Пайплайны проекта · 3 из 5</div>
+              <div class="pp">
+                <span class="pp-i">✓</span><span class="pp-name">Фича · один сервис</span><span class="pp-st">8 стадий · 7 change'ей</span>
+              </div>
+              <div class="pp">
+                <span class="pp-i">✓</span><span class="pp-name">Баг</span><span class="pp-st">5 стадий · 4 change'а</span>
+              </div>
+              <div class="pp">
+                <span class="pp-i">✓</span><span class="pp-name">Хотфикс</span><span class="pp-st">3 стадии · 1 change</span>
+              </div>
+              <div class="pp off">
+                <span class="pp-i">○</span><span class="pp-name">Фича · много сервисов</span><span class="pp-st">выключен</span>
+                <span class="pp-why">В проекте один сервис — стадии «Контракты» и «Интеграция» нечему связывать. Роутер этот пайплайн не выберет, даже если попросить.</span>
+              </div>
+              <div class="pp off">
+                <span class="pp-i">○</span><span class="pp-name">Инцидент</span><span class="pp-st">выключен</span>
+                <span class="pp-why">Приложение на машине пользователя, а не сервис на проде: дежурить и митигировать нечего. Аварию чинит «Хотфикс».</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>Дизайн-решения:</b> экран отвечает на вопрос «что такое проект <b>для системы</b>», а не «где лежит репозиторий»: путь к репо — одна строка в якоре, а тело экрана — <b>лейблы и следующие из них пайплайны</b>. Это единственная причина, по которой экран вообще нужен: <b>категория проекта — признак роутинга</b> (§13, таблица признаков), поэтому лейбл «бизнес» меняет поведение, а не оформление, и сказано это вслух строкой под лейблами. <b>Список проектов и есть фильтр по лейблу</b> (Superpedestrian: виджет-сводка = контрол-панель): секции — категории со счётчиками, отдельной панели фильтров не нужно, а сама группировка показывает распределение работы по категориям. <b>Категория кодируется формой, а не цветом</b> (▣ инфра · ◆ утилита · ● бизнес) — та же пиктограмма, что на картах канбана §6: лейблы не радуга (FXPro), и с дейтеранопией список читается так же. Счётчики change'ей <b>нейтральны все</b>: 12 против 0 — это про размер проекта, а не про беду, красить тут нечего. <b>Факт-полоса — тот же компонент, что у скилла</b> (§17), и с тем же правилом: число + подпись + исторический базис («12 change'ей в июле · в июне было 9»), без рейтингов и «здоровья проекта». <b>Выключенный пайплайн назван причиной, а не галочкой</b>: «в проекте один сервис — стадии Контракты и Интеграция нечему связывать», «приложение на машине пользователя, а не сервис на проде». Это главное решение экрана: пустой чекбокс заставляет гадать и провоцирует включить всё на всякий случай, а причина <b>объясняет систему</b> и заодно показывает, что пайплайны — не меню, а следствие. Пять пайплайнов показаны все, включая выключенные: «3 из 5» — факт, и видно, чего проект лишён. Состояние — <b>✓ / ○ из того же алфавита</b>, что чеклист §3 и диагнозы §17. Якорь проекта — <b>тот же компонент</b>, что зум в change (§11) и карточка скилла (§17): координаты не меняются между сценами (Worldchess). Отдельного экрана «настройки проекта» нет (УВЛ): проект — это и есть его лейблы и пайплайны, разносить их по двум местам не на чем.</div>
+  </section>
+
+  <!-- ——————————————————— §19 INSIGHTS · ПЕРЕДЕЛКА ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">19 — insights · переделка</span>
+      <h2>Возврат на Implement в 11 раз дороже, чем на Design</h2>
+      <p>§4 отвечает «что происходит сейчас» — пропускная способность, длительность, где сейчас change'и. Insights отвечает на другой вопрос: <b>во что нам это обходится</b>. Возвраты и токены — не два отчёта, а один: <b>цена возврата — это токены, сожжённые повторно</b>. И тогда видно, что возвраты не равны между собой.</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">Insights</span>
+        <div class="spacer"></div>
+        <span class="tb-btn">Июль 2026</span>
+        <span class="tb-btn">Все проекты</span>
+      </div>
+
+      <div class="ins-tabs">
+        <span class="ins-tab on">Переделка</span>
+        <span class="ins-tab">Расход</span>
+        <span class="ins-tab">Скиллы</span>
+        <span class="ins-tab">Пропускная</span>
+      </div>
+
+      <div class="ins-dual">
+        <div class="ins-main">
+          <div class="skl-fact">
+            <div class="fct">
+              <div class="fn warn">35<span class="fu">%</span></div>
+              <div class="fl">расхода — переделка</div>
+              <div class="fb">в июне — 44 %</div>
+            </div>
+            <div class="fct">
+              <div class="fn">1,9<span class="fu">М</span></div>
+              <div class="fl">токенов за июль</div>
+              <div class="fb">≈ 62 % недельного лимита</div>
+            </div>
+            <div class="fct">
+              <div class="fn">14</div>
+              <div class="fl">возвратов</div>
+              <div class="fb">8 поймали до Implement</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="ins-h">Расход по стадиям · порядок пайплайна</div>
+            <div class="ib-head">
+              <span>Стадия</span><span></span><span class="r">Токенов</span><span class="r">Возвратов</span>
+            </div>
+
+            <div class="ib">
+              <span class="ib-name">Questions</span>
+              <div class="ib-track"><span class="ib-base" style="width:3.4%"></span></div>
+              <span class="ib-tok">42К</span><span class="ib-ret zero">—</span>
+            </div>
+            <div class="ib">
+              <span class="ib-name">Research</span>
+              <div class="ib-track"><span class="ib-base" style="width:7.9%"></span></div>
+              <span class="ib-tok">96К</span><span class="ib-ret zero">—</span>
+            </div>
+            <div class="ib">
+              <span class="ib-name">Design</span>
+              <div class="ib-track"><span class="ib-base" style="width:17.2%"></span><span class="ib-re" style="width:5.1%"></span></div>
+              <span class="ib-tok">272К</span><span class="ib-ret hot">6</span>
+            </div>
+            <div class="ib">
+              <span class="ib-name">Structure</span>
+              <div class="ib-track"><span class="ib-base" style="width:6.1%"></span></div>
+              <span class="ib-tok">74К</span><span class="ib-ret zero">—</span>
+            </div>
+            <div class="ib">
+              <span class="ib-name">Plan</span>
+              <div class="ib-track"><span class="ib-base" style="width:11.3%"></span><span class="ib-re" style="width:2.0%"></span></div>
+              <span class="ib-tok">162К</span><span class="ib-ret">2</span>
+            </div>
+            <div class="ib off">
+              <span class="ib-name">Worktree</span>
+              <div class="ib-track"></div>
+              <span class="ib-tok">0</span><span class="ib-ret zero">—</span>
+              <span class="ib-why">стадию делает foundry-cli, агент не запускается — детерминированное не жжёт токены совсем</span>
+            </div>
+            <div class="ib">
+              <span class="ib-name">Implement</span>
+              <div class="ib-track"><span class="ib-base" style="width:52.5%"></span><span class="ib-re" style="width:47.5%"></span></div>
+              <span class="ib-tok">1 220К</span><span class="ib-ret hot">5</span>
+            </div>
+            <div class="ib">
+              <span class="ib-name">PR</span>
+              <div class="ib-track"><span class="ib-base" style="width:4.8%"></span><span class="ib-re" style="width:0.7%"></span></div>
+              <span class="ib-tok">67К</span><span class="ib-ret">1</span>
+            </div>
+
+            <div class="ib-legend">
+              <span><i class="lb"></i>первый прогон</span>
+              <span><i class="lr"></i>переделка после возврата</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="ins-side">
+          <div class="ins-h" style="margin-bottom:0">Цена одного возврата</div>
+          <div class="rc hot">
+            <span class="rc-name">Implement</span><span class="rc-v">116К</span>
+            <span class="rc-sub">580К на 5 возвратов</span>
+          </div>
+          <div class="rc">
+            <span class="rc-name">Plan</span><span class="rc-v">12К</span>
+            <span class="rc-sub">24К на 2 возврата</span>
+          </div>
+          <div class="rc">
+            <span class="rc-name">Design</span><span class="rc-v">10К</span>
+            <span class="rc-sub">62К на 6 возвратов</span>
+          </div>
+          <div class="rc">
+            <span class="rc-name">PR</span><span class="rc-v">9К</span>
+            <span class="rc-sub">9К на 1 возврат</span>
+          </div>
+
+          <div class="fold-note" style="text-align:left;line-height:1.5">На Design вернули <b style="color:var(--t-secondary)">6 раз</b> и сожгли 62К.<br>На Implement — <b style="color:var(--t-secondary)">5 раз</b> и сожгли 580К.</div>
+
+          <div class="ins-src"><b>Откуда числа.</b> Токены — факт из сессии агента, их отдаёт foundry-cli. Лимит недели — оценка по плану Max, поэтому «≈». Стадии без агента считаются нулём, а не пропуском.</div>
+        </aside>
+      </div>
+    </div>
+    <div class="caption"><b>Дизайн-решения:</b> раздел отделён от §4 по вопросу, а не по типу графика: <b>§4 — «что происходит сейчас»</b> (пропускная, длительность, где change'и), <b>Insights — «во что это обходится»</b>. Смешивать их значит получить дашборд, на который смотрят и ничего не решают. <b>Возвраты и токены — не два отчёта, а один</b>: цена возврата = токены, сожжённые повторно. Это главное решение экрана; по отдельности «14 возвратов» и «1,9М токенов» не значат ничего, а вместе дают <b>число, которое меняет решение</b> — 116К против 10К. Отсюда и заголовок раздела: не «Аналитика возвратов», а <b>вывод, который из неё следует</b> (Бирман: заголовок — не рубрика, а утверждение). <b>Главная метрика — доля переделки</b> (35 %), а не абсолютный расход: «1,9М токенов» само по себе ни хорошо ни плохо, а «треть работы сделана дважды» — уже диагноз; и у него <b>исторический базис</b> — в июне было 44 %. <b>Стадия — одна полоса, а не две</b>: первый прогон и переделка в одном треке, потому что вопрос «какая доля этой стадии — переделка», а не «сравните два числа». Порядок строк — <b>пайплайновый, не по убыванию</b>: сортировка по величине спрятала бы главное — чем правее стадия, тем дороже на ней возврат; на убывающей сортировке этот факт не виден вообще. <b>Цвет только на значимом</b> (FXPro): янтарь — исключительно переделка и счётчики возвратов там, где их много; первый прогон нейтрален, потому что это норма, а не проблема. <b>Инверсия наивного чтения</b> — то, ради чего экран и сделан: возвратов на Design <b>больше</b> (6 против 5), а стоят они в 11 раз меньше. Значит «меньше возвратов» — неверная цель, верная — <b>«возвраты раньше»</b>; в сноске справа это оставлено арифметикой, а не советом: система показывает числа, вывод делает человек. <b>Worktree — ноль, и сказано почему</b>: стадию делает foundry-cli без агента. Это не дырка в данных, а <b>аргумент архитектуры</b> из доменной модели: детерминированное не жжёт токены, и видно, что переносить в cli выгодно. Ноль показан как «0», а отсутствие данных было бы «—»: разные вещи не должны выглядеть одинаково. <b>Происхождение каждого числа названо</b> (Бирман: не выдумывать точность): токены — факт из сессии, лимит недели — оценка по плану, поэтому «≈ 62 %» и никак иначе; человек в токенах не думает, поэтому у абсолютного числа стоит вторая единица — доля лимита. Вкладки показывают, что <b>Insights — раздел, а не экран</b>: «Расход», «Скиллы», «Пропускная» — следующие срезы того же вопроса.</div>
+  </section>
+
   <footer class="note">
     Все значения — из <code>docs/design/13-tokens.md</code> (единственный источник): поверхности через светлоту,
     текст альфа-белым, request changes = warning, «в работе» = циан, «ждёт ревью» = ультрамарин, один glow на зону,
@@ -2466,6 +3510,127 @@
     факт вместо прогноза (Birdview), последствие решения видно до нажатия; <b>§14</b> сквозной вид по
     атомарным задачам таблицей (осознанный отказ от парности: у задачи нет пайплайна); <b>§15</b>
     очередь ревью артефактов — код и не-код рядом, колонки = состояния ревью.
+    <br><br>
+    <b>Ревизия v11 — онбординг (§16).</b> Пять шагов и только блокирующее: агент, компоненты,
+    доступ и структура, первый проект, прогон; тема и плотность остались в §10 — они ничего не блокируют.
+    <b>Установка компонентов — карта системы, а не чеклист:</b> foundry-desktop оркестрирует,
+    foundry-cli делает детерминированное (и отдаёт операции агенту по MCP), foundry-claude учит агента
+    стадиям; стрелки подписаны тем, что течёт по связи. <code>~/.claude</code> — уже пользовательская
+    папка, поэтому туда не устанавливают, а дописывают: план по файлам показывает, что добавится,
+    что допишется и что не тронем; конфликт имён разрешён переименованием нашего файла.
+    Карточка агента <b>и есть проверка окружения</b> (найден · v2.1.4 · вход выполнен), поэтому
+    отдельного шага «проверим систему» нет. Логотип агента сохраняет свой цвет — чужая идентичность,
+    единственное законное исключение из «одного акцента»; он же <b>источник амбиентного света</b>
+    выбранной карточки (приём мудборда, до v12 не построенный), и светится только выбранная —
+    один glow на зону. Альтернативы настоящие — Codex, Gemini, Cursor, Copilot; статус сказан
+    чипом «скоро», а не прозрачностью: гасить карточку значит прятать логотип. Доступ объясняется <b>до</b> системного
+    диалога; дерево структуры показано <b>до</b> создания и повторяет доменную модель
+    (<code>skills/</code> есть потому, что ревью правит скиллы). Модалка поднимается только на
+    необратимом (канон §8): в ней факт потери, третий выход «выбрать другую папку», безопасный путь —
+    акцент, деструктив — красный контур слева.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v12 — скиллы (§17): петля замкнута.</b>
+    Сверка модели с экранами нашла разрыв: модель обещает, что пометка сбойного скилла —
+    «фидбек системе на улучшение», но §12 доводил замечание только до файла правил, и человек
+    никогда не видел скилл целиком. Без §17 Foundry — канбан с автопилотом.
+    <b>Замечания сгруппированы по причине, а не по времени</b> (шесть раз «цвет палитры текстом» —
+    это не шесть случаев, а один отсутствующий абзац в правиле), и <b>два диагноза лечатся
+    по-разному</b>: ▲ «правило есть — не применяет» (уточнить формулировку) и ○ «правила нет»
+    (написать) — алфавит ✓▲○ тот же, что в чеклисте рисков §3. <b>Факт вместо оценки</b>
+    (Бирман, Birdview): ни рейтинга, ни «здоровья скилла» — «61 артефакт · 14 вернули», а рядом
+    <b>исторический базис</b> «до правки — 1 из 3 · после — 1 из 9». Спарклайн возвратов по месяцам
+    с <b>пунктирной отсечкой в момент правки правила</b>: ступенька видна глазом, зелёная линия —
+    единственный цвет на графике (FXPro), столбики нейтральны, неполный месяц приглушён, а не
+    достроен прогнозом. <b>Скилл — тоже артефакт</b>: правка правила показана тем же диффом, что
+    спека в §12. Общего вердикта у скилла нет — «Принять» в футере отсутствует осознанно.
+    Закрытый диагноз ✓ «стало правилом 22 марта · с тех пор 0» оставлен как доказательство, что
+    петля работает. Применены ⏳ из <code>reference/ui/user-refs.md</code>: KPI-карточка с базлайном
+    и пунктирный базлайн-аннотация (Quick Stats / Chainview). Разрыв модель↔экраны выписан
+    в <code>reference/ui/domain-model.md</code>: не хватает ещё входа с композером
+    и стадией Questions, истории change'а, закрытия месяца.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v13 — проект (§18).</b> Второй разрыв из той же сверки:
+    модель начинается с проекта, а экрана под него не было, и лейблы на картах оставались украшением.
+    Экран построен вокруг одного факта: <b>категория проекта — признак роутинга</b> (§13), поэтому
+    лейбл «бизнес» меняет поведение системы, а не оформление; сказано вслух строкой под лейблами.
+    <b>Список проектов и есть фильтр по лейблу</b> (Superpedestrian: виджет-сводка = контрол-панель) —
+    секции-категории со счётчиками вместо отдельной панели фильтров; этим закрыта старая задача
+    «проекты с лейблами в сайдбаре». Категория кодируется <b>формой, а не цветом</b> (▣ инфра ·
+    ◆ утилита · ● бизнес) — та же пиктограмма, что на картах §6. <b>Выключенный пайплайн назван
+    причиной, а не галочкой</b>: «в проекте один сервис — стадии Контракты и Интеграция нечему
+    связывать», «приложение на машине пользователя, а не сервис на проде» — пустой чекбокс заставляет
+    гадать, причина объясняет систему. Факт-полоса — тот же компонент, что у скилла (§17), с тем же
+    правилом «число + базлайн, без рейтингов»; единица набрана мельче числа. Отдельного экрана
+    «настройки проекта» нет (УВЛ): проект — это и есть его лейблы и пайплайны.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v14 — Insights · Переделка (§19).</b> Новый раздел,
+    отделённый от §4 <b>по вопросу, а не по типу графика</b>: §4 — «что происходит сейчас», Insights —
+    «во что это обходится». <b>Возвраты и токены — не два отчёта, а один</b>: цена возврата = токены,
+    сожжённые повторно; по отдельности «14 возвратов» и «1,9М токенов» не значат ничего, вместе дают
+    число, которое меняет решение. Главная метрика — <b>доля переделки</b> (35 %, в июне 44 %), а не
+    абсолютный расход. Стадия — <b>одна полоса</b> (первый прогон + переделка), порядок строк
+    <b>пайплайновый, не по убыванию</b>: на сортировке по величине пропал бы главный факт — чем правее
+    стадия, тем дороже на ней возврат. <b>Инверсия наивного чтения</b>: возвратов на Design больше
+    (6 против 5), а стоят они в 11 раз меньше — значит верная цель не «меньше возвратов», а
+    «возвраты раньше»; вывод оставлен арифметикой, не советом. <b>Worktree — ноль, и сказано почему</b>:
+    стадию делает foundry-cli без агента; это не дырка в данных, а аргумент архитектуры из доменной
+    модели, и «0» отличается от «—». <b>Происхождение чисел названо</b>: токены — факт из сессии,
+    лимит недели — оценка по плану, поэтому «≈ 62 %». Вкладки показывают, что Insights — раздел:
+    Расход, Скиллы, Пропускная — следующие срезы того же вопроса.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v15 — рейл разделов и воздух между панелями (все экраны).</b>
+    <b>Воздух.</b> Референс — OrbitStack (<code>reference/ui/behance/orbitstack-02.png</code>): панель лежит
+    карточкой на подложке, а не примыкает к соседней. Довод не косметический: <b>линейка — нарисованный
+    объект, который спорит за внимание, а зазор группирует близостью и не стоит ни капли краски</b>. Это тот
+    же приём «воздух вместо линеек», что в ревизии v3 применили к строкам инбокса, — теперь уровнем выше,
+    панель к панели. Заодно <b>честно применён стек светлот из токенов</b>: окно — base (стол), панель —
+    surface (карточка на столе), элемент внутри панели — raised. До этого content-панели были base, а
+    боковые surface, и перепад не значил ничего; теперь перепад значит уровень, а границы панелей держит
+    зазор, а не 1px-линия.
+    <b>Рейл.</b> Okashi из <code>reference/ui/user-refs.md</code> («узкий левый icon-rail», висел ⏳ с первой
+    партии): 44px, только иконки и альты, бейджи-счётчики на пунктах (Chainview). Главное — <b>рейл не
+    добавлен сверху, а забрал</b> навигацию, размазанную по экрану: сегмент «Инбокс · Канбан · Лог» из шапки
+    списка убран, иначе было бы два места для одного переключения (УВЛ). Плата за иконки без подписей названа
+    и уплачена: <b>раздел назван словом</b> в шапке соседней панели («Инбокс») — подсветки пиктограммы мало,
+    чтобы ответить «где я». Глифы в макете — заглушки под SF Symbols.
+    <b>Низ сайдбара — карточка статуса агента</b> (Chainview, тоже ⏳ с первой партии): Claude · Opus 4.8 ·
+    2 из 3 слотов · ≈ 62 % недельного лимита. Расход лимита здесь — <b>та же метрика, что в §19</b>: цена
+    работы видна всегда, а не только когда откроешь отчёт. CTA-кнопку из референса не взяли — «запустить»
+    уже живёт в ⌘K и ＋ титлбара.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v16 — обводки сняты, полосы на подложку, радиусы на шкалу.</b>
+    <b>Обводка панели убрана.</b> Она была <b>третьей границей поверх зазора и перепада светлоты</b> —
+    три способа сказать одно и то же, два лишних (УВЛ). Панель теперь = заливка + радиус, и этого
+    хватает: surface на base плюс 8px зазора разделяют панели лучше, чем 1px-линия, которая только
+    добавляла шума. Проверено скриптом: 20 панелей, обводок 0.
+    <b>Верхние полосы оказались не панелями, а строками контекста</b> (якорь change'а, вкладки Insights,
+    переключатель пайплайнов, спринт-бар, шаги онбординга). Они шли во всю ширину непрозрачным
+    прямоугольником с линейкой снизу — единственные нескруглённые плашки на экране, где всё остальное
+    карточки. Скруглять их не понадобилось: <b>сняты заливка и обводка — и скруглять стало нечего</b>,
+    информация лежит прямо на подложке окна, а от панелей её отделяет тот же зазор. Исключение —
+    липкая шапка списка: ей нужна непрозрачная заливка, но ровно та же, что у её панели, поэтому видно
+    её только когда список уезжает под неё.
+    <b>Воздух дошёл до §9 и §10</b> — флоу-карта с инспектором и настройки жили мимо общего правила
+    и примыкали по-старому.
+    <b>Радиусы сведены на шкалу токенов.</b> Накопилось 30 сырых значений: 15px у плитки логотипа
+    (мимо r-xl=14), 4px вместо r-s, 3px и 2px по мелочи, 50% у кружков. Все панели теперь r-l — проверено
+    скриптом, разброса нет. Отдельный вывод: <b>шкала начинается с 4px и не покрывает микрополосы</b>
+    высотой 3–6px — вместо выдуманных 2px им дан r-full, это на шкале и на такой высоте даёт нужные 1,5px.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v17 — обводка перестала быть оформлением и стала состоянием.</b>
+    В v16 обводки сняли только с панелей, а внутри всё осталось коробками: карта канбана, вкладка
+    пайплайна, карточка агента, блок спеки, признак роутинга — у каждого рамка. Довод тот же, что и
+    уровнем выше, просто доведённый до конца: <b>когда обведено всё, обводка не значит ничего</b> — она
+    есть и у выбранной карточки, и у соседней, разница только в цвете, а цвет мы бережём для другого.
+    Теперь <b>в покое объект держит заливка</b> (raised на surface, surface на base), а обводка осталась
+    ровно там, где кодирует состояние: выбран · пишется · требует внимания · тащат. Так она снова
+    работает — обведено значит «этот». Проверено скриптом: 78 элементов, нарушений нет.
+    <b>Ещё две полосы оказались панелями по недосмотру</b> — шапка файла в диффе (§3) и полоса
+    пайплайна в зуме (§11): сняты заливка и линейка, степпер лежит прямо на подложке.
+    Оттуда же убран ярлык «Пайплайн фичи»: якорь строкой выше уже сказал «Фича · один сервис», а
+    степпер и без подписи очевидно пайплайн — ярлык только ломался в две строки (УВЛ).
+    <b>Панель-навигация настроек больше не тянется во всю высоту окна</b> (§10): шесть пунктов в высокой
+    плашке читались как пустая коробка, а не как список — теперь карточка по высоте содержимого.
   </footer>
 
 </div>
