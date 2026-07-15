@@ -1,10 +1,13 @@
-name: Release
+name: Дистрибутивы релиза
 
 on:
-  push:
-    tags: ['v*']
-  # Пробный прогон без тега: собирает артефакты и кладёт их в Actions artifacts,
-  # релиз при этом не создаётся.
+  # Релиз создаёт человек в GitHub — этот workflow только собирает дистрибутивы
+  # и прикрепляет их к уже созданному релизу. Тег при создании релиза заводится
+  # самим GitHub, отдельный триггер на push тега не нужен.
+  release:
+    types: [published]
+  # Пробный прогон без релиза: собирает дистрибутивы и кладёт их в артефакты
+  # прогона, релиз не трогает.
   workflow_dispatch:
     inputs:
       version:
@@ -15,13 +18,14 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    name: Сборка и публикация
+  attach-distributions:
+    name: Собрать и прикрепить дистрибутивы
     runs-on: macos-26
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v7
+      - name: Получить исходники
+        uses: actions/checkout@v7
         with:
           # CURRENT_PROJECT_VERSION считается как git rev-list --count HEAD —
           # на shallow-клоне число будет неверным и перестанет монотонно расти.
@@ -32,13 +36,13 @@ jobs:
         # Входные данные приходят через env, а не подстановкой ${{ }} в тело
         # скрипта — иначе значение инпута исполняется как shell-код.
         env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
           INPUT_VERSION: ${{ inputs.version }}
-          EVENT: ${{ github.event_name }}
         run: |
-          if [ "$EVENT" = "workflow_dispatch" ]; then
-            version="$INPUT_VERSION"
+          if [ -n "$RELEASE_TAG" ]; then
+            version="${RELEASE_TAG#v}"
           else
-            version="${GITHUB_REF_NAME#v}"
+            version="$INPUT_VERSION"
           fi
           case "$version" in
             [0-9]*.[0-9]*.[0-9]*) ;;
@@ -47,7 +51,7 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "Версия релиза: $version"
 
-      - name: Кэш SPM
+      - name: Восстановить кэш SPM
         uses: actions/cache@v6
         with:
           path: |
@@ -56,27 +60,76 @@ jobs:
           key: spm-${{ runner.os }}-${{ hashFiles('**/Package.resolved') }}
           restore-keys: spm-${{ runner.os }}-
 
-      - name: Тесты пакета
+      - name: Прогнать тесты пакета
         working-directory: Packages/FoundryKit
         run: swift test
 
-      - name: Сборка артефактов (ZIP + DMG)
+      - name: Собрать дистрибутивы
         run: ./scripts/build-release.sh '${{ steps.version.outputs.version }}'
 
-      - name: Артефакты прогона
+      - name: Сохранить дистрибутивы в артефакты прогона
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v7
         with:
           name: FoundryDesktop-${{ steps.version.outputs.version }}
           path: dist/*
           if-no-files-found: error
 
-      - name: GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
+      # Отдельным шагом до загрузки: при повторном прогоне на релизе остаются
+      # дистрибутивы прошлой сборки, а при смене версии их имена не совпадут с
+      # новыми — --clobber бы их не перезаписал, и к релизу оказались бы
+      # прикреплены две разные версии сразу.
+      - name: Удалить старые дистрибутивы из релиза
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          # Удаляются только наши дистрибутивы: всё остальное, что человек
+          # прикрепил к релизу руками, workflow трогать не должен.
+          stale=$(gh release view "$RELEASE_TAG" --json assets --jq \
+            '.assets[].name | select(test("^FoundryDesktop-.*\\.(dmg|zip)$"))')
+          if [ -z "$stale" ]; then
+            echo "Старых дистрибутивов нет"
+            exit 0
+          fi
+          echo "$stale" | while read -r asset; do
+            echo "Удаляю $asset"
+            gh release delete-asset "$RELEASE_TAG" "$asset" --yes
+          done
+
+      - name: Прикрепить дистрибутивы к релизу
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          cat > /tmp/notes.md <<EOF
+          gh release upload "$RELEASE_TAG" \
+            "dist/FoundryDesktop-$VERSION.dmg" \
+            "dist/FoundryDesktop-$VERSION.zip" \
+            --clobber
+
+      # Без инструкции скачанный дистрибутив бесполезен: сборка ad-hoc, и
+      # Gatekeeper блокирует её при первом запуске.
+      - name: Дополнить описание релиза инструкцией по установке
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release view "$RELEASE_TAG" --json body --jq '.body' > /tmp/body.md
+          # Маркер делает шаг идемпотентным: повторный прогон не приклеит
+          # инструкцию второй раз и не затрёт то, что написал человек.
+          if grep -q 'install-instructions' /tmp/body.md; then
+            echo "Инструкция уже на месте"
+            exit 0
+          fi
+
+          cat >> /tmp/body.md <<EOF
+
+          <!-- install-instructions -->
           ## Установка
 
           Скачай **FoundryDesktop-$VERSION.dmg**, открой и перетащи \`FoundryDesktop.app\`
@@ -92,17 +145,7 @@ jobs:
 
           Либо: правый клик по приложению → **Открыть** → **Открыть** в диалоге.
 
-          | Файл | Для чего |
-          |---|---|
-          | \`FoundryDesktop-$VERSION.dmg\` | обычная установка перетаскиванием |
-          | \`FoundryDesktop-$VERSION.zip\` | тот же \`.app\` архивом |
-
           Universal (Apple Silicon + Intel), требуется macOS 15+.
           EOF
 
-          gh release create "$GITHUB_REF_NAME" \
-            "dist/FoundryDesktop-$VERSION.dmg" \
-            "dist/FoundryDesktop-$VERSION.zip" \
-            --title "FoundryDesktop $VERSION" \
-            --notes-file /tmp/notes.md \
-            --generate-notes
+          gh release edit "$RELEASE_TAG" --notes-file /tmp/body.md
