@@ -196,7 +196,7 @@
   }
   .list-head h3 { font-size: 13px; font-weight: 600; margin: 0; }
   .seg { display: inline-flex; background: rgba(255,255,255,0.05); border-radius: var(--r-m); padding: 2px; gap: 2px; }
-  .seg span { font-size: 11px; padding: 3px 9px; border-radius: 4px; color: var(--t-tertiary); }
+  .seg span { font-size: 11px; padding: 3px 9px; border-radius: var(--r-s); color: var(--t-tertiary); }
   .seg span.on { background: rgba(255,255,255,0.10); color: var(--t-primary); }
 
   /* заголовок группы на одной левой оси с именами change'ей (44px = pad+рейл+gap) */
@@ -277,7 +277,7 @@
   .group-cap .norm { color: var(--t-disabled); font-weight: 400; text-transform: none; letter-spacing: 0; }
   /* инфостиль-фильтр в шапке (FXPro always-active) */
   .filter-ghost { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t-tertiary); }
-  .filter-ghost .fkey { font-family: var(--font-mono); font-size: 10px; border: 1px solid var(--b-subtle); border-radius: 3px; padding: 0 4px; color: var(--t-tertiary); }
+  .filter-ghost .fkey { font-family: var(--font-mono); font-size: 10px; border: 1px solid var(--b-subtle); border-radius: var(--r-s); padding: 0 4px; color: var(--t-tertiary); }
   .filter-token { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--t-accent);
     background: rgba(47,92,255,0.12); border: 1px solid rgba(47,92,255,0.3); border-radius: var(--r-full); padding: 2px 4px 2px 9px; }
   .filter-token .x { width: 14px; height: 14px; border-radius: var(--r-full); background: rgba(255,255,255,0.1); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; color: var(--t-secondary); }
@@ -352,7 +352,7 @@
   /* мини-раскладки (схематичные) */
   .mini-body { display: flex; height: calc(100% - 22px); }
   .col-side { width: 22%; background: rgba(255,255,255,0.03); border-right: 1px solid var(--b-subtle); padding: 7px 5px; display: flex; flex-direction: column; gap: 4px; }
-  .col-side b, .skel { display: block; height: 5px; border-radius: 2px; background: rgba(255,255,255,0.10); }
+  .col-side b, .skel { display: block; height: 5px; border-radius: var(--r-full); background: rgba(255,255,255,0.10); }
   .col-side b.on { background: rgba(47,92,255,0.5); }
   .col-list { flex: 1; padding: 7px 6px; display: flex; flex-direction: column; gap: 5px; border-right: 1px solid var(--b-subtle); }
   .col-insp { width: 34%; background: var(--bg-surface); padding: 7px 6px; display: flex; flex-direction: column; gap: 5px; }
@@ -363,14 +363,14 @@
   /* канбан-мини */
   .kanban { display: flex; gap: 5px; flex: 1; padding: 7px 6px; overflow: hidden; }
   .kcol { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .kcard { background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: 3px; height: 16px; }
+  .kcard { background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-s); height: 16px; }
   .kcard.now { border-color: rgba(47,92,255,0.5); box-shadow: 0 0 8px rgba(47,92,255,0.3); }
   /* мульти-окно мини */
   .multi { position: relative; flex: 1; }
-  .float-win { position: absolute; border: 1px solid var(--b-strong); border-radius: 4px; background: var(--bg-raised); box-shadow: 0 8px 20px -6px rgba(0,0,0,0.8); }
+  .float-win { position: absolute; border: 1px solid var(--b-strong); border-radius: var(--r-s); background: var(--bg-raised); box-shadow: 0 8px 20px -6px rgba(0,0,0,0.8); }
   .fw-1 { inset: 8px 34% 20% 8px; }
   .fw-2 { inset: 24% 8px 8px 42%; box-shadow: 0 8px 24px -4px rgba(0,0,0,0.9), var(--glow-accent); }
-  .fw-bar { height: 8px; border-bottom: 1px solid var(--b-subtle); border-radius: 4px 4px 0 0; background: rgba(255,255,255,0.05); }
+  .fw-bar { height: 8px; border-bottom: 1px solid var(--b-subtle); border-radius: var(--r-s) var(--r-s) 0 0; background: rgba(255,255,255,0.05); }
 
   /* ——— дифф-ревью ——— */
   .diffwin .diff-head { display: flex; align-items: center; gap: var(--s3); padding: var(--s3) var(--s4); border-bottom: 1px solid var(--b-subtle); background: var(--bg-surface); }
@@ -382,10 +382,10 @@
   .dline .code { padding-left: 12px; white-space: pre; color: var(--t-secondary); }
   .dline.add { background: var(--diff-add-bg); }
   .dline.add .code { color: #b9f5cf; }
-  .dline.add .code .w { background: var(--diff-add-word); border-radius: 2px; }
+  .dline.add .code .w { background: var(--diff-add-word); border-radius: var(--r-s); }
   .dline.rem { background: var(--diff-rem-bg); }
   .dline.rem .code { color: #f6c0c0; }
-  .dline.rem .code .w { background: var(--diff-rem-word); border-radius: 2px; }
+  .dline.rem .code .w { background: var(--diff-rem-word); border-radius: var(--r-s); }
   .dline .gutter { color: var(--t-disabled); }
   .tok-kw { color: var(--brand-magenta); } .tok-ty { color: var(--brand-cyan); } .tok-str { color: var(--sem-success); } .tok-fn { color: var(--t-accent); } .tok-num { color: #d9a2ff; }
 
@@ -455,7 +455,7 @@
   @media (max-width: 640px){ .bars { grid-template-columns: repeat(4,1fr); } }
   .bar-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .bar-track { width: 100%; height: 84px; display: flex; align-items: flex-end; }
-  .bar-fill { width: 100%; border-radius: 3px 3px 0 0; background: linear-gradient(180deg, rgba(47,92,255,0.85), rgba(47,92,255,0.35)); }
+  .bar-fill { width: 100%; border-radius: var(--r-s) var(--r-s) 0 0; background: linear-gradient(180deg, rgba(47,92,255,0.85), rgba(47,92,255,0.35)); }
   .bar-fill.warn { background: linear-gradient(180deg, rgba(251,191,36,0.85), rgba(251,191,36,0.3)); }
   .bar-cell .bl { font-size: 9px; color: var(--t-tertiary); letter-spacing: 0.02em; }
   .bar-cell .bv { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -496,7 +496,7 @@
   .btn.pressed { background: #2749c9; }
   .btn.disabled { background: rgba(255,255,255,0.08); color: var(--t-disabled); }
   .btn.loading { background: var(--brand-ultramarine); color: rgba(255,255,255,0.7); }
-  .spin { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.35); border-top-color: #fff; display: inline-block; animation: spin 0.7s linear infinite; }
+  .spin { width: 12px; height: 12px; border-radius: var(--r-full); border: 1.5px solid rgba(255,255,255,0.35); border-top-color: #fff; display: inline-block; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce){ .spin { animation: none; } }
 
@@ -522,7 +522,7 @@
 
   .extreme-row { display: grid; grid-template-columns: auto 1fr auto; gap: 4px var(--s2); align-items: center; padding: 6px var(--s2); border-radius: var(--r-m); }
   .extreme-row:hover { background: rgba(255,255,255,0.06); }
-  .extreme-row .st { width: 8px; height: 8px; border-radius: 50%; }
+  .extreme-row .st { width: 8px; height: 8px; border-radius: var(--r-full); }
   .extreme-row .nm { font-family: var(--font-mono); font-size: 12px; color: var(--t-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .extreme-row .ct { font-size: 11px; }
 
@@ -532,7 +532,7 @@
   .degraded .di { flex: none; } .degraded.warn .di { color: var(--sem-warning); } .degraded.err .di { color: var(--sem-error); }
   .degraded a { color: var(--t-accent); text-decoration: none; }
 
-  .skel-line { height: 10px; border-radius: 3px; background: rgba(255,255,255,0.06); animation: skelpulse 2s ease-in-out infinite; }
+  .skel-line { height: 10px; border-radius: var(--r-full); background: rgba(255,255,255,0.06); animation: skelpulse 2s ease-in-out infinite; }
   @keyframes skelpulse { 0%,100%{ opacity:0.45; } 50%{ opacity:0.9; } }
   @media (prefers-reduced-motion: reduce){ .skel-line { animation: none; } }
 
@@ -575,7 +575,7 @@
   .kb-col-head .kbrow { display: flex; align-items: center; gap: 6px; }
   .kb-col-head .kbt { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--t-secondary); }
   .kb-col-head .kbn { font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; margin-left: auto; }
-  .kb-col-head .kdot { width: 6px; height: 6px; border-radius: 50%; background: var(--t-disabled); flex: none; }
+  .kb-col-head .kdot { width: 6px; height: 6px; border-radius: var(--r-full); background: var(--t-disabled); flex: none; }
   .kb-col-head .kbart { font-family: var(--font-mono); font-size: 9px; color: var(--t-disabled); padding-left: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .kb-col.now .kdot { background: var(--brand-ultramarine); }
   .kb-col.done .kbt { color: var(--sem-success); }
@@ -613,7 +613,7 @@
   .t-col-head { display: flex; align-items: center; gap: 6px; padding: 3px 4px; }
   .t-col-head .tct { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--t-secondary); }
   .t-col-head .tcn { margin-left: auto; font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
-  .t-col-head .tcd { width: 5px; height: 5px; border-radius: 50%; background: var(--t-disabled); flex: none; }
+  .t-col-head .tcd { width: 5px; height: 5px; border-radius: var(--r-full); background: var(--t-disabled); flex: none; }
   .t-col.live .tcd { background: var(--brand-cyan); }
   .t-col.done .tcd { background: var(--sem-success); }
   .t-card { background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-m); padding: 8px 9px; display: flex; flex-direction: column; gap: 4px; }
@@ -638,8 +638,8 @@
   .sb-skill { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: var(--r-full); background: rgba(139,92,246,0.14); border: 1px solid rgba(139,92,246,0.32); font-family: var(--font-mono); font-size: 9px; color: #C4A6FF; }
   .sb-flag { display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: var(--r-s); font-size: 9px; color: var(--sem-warning); border: 1px solid rgba(251,191,36,0.35); background: rgba(251,191,36,0.10); }
   .sb-body { padding: 9px 11px; font-size: 12px; line-height: 1.65; color: var(--t-secondary); }
-  .sdel { background: rgba(248,113,113,0.16); color: #FFB4B4; text-decoration: line-through; text-decoration-color: rgba(248,113,113,0.6); border-radius: 2px; padding: 0 2px; }
-  .sins { background: rgba(74,222,128,0.16); color: #A7F3C0; border-radius: 2px; padding: 0 2px; }
+  .sdel { background: rgba(248,113,113,0.16); color: #FFB4B4; text-decoration: line-through; text-decoration-color: rgba(248,113,113,0.6); border-radius: var(--r-s); padding: 0 2px; }
+  .sins { background: rgba(74,222,128,0.16); color: #A7F3C0; border-radius: var(--r-s); padding: 0 2px; }
   .sb-note { display: flex; gap: 7px; padding: 7px 11px; border-top: 1px dashed var(--b-subtle); background: rgba(251,191,36,0.04); font-size: 11px; color: var(--t-secondary); line-height: 1.5; }
   .sb-note .snw { color: var(--sem-warning); flex: none; }
 
@@ -709,7 +709,7 @@
   /* ——— §16 онбординг ——— */
   .ob-steps { display: flex; align-items: center; gap: var(--s2); padding: 10px var(--s4); background: var(--bg-surface); border-bottom: 1px solid var(--b-subtle); }
   .ob-st { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--t-disabled); }
-  .ob-st .obn { width: 17px; height: 17px; border-radius: 50%; border: 1px solid var(--b-default); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; flex: none; }
+  .ob-st .obn { width: 17px; height: 17px; border-radius: var(--r-full); border: 1px solid var(--b-default); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; flex: none; }
   .ob-st.now { color: var(--t-primary); }
   .ob-st.now .obn { background: var(--brand-ultramarine); border-color: var(--brand-ultramarine); color: #fff; }
   .ob-st.done { color: var(--t-tertiary); }
@@ -754,7 +754,7 @@
   .ahead-r { margin-left: auto; display: flex; align-items: center; gap: 6px; align-self: flex-start; }
   /* плитка логотипа тонируется цветом самого логотипа — приём OrbitStack (иконка + подложка в тон) */
   .alogo {
-    width: 60px; height: 60px; border-radius: 15px; flex: none;
+    width: 60px; height: 60px; border-radius: var(--r-xl); flex: none;
     display: flex; align-items: center; justify-content: center;
     background: var(--vtint); border: 1px solid var(--vedge);
   }
@@ -841,7 +841,7 @@
   .kb-card .kc-meta { display: flex; align-items: center; gap: 6px; }
   .kb-card .kc-foot { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
   .kb-slot { border: 1.5px dashed rgba(47,92,255,0.5); border-radius: var(--r-l); height: 54px; background: rgba(47,92,255,0.06); }
-  .mini-av { width: 16px; height: 16px; border-radius: 50%; background: rgba(47,92,255,0.2); border: 1px solid rgba(47,92,255,0.4); display: inline-flex; align-items: center; justify-content: center; font-size: 8px; color: var(--t-accent); }
+  .mini-av { width: 16px; height: 16px; border-radius: var(--r-full); background: rgba(47,92,255,0.2); border: 1px solid rgba(47,92,255,0.4); display: inline-flex; align-items: center; justify-content: center; font-size: 8px; color: var(--t-accent); }
 
   /* оверлей-инспектор поверх борда */
   .overlay-demo { position: relative; }
@@ -931,10 +931,10 @@
 
   /* пропорц-бар тик-сегментами (Activity Summary → канон) */
   .prop-bar { display: flex; gap: 3px; height: 16px; margin-bottom: var(--s4); }
-  .prop-seg { border-radius: 3px; background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.22) 0 1.5px, transparent 1.5px 5px); }
+  .prop-seg { border-radius: var(--r-s); background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.22) 0 1.5px, transparent 1.5px 5px); }
   .prop-legend { display: flex; flex-direction: column; gap: var(--s2); }
   .pl-row { display: grid; grid-template-columns: 10px 1fr auto auto; align-items: center; gap: var(--s2); font-size: 12px; }
-  .pl-row .pd { width: 8px; height: 8px; border-radius: 2px; }
+  .pl-row .pd { width: 8px; height: 8px; border-radius: var(--r-full); }
   .pl-row .pn { color: var(--t-secondary); }
   .pl-row .pc { font-family: var(--font-mono); color: var(--t-primary); }
   .pl-row .pp { font-family: var(--font-mono); color: var(--t-tertiary); width: 38px; text-align: right; }
@@ -971,7 +971,7 @@
   /* график как орган пакетного выбора: протяжка по диапазону → массовое действие (Superpedestrian) */
   .rh-brush { position: absolute; top: 0; bottom: 0; z-index: 1; border-radius: var(--r-s);
     background: rgba(47,92,255,0.10); border-left: 1.5px solid rgba(47,92,255,0.55); border-right: 1.5px solid rgba(47,92,255,0.55); }
-  .rh-brush .bh { position: absolute; top: 50%; width: 6px; height: 22px; border-radius: 3px; background: var(--brand-ultramarine); transform: translateY(-50%); }
+  .rh-brush .bh { position: absolute; top: 50%; width: 6px; height: 22px; border-radius: var(--r-full); background: var(--brand-ultramarine); transform: translateY(-50%); }
   .rh-brush .bh.l { left: -4px; } .rh-brush .bh.r { right: -4px; }
   .rh-dot.sel { box-shadow: 0 0 0 3px rgba(47,92,255,0.35); }
   .rh-batchbar { display: flex; align-items: center; gap: var(--s3); margin-top: var(--s3); padding: 6px 6px 6px var(--s3);
@@ -1012,7 +1012,7 @@
   .fl-term.ok { color: var(--sem-success); background: rgba(74,222,128,0.14); border: 1px solid rgba(74,222,128,0.3); }
   .fl-term.start { color: var(--t-tertiary); background: rgba(255,255,255,0.05); border: 1px solid var(--b-subtle); }
   .fl-elabel { position: absolute; z-index: 2; font-size: 10px; font-family: var(--font-mono);
-    color: var(--sem-warning); background: var(--bg-base); padding: 1px 5px; transform: translate(-50%,-50%); white-space: nowrap; }
+    color: var(--sem-warning); background: var(--bg-surface); padding: 1px 5px; transform: translate(-50%,-50%); white-space: nowrap; }
   .flow-insp { padding: var(--s4); display: flex; flex-direction: column; gap: var(--s2); }
   .fi-head { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
   .fi-sub { font-size: 11px; color: var(--t-tertiary); margin-bottom: var(--s2); }
@@ -1046,7 +1046,7 @@
   .dc-radio { width: 16px; height: 16px; border-radius: var(--r-full); border: 1.5px solid var(--b-strong); flex: none; }
   .dcard.sel .dc-radio { border-color: var(--brand-ultramarine); background: radial-gradient(circle, var(--brand-ultramarine) 0 40%, transparent 46%); }
   .dc-prev { border-radius: var(--r-s); background: var(--bg-base); border: 1px solid var(--b-subtle); padding: 8px; display: flex; flex-direction: column; }
-  .dc-prev .pr { height: 6px; border-radius: 2px; background: rgba(255,255,255,0.13); }
+  .dc-prev .pr { height: 6px; border-radius: var(--r-full); background: rgba(255,255,255,0.13); }
   .dc-prev .pr.a { background: rgba(124,154,255,0.5); }
   .dc-meta { font-size: 11px; color: var(--t-tertiary); font-family: var(--font-mono); margin-top: 8px; }
   .tcard { border: 1px solid var(--b-default); border-radius: var(--r-l); padding: var(--s3); }
@@ -1107,7 +1107,7 @@
   /* возвраты по месяцам с отсечкой в момент правки правила: базлайн виден глазом */
   .spark { justify-self: end; width: 268px; }
   .sp-bars { position: relative; display: flex; align-items: flex-end; gap: 5px; height: 44px; }
-  .sp-bars i { flex: 1; background: rgba(255,255,255,0.22); border-radius: 2px 2px 0 0; height: var(--h); }
+  .sp-bars i { flex: 1; background: rgba(255,255,255,0.22); border-radius: var(--r-s) var(--r-s) 0 0; height: var(--h); }
   .sp-bars i.now { background: rgba(255,255,255,0.09); }
   .sp-cut { position: absolute; top: -3px; bottom: 0; width: 0; border-left: 1px dashed rgba(74,222,128,0.65); }
   .sp-x { display: flex; justify-content: space-between; margin-top: 5px; font-size: 9px; color: var(--t-disabled); }
@@ -1191,15 +1191,15 @@
   .ib-name { font-size: 11px; color: var(--t-secondary); }
   .ib.off .ib-name { color: var(--t-disabled); }
   .ib-track { display: flex; height: 13px; gap: 1px; }
-  .ib-base { background: rgba(255,255,255,0.20); border-radius: 2px; }
-  .ib-re { background: rgba(251,191,36,0.60); border-radius: 2px; }
+  .ib-base { background: rgba(255,255,255,0.20); border-radius: var(--r-s); }
+  .ib-re { background: rgba(251,191,36,0.60); border-radius: var(--r-s); }
   .ib-tok { font-family: var(--font-mono); font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; text-align: right; }
   .ib-ret { font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; text-align: right; }
   .ib-ret.hot { color: var(--sem-warning); }
   .ib-ret.zero { color: var(--t-disabled); }
   .ib-why { grid-column: 2/-1; font-size: 9px; color: var(--t-disabled); }
   .ib-legend { display: flex; gap: var(--s4); font-size: 10px; color: var(--t-tertiary); margin-top: var(--s3); }
-  .ib-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .ib-legend i { display: inline-block; width: 9px; height: 9px; border-radius: var(--r-s); margin-right: 6px; vertical-align: -1px; }
   .ib-legend .lb { background: rgba(255,255,255,0.20); }
   .ib-legend .lr { background: rgba(251,191,36,0.60); }
 
@@ -1226,22 +1226,42 @@
      панели — raised. До этого content-панели были base, а боковые surface —
      перепад ничего не значил.
      ——————————————————————————————————————————————————————————————— */
-  .three, .diff-dual, .spec-dual, .route-dual, .ins-dual, .skl-dual, .prj-dual {
+  .three, .diff-dual, .spec-dual, .route-dual, .ins-dual, .skl-dual, .prj-dual,
+  .flowwrap, .setgrid {
     gap: var(--s2); padding: var(--s2); background: var(--bg-base);
   }
+  /* Панель — заливка и радиус, без обводки. Обводка была третьей границей поверх
+     зазора и перепада светлоты: три способа сказать одно и то же — два лишних (УВЛ). */
   .pane.sidebar, .pane.list, .pane.inspector,
   .diff-main, .risk-panel, .spec-main, .skill-panel, .route-main, .route-out,
-  .ins-main, .ins-side, .skl-list, .skl-pane, .prj-list, .prj-pane {
+  .ins-main, .ins-side, .skl-list, .skl-pane, .prj-list, .prj-pane,
+  .flow-canvas, .flow-insp, .set-nav, .set-body {
     background: var(--bg-surface);
-    border: 1px solid var(--b-subtle);
+    border: none;
     border-radius: var(--r-l);
     overflow: hidden;
   }
   /* линейки-разделители панелей больше не нужны: их работу делает зазор */
-  .pane.sidebar, .diff-main, .spec-main, .route-main, .ins-main, .skl-list, .prj-list { border-right: none; }
+  .pane.sidebar, .diff-main, .spec-main, .route-main, .ins-main, .skl-list, .prj-list,
+  .flow-canvas, .set-nav { border-right: none; }
+  .flow-canvas { background: radial-gradient(70% 90% at 30% 8%, rgba(47,92,255,0.08), transparent 60%), var(--bg-surface); }
   /* то, что было surface на base, поднимается на raised — иначе сольётся с панелью */
-  .skl-fact, .dg-head, .sb-head, .list-head { background: var(--bg-raised); }
+  .skl-fact, .dg-head, .sb-head { background: var(--bg-raised); }
   .skl-card, .prj-card { background: none; }
+
+  /* ——— Верхние полосы — не панели, а строки контекста ———
+     Они шли во всю ширину непрозрачным прямоугольником с линейкой снизу: единственные
+     нескруглённые плашки на экране, где всё остальное — карточки. Скруглять их незачем —
+     нечего скруглять: заливка и обводка сняты, информация лежит прямо на подложке окна.
+     Это снова «воздух вместо линеек»: полосу от панелей отделяет зазор. */
+  .zoom-anchor, .ins-tabs, .pipe-bar, .sprint-bar, .tx-bar, .ob-steps, .rv-bar {
+    background: none; border-bottom: none;
+  }
+  /* .list-head липкая — ей нужна непрозрачная заливка, но ровно та же, что у её панели:
+     видно её только когда список уезжает под неё */
+  .list-head { background: var(--bg-surface); border-bottom: none; }
+  /* полоса вкладок больше не плашка — подчёркивание выбранного само по себе */
+  .ins-tabs { padding-left: var(--s3); }
 
   /* ——— рейл разделов (Okashi: «узкий левый icon-rail», user-refs.md) ———
      Только иконки и альты. Иконка без подписи двусмысленна, поэтому раздел
@@ -1250,7 +1270,7 @@
      Рейл не добавлен сверху, а забрал навигацию, размазанную по экрану:
      сегмент «Инбокс · Канбан · Лог» из шапки списка убран (УВЛ). */
   .rail { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: var(--s2) 0;
-          background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l); }
+          background: var(--bg-surface); border-radius: var(--r-l); }
   .rl { position: relative; width: 30px; height: 30px; border-radius: var(--r-m); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--t-tertiary); }
   .rl:hover { background: rgba(255,255,255,0.06); color: var(--t-secondary); }
   .rl.sel { background: rgba(47,92,255,0.16); color: var(--t-accent); }
@@ -1268,16 +1288,16 @@
 
   /* низ сайдбара — карточка статуса агента (Chainview: промо-карточка внизу сайдбара).
      Расход лимита здесь тот же, что метрика в §19: цена работы видна всегда, а не только в отчёте */
-  .agent-card-s { margin-top: auto; border: 1px solid var(--b-subtle); border-radius: var(--r-m); padding: 9px; background: rgba(255,255,255,0.02); }
+  .agent-card-s { margin-top: auto; border-radius: var(--r-m); padding: 9px; background: var(--bg-raised); }
   .acs-h { display: flex; align-items: center; gap: 7px; }
   .acs-n { font-size: 11px; color: var(--t-secondary); }
   .acs-m { margin-left: auto; font-family: var(--font-mono); font-size: 9px; color: var(--t-disabled); }
   .acs-slots { display: flex; gap: 3px; margin-top: 8px; }
-  .acs-slots i { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.10); }
+  .acs-slots i { flex: 1; height: 3px; border-radius: var(--r-full); background: rgba(255,255,255,0.10); }
   .acs-slots i.on { background: var(--brand-cyan); }
   .acs-l { display: flex; justify-content: space-between; font-size: 9px; color: var(--t-disabled); margin-top: 7px; }
-  .acs-bar { height: 3px; border-radius: 2px; background: rgba(255,255,255,0.10); margin-top: 3px; overflow: hidden; }
-  .acs-bar i { display: block; height: 100%; width: 62%; background: rgba(255,255,255,0.32); border-radius: 2px; }
+  .acs-bar { height: 3px; border-radius: var(--r-full); background: rgba(255,255,255,0.10); margin-top: 3px; overflow: hidden; }
+  .acs-bar i { display: block; height: 100%; width: 62%; background: rgba(255,255,255,0.32); border-radius: var(--r-full); }
 
   /* появление */
   @media (prefers-reduced-motion: no-preference){
@@ -1530,7 +1550,7 @@
         </aside>
       </div>
     </div>
-    <div class="caption"><b>Дизайн-решения (каждое — из проекта бюро):</b> строка названа <b>мнемо-именем</b>, а хеш-ветка ушла во вторую строку — «Контраст по APCA» ищется глазом быстрее, чем <code style="font-family:var(--font-mono)">feat/apc-contrast</code> (Admiral). Тип change'а — <b>пиктограмма-якорь</b> в начале, опознаётся периферией (Главбух). Позиция в 8 стадиях CRISPY — <b>словами в строке</b> («стадия 3 из 8»), а графический прогресс не дублируется: живёт в большом степпере инспектора, где заливается объект (Admiral + УВЛ Горбунова — убрать лишний рейл из строки). Секции — <b>по приоритету, не по проекту</b>: решать → ждёт → пишется (Superpedestrian), а заголовки в инфостиле-глаголах (Бирман). Подсвечены ровно <b>две опорные строки</b> — «дольше всех» и «крупный дифф», остальное нейтрально (Onetwotrip). Счётчик в сайдбаре <b>и есть фильтр</b> — отдельной панели нет (Superpedestrian). Число получает <b>базлайн</b>: «3 · норма 2» (Бирман). Live-лупы — <b>в закреплённой полосе</b> у нижней кромки, не вперемешку с очередью (FXPro). Печать где угодно фильтрует — поле не ловит фокус (FXPro). <b>Рейл разделов</b> (Okashi из наших референсов) — только иконки и альты; он не добавлен сверху, а <b>забрал</b> навигацию, размазанную по экрану: сегмент «Инбокс · Канбан · Лог» из шапки списка убран, иначе одно переключение жило бы в двух местах (УВЛ). Плата за иконки без подписей названа и уплачена: <b>раздел назван словом</b> — «Инбокс» стоит в шапке соседней панели, потому что подсветки пиктограммы мало, чтобы ответить «где я»; глифы здесь — заглушки под SF Symbols. Бейдж на пункте рейла <b>янтарный только там, где требуется решение</b> (2), остальные нейтральны — цвет на значимом. <b>Панели не примыкают</b> (OrbitStack): между ними видна подложка окна, и границу держит зазор, а не линейка — то же «воздух вместо линеек», что уже применено к строкам инбокса, только уровнем выше. Перепад светлот теперь наконец что-то значит: окно — base, панель — surface, элемент внутри — raised. <b>Низ сайдбара — карточка статуса агента</b> (Chainview): слоты и <b>расход недельного лимита</b> — та же метрика, что в §19, но видна всегда, а не только когда откроешь отчёт.</div>
+    <div class="caption"><b>Дизайн-решения (каждое — из проекта бюро):</b> строка названа <b>мнемо-именем</b>, а хеш-ветка ушла во вторую строку — «Контраст по APCA» ищется глазом быстрее, чем <code style="font-family:var(--font-mono)">feat/apc-contrast</code> (Admiral). Тип change'а — <b>пиктограмма-якорь</b> в начале, опознаётся периферией (Главбух). Позиция в 8 стадиях CRISPY — <b>словами в строке</b> («стадия 3 из 8»), а графический прогресс не дублируется: живёт в большом степпере инспектора, где заливается объект (Admiral + УВЛ Горбунова — убрать лишний рейл из строки). Секции — <b>по приоритету, не по проекту</b>: решать → ждёт → пишется (Superpedestrian), а заголовки в инфостиле-глаголах (Бирман). Подсвечены ровно <b>две опорные строки</b> — «дольше всех» и «крупный дифф», остальное нейтрально (Onetwotrip). Счётчик в сайдбаре <b>и есть фильтр</b> — отдельной панели нет (Superpedestrian). Число получает <b>базлайн</b>: «3 · норма 2» (Бирман). Live-лупы — <b>в закреплённой полосе</b> у нижней кромки, не вперемешку с очередью (FXPro). Печать где угодно фильтрует — поле не ловит фокус (FXPro). <b>Рейл разделов</b> (Okashi из наших референсов) — только иконки и альты; он не добавлен сверху, а <b>забрал</b> навигацию, размазанную по экрану: сегмент «Инбокс · Канбан · Лог» из шапки списка убран, иначе одно переключение жило бы в двух местах (УВЛ). Плата за иконки без подписей названа и уплачена: <b>раздел назван словом</b> — «Инбокс» стоит в шапке соседней панели, потому что подсветки пиктограммы мало, чтобы ответить «где я»; глифы здесь — заглушки под SF Symbols. Бейдж на пункте рейла <b>янтарный только там, где требуется решение</b> (2), остальные нейтральны — цвет на значимом. <b>Панели не примыкают</b> (OrbitStack): между ними видна подложка окна, и границу держит зазор, а не линейка — то же «воздух вместо линеек», что уже применено к строкам инбокса, только уровнем выше. Перепад светлот теперь наконец что-то значит: окно — base, панель — surface, элемент внутри — raised. <b>Обводки у панелей нет</b>: она была третьей границей поверх зазора и перепада светлоты — три способа сказать одно и то же, два лишних (УВЛ). <b>Полоса под титлбаром — не панель, а строка контекста</b>: без заливки и линейки, информация лежит прямо на подложке. <b>Низ сайдбара — карточка статуса агента</b> (Chainview): слоты и <b>расход недельного лимита</b> — та же метрика, что в §19, но видна всегда, а не только когда откроешь отчёт.</div>
   </section>
 
   <!-- ——————————————————— §2 ВАРИАНТЫ РАСКЛАДКИ ——————————————————— -->
@@ -3535,6 +3555,25 @@
     2 из 3 слотов · ≈ 62 % недельного лимита. Расход лимита здесь — <b>та же метрика, что в §19</b>: цена
     работы видна всегда, а не только когда откроешь отчёт. CTA-кнопку из референса не взяли — «запустить»
     уже живёт в ⌘K и ＋ титлбара.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v16 — обводки сняты, полосы на подложку, радиусы на шкалу.</b>
+    <b>Обводка панели убрана.</b> Она была <b>третьей границей поверх зазора и перепада светлоты</b> —
+    три способа сказать одно и то же, два лишних (УВЛ). Панель теперь = заливка + радиус, и этого
+    хватает: surface на base плюс 8px зазора разделяют панели лучше, чем 1px-линия, которая только
+    добавляла шума. Проверено скриптом: 20 панелей, обводок 0.
+    <b>Верхние полосы оказались не панелями, а строками контекста</b> (якорь change'а, вкладки Insights,
+    переключатель пайплайнов, спринт-бар, шаги онбординга). Они шли во всю ширину непрозрачным
+    прямоугольником с линейкой снизу — единственные нескруглённые плашки на экране, где всё остальное
+    карточки. Скруглять их не понадобилось: <b>сняты заливка и обводка — и скруглять стало нечего</b>,
+    информация лежит прямо на подложке окна, а от панелей её отделяет тот же зазор. Исключение —
+    липкая шапка списка: ей нужна непрозрачная заливка, но ровно та же, что у её панели, поэтому видно
+    её только когда список уезжает под неё.
+    <b>Воздух дошёл до §9 и §10</b> — флоу-карта с инспектором и настройки жили мимо общего правила
+    и примыкали по-старому.
+    <b>Радиусы сведены на шкалу токенов.</b> Накопилось 30 сырых значений: 15px у плитки логотипа
+    (мимо r-xl=14), 4px вместо r-s, 3px и 2px по мелочи, 50% у кружков. Все панели теперь r-l — проверено
+    скриптом, разброса нет. Отдельный вывод: <b>шкала начинается с 4px и не покрывает микрополосы</b>
+    высотой 3–6px — вместо выдуманных 2px им дан r-full, это на шкале и на такой высоте даёт нужные 1,5px.
   </footer>
 
 </div>
