@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Lint · Test · Build
+    # Раннер пиннится осознанно, не macos-latest: от версии зависят снапшот-голдены
+    # (практики, глава 07 §4). macOS-минуты стоят 10× Linux — держим одну тонкую джобу.
+    runs-on: macos-26
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Кэш SPM
+        uses: actions/cache@v6
+        with:
+          path: |
+            Packages/FoundryKit/.build
+            ~/Library/Caches/org.swift.swiftpm
+          key: spm-${{ runner.os }}-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: swift-format lint
+        run: |
+          swift format lint --strict --recursive \
+            Packages/FoundryKit/Sources Packages/FoundryKit/Tests App
+
+      - name: Тесты пакета
+        working-directory: Packages/FoundryKit
+        run: swift test
+
+      # Приложение собирается без подписи: проверяем, что xcodeproj + пакет
+      # сходятся, а не готовим артефакт (этим занят release.yml).
+      - name: Сборка приложения
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project FoundryDesktop.xcodeproj \
+            -scheme FoundryDesktop \
+            -configuration Release \
+            -destination 'platform=macOS,arch=arm64' \
+            -derivedDataPath .build/DerivedData \
+            CODE_SIGN_IDENTITY=- \
+            | xcbeautify

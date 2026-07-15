@@ -1,0 +1,108 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  # Пробный прогон без тега: собирает артефакты и кладёт их в Actions artifacts,
+  # релиз при этом не создаётся.
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Версия без префикса v (например 0.1.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Сборка и публикация
+    runs-on: macos-26
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # CURRENT_PROJECT_VERSION считается как git rev-list --count HEAD —
+          # на shallow-клоне число будет неверным и перестанет монотонно расти.
+          fetch-depth: 0
+
+      - name: Определить версию
+        id: version
+        # Входные данные приходят через env, а не подстановкой ${{ }} в тело
+        # скрипта — иначе значение инпута исполняется как shell-код.
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            version="$INPUT_VERSION"
+          else
+            version="${GITHUB_REF_NAME#v}"
+          fi
+          case "$version" in
+            [0-9]*.[0-9]*.[0-9]*) ;;
+            *) echo "!! Ожидалась версия вида X.Y.Z, получено: '$version'" >&2; exit 64 ;;
+          esac
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Версия релиза: $version"
+
+      - name: Кэш SPM
+        uses: actions/cache@v6
+        with:
+          path: |
+            Packages/FoundryKit/.build
+            ~/Library/Caches/org.swift.swiftpm
+          key: spm-${{ runner.os }}-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Тесты пакета
+        working-directory: Packages/FoundryKit
+        run: swift test
+
+      - name: Сборка артефактов (ZIP + DMG)
+        run: ./scripts/build-release.sh '${{ steps.version.outputs.version }}'
+
+      - name: Артефакты прогона
+        uses: actions/upload-artifact@v7
+        with:
+          name: FoundryDesktop-${{ steps.version.outputs.version }}
+          path: dist/*
+          if-no-files-found: error
+
+      - name: GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          cat > /tmp/notes.md <<EOF
+          ## Установка
+
+          Скачай **FoundryDesktop-$VERSION.dmg**, открой и перетащи \`FoundryDesktop.app\`
+          в \`Applications\`.
+
+          Сборка подписана ad-hoc, без Developer ID и notarization, поэтому при первом
+          запуске macOS её заблокирует («приложение повреждено» или «неизвестный
+          разработчик»). Это ожидаемо. Сними карантин:
+
+          \`\`\`sh
+          xattr -dr com.apple.quarantine /Applications/FoundryDesktop.app
+          \`\`\`
+
+          Либо: правый клик по приложению → **Открыть** → **Открыть** в диалоге.
+
+          | Файл | Для чего |
+          |---|---|
+          | \`FoundryDesktop-$VERSION.dmg\` | обычная установка перетаскиванием |
+          | \`FoundryDesktop-$VERSION.zip\` | тот же \`.app\` архивом |
+
+          Universal (Apple Silicon + Intel), требуется macOS 15+.
+          EOF
+
+          gh release create "$GITHUB_REF_NAME" \
+            "dist/FoundryDesktop-$VERSION.dmg" \
+            "dist/FoundryDesktop-$VERSION.zip" \
+            --title "FoundryDesktop $VERSION" \
+            --notes-file /tmp/notes.md \
+            --generate-notes

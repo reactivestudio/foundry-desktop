@@ -107,9 +107,11 @@ public struct RunConsoleView: View {
                         endPoint: .bottomTrailing
                     )
                 )
-            Text("Выбери проект, напиши промпт — claude запустится в его каталоге.\nСессию можно продолжить: claude --resume <id> из каталога проекта.")
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
+            Text(
+                "Выбери проект, напиши промпт — claude запустится в его каталоге.\nСессию можно продолжить: claude --resume <id> из каталога проекта."
+            )
+            .multilineTextAlignment(.center)
+            .foregroundStyle(.secondary)
         }
         .padding(.top, 120)
     }

@@ -354,7 +354,7 @@ extension Artifact: Transferable {
 - Чарты аналитики — accessibility descriptions + **Audio Graphs** (`AXChartDescriptor`).
 - Заголовки секций — traits `.isHeader` для rotor-навигации.
 - Тест — Accessibility Inspector (Xcode) + живой прогон VoiceOver (⌘F5) по канбану и ревью.
-- С 2025 в App Store — **Accessibility Nutrition Labels**: декларация поддерживаемых фич. Заполняем честно.
+- ⚠️ Не применимо: **Accessibility Nutrition Labels** (с 2025) — требование страницы App Store, а мы вне MAS навсегда ([глава 06 §7](06-system-integration.md), [глава 08 §4](08-project-tooling-distribution.md)). Практики доступности выше действуют независимо от канала дистрибуции.
 
 ### 5.2 Keyboard-only
 

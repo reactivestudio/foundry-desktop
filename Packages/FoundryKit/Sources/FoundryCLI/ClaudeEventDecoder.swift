@@ -38,11 +38,14 @@ public enum ClaudeEventDecoder {
 
     private static func decodeSystem(_ root: [String: Any]) -> [ClaudeEvent] {
         guard root["subtype"] as? String == "init" else { return [] }
-        return [.sessionStarted(SessionInit(
-            sessionID: root["session_id"] as? String ?? "?",
-            model: root["model"] as? String ?? "?",
-            cwd: root["cwd"] as? String ?? "?"
-        ))]
+        return [
+            .sessionStarted(
+                SessionInit(
+                    sessionID: root["session_id"] as? String ?? "?",
+                    model: root["model"] as? String ?? "?",
+                    cwd: root["cwd"] as? String ?? "?"
+                ))
+        ]
     }
 
     // MARK: - stream_event (токен-дельты, --include-partial-messages)
@@ -62,7 +65,7 @@ public enum ClaudeEventDecoder {
             switch blockType {
             case "thinking": return [.blockStarted(.thinking)]
             case "text": return [.blockStarted(.text)]
-            default: return [] // tool_use придёт целиком в assistant-сообщении
+            default: return []  // tool_use придёт целиком в assistant-сообщении
             }
 
         case "content_block_delta":
@@ -76,11 +79,11 @@ public enum ClaudeEventDecoder {
             case "text_delta":
                 return (delta["text"] as? String).map { [.textDelta($0)] } ?? []
             default:
-                return [] // input_json_delta и пр. — вход тула показываем целиком
+                return []  // input_json_delta и пр. — вход тула показываем целиком
             }
 
         default:
-            return [] // message_start/stop, ping — служебные
+            return []  // message_start/stop, ping — служебные
         }
     }
 
@@ -112,14 +115,17 @@ public enum ClaudeEventDecoder {
 
     private static func decodeResult(_ root: [String: Any]) -> [ClaudeEvent] {
         let isError = root["is_error"] as? Bool ?? (root["subtype"] as? String != "success")
-        return [.finished(RunResult(
-            text: root["result"] as? String ?? "",
-            isError: isError,
-            durationMS: root["duration_ms"] as? Int ?? 0,
-            costUSD: root["total_cost_usd"] as? Double,
-            turns: root["num_turns"] as? Int ?? 0,
-            sessionID: root["session_id"] as? String ?? "?"
-        ))]
+        return [
+            .finished(
+                RunResult(
+                    text: root["result"] as? String ?? "",
+                    isError: isError,
+                    durationMS: root["duration_ms"] as? Int ?? 0,
+                    costUSD: root["total_cost_usd"] as? Double,
+                    turns: root["num_turns"] as? Int ?? 0,
+                    sessionID: root["session_id"] as? String ?? "?"
+                ))
+        ]
     }
 
     // MARK: - helpers
@@ -155,7 +161,8 @@ public enum ClaudeEventDecoder {
         case let string as String:
             return string.clipped(to: 300)
         case let blocks as [[String: Any]]:
-            return blocks
+            return
+                blocks
                 .compactMap { $0["text"] as? String }
                 .joined(separator: "\n")
                 .clipped(to: 300)
