@@ -1,8 +1,9 @@
 import Foundation
 import FoundryCore
 import Subprocess
+
 #if canImport(System)
-import System
+    import System
 #endif
 
 public enum ClaudeRunError: Error, LocalizedError {

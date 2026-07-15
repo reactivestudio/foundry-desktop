@@ -11,7 +11,8 @@ struct ClaudeDesktopLinkTests {
             sessionID: "abc-123",
             cwd: "/Volumes/Work/PET/books/.claude/worktrees/reading-98372d"
         )
-        #expect(path == NSHomeDirectory()
-            + "/.claude/projects/-Volumes-Work-PET-books--claude-worktrees-reading-98372d/abc-123.jsonl")
+        #expect(
+            path == NSHomeDirectory()
+                + "/.claude/projects/-Volumes-Work-PET-books--claude-worktrees-reading-98372d/abc-123.jsonl")
     }
 }

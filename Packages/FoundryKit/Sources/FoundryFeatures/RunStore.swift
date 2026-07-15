@@ -154,10 +154,12 @@ public final class RunStore {
 
     /// Результат тула привязывается к последнему tool-элементу без результата.
     private func attachToolResult(_ summary: String, isError: Bool) {
-        guard let index = feed.lastIndex(where: {
-            if case .tool = $0.kind { return $0.detail == nil }
-            return false
-        }) else { return }
+        guard
+            let index = feed.lastIndex(where: {
+                if case .tool = $0.kind { return $0.detail == nil }
+                return false
+            })
+        else { return }
         feed[index].detail = summary.isEmpty ? "✓" : summary
         feed[index].isError = isError
     }
