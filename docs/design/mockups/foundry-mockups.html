@@ -726,14 +726,29 @@
     min-height: 180px; --vglow: rgba(255,255,255,0.16); --vtint: rgba(255,255,255,0.05); --vedge: rgba(255,255,255,0.14);
   }
   .agent-card:hover { border-color: var(--b-default); }
-  /* амбиентное свечение: логотип — источник света, стекло ловит его по краям (мудборд, приём 3).
-     Светится ТОЛЬКО выбранная — один glow на зону (канон). Выбор виден светом, не только рамкой. */
-  .agent-card.sel { border-color: rgba(47,92,255,0.5); background: var(--bg-raised); box-shadow: 0 14px 38px -14px rgba(0,0,0,0.8); }
+  /* выбранный элемент = ЯРКАЯ ЗАЛИВКА (user-refs R2 Spark: «Spark берёт полную заливку —
+     можно усилить контраст выбора»). Плюс амбиентное свечение вендора: логотип — источник
+     света. Светится только выбранная — один glow на зону (канон). */
+  .agent-card.sel {
+    border-color: rgba(47,92,255,0.75); background: rgba(47,92,255,0.16);
+    box-shadow: 0 0 0 1px rgba(47,92,255,0.30), 0 16px 42px -14px rgba(47,92,255,0.45);
+  }
   .agent-card.sel::before {
     content: ""; position: absolute; z-index: -1; left: -30px; top: -44px; width: 210px; height: 172px;
     background: radial-gradient(closest-side, var(--vglow), transparent 100%); filter: blur(18px);
   }
+  .agent-card.sel .agent-desc { color: var(--t-primary); }
+  .agent-card.sel .avendor { color: var(--t-secondary); }
   .ahead { display: flex; align-items: center; gap: 11px; }
+  /* eyebrow-категория + теги + футер-метрики — анатомия карты из user-refs #21 (Project UI/UX) */
+  .avendor { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-disabled); }
+  .atags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .atag { padding: 2px 7px; border-radius: var(--r-s); background: rgba(255,255,255,0.05); border: 1px solid var(--b-subtle); font-size: 10px; color: var(--t-tertiary); }
+  .agent-card.sel .atag { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.18); color: var(--t-secondary); }
+  /* хоткей-чип: выбор с клавиатуры (user-refs, App Settings «хоткей-чипы Cmd+L») */
+  .akey { font-family: var(--font-mono); font-size: 10px; color: var(--t-disabled); border: 1px solid var(--b-subtle); border-radius: var(--r-s); padding: 0 5px; line-height: 15px; flex: none; }
+  .agent-card.sel .akey { color: var(--t-primary); border-color: rgba(255,255,255,0.28); }
+  .ahead-r { margin-left: auto; display: flex; align-items: center; gap: 6px; align-self: flex-start; }
   /* плитка логотипа тонируется цветом самого логотипа — приём OrbitStack (иконка + подложка в тон) */
   .alogo {
     width: 60px; height: 60px; border-radius: 15px; flex: none;
@@ -2518,7 +2533,7 @@
         <div class="ob-h">Кто будет писать код</div>
         <div class="ob-sub">Foundry не пишет сам — он ведёт агента по стадиям. Агента можно сменить позже, пайплайны от него не зависят.</div>
         <div class="agent-grid">
-          <div class="agent-card sel" style="--vglow:rgba(217,119,87,0.32);--vtint:rgba(217,119,87,0.13);--vedge:rgba(217,119,87,0.32)">
+          <div class="agent-card sel" style="--vglow:rgba(217,119,87,0.30);--vtint:rgba(217,119,87,0.14);--vedge:rgba(217,119,87,0.34)">
             <div class="ahead">
               <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="Claude">
                   <g stroke="#D97757" stroke-width="5.4" stroke-linecap="round">
@@ -2526,11 +2541,12 @@
                     <line x1="43.5" y1="12.1" x2="20.5" y2="51.9"/><line x1="32" y1="9" x2="32" y2="55"/>
                     <line x1="20.5" y1="12.1" x2="43.5" y2="51.9"/><line x1="12.1" y1="20.5" x2="51.9" y2="43.5"/>
                   </g></svg></span>
-              <div class="atitle"><div class="agent-name">Claude Code</div><div class="avendor">Anthropic</div></div>
-              <span class="apick">◉ выбран</span>
+              <div class="atitle"><div class="avendor">CLI-агент · Anthropic</div><div class="agent-name">Claude Code</div></div>
+              <div class="ahead-r"><span class="apick">◉ выбран</span><span class="akey">1</span></div>
             </div>
-            <div class="agent-desc">Ведёт стадии CRISPY: пишет спеки, планы и код в worktree. Читает правила из <code style="font-family:var(--font-mono)">~/.claude</code>.</div>
-            <div class="agent-fact"><span class="ok">✓ найден · v2.1.4</span><span class="ok">✓ вход · Max</span><span class="w100">Opus 4.8 · модель по умолчанию</span></div>
+            <div class="agent-desc">Ведёт все стадии CRISPY и читает правила из <code style="font-family:var(--font-mono)">~/.claude</code>.</div>
+            <div class="atags"><span class="atag">спеки</span><span class="atag">код</span><span class="atag">worktree</span><span class="atag">MCP</span></div>
+            <div class="agent-fact"><span class="ok">✓ v2.1.4</span><span class="ok">✓ вход · Max</span><span>Opus 4.8</span></div>
           </div>
           <div class="agent-card" style="--vtint:rgba(255,255,255,0.07);--vedge:rgba(255,255,255,0.18)">
             <div class="ahead">
@@ -2540,23 +2556,25 @@
                     <ellipse cx="32" cy="32" rx="10.5" ry="24" transform="rotate(60 32 32)"/>
                     <ellipse cx="32" cy="32" rx="10.5" ry="24" transform="rotate(120 32 32)"/>
                   </g></svg></span>
-              <div class="atitle"><div class="agent-name">Codex CLI</div><div class="avendor">OpenAI</div></div>
-              <span class="asoon">скоро</span>
+              <div class="atitle"><div class="avendor">CLI-агент · OpenAI</div><div class="agent-name">Codex CLI</div></div>
+              <div class="ahead-r"><span class="asoon">скоро</span><span class="akey">2</span></div>
             </div>
-            <div class="agent-desc">CLI-агент под тот же контракт «стадия → артефакт». Свои правила и MCP — стадии переносятся без переписывания.</div>
+            <div class="agent-desc">Тот же контракт «стадия → артефакт» — стадии переносятся без переписывания.</div>
+            <div class="atags"><span class="atag">код</span><span class="atag">MCP</span></div>
             <div class="agent-fact"><span class="no">не установлен</span><span class="no">адаптер в работе</span></div>
           </div>
-          <div class="agent-card" style="--vtint:rgba(66,133,244,0.13);--vedge:rgba(66,133,244,0.30)">
+          <div class="agent-card" style="--vtint:rgba(66,133,244,0.14);--vedge:rgba(66,133,244,0.32)">
             <div class="ahead">
               <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="Gemini">
                   <defs><linearGradient id="gemg" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0" stop-color="#4285F4"/><stop offset="0.55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/>
                   </linearGradient></defs>
                   <path d="M32 5 C33.6 19 45 30.4 59 32 C45 33.6 33.6 45 32 59 C30.4 45 19 33.6 5 32 C19 30.4 30.4 19 32 5 Z" fill="url(#gemg)"/></svg></span>
-              <div class="atitle"><div class="agent-name">Gemini CLI</div><div class="avendor">Google</div></div>
-              <span class="asoon">скоро</span>
+              <div class="atitle"><div class="avendor">CLI-агент · Google</div><div class="agent-name">Gemini CLI</div></div>
+              <div class="ahead-r"><span class="asoon">скоро</span><span class="akey">3</span></div>
             </div>
-            <div class="agent-desc">Длинный контекст и открытый CLI. Сильная сторона — объёмные стадии Research и Design.</div>
+            <div class="agent-desc">Длинный контекст. Сильная сторона — объёмные Research и Design.</div>
+            <div class="atags"><span class="atag">ресёрч</span><span class="atag">длинный контекст</span></div>
             <div class="agent-fact"><span class="no">не установлен</span><span class="no">адаптер в работе</span></div>
           </div>
           <div class="agent-card" style="--vtint:rgba(201,205,214,0.10);--vedge:rgba(201,205,214,0.22)">
@@ -2565,10 +2583,11 @@
                   <path d="M32 6 L56 20 L32 34 L8 20 Z" fill="#EDEFF3"/>
                   <path d="M8 20 L32 34 L32 61 L8 47 Z" fill="#7E848F"/>
                   <path d="M56 20 L56 47 L32 61 L32 34 Z" fill="#C3C8D1"/></svg></span>
-              <div class="atitle"><div class="agent-name">Cursor</div><div class="avendor">Anysphere</div></div>
-              <span class="asoon">скоро</span>
+              <div class="atitle"><div class="avendor">Редактор · Anysphere</div><div class="agent-name">Cursor</div></div>
+              <div class="ahead-r"><span class="asoon">скоро</span><span class="akey">4</span></div>
             </div>
-            <div class="agent-desc">Агент редактора и его CLI-режим. Сильная сторона — точечные правки на стадии Implement.</div>
+            <div class="agent-desc">CLI-режим. Сильная сторона — точечные правки на Implement.</div>
+            <div class="atags"><span class="atag">код</span><span class="atag">точечные правки</span></div>
             <div class="agent-fact"><span class="no">не установлен</span><span class="no">адаптер в работе</span></div>
           </div>
           <div class="agent-card" style="--vtint:rgba(255,255,255,0.07);--vedge:rgba(255,255,255,0.18)">
@@ -2577,10 +2596,11 @@
                   <path d="M12 25 C12 25 16 14 24 14 C29 14 31 17 32 19 C33 17 35 14 40 14 C48 14 52 25 52 25 C55 27 56 31 56 35 C56 47 46 55 32 55 C18 55 8 47 8 35 C8 31 9 27 12 25 Z" fill="#FFFFFF"/>
                   <ellipse cx="24" cy="37" rx="4.2" ry="6" fill="#0D0C14"/>
                   <ellipse cx="40" cy="37" rx="4.2" ry="6" fill="#0D0C14"/></svg></span>
-              <div class="atitle"><div class="agent-name">GitHub Copilot</div><div class="avendor">GitHub</div></div>
-              <span class="asoon">скоро</span>
+              <div class="atitle"><div class="avendor">Coding agent · GitHub</div><div class="agent-name">GitHub Copilot</div></div>
+              <div class="ahead-r"><span class="asoon">скоро</span><span class="akey">5</span></div>
             </div>
-            <div class="agent-desc">Coding agent и Copilot CLI. Ближе всех к GitHub: PR, ревью и CI без лишнего клея.</div>
+            <div class="agent-desc">Ближе всех к GitHub: PR, ревью и CI без лишнего клея.</div>
+            <div class="atags"><span class="atag">код</span><span class="atag">PR</span><span class="atag">CI</span></div>
             <div class="agent-fact"><span class="no">не установлен</span><span class="no">адаптер в работе</span></div>
           </div>
         </div>
@@ -2746,7 +2766,7 @@
       </div>
     </div>
 
-    <div class="caption"><b>Дизайн-решения:</b> в онбординге <b>только блокирующее</b> — агент, компоненты, доступ, первый проект; тема и плотность ничего не блокируют и остаются в §10 (УВЛ: мастер не место для вкусов). <b>Установка — это карта системы</b>, а не чеклист: онбординг — единственное место, где человек узнаёт, из чего продукт состоит, поэтому три компонента показаны с ролями и связями между ними, а не галочками. Роли названы так, чтобы <b>разделение было понятно с одного чтения</b>: cli — детерминированное («без агента — значит воспроизводимо»), foundry-claude — знания агента, desktop — оркестровка. Стрелки подписаны тем, <b>что течёт</b> по связи («вызывает операции», «MCP-сервер для агента»), а не «зависит от». Состояние компонента — <b>факт</b>: «запущен · v0.4.1», «поставим v0.4.1 · 8 МБ», и цвет несёт смысл — зелёный уже есть, ультрамарин поставим, янтарь трогаем твоё. <b>~/.claude — уже твоя папка</b>, поэтому туда не «устанавливают», а <b>дописывают</b>: план показывает по файлам, что добавится (+), что допишется (~) и что <b>не тронем</b> — «твой не тронем» сказано вслух, потому что это главный страх при установке в чужой конфиг. Конфликт имён решён <b>до</b> запуска и не спрашивая: наш переименован, твой остался рабочим — Undo не нужен там, где нечего ломать. <b>Связи проверяются фактом</b> после установки, а не обещаются: «PATH · /usr/local/bin — доводить оболочку не придётся» — видно, что ручной работы не будет. Карточка агента <b>и есть проверка окружения</b>: не «всё готово», а факт — «найден · v2.1.4», «вход выполнен · Max» (факт вместо прогноза, Birdview); отдельного шага «проверим систему» поэтому не нужно. Логотип агента <b>сохраняет свой цвет</b> — это чужая идентичность, единственное законное исключение из правила «один акцент»: терракота Claude не спорит с ультрамарином, потому что не кодирует статус. <b>Логотип — источник света карточки</b>: выбранная ловит его амбиентное свечение краем и плиткой (приём «орб как источник ambient-света» из мудборда, до сих пор не построенный). Светится <b>только выбранная</b> — один glow на зону, и выбор виден светом, а не одной рамкой: карточка буквально оживает. <b>Статус сказан словом, а не прозрачностью</b>: гасить карточку до 40 % значит прятать логотип, ради которого её и смотрят, — поэтому «скоро» это чип, а логотипы вендоров все в полную силу. Альтернативы показаны настоящие (Codex, Gemini, Cursor, Copilot), а не заглушки: видно, что <b>выбор агента — развилка архитектуры</b>, а не хардкод, и что пайплайны от агента не зависят. Доступ объясняется <b>до</b> системного диалога и словами «зачем», а не «разрешите доступ к файлам». Дерево показано <b>до создания</b> — тот же приём, что пресеты плотности (§10) и последствие роутинга (§13): результат виден до нажатия. Структура <b>повторяет доменную модель</b>: <code style="font-family:var(--font-mono)">skills/</code> существует потому, что ревью правит скиллы (§12). Предупреждение живёт <b>в самом экране</b> строкой-warning, а модалка поднимается только на необратимом: канон разрешает модалку, когда решение короткое и обязательное (§8), а Undo невозможен — файлы уйдут с диска. В модалке — <b>факт того, что потеряется</b> (3 папки · 128 файлов · 24 МБ), а не абстрактное «данные будут утеряны», и <b>третий выход</b> «выбрать другую папку»: модалка не ловушка из двух кнопок. <b>Безопасный путь — акцент, деструктив — красный контур, а не заливка</b>: залитая красная кнопка магнитит на необратимое, а модалка поднялась, чтобы остановить. Деструктив ушёл влево от остальных (маковская конвенция), акцент остался справа, где его ищет рука.</div>
+    <div class="caption"><b>Дизайн-решения:</b> в онбординге <b>только блокирующее</b> — агент, компоненты, доступ, первый проект; тема и плотность ничего не блокируют и остаются в §10 (УВЛ: мастер не место для вкусов). <b>Установка — это карта системы</b>, а не чеклист: онбординг — единственное место, где человек узнаёт, из чего продукт состоит, поэтому три компонента показаны с ролями и связями между ними, а не галочками. Роли названы так, чтобы <b>разделение было понятно с одного чтения</b>: cli — детерминированное («без агента — значит воспроизводимо»), foundry-claude — знания агента, desktop — оркестровка. Стрелки подписаны тем, <b>что течёт</b> по связи («вызывает операции», «MCP-сервер для агента»), а не «зависит от». Состояние компонента — <b>факт</b>: «запущен · v0.4.1», «поставим v0.4.1 · 8 МБ», и цвет несёт смысл — зелёный уже есть, ультрамарин поставим, янтарь трогаем твоё. <b>~/.claude — уже твоя папка</b>, поэтому туда не «устанавливают», а <b>дописывают</b>: план показывает по файлам, что добавится (+), что допишется (~) и что <b>не тронем</b> — «твой не тронем» сказано вслух, потому что это главный страх при установке в чужой конфиг. Конфликт имён решён <b>до</b> запуска и не спрашивая: наш переименован, твой остался рабочим — Undo не нужен там, где нечего ломать. <b>Связи проверяются фактом</b> после установки, а не обещаются: «PATH · /usr/local/bin — доводить оболочку не придётся» — видно, что ручной работы не будет. Карточка агента <b>и есть проверка окружения</b>: не «всё готово», а факт — «найден · v2.1.4», «вход выполнен · Max» (факт вместо прогноза, Birdview); отдельного шага «проверим систему» поэтому не нужно. Логотип агента <b>сохраняет свой цвет</b> — это чужая идентичность, единственное законное исключение из правила «один акцент»: терракота Claude не спорит с ультрамарином, потому что не кодирует статус. <b>Выбранный элемент — яркая заливка</b> (R2 Spark из наших референсов: «у нас выбор ультрамарин 14 %, Spark берёт полную заливку — можно усилить контраст выбора»): выбор виден с другого конца стола, а не только рамкой. <b>Логотип — источник света карточки</b>: выбранная ловит амбиентное свечение вендора плиткой и углом; светится только выбранная — один glow на зону. <b>Анатомия карты — из наших референсов</b> (#21 Project UI/UX: «eyebrow-категория · теги · футер-метрики»): eyebrow говорит род и вендора («CLI-агент · Anthropic»), <b>теги — возможности</b> (спеки · код · worktree · MCP), футер — метрики фактом. <b>Плитка логотипа тонирована в цвет самого логотипа</b> — приём OrbitStack; монохромным вендорам тон не выдуман, у них нейтральная плитка. <b>Хоткей-чип</b> 1–5 (App Settings из референсов): выбор с клавиатуры, как и всё в мак-туле. <b>Статус сказан словом, а не прозрачностью</b>: гасить карточку до 40 % значит прятать логотип, ради которого её и смотрят, — поэтому «скоро» это чип, а логотипы вендоров все в полную силу. Альтернативы показаны настоящие (Codex, Gemini, Cursor, Copilot), а не заглушки: видно, что <b>выбор агента — развилка архитектуры</b>, а не хардкод, и что пайплайны от агента не зависят. Доступ объясняется <b>до</b> системного диалога и словами «зачем», а не «разрешите доступ к файлам». Дерево показано <b>до создания</b> — тот же приём, что пресеты плотности (§10) и последствие роутинга (§13): результат виден до нажатия. Структура <b>повторяет доменную модель</b>: <code style="font-family:var(--font-mono)">skills/</code> существует потому, что ревью правит скиллы (§12). Предупреждение живёт <b>в самом экране</b> строкой-warning, а модалка поднимается только на необратимом: канон разрешает модалку, когда решение короткое и обязательное (§8), а Undo невозможен — файлы уйдут с диска. В модалке — <b>факт того, что потеряется</b> (3 папки · 128 файлов · 24 МБ), а не абстрактное «данные будут утеряны», и <b>третий выход</b> «выбрать другую папку»: модалка не ловушка из двух кнопок. <b>Безопасный путь — акцент, деструктив — красный контур, а не заливка</b>: залитая красная кнопка магнитит на необратимое, а модалка поднялась, чтобы остановить. Деструктив ушёл влево от остальных (маковская конвенция), акцент остался справа, где его ищет рука.</div>
   </section>
 
   <footer class="note">
