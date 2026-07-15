@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Собирает дистрибутив релиза: FoundryDesktop-<version>.dmg в dist/.
+# Собирает дистрибутив релиза: Foundry-<version>.dmg в dist/.
 #
 # Только DMG. ZIP по канону (практики, глава 08 §4.3) нужен Sparkle-автообновлениям —
 # вернуть, когда Sparkle подключат.
@@ -32,11 +32,11 @@ format_build_log() {
 }
 
 BUILD_NUMBER="$(git rev-list --count HEAD)"
-ARCHIVE_PATH=".build/FoundryDesktop.xcarchive"
-APP_BUNDLE="$ARCHIVE_PATH/Products/Applications/FoundryDesktop.app"
+ARCHIVE_PATH=".build/Foundry.xcarchive"
+APP_BUNDLE="$ARCHIVE_PATH/Products/Applications/Foundry.app"
 DIST_DIR="dist"
 
-echo "==> Сборка FoundryDesktop $VERSION (build $BUILD_NUMBER)"
+echo "==> Сборка Foundry $VERSION (build $BUILD_NUMBER)"
 
 rm -rf "$ARCHIVE_PATH" "$DIST_DIR"
 mkdir -p "$DIST_DIR"
@@ -45,8 +45,8 @@ mkdir -p "$DIST_DIR"
 # именно её) — git rev-list --count даёт это бесплатно. Практики, глава 08 §6.1.
 set -o pipefail
 xcodebuild archive \
-    -project FoundryDesktop.xcodeproj \
-    -scheme FoundryDesktop \
+    -project Foundry.xcodeproj \
+    -scheme Foundry \
     -configuration Release \
     -destination 'generic/platform=macOS' \
     -archivePath "$ARCHIVE_PATH" \
@@ -71,20 +71,21 @@ if [[ "$dmg_exit" -ne 0 && "$dmg_exit" -ne 2 ]]; then
     exit "$dmg_exit"
 fi
 
-# create-dmg именует файл "FoundryDesktop 0.1.0.dmg" — пробел в имени ассета релиза
+# create-dmg именует файл "Foundry 0.1.0.dmg" — пробел в имени ассета релиза
 # ломает ссылки для скачивания, переименовываем.
 produced_dmg="$(find "$DIST_DIR" -maxdepth 1 -name '*.dmg' -print -quit)"
 test -n "$produced_dmg" || { echo "!! DMG не создан" >&2; exit 1; }
-if [[ "$produced_dmg" != "$DIST_DIR/FoundryDesktop-$VERSION.dmg" ]]; then
-    mv "$produced_dmg" "$DIST_DIR/FoundryDesktop-$VERSION.dmg"
+if [[ "$produced_dmg" != "$DIST_DIR/Foundry-$VERSION.dmg" ]]; then
+    mv "$produced_dmg" "$DIST_DIR/Foundry-$VERSION.dmg"
 fi
 
 echo "==> Проверка дистрибутива"
 codesign --verify --strict "$APP_BUNDLE"
-hdiutil verify "$DIST_DIR/FoundryDesktop-$VERSION.dmg" >/dev/null
+hdiutil verify "$DIST_DIR/Foundry-$VERSION.dmg" >/dev/null
 echo "    подпись: $(codesign -dv "$APP_BUNDLE" 2>&1 | grep -o 'Signature=.*')"
+echo "    bundle:  $(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP_BUNDLE/Contents/Info.plist")"
 echo "    версии:  $(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_BUNDLE/Contents/Info.plist") (build $(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_BUNDLE/Contents/Info.plist"))"
-echo "    arch:    $(lipo -archs "$APP_BUNDLE/Contents/MacOS/FoundryDesktop")"
+echo "    arch:    $(lipo -archs "$APP_BUNDLE/Contents/MacOS/Foundry")"
 
 echo
 echo "==> Готово:"

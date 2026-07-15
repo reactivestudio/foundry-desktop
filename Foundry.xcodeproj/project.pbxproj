@@ -11,7 +11,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		FD0000042E100004 /* FoundryDesktop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FoundryDesktop.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FD0000042E100004 /* Foundry.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foundry.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -45,7 +45,7 @@
 		FD0000072E100007 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				FD0000042E100004 /* FoundryDesktop.app */,
+				FD0000042E100004 /* Foundry.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -53,9 +53,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		FD00000A2E10000A /* FoundryDesktop */ = {
+		FD00000A2E10000A /* Foundry */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = FD00000B2E10000B /* Build configuration list for PBXNativeTarget "FoundryDesktop" */;
+			buildConfigurationList = FD00000B2E10000B /* Build configuration list for PBXNativeTarget "Foundry" */;
 			buildPhases = (
 				FD0000082E100008 /* Sources */,
 				FD0000052E100005 /* Frameworks */,
@@ -68,12 +68,12 @@
 			fileSystemSynchronizedGroups = (
 				FD0000032E100003 /* App */,
 			);
-			name = FoundryDesktop;
+			name = Foundry;
 			packageProductDependencies = (
 				FD0000022E100002 /* FoundryFeatures */,
 			);
-			productName = FoundryDesktop;
-			productReference = FD0000042E100004 /* FoundryDesktop.app */;
+			productName = Foundry;
+			productReference = FD0000042E100004 /* Foundry.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -91,7 +91,7 @@
 					};
 				};
 			};
-			buildConfigurationList = FD00000D2E10000D /* Build configuration list for PBXProject "FoundryDesktop" */;
+			buildConfigurationList = FD00000D2E10000D /* Build configuration list for PBXProject "Foundry" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -108,7 +108,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				FD00000A2E10000A /* FoundryDesktop */,
+				FD00000A2E10000A /* Foundry */,
 			);
 		};
 /* End PBXProject section */
@@ -196,7 +196,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "pro.vlprojects.foundry-desktop";
+				PRODUCT_BUNDLE_IDENTIFIER = "pro.vlprojects.foundry";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -223,7 +223,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "pro.vlprojects.foundry-desktop";
+				PRODUCT_BUNDLE_IDENTIFIER = "pro.vlprojects.foundry";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -235,7 +235,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		FD00000B2E10000B /* Build configuration list for PBXNativeTarget "FoundryDesktop" */ = {
+		FD00000B2E10000B /* Build configuration list for PBXNativeTarget "Foundry" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FD0000112E100011 /* Debug */,
@@ -244,7 +244,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		FD00000D2E10000D /* Build configuration list for PBXProject "FoundryDesktop" */ = {
+		FD00000D2E10000D /* Build configuration list for PBXProject "Foundry" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FD00000F2E10000F /* Debug */,

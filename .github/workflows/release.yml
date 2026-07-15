@@ -44,10 +44,15 @@ jobs:
           else
             version="$INPUT_VERSION"
           fi
-          case "$version" in
-            [0-9]*.[0-9]*.[0-9]*) ;;
-            *) echo "!! Ожидалась версия вида X.Y.Z, получено: '$version'" >&2; exit 64 ;;
-          esac
+          # Строго X.Y.Z, без пре-релизных суффиксов: имя дистрибутива
+          # (Foundry-X.Y.Z.dmg) обязано попадать под шаблон уборки старых
+          # дистрибутивов ниже. Иначе сборка осела бы на релизе навсегда —
+          # уборка её не узнает. Глоб для этого слишком дыряв: под
+          # [0-9]*.[0-9]*.[0-9]* проходят и '0.1.0-beta', и '0abc.1def.2ghi'.
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "!! Ожидалась версия вида X.Y.Z, получено: '$version'" >&2
+            exit 64
+          fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "Версия релиза: $version"
 
@@ -71,7 +76,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v7
         with:
-          name: FoundryDesktop-${{ steps.version.outputs.version }}
+          name: Foundry-${{ steps.version.outputs.version }}
           path: dist/*
           if-no-files-found: error
 
@@ -86,10 +91,13 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           # Удаляются только наши дистрибутивы: всё остальное, что человек
-          # прикрепил к релизу руками, workflow трогать не должен. ZIP в шаблоне
-          # оставлен, чтобы подчистить релизы, куда его клал прошлый workflow.
+          # прикрепил к релизу руками, workflow трогать не должен. Поэтому
+          # шаблон требует ровно X.Y.Z, а не '.*': иначе под удаление попал бы
+          # и приложенный руками Foundry-0.1.2-dSYMs.zip. В шаблоне оставлены
+          # прежние имена (FoundryDesktop-*, ZIP), чтобы подчистить релизы,
+          # куда их клал workflow до переименования.
           stale=$(gh release view "$RELEASE_TAG" --json assets --jq \
-            '.assets[].name | select(test("^FoundryDesktop-.*\\.(dmg|zip)$"))')
+            '.assets[].name | select(test("^Foundry(Desktop)?-[0-9]+\\.[0-9]+\\.[0-9]+\\.(dmg|zip)$"))')
           if [ -z "$stale" ]; then
             echo "Старых дистрибутивов нет"
             exit 0
@@ -107,7 +115,7 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           gh release upload "$RELEASE_TAG" \
-            "dist/FoundryDesktop-$VERSION.dmg" \
+            "dist/Foundry-$VERSION.dmg" \
             --clobber
 
       # Без инструкции скачанный дистрибутив бесполезен: сборка ad-hoc, и
@@ -132,7 +140,7 @@ jobs:
           <!-- install-instructions -->
           ## Установка
 
-          Скачай **FoundryDesktop-$VERSION.dmg**, открой и перетащи \`FoundryDesktop.app\`
+          Скачай **Foundry-$VERSION.dmg**, открой и перетащи \`Foundry.app\`
           в \`Applications\`.
 
           Сборка подписана ad-hoc, без Developer ID и notarization, поэтому при первом
@@ -140,7 +148,7 @@ jobs:
           разработчик»). Это ожидаемо. Сними карантин:
 
           \`\`\`sh
-          xattr -dr com.apple.quarantine /Applications/FoundryDesktop.app
+          xattr -dr com.apple.quarantine /Applications/Foundry.app
           \`\`\`
 
           Либо: правый клик по приложению → **Открыть** → **Открыть** в диалоге.

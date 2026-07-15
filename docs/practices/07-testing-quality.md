@@ -487,7 +487,7 @@ foundry-команд, индексацию, миграции GRDB, первый 
 
 MetricKit на macOS — усечённый и в процессе редизайна; сам по себе недостаточен.
 Позиция проекта: телеметрии нет; при репорте бага пользователь прикладывает
-`~/Library/Logs/DiagnosticReports/FoundryDesktop-*.ips` и экспорт `log show`.
+`~/Library/Logs/DiagnosticReports/Foundry-*.ips` и экспорт `log show`.
 Если когда-нибудь захочется автоматики — Sentry (opt-in, `beforeSend`-скраббинг),
 не раньше.
 
@@ -552,7 +552,7 @@ swift test --filter FoundryCLITests          # точечно
 
 ```bash
 set -o pipefail && xcodebuild test \
-  -project FoundryDesktop.xcodeproj -scheme FoundryDesktop \
+  -project Foundry.xcodeproj -scheme Foundry \
   -destination 'platform=macOS,arch=arm64' \
   -resultBundlePath .build/Tests.xcresult \
   | xcbeautify
