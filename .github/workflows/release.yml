@@ -1,4 +1,4 @@
-name: Дистрибутивы релиза
+name: '[CD] publish dmg'
 
 on:
   # Релиз создаёт человек в GitHub — этот workflow только собирает дистрибутивы
@@ -64,10 +64,10 @@ jobs:
         working-directory: Packages/FoundryKit
         run: swift test
 
-      - name: Собрать дистрибутивы
+      - name: Собрать дистрибутив
         run: ./scripts/build-release.sh '${{ steps.version.outputs.version }}'
 
-      - name: Сохранить дистрибутивы в артефакты прогона
+      - name: Сохранить дистрибутив в артефакты прогона
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v7
         with:
@@ -75,9 +75,9 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
-      # Отдельным шагом до загрузки: при повторном прогоне на релизе остаются
-      # дистрибутивы прошлой сборки, а при смене версии их имена не совпадут с
-      # новыми — --clobber бы их не перезаписал, и к релизу оказались бы
+      # Отдельным шагом до загрузки: при повторном прогоне на релизе остаётся
+      # дистрибутив прошлой сборки, а при смене версии его имя не совпадёт с
+      # новым — --clobber бы его не перезаписал, и к релизу оказались бы
       # прикреплены две разные версии сразу.
       - name: Удалить старые дистрибутивы из релиза
         if: github.event_name == 'release'
@@ -86,7 +86,8 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           # Удаляются только наши дистрибутивы: всё остальное, что человек
-          # прикрепил к релизу руками, workflow трогать не должен.
+          # прикрепил к релизу руками, workflow трогать не должен. ZIP в шаблоне
+          # оставлен, чтобы подчистить релизы, куда его клал прошлый workflow.
           stale=$(gh release view "$RELEASE_TAG" --json assets --jq \
             '.assets[].name | select(test("^FoundryDesktop-.*\\.(dmg|zip)$"))')
           if [ -z "$stale" ]; then
@@ -98,7 +99,7 @@ jobs:
             gh release delete-asset "$RELEASE_TAG" "$asset" --yes
           done
 
-      - name: Прикрепить дистрибутивы к релизу
+      - name: Прикрепить дистрибутив к релизу
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -107,7 +108,6 @@ jobs:
         run: |
           gh release upload "$RELEASE_TAG" \
             "dist/FoundryDesktop-$VERSION.dmg" \
-            "dist/FoundryDesktop-$VERSION.zip" \
             --clobber
 
       # Без инструкции скачанный дистрибутив бесполезен: сборка ad-hoc, и
