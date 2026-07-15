@@ -1070,6 +1070,70 @@
   .sw.on { background: var(--brand-ultramarine); }
   .sw.on::after { left: 17px; }
 
+  /* ——— §17 скиллы: замыкание петли «ревью → правило» ——— */
+  .skl-dual { display: grid; grid-template-columns: 232px minmax(0,1fr); }
+  .skl-list { background: var(--bg-surface); border-right: 1px solid var(--b-subtle); padding: var(--s2) 0 var(--s3); }
+  .skl-sec { padding: var(--s3) var(--s4) 5px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--t-disabled); }
+  .skl-row { display: grid; grid-template-columns: 13px minmax(0,1fr) auto; align-items: center; gap: var(--s2); padding: 7px var(--s4); }
+  .skl-row:hover { background: rgba(255,255,255,0.03); }
+  .skl-row.sel { background: rgba(47,92,255,0.14); box-shadow: inset 2px 0 0 var(--brand-ultramarine); }
+  /* пиктограмма-якорь рода скилла (Главбух): пишет · ищет · делает · решает */
+  .sr-pict { font-size: 10px; color: var(--t-disabled); text-align: center; }
+  .skl-row.sel .sr-pict { color: var(--t-accent); }
+  .sr-name { font-family: var(--font-mono); font-size: 11px; color: var(--t-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .skl-row.sel .sr-name { color: var(--t-primary); }
+  /* цвет только на значимом (FXPro): из четырёх скиллов с замечаниями горит один */
+  .sr-n { font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
+  .sr-n.hot { color: var(--sem-warning); }
+
+  /* якорь скилла — тот же компонент, что зум в change (Worldchess): координаты не меняются,
+     пришёл ты из ревью или из сайдбара */
+  .skl-pane .za-name { font-family: var(--font-mono); font-size: 13px; font-weight: 500; }
+  .skl-card { background: var(--bg-base); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s4); }
+
+  /* факт вместо оценки: ни рейтинга, ни «здоровья скилла» — счёт и базлайн (Бирман) */
+  .skl-fact { display: grid; grid-template-columns: repeat(3, auto) minmax(0,1fr); gap: var(--s6); align-items: end; padding: var(--s3) var(--s4); border: 1px solid var(--b-subtle); border-radius: var(--r-l); background: var(--bg-surface); }
+  .fct .fn { font-size: 21px; font-weight: 600; color: var(--t-primary); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; line-height: 1.15; }
+  .fct .fn.warn { color: var(--sem-warning); }
+  .fct .fl { font-size: 10px; color: var(--t-tertiary); margin-top: 3px; }
+  .fct .fb { font-size: 10px; color: var(--t-disabled); margin-top: 2px; }
+  .fct .fb b { color: var(--sem-success); font-weight: 600; }
+
+  /* возвраты по месяцам с отсечкой в момент правки правила: базлайн виден глазом */
+  .spark { justify-self: end; width: 268px; }
+  .sp-bars { position: relative; display: flex; align-items: flex-end; gap: 5px; height: 44px; }
+  .sp-bars i { flex: 1; background: rgba(255,255,255,0.22); border-radius: 2px 2px 0 0; height: var(--h); }
+  .sp-bars i.now { background: rgba(255,255,255,0.09); }
+  .sp-cut { position: absolute; top: -3px; bottom: 0; width: 0; border-left: 1px dashed rgba(74,222,128,0.65); }
+  .sp-x { display: flex; justify-content: space-between; margin-top: 5px; font-size: 9px; color: var(--t-disabled); }
+  .sp-x .cut { color: var(--sem-success); }
+
+  /* замечания сгруппированы по причине, а не по времени: повтор — это диагноз, лента — нет */
+  .dg-h { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--t-disabled); }
+  .dg { border: 1px solid var(--b-subtle); border-radius: var(--r-l); overflow: hidden; margin-top: var(--s2); }
+  .dg.open { border-color: rgba(251,191,36,0.4); }
+  .dg-head { display: flex; align-items: center; gap: var(--s3); padding: 9px 11px; background: var(--bg-surface); }
+  .dg-n { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--t-secondary); font-variant-numeric: tabular-nums; min-width: 22px; }
+  .dg.open .dg-n { color: var(--sem-warning); }
+  .dg-what { font-size: 12px; color: var(--t-primary); }
+  /* тот же алфавит ✓▲○, что в чеклисте рисков §3: диагноз читается без цвета */
+  .dg-dx { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; padding: 1px 7px; border-radius: var(--r-s); font-size: 10px; border: 1px solid var(--b-subtle); color: var(--t-tertiary); background: rgba(255,255,255,0.03); }
+  .dg-dx.miss { color: var(--sem-warning); border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.10); }
+  .dg-dx.gone { color: var(--sem-success); border-color: rgba(74,222,128,0.32); background: rgba(74,222,128,0.09); }
+  .dg-body { padding: 10px 11px; display: flex; flex-direction: column; gap: var(--s3); border-top: 1px solid var(--b-subtle); }
+  .dg-ev { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s3); font-size: 11px; color: var(--t-tertiary); align-items: center; }
+  .dg-ev .evl { color: var(--t-disabled); }
+  /* кросс-ссылка на change-источник (Jurist-Laws): замечание доказано, а не заявлено */
+  .ev { display: inline-flex; align-items: center; gap: 4px; color: var(--t-accent); }
+  .ev .p { color: var(--t-disabled); }
+  .dg-fix { border: 1px solid var(--b-subtle); border-radius: var(--r-m); overflow: hidden; }
+  .dg-fix-h { display: flex; align-items: center; gap: var(--s2); padding: 5px 9px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--b-subtle); font-size: 10px; color: var(--t-disabled); text-transform: uppercase; letter-spacing: 0.04em; }
+  .dg-fix-b { padding: 9px 10px; font-size: 12px; line-height: 1.65; color: var(--t-secondary); }
+  .dg-why { font-size: 11px; color: var(--t-tertiary); line-height: 1.5; }
+  .dg-why b { color: var(--t-secondary); font-weight: 600; }
+  .dg-act { display: flex; align-items: center; gap: var(--s2); }
+  .dg-act .hint { margin-right: auto; font-size: 10px; color: var(--t-disabled); }
+
   /* появление */
   @media (prefers-reduced-motion: no-preference){
     .win, .variant, .kpi, .small-mult { animation: rise 0.5s ease-out both; }
@@ -2769,6 +2833,146 @@
     <div class="caption"><b>Дизайн-решения:</b> в онбординге <b>только блокирующее</b> — агент, компоненты, доступ, первый проект; тема и плотность ничего не блокируют и остаются в §10 (УВЛ: мастер не место для вкусов). <b>Установка — это карта системы</b>, а не чеклист: онбординг — единственное место, где человек узнаёт, из чего продукт состоит, поэтому три компонента показаны с ролями и связями между ними, а не галочками. Роли названы так, чтобы <b>разделение было понятно с одного чтения</b>: cli — детерминированное («без агента — значит воспроизводимо»), foundry-claude — знания агента, desktop — оркестровка. Стрелки подписаны тем, <b>что течёт</b> по связи («вызывает операции», «MCP-сервер для агента»), а не «зависит от». Состояние компонента — <b>факт</b>: «запущен · v0.4.1», «поставим v0.4.1 · 8 МБ», и цвет несёт смысл — зелёный уже есть, ультрамарин поставим, янтарь трогаем твоё. <b>~/.claude — уже твоя папка</b>, поэтому туда не «устанавливают», а <b>дописывают</b>: план показывает по файлам, что добавится (+), что допишется (~) и что <b>не тронем</b> — «твой не тронем» сказано вслух, потому что это главный страх при установке в чужой конфиг. Конфликт имён решён <b>до</b> запуска и не спрашивая: наш переименован, твой остался рабочим — Undo не нужен там, где нечего ломать. <b>Связи проверяются фактом</b> после установки, а не обещаются: «PATH · /usr/local/bin — доводить оболочку не придётся» — видно, что ручной работы не будет. Карточка агента <b>и есть проверка окружения</b>: не «всё готово», а факт — «найден · v2.1.4», «вход выполнен · Max» (факт вместо прогноза, Birdview); отдельного шага «проверим систему» поэтому не нужно. Логотип агента <b>сохраняет свой цвет</b> — это чужая идентичность, единственное законное исключение из правила «один акцент»: терракота Claude не спорит с ультрамарином, потому что не кодирует статус. <b>Выбранный элемент — яркая заливка</b> (R2 Spark из наших референсов: «у нас выбор ультрамарин 14 %, Spark берёт полную заливку — можно усилить контраст выбора»): выбор виден с другого конца стола, а не только рамкой. <b>Логотип — источник света карточки</b>: выбранная ловит амбиентное свечение вендора плиткой и углом; светится только выбранная — один glow на зону. <b>Анатомия карты — из наших референсов</b> (#21 Project UI/UX: «eyebrow-категория · теги · футер-метрики»): eyebrow говорит род и вендора («CLI-агент · Anthropic»), <b>теги — возможности</b> (спеки · код · worktree · MCP), футер — метрики фактом. <b>Плитка логотипа тонирована в цвет самого логотипа</b> — приём OrbitStack; монохромным вендорам тон не выдуман, у них нейтральная плитка. <b>Хоткей-чип</b> 1–5 (App Settings из референсов): выбор с клавиатуры, как и всё в мак-туле. <b>Статус сказан словом, а не прозрачностью</b>: гасить карточку до 40 % значит прятать логотип, ради которого её и смотрят, — поэтому «скоро» это чип, а логотипы вендоров все в полную силу. Альтернативы показаны настоящие (Codex, Gemini, Cursor, Copilot), а не заглушки: видно, что <b>выбор агента — развилка архитектуры</b>, а не хардкод, и что пайплайны от агента не зависят. Доступ объясняется <b>до</b> системного диалога и словами «зачем», а не «разрешите доступ к файлам». Дерево показано <b>до создания</b> — тот же приём, что пресеты плотности (§10) и последствие роутинга (§13): результат виден до нажатия. Структура <b>повторяет доменную модель</b>: <code style="font-family:var(--font-mono)">skills/</code> существует потому, что ревью правит скиллы (§12). Предупреждение живёт <b>в самом экране</b> строкой-warning, а модалка поднимается только на необратимом: канон разрешает модалку, когда решение короткое и обязательное (§8), а Undo невозможен — файлы уйдут с диска. В модалке — <b>факт того, что потеряется</b> (3 папки · 128 файлов · 24 МБ), а не абстрактное «данные будут утеряны», и <b>третий выход</b> «выбрать другую папку»: модалка не ловушка из двух кнопок. <b>Безопасный путь — акцент, деструктив — красный контур, а не заливка</b>: залитая красная кнопка магнитит на необратимое, а модалка поднялась, чтобы остановить. Деструктив ушёл влево от остальных (маковская конвенция), акцент остался справа, где его ищет рука.</div>
   </section>
 
+  <!-- ——————————————————— §17 СКИЛЛЫ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">17 — скиллы</span>
+      <h2>Куда уходит замечание с ревью</h2>
+      <p>В §12 человек говорит «здесь ошибся <code style="font-family:var(--font-mono)">spec-writer</code>» — и до этого экрана замечание пропадало в файле правил. Петля обрывалась на предпоследнем шаге: <b>система не улучшалась, а просто получала отказы</b>. Скилл — тоже артефакт, и его правило ревьюят так же, как спеку. Экран отвечает на один вопрос: что с этим скиллом не так и что с этим делать.</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">Скиллы — foundry-claude</span>
+        <div class="spacer"></div>
+        <span class="tb-btn">За 9 месяцев</span>
+      </div>
+
+      <div class="skl-dual">
+        <aside class="skl-list">
+          <div class="skl-sec">Есть замечания · 4</div>
+          <div class="skl-row sel">
+            <span class="sr-pict">✎</span><span class="sr-name">spec-writer</span><span class="sr-n hot">14 из 61</span>
+          </div>
+          <div class="skl-row">
+            <span class="sr-pict">⚖</span><span class="sr-name">router</span><span class="sr-n">3 из 61</span>
+          </div>
+          <div class="skl-row">
+            <span class="sr-pict">⚙</span><span class="sr-name">impl-swift</span><span class="sr-n">2 из 44</span>
+          </div>
+          <div class="skl-row">
+            <span class="sr-pict">⚖</span><span class="sr-name">decomposer</span><span class="sr-n">1 из 38</span>
+          </div>
+          <div class="skl-sec">Без замечаний · 3</div>
+          <div class="skl-row">
+            <span class="sr-pict">⌕</span><span class="sr-name">researcher</span><span class="sr-n">0 из 61</span>
+          </div>
+          <div class="skl-row">
+            <span class="sr-pict">✎</span><span class="sr-name">test-writer</span><span class="sr-n">0 из 29</span>
+          </div>
+          <div class="skl-row">
+            <span class="sr-pict">✎</span><span class="sr-name">contract-designer</span><span class="sr-n">0 из 7</span>
+          </div>
+        </aside>
+
+        <div class="skl-pane">
+          <div class="zoom-anchor">
+            <span class="za-back">‹ Ревью · design.md</span>
+            <span class="za-sep">/</span>
+            <span class="za-pict">✎</span>
+            <span class="za-name">spec-writer</span>
+            <span class="za-branch">foundry-claude/skills/spec-writer.md</span>
+            <div class="za-right"><span>пишет спеки и планы</span><span class="za-sep">·</span><span>правило уточняли 22 марта</span></div>
+          </div>
+
+          <div class="skl-card">
+            <div class="skl-fact">
+              <div class="fct">
+                <div class="fn">61</div>
+                <div class="fl">артефакт написал</div>
+                <div class="fb">ноя — июл</div>
+              </div>
+              <div class="fct">
+                <div class="fn warn">14</div>
+                <div class="fl">вернули с ревью</div>
+                <div class="fb">до правки — 1 из 3 · после — <b>1 из 9</b></div>
+              </div>
+              <div class="fct">
+                <div class="fn">9</div>
+                <div class="fl">замечаний ждут правила</div>
+                <div class="fb">5 уже стали правилом</div>
+              </div>
+              <div class="spark">
+                <div class="sp-bars">
+                  <i style="--h:67%"></i>
+                  <i style="--h:100%"></i>
+                  <i style="--h:67%"></i>
+                  <i style="--h:67%"></i>
+                  <i style="--h:67%"></i>
+                  <i style="--h:33%"></i>
+                  <i style="--h:33%"></i>
+                  <i style="--h:33%"></i>
+                  <i class="now" style="--h:4%"></i>
+                  <span class="sp-cut" style="left:55.7%"></span>
+                </div>
+                <div class="sp-x"><span>ноя</span><span class="cut">правило уточнено 22 мар</span><span>июл</span></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="dg-h">Замечания: 14 случаев, 3 причины</div>
+
+              <div class="dg open">
+                <div class="dg-head">
+                  <span class="dg-n">6×</span>
+                  <span class="dg-what">Цвет палитры уходит в текст</span>
+                  <span class="dg-dx miss">▲ правило есть — не применяет</span>
+                </div>
+                <div class="dg-body">
+                  <div class="dg-why"><b>Правило перечисляет палитру, но не запрещает её буквами.</b> Ограничение живёт абзацем ниже — скилл читает список цветов и до него не доходит. Лечится не запретом, а переездом ограничения в тот же абзац, где сама палитра.</div>
+                  <div class="dg-ev">
+                    <span class="evl">Замечено в:</span>
+                    <span class="ev"><span class="p">✦</span>Токены тёмной темы</span>
+                    <span class="ev"><span class="p">✦</span>Орб-иконка приложения</span>
+                    <span class="ev"><span class="p">¶</span>Спека экрана настроек</span>
+                    <span class="evl">и ещё 3</span>
+                  </div>
+                  <div class="dg-fix">
+                    <div class="dg-fix-h"><span>Правка правила</span><span style="margin-left:auto;font-family:var(--font-mono);text-transform:none;letter-spacing:0">skills/spec-writer.md · § Палитра</span></div>
+                    <div class="dg-fix-b">Палитра: ультрамарин #2F5CFF, пурпур #8B5CF6, магента #D65CFF, циан #58C7FF. <span class="sins">Ни один из них не идёт текстом: акцентный текст — только text.accent #7C9AFF. Ультрамарин — заливка и обводка, не буквы.</span></div>
+                  </div>
+                  <div class="dg-act">
+                    <span class="hint">правка уедет в foundry-claude и подействует со следующего прогона</span>
+                    <span class="btn ghost">Править вручную</span>
+                    <span class="btn primary">Принять правку <kbd>⌘⏎</kbd></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dg">
+                <div class="dg-head">
+                  <span class="dg-n">3×</span>
+                  <span class="dg-what">Значения приведены без источника</span>
+                  <span class="dg-dx">○ правила нет</span>
+                </div>
+              </div>
+
+              <div class="dg">
+                <div class="dg-head">
+                  <span class="dg-n">5×</span>
+                  <span class="dg-what">Elevation закодирован тенью вместо светлоты</span>
+                  <span class="dg-dx gone">✓ стало правилом 22 марта · с тех пор 0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>Дизайн-решения:</b> экран существует потому, что <b>модель обещает улучшение системы</b>, а §12 доводил замечание только до файла — без этого вида Foundry просто канбан с автопилотом. <b>Замечания сгруппированы по причине, а не по времени</b>: лента событий тут бесполезна — шесть раз «взял цвет палитры текстом» это не шесть случаев, а <b>один отсутствующий абзац в правиле</b>; повтор и есть диагноз, поэтому счётчик «6×» стоит первым, слева от причины. <b>Два разных диагноза лечатся по-разному</b> и потому названы разными словами: «правило есть — не применяет» (▲ промах, формулировку надо уточнить) и «правила нет» (○ пробел, правило надо написать) — это тот же алфавит ✓▲○, что в чеклисте рисков §3, так что диагноз читается без цвета. <b>Факт вместо оценки</b> (Бирман, Birdview): ни рейтинга, ни «здоровья скилла» на 87 % — только «61 артефакт · 14 вернули». Оценку человек поставит сам, а прогресс-бар качества всё равно был бы выдуман. <b>У числа исторический базис</b> (Бирман): «до правки — 1 из 3, после — 1 из 9» — единственная строка, которая доказывает, что механизм работает вообще. Спарклайн — <b>возвраты по месяцам с отсечкой в момент правки правила</b>: базлайн виден глазом, а не считается в уме; зелёная пунктирная линия — единственный цвет на графике, потому что момент правки и есть значимое (FXPro), сами столбики нейтральны. Неполный текущий месяц <b>показан приглушённым</b>, а не спрятан и не достроен прогнозом. <b>Скилл — тоже артефакт</b>, и правка правила показана <b>тем же диффом</b>, что спека в §12 (те же классы вставки): ревью правила ничем не отличается от ревью спеки. <b>Общего вердикта у скилла нет</b> — поэтому в футере нет кнопки «Принять»: у каждого диагноза своё лечение, и «одобрить скилл целиком» было бы враньём. <b>Третий диагноз — закрытый</b> (✓ «стало правилом 22 марта · с тех пор 0»): он оставлен на экране как доказательство, что петля замыкается, и как якорь для отсечки на графике. Замечание <b>доказано change'ами-источниками</b> (кросс-ссылки, Jurist-Laws), а не заявлено; пиктограмма при ссылке — та же, что в инбоксе (✦ фича, ¶ доки). <b>Цвет только на значимом</b> (FXPro): в списке скиллов из четырёх с замечаниями горит янтарём один — 14 из 61; тройка, двойка и единица нейтральны, потому что это шум, а не сигнал. Секции списка названы <b>фактом, а не оценкой</b>: «есть замечания» / «без замечаний», не «плохие» / «хорошие». Пиктограмма-якорь рода скилла (Главбух): ✎ пишет · ⌕ ищет · ⚙ делает · ⚖ решает. Якорь скилла — <b>тот же компонент, что зум в change</b> (Worldchess): координаты не меняются, пришёл ты из ревью по имени скилла или из сайдбара, и обратный путь «‹ Ревью · design.md» ведёт ровно туда, откуда замечание пришло.</div>
+  </section>
+
   <footer class="note">
     Все значения — из <code>docs/design/13-tokens.md</code> (единственный источник): поверхности через светлоту,
     текст альфа-белым, request changes = warning, «в работе» = циан, «ждёт ревью» = ультрамарин, один glow на зону,
@@ -2866,6 +3070,26 @@
     (<code>skills/</code> есть потому, что ревью правит скиллы). Модалка поднимается только на
     необратимом (канон §8): в ней факт потери, третий выход «выбрать другую папку», безопасный путь —
     акцент, деструктив — красный контур слева.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v12 — скиллы (§17): петля замкнута.</b>
+    Сверка модели с экранами нашла разрыв: модель обещает, что пометка сбойного скилла —
+    «фидбек системе на улучшение», но §12 доводил замечание только до файла правил, и человек
+    никогда не видел скилл целиком. Без §17 Foundry — канбан с автопилотом.
+    <b>Замечания сгруппированы по причине, а не по времени</b> (шесть раз «цвет палитры текстом» —
+    это не шесть случаев, а один отсутствующий абзац в правиле), и <b>два диагноза лечатся
+    по-разному</b>: ▲ «правило есть — не применяет» (уточнить формулировку) и ○ «правила нет»
+    (написать) — алфавит ✓▲○ тот же, что в чеклисте рисков §3. <b>Факт вместо оценки</b>
+    (Бирман, Birdview): ни рейтинга, ни «здоровья скилла» — «61 артефакт · 14 вернули», а рядом
+    <b>исторический базис</b> «до правки — 1 из 3 · после — 1 из 9». Спарклайн возвратов по месяцам
+    с <b>пунктирной отсечкой в момент правки правила</b>: ступенька видна глазом, зелёная линия —
+    единственный цвет на графике (FXPro), столбики нейтральны, неполный месяц приглушён, а не
+    достроен прогнозом. <b>Скилл — тоже артефакт</b>: правка правила показана тем же диффом, что
+    спека в §12. Общего вердикта у скилла нет — «Принять» в футере отсутствует осознанно.
+    Закрытый диагноз ✓ «стало правилом 22 марта · с тех пор 0» оставлен как доказательство, что
+    петля работает. Применены ⏳ из <code>reference/ui/user-refs.md</code>: KPI-карточка с базлайном
+    и пунктирный базлайн-аннотация (Quick Stats / Chainview). Разрыв модель↔экраны выписан
+    в <code>reference/ui/domain-model.md</code>: не хватает ещё экрана проекта, входа с композером
+    и стадией Questions, истории change'а, закрытия месяца.
   </footer>
 
 </div>
