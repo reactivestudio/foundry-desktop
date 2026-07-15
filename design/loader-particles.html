@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>foundry-desktop — лоадер «Восход» (частицы)</title>
+<style>
+  html,body{ margin:0; height:100%; background:#05060c; }
+  body{ display:flex; align-items:center; justify-content:center; }
+  canvas{ display:block; width:min(92vmin,720px); height:min(92vmin,720px); }
+</style>
+</head>
+<body>
+<canvas id="c" width="900" height="900"></canvas>
+
+<script id="vs" type="x-shader">#version 300 es
+precision highp float;
+uniform float uTime;
+uniform float uCount;
+uniform vec2  uRes;
+uniform int   uPal;
+out vec3  vCol;
+out float vAlpha;
+
+const float PI = 3.14159265;
+
+mat2 rot(float a){ float c=cos(a), s=sin(a); return mat2(c,-s,s,c); }
+
+float hash11(float p){
+  p = fract(p*0.1031);
+  p *= p + 33.33;
+  p *= p + p;
+  return fract(p);
+}
+float hash31(vec3 p){
+  p = fract(p*0.3183099 + vec3(0.71,0.113,0.419));
+  p *= 17.0;
+  return fract(p.x*p.y*p.z*(p.x+p.y+p.z));
+}
+float vnoise(vec3 x){
+  vec3 i = floor(x), f = fract(x);
+  f = f*f*(3.0-2.0*f);
+  return mix(mix(mix(hash31(i+vec3(0,0,0)), hash31(i+vec3(1,0,0)), f.x),
+                 mix(hash31(i+vec3(0,1,0)), hash31(i+vec3(1,1,0)), f.x), f.y),
+             mix(mix(hash31(i+vec3(0,0,1)), hash31(i+vec3(1,0,1)), f.x),
+                 mix(hash31(i+vec3(0,1,1)), hash31(i+vec3(1,1,1)), f.x), f.y), f.z);
+}
+float fbm(vec3 x){
+  float s=0.0, a=0.5;
+  for (int i=0;i<3;i++){ s += a*vnoise(x); x *= 2.03; a *= 0.5; }
+  return s;
+}
+
+// Восемь цветов, отобранных вручную, двумя семьями: холодная 231°–275° и
+// тёплая 348°–39°. Семьи почти дополнительны, и смешивать их нельзя ничем —
+// ни аддитивным блендингом, ни mix() в шейдере: любая середина между ними
+// проходит через розовый, вычеркнутый из палитры. Отсюда весь дизайн ниже:
+// частица несёт ОДИН цвет из набора, а рой переходит из семьи в семью тем,
+// что частицы переключаются поодиночке. Внутри семьи соседние тона расходятся
+// максимум на 50°, так что там переход безопасен.
+vec3 cool(int i){                              // холодная масса — палитра иконки
+  if (i==0) return vec3(0.60, 0.20, 1.00);     // 9933FF фиолет      275°
+  if (i==1) return vec3(0.36, 0.17, 1.00);     // 5B2BFF индиго      255°
+  if (i==2) return vec3(0.29, 0.39, 0.97);     // 4A63F7 blue        231°
+  return vec3(0.27, 0.13, 0.81);               // 4522CE royal       254°
+}
+vec3 warm(int i){                              // тёплые острова
+  if (i==0) return vec3(1.00, 0.09, 0.27);     // FF1744 малиновый   348°
+  if (i==1) return vec3(1.00, 0.23, 0.19);     // FF3B30 алый          4°
+  if (i==2) return vec3(1.00, 0.36, 0.24);     // FF5C3D коралл       11°
+  return vec3(1.00, 0.69, 0.13);               // FFB020 янтарь       39°
+}
+
+void main(){
+  float i = float(gl_VertexID);
+  float N = uCount;
+
+  // Решётка Фибоначчи — равномерное распределение по сфере без полюсных сгустков
+  float k   = (i + 0.5) / N;
+  float phi = acos(1.0 - 2.0*k);
+  float th  = PI * (1.0 + sqrt(5.0)) * (i + 0.5);
+  vec3 dir = vec3(sin(phi)*cos(th), cos(phi), sin(phi)*sin(th));
+  // Решётка слишком регулярна и даёт муар — сбиваем её лёгким разбросом
+  dir = normalize(dir + (vec3(hash11(i*3.11), hash11(i*5.27), hash11(i*7.43)) - 0.5) * 0.035);
+
+  // Те самые «волны, обликом похожие на сферу»
+  float t = uTime;
+  float r = 1.0
+    + 0.230*sin(1.8*dir.x + t*0.62)*sin(2.0*dir.y - t*0.47)
+    + 0.130*sin(2.5*dir.z + t*0.55)
+    + 0.070*sin(3.3*dir.y + 1.6*dir.x - t*0.80)
+    + 0.040*sin(4.6*dir.z - 2.1*dir.x + t*0.65);
+
+  // Толщина роя: частицы стоят слоем, а не идеально на поверхности
+  float jitter = (hash11(i*1.37) - 0.5) * 0.05;
+  vec3 pos = dir * (r + jitter);
+
+  // Дрейф вдоль тела — рой течёт, но не расплывается в пар
+  vec3 flow = vec3(fbm(pos*1.3 + vec3(0.0, t*0.20, 0.0)),
+                   fbm(pos*1.3 + vec3(11.0, -t*0.16, 3.0)),
+                   fbm(pos*1.3 + vec3(27.0, t*0.12, 7.0))) - 0.5;
+  pos += flow * 0.07;
+
+  vec3 obj = pos;
+  pos.xz *= rot(t*0.30);
+  pos.xy *= rot(sin(t*0.19)*0.42);
+
+  vec3 ro = vec3(0.0, 0.0, 3.6);
+  vec3 rel = pos - ro;
+  float dist = -rel.z;
+  vec2 proj = rel.xy / (dist * 1.175);       // fov как в прежней версии
+  // Глубина пишется в z: без неё тест глубины нечем сравнивать, а он теперь
+  // несущий — именно он не даёт цветам складываться.
+  float zn = clamp((dist - 2.2) / 2.9, 0.0, 1.0);
+  gl_Position = vec4(proj, zn*2.0 - 1.0, 1.0);
+
+  // Рой перетекает из синего в красное и обратно. Перетекает ЧАСТИЦАМИ:
+  // каждая в любой момент несёт чистый цвет своей семьи, а меняется только то,
+  // какие частицы уже переключились. Интерполяции цвета тут нет намеренно —
+  // mix(синий, красный) идёт ровно через розовый, вычеркнутый из палитры.
+  // Поэтому «меньше цветов» выходит само: в каждый момент рой почти весь
+  // одной семьи, а все восемь тонов разнесены во времени.
+  // Волна с ВЫДЕРЖКАМИ. Чистый косинус разворачивал рой обратно сразу, едва
+  // тот докрасился: пик держался мгновение. Теперь семья стоит 9 с, а
+  // перетекание занимает 18 с — оно и есть основное действие лоадера.
+  // Переход удлинён втрое (6.2 → 18 с). Период растянут следом, до 54 с:
+  // поднять tr, не трогая период, значит съесть выдержку — а она нужна.
+  float per  = 54.0;                     // полный цикл: синее → красное → синее
+  float u    = fract(t/per);
+  float tr   = 0.333;                    // доля цикла на один переход = 18 с
+  float hold = 0.5 - tr;                 // выдержка одной семьи = 9 с
+  float wave;
+  if      (u < hold)       wave = 0.0;                                    // держим синее
+  else if (u < 0.5)        wave = smoothstep(0.0, 1.0, (u - hold)/tr);    // синее → красное
+  else if (u < 0.5 + hold) wave = 1.0;                                    // держим красное
+  else                     wave = 1.0 - smoothstep(0.0, 1.0, (u - 0.5 - hold)/tr);
+
+  // Порядок переключения — поле по телу: фронт ползёт волной, а не
+  // перекрашивает всё разом.
+  float ord  = fbm(dir*0.90 + vec3(5.0, 0.0, 0.0));
+  float ordN = clamp((ord - 0.20)/0.40, 0.0, 1.0);
+  // Зерно: у каждой частицы свой сдвиг порога, поэтому фронт не линия, а
+  // полоса крупы, где синие и красные вперемешку. Это и читается «частицами».
+  ordN += (hash11(i*4.77) - 0.5) * 0.30;
+  // Порог гуляет шире [0,1] — иначе на краях волны хвост частиц не дойдёт
+  // до конца и рой никогда не станет чисто синим или чисто красным.
+  bool isWarm = ordN < wave*1.60 - 0.30;
+
+  // Оттенок ВНУТРИ семьи. Зоны крупные: разброс цвета по отдельным частицам
+  // давал «грязь», соседи должны нести близкий тон.
+  // Частота понижена с 1.15 до 0.55: на 1.15 оттенки сыпались мелкой рябью,
+  // теперь пятна крупные. Ниже 0.55 не уходим — на 0.42 распределение
+  // перекашивается (33/34/14/19 по корзинам) и два цвета семьи почти выпадают.
+  float sh = fbm(obj*0.55 + vec3(19.0, -t*0.17, 5.0));
+  // Нормализация — по перцентилям ЭТОГО поля на ЭТОЙ частоте (p10 0.369,
+  // p90 0.616). С поля другой частоты не переносится: распределение не то.
+  // Кайма между оттенками. Пятно держит свой цвет на ~78% ширины, а у границы
+  // плавно уходит в соседний — резкие стыки читались аппликацией.
+  // Растушёвка допустима ТОЛЬКО внутри семьи: соседи по рампе расходятся
+  // максимум на 50°, их середина остаётся в семье. Через границу семей mix
+  // прошёл бы ровно через розовый 300°, вычеркнутый из палитры, — поэтому
+  // семья выбирается до растушёвки и остаётся жёсткой.
+  float pick = clamp((sh - 0.369)/0.246, 0.0, 0.999);
+  float fidx = pick*3.0;                 // 0..3 — позиция между четырьмя цветами
+  int  i0 = int(floor(fidx));
+  int  i1 = min(i0 + 1, 3);
+  float fr = fract(fidx);
+  float edge = 0.22;                     // доля пятна, отданная под кайму
+  float kEdge = smoothstep(1.0 - edge, 1.0, fr);   // k занята решёткой Фибоначчи
+  vec3 col = isWarm ? mix(warm(i0), warm(i1), kEdge)
+                    : mix(cool(i0), cool(i1), kEdge);
+
+  // Глубина: дальние частицы тусклее — это и лепит объём вместо плоского пятна
+  float depth = clamp((dist - 2.4) / 2.2, 0.0, 1.0);
+  float shade = mix(1.0, 0.28, depth) * (0.78 + 0.22*hash11(i*2.13));
+  // В буфер — ЛИНЕЙНЫЙ цвет. Палитра задана в sRGB, гамма в пост-пассе вернёт
+  // ровно выбранный hex. Без этого перевода цвета выходили светлее выбранных.
+  vCol = pow(col, vec3(2.2)) * shade;
+  vAlpha = 1.0;
+
+  // Мелкие и чёткие. Крупный мягкий спрайт — это и есть «пар».
+  gl_PointSize = mix(2.6, 1.3, depth) * (uRes.y/900.0);
+}
+</script>
+
+<script id="fs" type="x-shader">#version 300 es
+precision highp float;
+in vec3  vCol;
+in float vAlpha;
+out vec4 frag;
+
+void main(){
+  // Круглая частица с жёстким краем: размытый край читается паром.
+  // Частица непрозрачная — маска только режет квадрат спрайта в круг,
+  // умножать на неё цвет нельзя: край уехал бы в чёрный вместо прозрачного.
+  vec2 d = gl_PointCoord - 0.5;
+  if (length(d) > 0.46) discard;
+  frag = vec4(vCol, 1.0);
+}
+</script>
+
+<script id="post-vs" type="x-shader">#version 300 es
+void main(){
+  vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+  gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
+}
+</script>
+
+<script id="post-fs" type="x-shader">#version 300 es
+precision highp float;
+uniform sampler2D uSrc;
+uniform float uTime;
+out vec4 frag;
+
+void main(){
+  vec3 c = texelFetch(uSrc, ivec2(gl_FragCoord.xy), 0).rgb;
+
+  // Тонмаппинга здесь больше нет, и это следствие непрозрачных частиц:
+  // складывать нечего, значит нечего и сжимать. Раньше аддитив уходил далеко
+  // за единицу и требовал тонмапа, а тот платил насыщенностью — теперь в
+  // буфере ровно один цвет частицы, приведённый к линейному.
+  // Гамма возвращает его в sRGB, то есть в выбранный hex буква в букву.
+  // Бустер насыщенности тоже снят: поднимать нечего, цвета уже свои.
+  c = pow(max(c, 0.0), vec3(0.4545));
+
+  // TPDF-дизеринг против лесенок на градиентах
+  vec2 fc = gl_FragCoord.xy;
+  float n1 = fract(sin(dot(fc, vec2(12.9898,78.233)) + uTime*0.017)*43758.5453);
+  float n2 = fract(sin(dot(fc, vec2(93.9898,67.345)) - uTime*0.023)*24634.6345);
+  frag = vec4(c + (n1 + n2 - 1.0)*(2.0/255.0), 1.0);
+}
+</script>
+
+<script>
+(function(){
+  'use strict';
+  const cv = document.getElementById('c');
+  const gl = cv.getContext('webgl2', { antialias:false, alpha:false });
+  if(!gl){ document.body.innerHTML = '<p style="color:#889">WebGL2 недоступен</p>'; return; }
+  if(!gl.getExtension('EXT_color_buffer_float')){
+    document.body.innerHTML = '<p style="color:#889">Нет float-буфера (EXT_color_buffer_float)</p>'; return;
+  }
+
+  function sh(type, src){
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src.trim()); gl.compileShader(s);
+    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  }
+  function link(vsId, fsId){
+    const p = gl.createProgram();
+    gl.attachShader(p, sh(gl.VERTEX_SHADER,   document.getElementById(vsId).textContent));
+    gl.attachShader(p, sh(gl.FRAGMENT_SHADER, document.getElementById(fsId).textContent));
+    gl.linkProgram(p);
+    if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    return p;
+  }
+  const prog = link('vs','fs');
+  const post = link('post-vs','post-fs');
+
+  // 55 000 точек по 2.6 px давали 348% покрытия силуэта — частицы лежали в три
+  // с половиной слоя, и рой читался сплошным телом с чёткой кромкой, а не роем.
+  // 12 000 дали заполненность 46%. 6 000 — примерно вдвое реже: рой заметно
+  // прозрачнее, форма держится силуэтом и сгущением на кромке, а не заливкой.
+  // Ниже опускаться нельзя: 3 000 — это 18%, на такой плотности янтарная зона
+  // рассыпается и рампа из четырёх оттенков читается тремя.
+  const COUNT = 6000;
+  gl.useProgram(prog);
+  const uTime  = gl.getUniformLocation(prog, 'uTime');
+  const uCount = gl.getUniformLocation(prog, 'uCount');
+  const uRes   = gl.getUniformLocation(prog, 'uRes');
+  gl.uniform1f(uCount, COUNT);
+  const palId = parseInt(new URLSearchParams(location.search).get('pal') || '0', 10) || 0;
+  gl.uniform1i(gl.getUniformLocation(prog, 'uPal'), palId);
+  gl.useProgram(post);
+  const pTime = gl.getUniformLocation(post, 'uTime');
+  gl.uniform1i(gl.getUniformLocation(post, 'uSrc'), 0);
+
+  // Линейная цель рендера. Частицы непрозрачные, так что копится тут не
+  // яркость, а просто линейный цвет — гамма ждёт в пост-пассе.
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  const fbo = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+
+  // Буфер глубины — он тут несущий, а не для порядка: без него частицы
+  // складывались бы, и две семьи давали розовый на кромке.
+  const dbuf = gl.createRenderbuffer();
+  gl.bindRenderbuffer(gl.RENDERBUFFER, dbuf);
+  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, dbuf);
+
+  // Размер меряем КАЖДЫЙ кадр, а не один раз на старте. Разовый замер брал
+  // размер до раскладки вёрстки — в iframe тот равен нулю, буфер выходил 1x1,
+  // и CSS растягивал единственный пиксель во весь блок: мигающий квадрат.
+  // Совпадение буфера с экраном обязательно и по второй причине: при
+  // несовпадении браузер ужимает кадр билинейно и усредняет соседние частицы,
+  // а фиолет с малиновым в среднем дают розовый — вычеркнутый тон.
+  let W = 0, H = 0;
+  function resize(){
+    const r = cv.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.max(1, Math.round((r.width  || cv.clientWidth  || 720) * dpr));
+    const h = Math.max(1, Math.round((r.height || cv.clientHeight || 720) * dpr));
+    if (w === W && h === H) return;
+    W = w; H = h; cv.width = w; cv.height = h;
+    // CSS-размер прибиваем к целым пикселям буфера. Иначе vmin даёт дробь
+    // (92vmin от 760 — это 699.2), браузер ресемплит кадр ради доли пикселя
+    // и усредняет соседние частицы: синяя рядом с красной дают розовый.
+    cv.style.width  = (w/dpr) + 'px';
+    cv.style.height = (h/dpr) + 'px';
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, w, h, 0, gl.RGBA, gl.HALF_FLOAT, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, dbuf);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
+    gl.useProgram(prog);
+    gl.uniform2f(uRes, w, h);
+  }
+
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
+
+  function draw(sec){
+    resize();
+    // 1. частицы — непрозрачными, с тестом глубины, в линейный буфер
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.viewport(0,0,W,H);
+    // Буфер линейный, гамма — в пост-пассе. Клир в sRGB-числах она бы задрала
+    // до #2C3040, и фон переставал быть фоном.
+    gl.clearColor(0.00021, 0.00033, 0.00160, 1.0);   // = #05060C после гаммы
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.disable(gl.BLEND);          // аддитив снят: он и делал розовое
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LESS);
+    gl.useProgram(prog);
+    gl.uniform1f(uTime, sec);
+    gl.drawArrays(gl.POINTS, 0, COUNT);
+
+    // 2. гамма на экран
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0,0,W,H);
+    gl.disable(gl.DEPTH_TEST);     // иначе полноэкранный треугольник отсекается
+    gl.useProgram(post);
+    gl.uniform1f(pTime, sec);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  window.__renderAt = draw;
+
+  const fp = new URLSearchParams(location.search).get('frame');
+  if (fp !== null){
+    const tf = parseFloat(fp) || 0;
+    draw(tf); requestAnimationFrame(()=>draw(tf));
+  } else {
+    // Стартуем ИЗ rAF, а не вызовом с ts=0: тот фиксировал t0=0, и следующий
+    // кадр приходил с реальным ts — рой прыгал на тысячи секунд вперёд.
+    let t0 = null;
+    requestAnimationFrame(function loop(ts){
+      if (t0 === null) t0 = ts;
+      draw((ts - t0)/1000);
+      requestAnimationFrame(loop);
+    });
+  }
+})();
+</script>
+</body>
+</html>
