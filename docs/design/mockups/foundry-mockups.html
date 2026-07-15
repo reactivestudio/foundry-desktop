@@ -745,6 +745,38 @@
   .path-in { flex: 1; padding: 6px 10px; border-radius: var(--r-m); border: 1px solid var(--b-default); background: var(--bg-base); font-family: var(--font-mono); font-size: 11px; color: var(--t-primary); }
   .warn-line { display: flex; align-items: flex-start; gap: 7px; margin-top: var(--s3); padding: 8px 10px; border-radius: var(--r-m); border: 1px solid rgba(251,191,36,0.35); background: rgba(251,191,36,0.07); font-size: 11px; color: var(--t-secondary); line-height: 1.5; }
   .warn-line .wi { color: var(--sem-warning); flex: none; }
+  /* установка компонентов = карта системы: онбординг — единственное место,
+     где человек узнаёт, из чего продукт состоит */
+  .comp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); align-items: stretch; }
+  .comp-card { border: 1px solid var(--b-subtle); border-radius: var(--r-l); padding: 11px; background: var(--bg-surface); display: flex; flex-direction: column; gap: 5px; }
+  .comp-card.here { border-color: rgba(74,222,128,0.32); background: rgba(74,222,128,0.05); }
+  .comp-card.install { border-color: rgba(47,92,255,0.45); background: rgba(47,92,255,0.07); }
+  .comp-card.merge { border-color: rgba(251,191,36,0.38); background: rgba(251,191,36,0.05); }
+  .comp-name { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--t-primary); }
+  .comp-role { font-size: 11px; color: var(--t-secondary); line-height: 1.45; }
+  .comp-where { font-family: var(--font-mono); font-size: 9px; color: var(--t-disabled); }
+  .comp-state { margin-top: auto; padding-top: 6px; font-size: 10px; font-family: var(--font-mono); }
+  .comp-state.ok { color: var(--sem-success); }
+  .comp-state.new { color: var(--t-accent); }
+  .comp-state.warn { color: var(--sem-warning); }
+  .comp-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--t-disabled); }
+  .comp-arrow .ca { font-size: 13px; }
+  .comp-arrow .cl { font-size: 8px; text-align: center; line-height: 1.3; }
+  /* план установки фактом: что добавится, что допишется, что не тронем */
+  .plan-list { font-family: var(--font-mono); font-size: 10px; line-height: 1.85; white-space: pre; overflow-x: auto; background: var(--bg-base); border: 1px solid var(--b-subtle); border-radius: var(--r-m); padding: 9px 11px; color: var(--t-tertiary); }
+  .plan-list .pa { color: var(--sem-success); }
+  .plan-list .pm { color: var(--sem-warning); }
+  .plan-list .pk { color: var(--t-disabled); }
+  .plan-list .pf { color: var(--t-secondary); }
+  /* связи проверяются фактом, а не обещаются */
+  .wire { display: grid; grid-template-columns: 16px 1fr auto; gap: 2px var(--s2); padding: 7px 0; border-bottom: 1px solid var(--b-subtle); align-items: center; }
+  .wire-ic { font-size: 11px; }
+  .wire-ic.ok { color: var(--sem-success); }
+  .wire-ic.wait { color: var(--t-disabled); }
+  .wire-what { font-size: 11px; color: var(--t-primary); }
+  .wire-why { grid-column: 2; font-size: 10px; color: var(--t-tertiary); line-height: 1.4; }
+  .wire-st { font-family: var(--font-mono); font-size: 9px; color: var(--t-tertiary); }
+
   /* деструктив — красный контур, а не заливка: он должен быть возможен, но не манить */
   .btn.danger-out { color: var(--sem-error); border-color: rgba(248,113,113,0.45); background: rgba(248,113,113,0.07); }
   .mbtns .btn.danger-out { margin-right: auto; }
@@ -2451,9 +2483,10 @@
       </div>
       <div class="ob-steps">
         <span class="ob-st now"><span class="obn">1</span>Агент</span><span class="ob-sep"></span>
-        <span class="ob-st"><span class="obn">2</span>Доступ и структура</span><span class="ob-sep"></span>
-        <span class="ob-st"><span class="obn">3</span>Первый проект</span><span class="ob-sep"></span>
-        <span class="ob-st"><span class="obn">4</span>Прогон</span>
+        <span class="ob-st"><span class="obn">2</span>Компоненты</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">3</span>Доступ и структура</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">4</span>Первый проект</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">5</span>Прогон</span>
       </div>
       <div class="ob-body">
         <div class="ob-h">Кто будет писать код</div>
@@ -2500,7 +2533,7 @@
       <div class="actionbar"><div class="btns"><span class="btn primary">Дальше <kbd>⌘⏎</kbd></span></div></div>
     </div>
 
-    <!-- шаг 2: доступ и структура -->
+    <!-- шаг 2: компоненты -->
     <div class="win" style="margin-top:var(--s5)">
       <div class="titlebar">
         <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
@@ -2508,9 +2541,94 @@
       </div>
       <div class="ob-steps">
         <span class="ob-st done"><span class="obn">✓</span>Агент</span><span class="ob-sep"></span>
-        <span class="ob-st now"><span class="obn">2</span>Доступ и структура</span><span class="ob-sep"></span>
-        <span class="ob-st"><span class="obn">3</span>Первый проект</span><span class="ob-sep"></span>
-        <span class="ob-st"><span class="obn">4</span>Прогон</span>
+        <span class="ob-st now"><span class="obn">2</span>Компоненты</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">3</span>Доступ и структура</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">4</span>Первый проект</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">5</span>Прогон</span>
+      </div>
+      <div class="ob-body">
+        <div class="ob-h">Из чего состоит foundry</div>
+        <div class="ob-sub">Три компонента с разными ролями. Ставим недостающие — окно у тебя уже есть.</div>
+
+        <div class="comp-grid" style="grid-template-columns:1fr 54px 1fr 54px 1fr">
+          <div class="comp-card here">
+            <div class="comp-name">foundry-desktop</div>
+            <div class="comp-role">Это окно. Оркестрирует: доски, ревью, очередь. Сам код не пишет.</div>
+            <div class="comp-where">/Applications/Foundry.app</div>
+            <div class="comp-state ok">✓ запущен · v0.4.1</div>
+          </div>
+          <div class="comp-arrow"><span class="ca">→</span><span class="cl">вызывает<br>операции</span></div>
+          <div class="comp-card install">
+            <div class="comp-name">foundry-cli</div>
+            <div class="comp-role">Детерминированное: worktree'ы, файловая структура, git. Без агента — значит воспроизводимо. Он же отдаёт операции агенту по MCP.</div>
+            <div class="comp-where">/usr/local/bin/foundry</div>
+            <div class="comp-state new">→ поставим v0.4.1 · 8 МБ</div>
+          </div>
+          <div class="comp-arrow"><span class="ca">→</span><span class="cl">MCP-сервер<br>для агента</span></div>
+          <div class="comp-card merge">
+            <div class="comp-name">foundry-claude</div>
+            <div class="comp-role">Учит агента стадиям: скиллы, агенты, правила, команды, MCP-регистрация, локальные скрипты.</div>
+            <div class="comp-where">~/.claude/</div>
+            <div class="comp-state warn">▲ папка уже твоя · допишем</div>
+          </div>
+        </div>
+
+        <div class="ob-two" style="margin-top:var(--s5)">
+          <div>
+            <div class="ob-h" style="font-size:13px">Что попадёт в ~/.claude</div>
+            <div class="ob-sub">Твоё не трогаем: только добавляем своё с префиксом и дописываем блок.</div>
+            <div class="plan-list">
+<span class="pa">+</span> <span class="pf">skills/foundry-*</span>          <span class="pk">7 новых · стадии CRISPY</span>
+<span class="pa">+</span> <span class="pf">agents/foundry-*</span>          <span class="pk">4 новых · роли стадий</span>
+<span class="pa">+</span> <span class="pf">commands/foundry-*</span>        <span class="pk">5 новых · /change, /route…</span>
+<span class="pa">+</span> <span class="pf">mcp/foundry-cli.json</span>      <span class="pk">регистрация MCP-сервера</span>
+<span class="pm">~</span> <span class="pf">CLAUDE.md</span>                 <span class="pk">допишем блок foundry в конец,</span>
+                              <span class="pk">твой текст выше не тронем</span>
+<span class="pk">·</span> <span class="pk">skills/my-notes</span>           <span class="pk">твой — не тронем</span>
+<span class="pk">·</span> <span class="pk">settings.json</span>             <span class="pk">твой — не тронем</span>
+            </div>
+            <div class="warn-line"><span class="wi">▲</span><span>Совпало имя: <code style="font-family:var(--font-mono)">commands/foundry-run</code> уже есть. Переименуем наш в <code style="font-family:var(--font-mono)">foundry-run-2</code> — твой останется рабочим.</span></div>
+          </div>
+          <div>
+            <div class="ob-h" style="font-size:13px">Связи</div>
+            <div class="ob-sub">Проверим после установки — фактом, а не обещанием.</div>
+            <div class="wire">
+              <span class="wire-ic ok">✓</span><span class="wire-what">desktop → cli</span><span class="wire-st">готово</span>
+              <span class="wire-why">Окно зовёт CLI для файловых операций напрямую.</span>
+            </div>
+            <div class="wire">
+              <span class="wire-ic wait">○</span><span class="wire-what">cli → агент по MCP</span><span class="wire-st">после установки</span>
+              <span class="wire-why">Claude Code получит операции foundry как MCP-инструменты.</span>
+            </div>
+            <div class="wire">
+              <span class="wire-ic wait">○</span><span class="wire-what">агент → скиллы</span><span class="wire-st">после установки</span>
+              <span class="wire-why">Агент прочитает правила стадий из ~/.claude и научится CRISPY.</span>
+            </div>
+            <div class="wire">
+              <span class="wire-ic ok">✓</span><span class="wire-what">PATH</span><span class="wire-st">/usr/local/bin</span>
+              <span class="wire-why">Каталог уже в PATH — доводить оболочку не придётся.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="actionbar"><div class="btns">
+        <span class="btn ghost">Назад</span>
+        <span class="btn primary">Поставить и связать <kbd>⌘⏎</kbd></span>
+      </div></div>
+    </div>
+
+    <!-- шаг 3: доступ и структура -->
+    <div class="win" style="margin-top:var(--s5)">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — настройка</span>
+      </div>
+      <div class="ob-steps">
+        <span class="ob-st done"><span class="obn">✓</span>Агент</span><span class="ob-sep"></span>
+        <span class="ob-st done"><span class="obn">✓</span>Компоненты</span><span class="ob-sep"></span>
+        <span class="ob-st now"><span class="obn">3</span>Доступ и структура</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">4</span>Первый проект</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">5</span>Прогон</span>
       </div>
       <div class="ob-body">
         <div class="ob-two">
@@ -2572,7 +2690,7 @@
       </div>
     </div>
 
-    <div class="caption"><b>Дизайн-решения:</b> в онбординге <b>только блокирующее</b> — агент, доступ, структура, первый проект; тема и плотность ничего не блокируют и остаются в §10 (УВЛ: мастер не место для вкусов). Карточка агента <b>и есть проверка окружения</b>: не «всё готово», а факт — «найден · v2.1.4», «вход выполнен · Max» (факт вместо прогноза, Birdview); отдельного шага «проверим систему» поэтому не нужно. Логотип агента <b>сохраняет свой цвет</b> — это чужая идентичность, единственное законное исключение из правила «один акцент»: терракота Claude не спорит с ультрамарином, потому что не кодирует статус. Пустые карточки «скоро» показаны, а не спрятаны: видно, что <b>выбор агента — развилка архитектуры</b>, а не хардкод. Доступ объясняется <b>до</b> системного диалога и словами «зачем», а не «разрешите доступ к файлам». Дерево показано <b>до создания</b> — тот же приём, что пресеты плотности (§10) и последствие роутинга (§13): результат виден до нажатия. Структура <b>повторяет доменную модель</b>: <code style="font-family:var(--font-mono)">skills/</code> существует потому, что ревью правит скиллы (§12). Предупреждение живёт <b>в самом экране</b> строкой-warning, а модалка поднимается только на необратимом: канон разрешает модалку, когда решение короткое и обязательное (§8), а Undo невозможен — файлы уйдут с диска. В модалке — <b>факт того, что потеряется</b> (3 папки · 128 файлов · 24 МБ), а не абстрактное «данные будут утеряны», и <b>третий выход</b> «выбрать другую папку»: модалка не ловушка из двух кнопок. <b>Безопасный путь — акцент, деструктив — красный контур, а не заливка</b>: залитая красная кнопка магнитит на необратимое, а модалка поднялась, чтобы остановить. Деструктив ушёл влево от остальных (маковская конвенция), акцент остался справа, где его ищет рука.</div>
+    <div class="caption"><b>Дизайн-решения:</b> в онбординге <b>только блокирующее</b> — агент, компоненты, доступ, первый проект; тема и плотность ничего не блокируют и остаются в §10 (УВЛ: мастер не место для вкусов). <b>Установка — это карта системы</b>, а не чеклист: онбординг — единственное место, где человек узнаёт, из чего продукт состоит, поэтому три компонента показаны с ролями и связями между ними, а не галочками. Роли названы так, чтобы <b>разделение было понятно с одного чтения</b>: cli — детерминированное («без агента — значит воспроизводимо»), foundry-claude — знания агента, desktop — оркестровка. Стрелки подписаны тем, <b>что течёт</b> по связи («вызывает операции», «MCP-сервер для агента»), а не «зависит от». Состояние компонента — <b>факт</b>: «запущен · v0.4.1», «поставим v0.4.1 · 8 МБ», и цвет несёт смысл — зелёный уже есть, ультрамарин поставим, янтарь трогаем твоё. <b>~/.claude — уже твоя папка</b>, поэтому туда не «устанавливают», а <b>дописывают</b>: план показывает по файлам, что добавится (+), что допишется (~) и что <b>не тронем</b> — «твой не тронем» сказано вслух, потому что это главный страх при установке в чужой конфиг. Конфликт имён решён <b>до</b> запуска и не спрашивая: наш переименован, твой остался рабочим — Undo не нужен там, где нечего ломать. <b>Связи проверяются фактом</b> после установки, а не обещаются: «PATH · /usr/local/bin — доводить оболочку не придётся» — видно, что ручной работы не будет. Карточка агента <b>и есть проверка окружения</b>: не «всё готово», а факт — «найден · v2.1.4», «вход выполнен · Max» (факт вместо прогноза, Birdview); отдельного шага «проверим систему» поэтому не нужно. Логотип агента <b>сохраняет свой цвет</b> — это чужая идентичность, единственное законное исключение из правила «один акцент»: терракота Claude не спорит с ультрамарином, потому что не кодирует статус. Пустые карточки «скоро» показаны, а не спрятаны: видно, что <b>выбор агента — развилка архитектуры</b>, а не хардкод. Доступ объясняется <b>до</b> системного диалога и словами «зачем», а не «разрешите доступ к файлам». Дерево показано <b>до создания</b> — тот же приём, что пресеты плотности (§10) и последствие роутинга (§13): результат виден до нажатия. Структура <b>повторяет доменную модель</b>: <code style="font-family:var(--font-mono)">skills/</code> существует потому, что ревью правит скиллы (§12). Предупреждение живёт <b>в самом экране</b> строкой-warning, а модалка поднимается только на необратимом: канон разрешает модалку, когда решение короткое и обязательное (§8), а Undo невозможен — файлы уйдут с диска. В модалке — <b>факт того, что потеряется</b> (3 папки · 128 файлов · 24 МБ), а не абстрактное «данные будут утеряны», и <b>третий выход</b> «выбрать другую папку»: модалка не ловушка из двух кнопок. <b>Безопасный путь — акцент, деструктив — красный контур, а не заливка</b>: залитая красная кнопка магнитит на необратимое, а модалка поднялась, чтобы остановить. Деструктив ушёл влево от остальных (маковская конвенция), акцент остался справа, где его ищет рука.</div>
   </section>
 
   <footer class="note">
@@ -2655,8 +2773,13 @@
     атомарным задачам таблицей (осознанный отказ от парности: у задачи нет пайплайна); <b>§15</b>
     очередь ревью артефактов — код и не-код рядом, колонки = состояния ревью.
     <br><br>
-    <b>Ревизия v11 — онбординг (§16).</b> Четыре шага и только блокирующее: агент, доступ и структура,
-    первый проект, прогон; тема и плотность остались в §10 — они ничего не блокируют.
+    <b>Ревизия v11 — онбординг (§16).</b> Пять шагов и только блокирующее: агент, компоненты,
+    доступ и структура, первый проект, прогон; тема и плотность остались в §10 — они ничего не блокируют.
+    <b>Установка компонентов — карта системы, а не чеклист:</b> foundry-desktop оркестрирует,
+    foundry-cli делает детерминированное (и отдаёт операции агенту по MCP), foundry-claude учит агента
+    стадиям; стрелки подписаны тем, что течёт по связи. <code>~/.claude</code> — уже пользовательская
+    папка, поэтому туда не устанавливают, а дописывают: план по файлам показывает, что добавится,
+    что допишется и что не тронем; конфликт имён разрешён переименованием нашего файла.
     Карточка агента <b>и есть проверка окружения</b> (найден · v2.1.4 · вход выполнен), поэтому
     отдельного шага «проверим систему» нет. Логотип агента сохраняет свой цвет — чужая идентичность,
     единственное законное исключение из «одного акцента». Доступ объясняется <b>до</b> системного
