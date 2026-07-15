@@ -534,13 +534,174 @@
   @media (prefers-reduced-motion: reduce){ .skel-line { animation: none; } }
 
   /* ——— §6 канбан-борд ——— */
-  .board { display: grid; grid-auto-flow: column; grid-auto-columns: 168px; gap: var(--s3); padding: var(--s4); overflow-x: auto; background: var(--bg-base); }
-  .kb-col { display: flex; flex-direction: column; gap: var(--s2); min-height: 420px; }
-  .kb-col-head { display: flex; align-items: center; gap: 6px; padding: 4px 6px; position: sticky; top: 0; }
+  /* переключатель пайплайнов = виджет-сводка: счётчик и легенда в одном органе (Superpedestrian).
+     Пайплайны разной длины — «8 стадий» / «3 стадии» — значимая информация, не дефект. */
+  .pipe-bar { display: flex; gap: var(--s2); padding: var(--s3) var(--s4); background: var(--bg-surface); border-bottom: 1px solid var(--b-subtle); overflow-x: auto; }
+  .pipe-tab { flex: none; min-width: 150px; padding: 7px 11px; border-radius: var(--r-m); border: 1px solid var(--b-subtle); background: var(--bg-base); display: flex; flex-direction: column; gap: 3px; cursor: default; }
+  .pipe-tab:hover { border-color: var(--b-default); }
+  .pipe-tab.sel { border-color: rgba(47,92,255,0.55); background: rgba(47,92,255,0.10); }
+  .pipe-tab.empty { opacity: 0.45; }
+  .pipe-name { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--t-secondary); white-space: nowrap; }
+  .pipe-tab.sel .pipe-name { color: var(--t-primary); }
+  .pipe-name .pp { color: var(--t-tertiary); font-size: 11px; width: 12px; text-align: center; flex: none; }
+  .pipe-name .pn { margin-left: auto; font-size: 11px; font-variant-numeric: tabular-nums; color: var(--t-tertiary); }
+  .pipe-tab.sel .pipe-name .pn { color: var(--t-accent); }
+  .pipe-meta { font-size: 10px; color: var(--t-tertiary); white-space: nowrap; }
+
+  /* спринт = календарный месяц: done не копится, схлопывается по границе месяца */
+  .sprint-bar { display: flex; align-items: center; gap: var(--s3); padding: 7px var(--s4); background: var(--bg-base); border-bottom: 1px solid var(--b-subtle); font-size: 11px; color: var(--t-tertiary); }
+  .sprint-nav { display: flex; align-items: center; gap: 8px; }
+  .sprint-nav .sm { font-size: 12px; font-weight: 600; color: var(--t-primary); font-variant-numeric: tabular-nums; }
+  .sprint-nav .sarr { color: var(--t-disabled); font-size: 11px; }
+  .sprint-bar .sdiv { color: var(--t-disabled); }
+
+  /* канбан — широкий экран: окно шире колонки текста, как на реальном мониторе */
+  .block.wide { max-width: 1400px; margin-left: -110px; }
+  .block.wide .sec-head, .block.wide .caption { margin-left: 110px; max-width: 1180px; }
+
+  .board { display: flex; gap: 10px; padding: var(--s4); overflow-x: auto; background: var(--bg-base); }
+  .kb-col { flex: 0 0 142px; display: flex; flex-direction: column; gap: var(--s2); min-height: 420px; min-width: 0; }
+  /* пустая стадия схлопывается в полоску: ноль не заслуживает колонки (УВЛ) */
+  .kb-col.collapsed { flex: 0 0 30px; background: rgba(255,255,255,0.02); border-radius: var(--r-m); align-items: center; padding: 8px 0; min-height: 0; }
+  .kb-col.collapsed .kb-col-head { padding: 0; align-items: center; }
+  .kb-col.collapsed .kbt { writing-mode: vertical-rl; text-orientation: mixed; font-size: 10px; color: var(--t-disabled); }
+  .kb-col.collapsed .kbn { margin: 6px 0 0 0; }
+  .kb-col.collapsed .kbart, .kb-col.collapsed .kdot { display: none; }
+  /* заголовок колонки несёт артефакт, который производит стадия — «вход→выход» становится видимым */
+  .kb-col-head { display: flex; flex-direction: column; gap: 2px; padding: 4px 6px; position: sticky; top: 0; }
+  .kb-col-head .kbrow { display: flex; align-items: center; gap: 6px; }
   .kb-col-head .kbt { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--t-secondary); }
   .kb-col-head .kbn { font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; margin-left: auto; }
-  .kb-col-head .kdot { width: 6px; height: 6px; border-radius: 50%; background: var(--t-disabled); }
+  .kb-col-head .kdot { width: 6px; height: 6px; border-radius: 50%; background: var(--t-disabled); flex: none; }
+  .kb-col-head .kbart { font-family: var(--font-mono); font-size: 9px; color: var(--t-disabled); padding-left: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .kb-col.now .kdot { background: var(--brand-ultramarine); }
+  .kb-col.done .kbt { color: var(--sem-success); }
+  .kb-col.done .kdot { background: var(--sem-success); }
+  /* лейблы проекта: категория — ФОРМОЙ (▣ инфра · ◆ утилита · ● бизнес), сервис — текстом.
+     Цвет не расходуется: канон «цвет только на значимом» (FXPro), радуги лейблов нет. */
+  .kc-labels { display: flex; align-items: center; gap: 4px; min-width: 0; }
+  .plbl { display: inline-flex; align-items: center; gap: 4px; padding: 1px 5px; border-radius: var(--r-s); background: rgba(255,255,255,0.05); border: 1px solid var(--b-subtle); font-size: 9px; color: var(--t-tertiary); min-width: 0; flex: none; }
+  .plbl .lcat { color: var(--t-disabled); font-size: 8px; flex: none; }
+  .plbl .lsvc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* артефакт стадии на карте: цвет несёт только статус (ждёт ревью — ультрамарин, в работе — циан) */
+  .kc-art { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--t-tertiary); min-width: 0; flex-wrap: nowrap; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kc-art.wait { color: var(--t-accent); }
+  .kc-art.live { color: var(--brand-cyan); }
+  .kb-card.done-card { opacity: 0.5; }
+  .fold-note { font-size: 9px; color: var(--t-disabled); text-align: center; padding: 5px; border: 1px dashed var(--b-subtle); border-radius: var(--r-m); }
+
+  /* ——— §11 семантический зум: change → его атомарные tasks ——— */
+  /* якорь: change держит те же координаты и ту же анатомию, что на доске (Worldchess) */
+  .zoom-anchor { display: flex; align-items: center; gap: var(--s3); padding: 9px var(--s4); background: var(--bg-raised); border-bottom: 1px solid var(--b-subtle); }
+  .za-back { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--t-accent); flex: none; }
+  .za-sep { color: var(--t-disabled); font-size: 11px; }
+  .za-pict { color: var(--t-tertiary); font-size: 12px; }
+  .za-name { font-size: 13px; font-weight: 600; color: var(--t-primary); }
+  .za-branch { font-family: var(--font-mono); font-size: 11px; color: var(--t-tertiary); }
+  .za-right { margin-left: auto; display: flex; align-items: center; gap: var(--s3); font-size: 11px; color: var(--t-tertiary); }
+  /* реальный пайплайн этого change — не усреднённый: зум показывает точные стадии */
+  .zoom-pipe { display: flex; align-items: center; gap: var(--s3); padding: 10px var(--s4); border-bottom: 1px solid var(--b-subtle); background: var(--bg-surface); }
+  .zoom-pipe .zp-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--t-disabled); flex: none; }
+  .zoom-pipe .stepper { flex: 1; display: flex; align-items: flex-start; }
+
+  /* доска атомарных задач: колонки — состояния task'а, не стадии CRISPY */
+  .tboard { display: flex; gap: 10px; padding: var(--s4); background: var(--bg-base); }
+  .t-col { flex: 1 1 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; min-height: 210px; }
+  .t-col-head { display: flex; align-items: center; gap: 6px; padding: 3px 4px; }
+  .t-col-head .tct { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--t-secondary); }
+  .t-col-head .tcn { margin-left: auto; font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
+  .t-col-head .tcd { width: 5px; height: 5px; border-radius: 50%; background: var(--t-disabled); flex: none; }
+  .t-col.live .tcd { background: var(--brand-cyan); }
+  .t-col.done .tcd { background: var(--sem-success); }
+  .t-card { background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-m); padding: 8px 9px; display: flex; flex-direction: column; gap: 4px; }
+  .t-card.live { border-color: rgba(88,199,255,0.45); }
+  .t-card.done { opacity: 0.55; }
+  .t-title { font-size: 11px; font-weight: 500; color: var(--t-primary); line-height: 1.35; }
+  .t-file { font-family: var(--font-mono); font-size: 9px; color: var(--t-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .t-meta { display: flex; align-items: center; gap: 5px; font-size: 9px; color: var(--t-tertiary); }
+  .t-meta .tm-live { color: var(--brand-cyan); }
+  .t-meta .tm-ok { color: var(--sem-success); }
+
+  /* ——— §12 дифф спеки + атрибуция скиллов ——— */
+  /* спека — проза, а не код: единица диффа — смысловой блок и слово, не строка */
+  .spec-dual { display: grid; grid-template-columns: minmax(0,1fr) 258px; }
+  .spec-main { border-right: 1px solid var(--b-subtle); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); background: var(--bg-base); }
+  .sblock { border: 1px solid var(--b-subtle); border-radius: var(--r-l); overflow: hidden; }
+  .sblock.flagged { border-color: rgba(251,191,36,0.4); }
+  .sb-head { display: flex; align-items: center; gap: var(--s2); padding: 6px 10px; background: var(--bg-surface); border-bottom: 1px solid var(--b-subtle); }
+  .sb-title { font-size: 11px; font-weight: 600; color: var(--t-secondary); }
+  .sb-title .sh { color: var(--t-disabled); font-weight: 400; }
+  /* атрибуция: у каждого блока видно, какой скилл его написал — иначе некому давать обратную связь */
+  .sb-skill { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: var(--r-full); background: rgba(139,92,246,0.14); border: 1px solid rgba(139,92,246,0.32); font-family: var(--font-mono); font-size: 9px; color: #C4A6FF; }
+  .sb-flag { display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: var(--r-s); font-size: 9px; color: var(--sem-warning); border: 1px solid rgba(251,191,36,0.35); background: rgba(251,191,36,0.10); }
+  .sb-body { padding: 9px 11px; font-size: 12px; line-height: 1.65; color: var(--t-secondary); }
+  .sdel { background: rgba(248,113,113,0.16); color: #FFB4B4; text-decoration: line-through; text-decoration-color: rgba(248,113,113,0.6); border-radius: 2px; padding: 0 2px; }
+  .sins { background: rgba(74,222,128,0.16); color: #A7F3C0; border-radius: 2px; padding: 0 2px; }
+  .sb-note { display: flex; gap: 7px; padding: 7px 11px; border-top: 1px dashed var(--b-subtle); background: rgba(251,191,36,0.04); font-size: 11px; color: var(--t-secondary); line-height: 1.5; }
+  .sb-note .snw { color: var(--sem-warning); flex: none; }
+
+  /* панель обратной связи скиллам: ревью — это не только вердикт, но и починка системы */
+  .skill-panel { padding: var(--s4); background: var(--bg-surface); display: flex; flex-direction: column; gap: var(--s3); }
+  .sp-h { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--t-disabled); }
+  .sk-item { display: grid; grid-template-columns: 1fr auto; gap: 3px 8px; padding-bottom: 9px; border-bottom: 1px solid var(--b-subtle); }
+  .sk-name { font-family: var(--font-mono); font-size: 11px; color: #C4A6FF; }
+  .sk-stat { font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
+  .sk-why { grid-column: 1/-1; font-size: 10px; color: var(--t-tertiary); line-height: 1.45; }
+  .sk-why b { color: var(--sem-warning); font-weight: 600; }
+  .sk-item.ok .sk-name { color: var(--t-tertiary); }
+
+  /* ——— §13 роутинг: почему этот пайплайн ——— */
+  .route-dual { display: grid; grid-template-columns: minmax(0,1fr) 300px; }
+  .route-main { padding: var(--s4); background: var(--bg-base); display: flex; flex-direction: column; gap: var(--s2); border-right: 1px solid var(--b-subtle); }
+  /* признак = значение + доказательство: роутинг объяснимый, факт вместо прогноза (Birdview) */
+  .sig { display: grid; grid-template-columns: 92px 1fr; gap: 2px var(--s3); padding: 9px 10px; border: 1px solid var(--b-subtle); border-radius: var(--r-m); }
+  .sig-k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--t-disabled); padding-top: 1px; }
+  .sig-v { font-size: 12px; font-weight: 600; color: var(--t-primary); }
+  .sig-why { grid-column: 2; font-size: 11px; color: var(--t-tertiary); line-height: 1.5; }
+  .sig-why q { color: var(--t-secondary); font-style: normal; }
+  .sig.low { border-color: rgba(251,191,36,0.32); background: rgba(251,191,36,0.04); }
+  .sig.low .sig-v { color: var(--sem-warning); }
+  .conf { margin-left: 6px; font-size: 10px; font-weight: 400; color: var(--t-tertiary); }
+  /* выбранный пайплайн: результат решения, а не список опций */
+  .route-out { padding: var(--s4); background: var(--bg-surface); display: flex; flex-direction: column; gap: var(--s3); }
+  .ro-pick { border: 1px solid rgba(47,92,255,0.5); background: rgba(47,92,255,0.10); border-radius: var(--r-l); padding: 11px; }
+  .ro-name { font-size: 13px; font-weight: 600; color: var(--t-primary); }
+  .ro-meta { font-size: 11px; color: var(--t-tertiary); margin-top: 2px; }
+  .ro-stages { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 9px; }
+  .ro-st { padding: 2px 6px; border-radius: var(--r-s); background: rgba(255,255,255,0.05); border: 1px solid var(--b-subtle); font-size: 9px; color: var(--t-tertiary); }
+  .ro-st.add { background: rgba(47,92,255,0.14); border-color: rgba(47,92,255,0.35); color: var(--t-accent); }
+  .ro-alt { font-size: 11px; color: var(--t-tertiary); line-height: 1.5; }
+  .ro-alt b { color: var(--t-secondary); font-weight: 600; }
+
+  /* ——— §14 сквозной вид по атомарным задачам ——— */
+  .tx-bar { display: flex; align-items: center; gap: var(--s2); padding: 8px var(--s4); background: var(--bg-surface); border-bottom: 1px solid var(--b-subtle); font-size: 11px; color: var(--t-tertiary); }
+  .tx-seg { display: inline-flex; border: 1px solid var(--b-subtle); border-radius: var(--r-m); overflow: hidden; }
+  .tx-seg span { padding: 3px 9px; font-size: 11px; color: var(--t-tertiary); }
+  .tx-seg span.on { background: rgba(47,92,255,0.16); color: var(--t-primary); }
+  .txtable { width: 100%; border-collapse: collapse; }
+  .txtable th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--t-disabled); font-weight: 400; padding: 7px var(--s4); border-bottom: 1px solid var(--b-subtle); }
+  .txtable th.num, .txtable td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .txtable td { padding: 8px var(--s4); border-bottom: 1px solid var(--b-subtle); font-size: 12px; color: var(--t-secondary); }
+  .txtable tr.stall td { background: rgba(251,191,36,0.05); }
+  .txtable tr:hover td { background: rgba(255,255,255,0.03); }
+  .tx-task { color: var(--t-primary); }
+  .tx-ch { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--t-tertiary); }
+  .tx-ch .p { color: var(--t-disabled); }
+  .tx-st { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; }
+  .tx-st.live { color: var(--brand-cyan); }
+  .tx-st.warn { color: var(--sem-warning); }
+  .tx-st.ok { color: var(--sem-success); }
+  .tx-st.q { color: var(--t-tertiary); }
+
+  /* ——— §15 канбан ревью артефактов ——— */
+  .rv-card .rv-top { display: flex; align-items: center; gap: 5px; }
+  .rv-kind { padding: 1px 5px; border-radius: var(--r-s); font-size: 9px; border: 1px solid var(--b-subtle); background: rgba(255,255,255,0.05); color: var(--t-tertiary); flex: none; }
+  .rv-kind.spec { border-color: rgba(139,92,246,0.32); background: rgba(139,92,246,0.12); color: #C4A6FF; }
+  .rv-kind.code { border-color: rgba(88,199,255,0.30); background: rgba(88,199,255,0.10); color: var(--brand-cyan); }
+  .rv-file { font-family: var(--font-mono); font-size: 10px; color: var(--t-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rv-ch { font-size: 10px; color: var(--t-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rv-foot { display: flex; align-items: center; justify-content: space-between; font-size: 9px; color: var(--t-tertiary); }
+  .rv-skill { font-family: var(--font-mono); font-size: 9px; color: #C4A6FF; }
   .kb-card {
     background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l);
     padding: var(--s3); display: flex; flex-direction: column; gap: 6px; cursor: default;
@@ -551,7 +712,7 @@
   /* карта = мнемо-имя основным, ветка вторичной, пиктограмма типа (парность с §1); колонка = стадия, чип стадии не дублируем */
   .kb-card .kc-top { display: flex; align-items: flex-start; gap: 5px; min-width: 0; }
   .kb-card .kc-pict { color: var(--t-tertiary); font-size: 11px; width: 12px; text-align: center; flex: none; line-height: 1.4; }
-  .kb-card .kc-title { font-size: 12px; font-weight: 600; line-height: 1.3; color: var(--t-primary); min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .kb-card .kc-title { font-size: 12px; font-weight: 600; line-height: 1.3; color: var(--t-primary); min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
   .kb-card .kc-branch { font-family: var(--font-mono); font-size: 10px; color: var(--t-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .kb-card .kc-meta { display: flex; align-items: center; gap: 6px; }
   .kb-card .kc-foot { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; }
@@ -1503,12 +1664,12 @@
     </div>
   </section>
 
-  <!-- ——————————————————— §6 КАНБАН-БОРД (вариант B) ——————————————————— -->
-  <section class="block">
+  <!-- ——————————————————— §6 КАНБАН ПО CHANGE ——————————————————— -->
+  <section class="block wide">
     <div class="sec-head">
-      <span class="sec-num">06 — вариант B, развёрнуто</span>
-      <h2>Канбан всего пайплайна с overlay-инспектором</h2>
-      <p>Восемь колонок CRISPY, карточки едут по стадиям, борд скроллится горизонтально. Деталь открывается не новым экраном, а drawer'ом поверх борда (паттерн 2026: card → side-drawer). Одна кнопка «Перекомпоновать» вместо ручного ресайза колонок — приём fxpro.</p>
+      <span class="sec-num">06 — канбан по change</span>
+      <h2>Доска на каждый пайплайн, спринт — календарный месяц</h2>
+      <p>У каждого типа change'а свой пайплайн, поэтому доска одна на пайплайн: колонки — точные стадии, а не усреднённые фазы. Переключатель сверху и есть сводка: сколько change'ей в типе и какой длины его пайплайн. Done не копится — граница месяца.</p>
     </div>
 
     <div class="win overlay-demo">
@@ -1521,57 +1682,90 @@
         <span class="tb-btn icon" title="Новый change">＋</span>
       </div>
 
-      <div class="board">
-        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Questions</span><span class="kbn">2</span></div>
-          <div class="kb-card"><div class="kc-top"><span class="kc-pict">✦</span><span class="kc-title">Центр уведомлений</span></div><span class="kc-branch">feat/notif-center</span><div class="kc-foot"><span class="mini-av">Ð</span><span>8 мин</span></div></div>
-          <div class="kb-card"><div class="kc-top"><span class="kc-pict">⟳</span><span class="kc-title">Swift 6</span></div><span class="kc-branch">chore/bump-swift6</span><div class="kc-foot"><span class="mini-av">Ð</span><span>22 мин</span></div></div>
+      <!-- переключатель пайплайнов: у каждого типа свой пайплайн, доска — под выбранный -->
+      <div class="pipe-bar">
+        <div class="pipe-tab sel">
+          <div class="pipe-name"><span class="pp">✦</span>Фича · один сервис<span class="pn">5</span></div>
+          <div class="pipe-meta">CRISPY · 8 стадий</div>
         </div>
-        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Research</span><span class="kbn">1</span></div>
-          <div class="kb-card now"><div class="kc-top"><span class="kc-pict">⌕</span><span class="kc-title">Liquid Glass</span></div><span class="kc-branch">research/liquid-glass</span><div class="kc-foot"><span class="mini-av">◍</span><span style="color:var(--brand-cyan)">◉ ищет…</span></div></div>
+        <div class="pipe-tab">
+          <div class="pipe-name"><span class="pp">✦</span>Фича · много сервисов<span class="pn">2</span></div>
+          <div class="pipe-meta">CRISPY + контракты · 10 стадий</div>
         </div>
-        <div class="kb-col now"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Design</span><span class="kbn">2</span></div>
-          <div class="kb-card"><div class="kc-top"><span class="kc-pict">✦</span><span class="kc-title">Токены тёмной темы</span></div><span class="kc-branch">feat/dark-theme-tokens</span><div class="kc-foot"><span style="color:var(--sem-success)">+214</span><span>12 мин</span></div></div>
-          <div class="kb-slot"></div>
+        <div class="pipe-tab">
+          <div class="pipe-name"><span class="pp">⚑</span>Баг<span class="pn">3</span></div>
+          <div class="pipe-meta">Repro → PR · 5 стадий</div>
         </div>
-        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Structure</span><span class="kbn">1</span></div>
-          <div class="kb-card drag"><div class="kc-top"><span class="kc-pict">⟳</span><span class="kc-title">Хранилище инбокса</span></div><span class="kc-branch">refactor/inbox-store</span><div class="kc-foot"><span style="color:var(--sem-error)">−204</span><span>перетаскивается</span></div></div>
+        <div class="pipe-tab">
+          <div class="pipe-name"><span class="pp">⚡</span>Хотфикс<span class="pn">1</span></div>
+          <div class="pipe-meta">Repro → Ship · 3 стадии</div>
         </div>
-        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Plan</span><span class="kbn">1</span></div>
-          <div class="kb-card"><div class="kc-top"><span class="kc-pict">¶</span><span class="kc-title">Стадии CRISPY</span></div><span class="kc-branch">docs/crispy-stages</span><div class="kc-foot"><span class="mini-av">Ð</span><span>1 ч</span></div></div>
-        </div>
-        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Worktree</span><span class="kbn">0</span></div></div>
-        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">Implement</span><span class="kbn">2</span></div>
-          <div class="kb-card now"><div class="kc-top"><span class="kc-pict">✦</span><span class="kc-title">Орб-лоадер</span></div><span class="kc-branch">feat/orb-loader</span><div class="kc-meta"><span class="chip live">◉ пишет…</span></div><div class="kc-foot"><span style="color:var(--brand-cyan)">+310…</span><span>сейчас</span></div></div>
-          <div class="kb-card"><div class="kc-top"><span class="kc-pict">⚑</span><span class="kc-title">Детектор зависших лупов</span></div><span class="kc-branch">fix/loop-stall-detector</span><div class="kc-meta"><span class="chip warn">⚠ завис 40 мин</span></div></div>
-        </div>
-        <div class="kb-col"><div class="kb-col-head"><span class="kdot"></span><span class="kbt">PR</span><span class="kbn">1</span></div>
-          <div class="kb-card"><div class="kc-top"><span class="kc-pict">⚑</span><span class="kc-title">Контраст по APCA</span></div><span class="kc-branch">feat/apc-contrast</span><div class="kc-meta"><span class="chip err">✕ CI упал</span></div><div class="kc-foot"><span></span><span>4 мин</span></div></div>
+        <div class="pipe-tab empty">
+          <div class="pipe-name"><span class="pp">▲</span>Инцидент<span class="pn">0</span></div>
+          <div class="pipe-meta">Triage → Postmortem · 4 стадии</div>
         </div>
       </div>
 
-      <!-- overlay-инспектор -->
-      <div class="board-scrim"></div>
-      <aside class="overlay-insp">
-        <div class="insp-head">
-          <div class="branch">feat/dark-theme-tokens</div>
-          <div class="sub"><span>Design</span><span>·</span><span>ждёт ревью</span><span>·</span><span>12 мин</span></div>
+      <!-- спринт = календарный месяц: done схлопывается по границе, колонка не растёт -->
+      <div class="sprint-bar">
+        <div class="sprint-nav"><span class="sarr">‹</span><span class="sm">Июль 2026</span><span class="sarr">›</span></div>
+        <span class="sdiv">·</span><span>11 в работе</span>
+        <span class="sdiv">·</span><span>12 принято за месяц</span>
+        <span class="sdiv">·</span><span>осталось 16 дней</span>
+      </div>
+
+      <div class="board">
+        <div class="kb-col"><div class="kb-col-head">
+            <div class="kbrow"><span class="kdot"></span><span class="kbt">Questions</span><span class="kbn">2</span></div>
+            <div class="kbart">→ questions.md</div></div>
+          <div class="kb-card"><div class="kc-top"><span class="kc-pict">✦</span><span class="kc-title">Центр уведомлений</span></div><span class="kc-branch">feat/notif-center</span><div class="kc-labels"><span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span></div><div class="kc-foot"><span class="mini-av">Ð</span><span>8 мин</span></div></div>
+          <div class="kb-card"><div class="kc-top"><span class="kc-pict">⟳</span><span class="kc-title">Swift 6</span></div><span class="kc-branch">chore/bump-swift6</span><div class="kc-labels"><span class="plbl"><span class="lcat">▣</span><span class="lsvc">crispy-core</span></span></div><div class="kc-foot"><span class="mini-av">Ð</span><span>22 мин</span></div></div>
         </div>
-        <div class="artifact" style="flex:1">
-          <h4>Design · токены тёмной темы</h4>
-          <div class="kv">artifact.md · 214 строк · перетащи карточку, чтобы сменить стадию</div>
-          <p>Elevation — светлотой; текст альфа-белый; request changes — warning. Полный дифф — в отдельном окне (двойной клик).</p>
-          <ul><li>4 поверхности base→overlay;</li><li>один glow на зону;</li><li>change остаётся латиницей.</li></ul>
+        <div class="kb-col"><div class="kb-col-head">
+            <div class="kbrow"><span class="kdot"></span><span class="kbt">Research</span><span class="kbn">1</span></div>
+            <div class="kbart">→ research.md</div></div>
+          <div class="kb-card now"><div class="kc-top"><span class="kc-pict">⌕</span><span class="kc-title">Liquid Glass</span></div><span class="kc-branch">research/liquid-glass</span><div class="kc-labels"><span class="plbl"><span class="lcat">▣</span><span class="lsvc">crispy-core</span></span></div><div class="kc-art live"><span>◉</span><span>пишет сейчас</span></div></div>
         </div>
-        <div class="actionbar">
-          <div class="btns">
-            <span class="hint">Esc — закрыть</span>
-            <span class="btn secondary">Вернуть</span>
-            <span class="btn primary">Принять <kbd>⌘⏎</kbd></span>
-          </div>
+        <div class="kb-col now"><div class="kb-col-head">
+            <div class="kbrow"><span class="kdot"></span><span class="kbt">Design</span><span class="kbn">2</span></div>
+            <div class="kbart">→ design.md · ревью</div></div>
+          <div class="kb-card"><div class="kc-top"><span class="kc-pict">✦</span><span class="kc-title">Токены тёмной темы</span></div><span class="kc-branch">feat/dark-theme-tokens</span><div class="kc-labels"><span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span></div><div class="kc-art wait"><span>◆</span><span>ждёт ревью</span></div></div>
+          <div class="kb-slot"></div>
         </div>
-      </aside>
+        <div class="kb-col"><div class="kb-col-head">
+            <div class="kbrow"><span class="kdot"></span><span class="kbt">Structure</span><span class="kbn">1</span></div>
+            <div class="kbart">→ structure.md</div></div>
+          <div class="kb-card drag"><div class="kc-top"><span class="kc-pict">⟳</span><span class="kc-title">Хранилище инбокса</span></div><span class="kc-branch">refactor/inbox-store</span><div class="kc-labels"><span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span></div><div class="kc-foot"><span style="color:var(--sem-error)">−204</span><span>перетаскивается</span></div></div>
+        </div>
+        <div class="kb-col"><div class="kb-col-head">
+            <div class="kbrow"><span class="kdot"></span><span class="kbt">Plan</span><span class="kbn">1</span></div>
+            <div class="kbart">→ plan.md + tasks</div></div>
+          <div class="kb-card"><div class="kc-top"><span class="kc-pict">¶</span><span class="kc-title">Стадии CRISPY</span></div><span class="kc-branch">docs/crispy-stages</span><div class="kc-labels"><span class="plbl"><span class="lcat">◆</span><span class="lsvc">memory-vault</span></span></div><div class="kc-art wait"><span>◆</span><span>ждёт ревью</span></div><div class="kc-foot"><span>6 tasks</span><span>1 ч</span></div></div>
+        </div>
+        <div class="kb-col collapsed" title="Worktree · 0 — стадия пуста, схлопнута"><div class="kb-col-head">
+            <div class="kbrow"><span class="kbt">Worktree</span></div><span class="kbn">0</span></div></div>
+        <div class="kb-col"><div class="kb-col-head">
+            <div class="kbrow"><span class="kdot"></span><span class="kbt">Implement</span><span class="kbn">2</span></div>
+            <div class="kbart">→ дифф · ревью</div></div>
+          <div class="kb-card now"><div class="kc-top"><span class="kc-pict">✦</span><span class="kc-title">Орб-лоадер</span></div><span class="kc-branch">feat/orb-loader</span><div class="kc-labels"><span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span></div><div class="kc-art live"><span>◉</span><span>4 из 6 tasks</span></div></div>
+          <div class="kb-card"><div class="kc-top"><span class="kc-pict">⚑</span><span class="kc-title">Детектор зависших лупов</span></div><span class="kc-branch">fix/loop-stall-detector</span><div class="kc-labels"><span class="plbl"><span class="lcat">▣</span><span class="lsvc">crispy-core</span></span></div><div class="kc-meta"><span class="chip warn">⚠ завис 40 мин</span></div></div>
+        </div>
+        <div class="kb-col"><div class="kb-col-head">
+            <div class="kbrow"><span class="kdot"></span><span class="kbt">PR</span><span class="kbn">1</span></div>
+            <div class="kbart">→ PR</div></div>
+          <div class="kb-card"><div class="kc-top"><span class="kc-pict">⚑</span><span class="kc-title">Контраст по APCA</span></div><span class="kc-branch">feat/apc-contrast</span><div class="kc-labels"><span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span></div><div class="kc-meta"><span class="chip err">✕ CI упал</span></div></div>
+        </div>
+        <div class="kb-col done"><div class="kb-col-head">
+            <div class="kbrow"><span class="kdot"></span><span class="kbt">Готово</span><span class="kbn">12</span></div>
+            <div class="kbart">июль · схлопнется 1 авг</div></div>
+          <div class="kb-card done-card"><div class="kc-top"><span class="kc-pict">✦</span><span class="kc-title">Орб-иконка</span></div><span class="kc-branch">feat/app-icon</span><div class="kc-foot"><span>принят</span><span>вчера</span></div></div>
+          <div class="kb-card done-card"><div class="kc-top"><span class="kc-pict">¶</span><span class="kc-title">Дизайн-канон</span></div><span class="kc-branch">docs/design-series</span><div class="kc-foot"><span>принят</span><span>2 дня</span></div></div>
+          <div class="fold-note">+10 раньше · свернуть месяц</div>
+        </div>
+      </div>
+
     </div>
-    <div class="caption"><b>Дизайн-решения:</b> карта — та же анатомия, что строка инбокса: <b>мнемо-имя</b> основным, ветка-хеш вторичной, <b>пиктограмма типа</b> в начале (парность экранов). Чип стадии на карте <b>не дублируется</b> — колонка и есть стадия (УВЛ); остаются только чипы, несущие новое: «пишет…», «завис», «CI упал». Drawer поверх борда вместо смены экрана; перетаскивание — карта наклонена и с тенью, целевой слот подсвечен ультрамарином; «в работе» пульсирует цианом; активная колонка помечена glow-точкой (одно свечение в зоне).</div>
+    <div class="caption"><b>Дизайн-решения:</b> <b>переключатель пайплайнов = виджет-сводка</b> — счётчик, легенда и пульт в одном органе, отдельной панели фильтров нет (Superpedestrian). Длина пайплайна написана словами («8 стадий» / «3 стадии»): пайплайны <b>разной длины</b> — это факт модели, а не дефект вёрстки. <b>Заголовок колонки несёт артефакт</b>, который стадия производит («→ design.md · ревью»), поэтому «вход→выход» видно, не открывая карту. Чип стадии на карте не дублируется — колонка и есть стадия (УВЛ). <b>Лейбл проекта: категория — формой</b> (▣ инфра · ◆ утилита · ● бизнес), сервис — текстом; цвет на лейблы не расходуется, он остаётся для значимого (FXPro). Цветом на карте говорит только <b>статус артефакта</b>: ждёт ревью — ультрамарин, пишется — циан, упал — красный. <b>Спринт = календарный месяц</b>: Done показывает последние принятые и схлопывается 1-го числа, колонка не растёт бесконечно.</div>
   </section>
 
   <!-- ——————————————————— §7 МУЛЬТИ-ОКНО (вариант C) ——————————————————— -->
@@ -1881,6 +2075,318 @@
     <div class="caption"><b>Приёмы:</b> пресет = мини-превью реального шага отступов и стек поверхностей #07060B→#0D0C14→#14121E с орбом — видно результат до выбора (Untitled UI); светлая тема заперта 🔒 — канон один, тёмный; тумблеры утвердительны (Бирман, запрет отрицаний); выбор — один акцент-ультрамарин на весь экран; орб-превью — единственный glow.</div>
   </section>
 
+  <!-- ——————————————————— §11 ЗУМ В CHANGE → АТОМАРНЫЕ TASKS ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">11 — второй уровень</span>
+      <h2>Зум в change: его пайплайн и его атомарные задачи</h2>
+      <p>Тот же экран, не модалка и не новое окно: доска по change'ам «уплотняется» до одного change'а. Change остаётся на месте — та же пиктограмма, то же мнемо-имя, те же координаты, что были на карточке. Ниже — его <b>реальный</b> пайплайн и доска задач, на которые его декомпозировали на стадии Plan.</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — Орб-лоадер · атомарные задачи</span>
+      </div>
+
+      <!-- якорь: change в тех же координатах, что на доске — глаз не переискивает контекст -->
+      <div class="zoom-anchor">
+        <span class="za-back">‹ Канбан · Фича · один сервис</span>
+        <span class="za-sep">/</span>
+        <span class="za-pict">✦</span>
+        <span class="za-name">Орб-лоадер</span>
+        <span class="za-branch">feat/orb-loader</span>
+        <span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span>
+        <div class="za-right"><span>6 задач · 4 готовы</span><span class="za-sep">·</span><span style="color:var(--brand-cyan)">◉ пишется</span></div>
+      </div>
+
+      <!-- реальный пайплайн именно этого change'а -->
+      <div class="zoom-pipe">
+        <span class="zp-lbl">Пайплайн<br>фичи</span>
+        <div class="stepper">
+          <div class="step done" title="Questions"><span class="node">✓</span><span class="lbl">Questions</span></div>
+          <div class="step done" title="Research"><span class="node">✓</span><span class="lbl">Research</span></div>
+          <div class="step done" title="Design"><span class="node">✓</span><span class="lbl">Design</span></div>
+          <div class="step done" title="Structure"><span class="node">✓</span><span class="lbl">Structure</span></div>
+          <div class="step done" title="Plan — здесь change декомпозирован на 6 задач"><span class="node">✓</span><span class="lbl">Plan</span></div>
+          <div class="step done" title="Worktree"><span class="node">✓</span><span class="lbl">Worktree</span></div>
+          <div class="step now" title="Implement — текущая"><span class="node">7</span><span class="lbl">Implement</span></div>
+          <div class="step" title="PR"><span class="node">8</span><span class="lbl">PR</span></div>
+        </div>
+      </div>
+
+      <!-- доска атомарных задач: колонки — состояния task'а -->
+      <div class="tboard">
+        <div class="t-col"><div class="t-col-head"><span class="tcd"></span><span class="tct">Очередь</span><span class="tcn">1</span></div>
+          <div class="t-card"><div class="t-title">Снапшот-тест светлой темы</div><div class="t-file">OrbLoaderSnapshotTests.swift</div><div class="t-meta"><span>ждёт слот</span></div></div>
+        </div>
+        <div class="t-col live"><div class="t-col-head"><span class="tcd"></span><span class="tct">Пишется</span><span class="tcn">1</span></div>
+          <div class="t-card live"><div class="t-title">Тесты пульса кольца</div><div class="t-file">OrbLoaderTests.swift</div><div class="t-meta"><span class="tm-live">◉ 3 м 04 с</span><span>·</span><span>+41</span></div></div>
+        </div>
+        <div class="t-col"><div class="t-col-head"><span class="tcd"></span><span class="tct">Ревью</span><span class="tcn">0</span></div>
+          <div class="fold-note">задачи ревьюятся пачкой на выходе стадии</div>
+        </div>
+        <div class="t-col done"><div class="t-col-head"><span class="tcd"></span><span class="tct">Готово</span><span class="tcn">4</span></div>
+          <div class="t-card done"><div class="t-title">Каркас OrbLoaderView</div><div class="t-file">OrbLoaderView.swift</div><div class="t-meta"><span class="tm-ok">✓</span><span>+96</span></div></div>
+          <div class="t-card done"><div class="t-title">Градиент кольца из токенов</div><div class="t-file">OrbLoaderView.swift</div><div class="t-meta"><span class="tm-ok">✓</span><span>+18 −6</span></div></div>
+          <div class="t-card done"><div class="t-title">Пульс через .animation</div><div class="t-file">OrbLoaderView.swift</div><div class="t-meta"><span class="tm-ok">✓</span><span>+12</span></div></div>
+          <div class="t-card done"><div class="t-title">Гард на reduce-motion</div><div class="t-file">OrbLoaderView.swift</div><div class="t-meta"><span class="tm-ok">✓</span><span>+9</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>Дизайн-решения:</b> <b>семантический зум портфель→элемент без модалок</b> (Birdview): доска не сменилась экраном, а уплотнилась до одного change'а — назад тем же движением. <b>Незыблемый якорь</b> (Worldchess): пиктограмма, мнемо-имя, ветка и лейбл стоят в тех же координатах и в той же анатомии, что на карточке доски, — глаз не переискивает, куда он попал. Показан <b>реальный пайплайн этого change'а</b>, а не усреднённый: зум — это место, где точность стадий важнее сопоставимости. Прогресс — <b>заливка самого объекта</b>: пройденные стадии закрашены, а не отдельный бар (Admiral). Колонки здесь — <b>состояния задачи</b>, не стадии CRISPY: уровни не путаются, потому что говорят разными словами. Пустая «Ревью» не пустует молча, а объясняет правило: задачи ревьюятся пачкой на выходе стадии.</div>
+  </section>
+
+  <!-- ——————————————————— §12 РЕВЬЮ СПЕКИ + АТРИБУЦИЯ СКИЛЛОВ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">12 — ревью не-кода</span>
+      <h2>Дифф спеки: блоками и словами, с адресом сбойного скилла</h2>
+      <p>Спека — проза, и построчный дифф на ней врёт: перенос слова красит всю строку. Поэтому единица — <b>смысловой блок</b> и <b>слово внутри абзаца</b>. И раз артефакт написал скилл, ревью чинит не только текст: замечание адресуется <b>конкретному скиллу</b>, чтобы система его исправила.</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">design.md — ревью спеки</span>
+        <div class="spacer"></div>
+        <span class="tb-btn">Дифф</span>
+        <span class="tb-btn icon" title="Читать целиком">¶</span>
+      </div>
+
+      <div class="zoom-anchor">
+        <span class="za-back">‹ Канбан · Design</span>
+        <span class="za-sep">/</span>
+        <span class="za-pict">✦</span>
+        <span class="za-name">Токены тёмной темы</span>
+        <span class="za-branch">feat/dark-theme-tokens</span>
+        <span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span>
+        <div class="za-right"><span>design.md · 214 строк</span><span class="za-sep">·</span><span style="color:var(--t-accent)">◆ ждёт ревью</span></div>
+      </div>
+
+      <div class="spec-dual">
+        <div class="spec-main">
+          <div class="sblock">
+            <div class="sb-head"><span class="sb-title"><span class="sh">§</span> Поверхности</span><span class="sb-skill">spec-writer</span></div>
+            <div class="sb-body">Elevation кодируется <span class="sdel">тенью</span> <span class="sins">светлотой</span>: четыре поверхности <span class="sins">base → surface → raised → overlay</span> с шагом ΔL ≈ 0.03 в OKLCH.</div>
+          </div>
+
+          <div class="sblock flagged">
+            <div class="sb-head"><span class="sb-title"><span class="sh">§</span> Текст и ссылки</span><span class="sb-flag">▲ скилл ошибся</span><span class="sb-skill">spec-writer</span></div>
+            <div class="sb-body">Текст — альфа-белый (92 / 70 / 50 / 38 %). <span class="sdel">Ссылки красим ультрамарином #2F5CFF.</span> <span class="sins">Ни один цвет палитры не идёт текстом: ссылка — text.accent.</span></div>
+            <div class="sb-note"><span class="snw">▲</span><span><b>spec-writer</b> взял ультрамарин как текстовый цвет — это прямо запрещено правилом <span style="color:var(--t-accent)">13 §6</span>. Скилл читает палитру, но не читает ограничения к ней. Замечание уйдёт в его правила, а не только в этот change.</span></div>
+          </div>
+
+          <div class="sblock">
+            <div class="sb-head"><span class="sb-title"><span class="sh">§</span> Семантика статусов</span><span class="sb-skill">spec-writer</span></div>
+            <div class="sb-body">request changes — <span class="sins">warning</span>, не error. «В работе» — циан, «ждёт ревью» — ультрамарин. Статус кодируется <span class="sins">цветом и формой</span> сразу.</div>
+          </div>
+
+          <div class="sblock">
+            <div class="sb-head"><span class="sb-title"><span class="sh">§</span> Источники</span><span class="sb-skill">researcher</span></div>
+            <div class="sb-body">Значения светлот сверены с <span class="sins">APCA</span>; контраст основного текста на bg.base — <span class="sins">Lc 92</span>.</div>
+          </div>
+        </div>
+
+        <aside class="skill-panel">
+          <div class="sp-h">Обратная связь скиллам</div>
+          <div class="sk-item">
+            <span class="sk-name">spec-writer</span><span class="sk-stat">3 блока · 1 ▲</span>
+            <span class="sk-why"><b>Ошибся:</b> цвет палитры текстом (§ Текст). Правило есть, скилл его не применил.</span>
+          </div>
+          <div class="sk-item ok">
+            <span class="sk-name">researcher</span><span class="sk-stat">1 блок · чисто</span>
+            <span class="sk-why">Источники сверены, значения совпали с APCA.</span>
+          </div>
+          <div class="sk-item ok">
+            <span class="sk-name">router</span><span class="sk-stat">тип · чисто</span>
+            <span class="sk-why">Фича · один сервис — пайплайн выбран верно.</span>
+          </div>
+          <div class="fold-note">замечание меняет правила скилла,<br>а не только этот артефакт</div>
+        </aside>
+      </div>
+
+      <div class="actionbar">
+        <div class="btns">
+          <span class="btn secondary">Вернуть на доработку <kbd>⇧⌘R</kbd></span>
+          <span class="btn primary">Принять <kbd>⌘⏎</kbd></span>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>Дизайн-решения:</b> единица диффа — <b>смысловой блок и слово</b>, не строка: на прозе построчный дифф красит целый абзац из-за одного переноса и врёт о размере правки. Каждый блок несёт <b>атрибуцию скилла</b> — иначе замечание некому адресовать. Скилл-чип — пурпур: он не спорит с ультрамарином-акцентом и не занимает семантику статусов. Пометка «скилл ошибся» — <b>warning, не error</b>: это не поломка, а промах правила (канон: request changes = warning). Замечание объясняет <b>почему</b> и ссылается на пункт правила (Jurist-Laws), а панель справа собирает <b>обратную связь по скиллам</b>, а не по строкам: ревью чинит систему, а не только артефакт. Чисто отработавшие скиллы показаны приглушённо — видно и то, что сработало.</div>
+  </section>
+
+  <!-- ——————————————————— §13 РОУТИНГ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">13 — роутинг</span>
+      <h2>Почему этот change попал в этот пайплайн</h2>
+      <p>Роутинг — стадия, а не магия: change получает тип и характеристики, и из них следует пайплайн. Экран показывает не вердикт, а <b>основания</b>: что именно роутер увидел и на чём решил. Слабое место названо вслух, а решение можно переопределить.</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — роутинг change'а</span>
+      </div>
+      <div class="zoom-anchor">
+        <span class="za-back">‹ Инбокс</span>
+        <span class="za-sep">/</span>
+        <span class="za-pict">✦</span>
+        <span class="za-name">Центр уведомлений</span>
+        <span class="za-branch">feat/notif-center</span>
+        <span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span>
+        <div class="za-right"><span class="rv-skill">router</span><span class="za-sep">·</span><span>8 с</span></div>
+      </div>
+
+      <div class="route-dual">
+        <div class="route-main">
+          <div class="sig">
+            <span class="sig-k">Тип</span><span class="sig-v">Фича <span class="conf">уверенно</span></span>
+            <span class="sig-why">В тикете <q>«добавить центр уведомлений»</q> — новое поведение, не починка. Нет слов «падает», «регресс», «инцидент».</span>
+          </div>
+          <div class="sig">
+            <span class="sig-k">Охват</span><span class="sig-v">Один сервис <span class="conf">уверенно</span></span>
+            <span class="sig-why">Затронут только <q>foundry-desktop</q>: нет вызовов чужих контрактов, нет схем в общих пакетах.</span>
+          </div>
+          <div class="sig low">
+            <span class="sig-k">Риск</span><span class="sig-v">Средний <span class="conf">спорно</span></span>
+            <span class="sig-why">Миграций и публичного API нет, но задача трогает <q>UserNotifications</q> — системное разрешение и фон. Роутер поднял риск сам и просит подтвердить.</span>
+          </div>
+          <div class="sig">
+            <span class="sig-k">Категория</span><span class="sig-v">Бизнес</span>
+            <span class="sig-why">Лейбл проекта <q>foundry-desktop · бизнес</q> — берётся из проекта, не угадывается.</span>
+          </div>
+        </div>
+
+        <aside class="route-out">
+          <div class="sp-h">Следует пайплайн</div>
+          <div class="ro-pick">
+            <div class="ro-name">Фича · один сервис</div>
+            <div class="ro-meta">CRISPY · 8 стадий</div>
+            <div class="ro-stages">
+              <span class="ro-st">Questions</span><span class="ro-st">Research</span><span class="ro-st">Design</span><span class="ro-st">Structure</span><span class="ro-st">Plan</span><span class="ro-st">Worktree</span><span class="ro-st">Implement</span><span class="ro-st">PR</span>
+            </div>
+          </div>
+          <div class="ro-alt"><b>Если риск подтвердить высоким</b> — пайплайн станет «Фича · один сервис · с проверкой разрешений»: добавятся две стадии.</div>
+          <div class="ro-stages">
+            <span class="ro-st">…</span><span class="ro-st add">+ Права и приватность</span><span class="ro-st add">+ Ручной прогон</span>
+          </div>
+          <div class="btns" style="margin-top:auto">
+            <span class="btn secondary">Риск высокий <kbd>⇧⌘H</kbd></span>
+            <span class="btn primary">Принять роутинг <kbd>⌘⏎</kbd></span>
+          </div>
+        </aside>
+      </div>
+    </div>
+    <div class="caption"><b>Дизайн-решения:</b> роутер показывает <b>факт, а не прогноз</b> (Birdview): у каждого признака — цитата из тикета или из кода, на которой он решил, а не «уверенность 87 %». <b>Слабое звено названо вслух</b>: спорный признак — единственный warning на экране, он и есть то, что просят подтвердить (один акцент на зону). Видно <b>последствие</b> решения: как изменится пайплайн, если поднять риск, — до нажатия, а не после (мини-превью результата, Untitled UI). Роутер — такой же <b>скилл с атрибуцией</b>, как в §12: он тоже может ошибиться и получить замечание.</div>
+  </section>
+
+  <!-- ——————————————————— §14 СКВОЗНОЙ ВИД ПО ЗАДАЧАМ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">14 — все атомарные задачи</span>
+      <h2>Вид сверху по задачам, поперёк всех change'ей</h2>
+      <p>Канбан по change'ам отвечает «где какой change». Этот вид отвечает на другой вопрос: <b>что прямо сейчас делается атомарно</b> и что застряло. Здесь важен не пайплайн, а список: задач много, они мелкие, их сравнивают глазами по колонкам.</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — атомарные задачи · все change'и</span>
+      </div>
+      <div class="tx-bar">
+        <span>Группировать:</span>
+        <span class="tx-seg"><span class="on">без группы</span><span>по change</span><span>по сервису</span></span>
+        <span class="sdiv">·</span><span>23 задачи · 3 пишутся · <span style="color:var(--sem-warning)">1 застряла</span></span>
+      </div>
+      <table class="txtable">
+        <thead><tr><th>Задача</th><th>Change</th><th>Сервис</th><th>Состояние</th><th class="num">Время</th></tr></thead>
+        <tbody>
+          <tr class="stall">
+            <td class="tx-task">Тест: детектор не ловит луп без вывода</td>
+            <td><span class="tx-ch"><span class="p">⚑</span>Детектор зависших лупов</span></td>
+            <td><span class="plbl"><span class="lcat">▣</span><span class="lsvc">crispy-core</span></span></td>
+            <td><span class="tx-st warn">▲ застряла</span></td>
+            <td class="num">40 мин</td>
+          </tr>
+          <tr>
+            <td class="tx-task">Тесты пульса кольца</td>
+            <td><span class="tx-ch"><span class="p">✦</span>Орб-лоадер</span></td>
+            <td><span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span></td>
+            <td><span class="tx-st live">◉ пишется</span></td>
+            <td class="num">3 м 04 с</td>
+          </tr>
+          <tr>
+            <td class="tx-task">Сбор ссылок по Liquid Glass</td>
+            <td><span class="tx-ch"><span class="p">⌕</span>Liquid Glass</span></td>
+            <td><span class="plbl"><span class="lcat">▣</span><span class="lsvc">crispy-core</span></span></td>
+            <td><span class="tx-st live">◉ пишется</span></td>
+            <td class="num">1 м 12 с</td>
+          </tr>
+          <tr>
+            <td class="tx-task">Снапшот-тест светлой темы</td>
+            <td><span class="tx-ch"><span class="p">✦</span>Орб-лоадер</span></td>
+            <td><span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span></td>
+            <td><span class="tx-st q">○ ждёт слот</span></td>
+            <td class="num">—</td>
+          </tr>
+          <tr>
+            <td class="tx-task">Гард на reduce-motion</td>
+            <td><span class="tx-ch"><span class="p">✦</span>Орб-лоадер</span></td>
+            <td><span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span></td>
+            <td><span class="tx-st ok">✓ готово</span></td>
+            <td class="num">2 мин</td>
+          </tr>
+          <tr>
+            <td class="tx-task">Глава 13: таблица токенов</td>
+            <td><span class="tx-ch"><span class="p">¶</span>Стадии CRISPY</span></td>
+            <td><span class="plbl"><span class="lcat">◆</span><span class="lsvc">memory-vault</span></span></td>
+            <td><span class="tx-st ok">✓ готово</span></td>
+            <td class="num">6 мин</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="caption"><b>Дизайн-решения:</b> здесь <b>таблица, а не доска</b> — и это осознанный отказ от парности: у атомарной задачи нет пайплайна, её состояние — короткий словарь, а сравнивают их по колонкам (десятки мелких строк, канон гл. 10). Change показан <b>той же пиктограммой и тем же мнемо-именем</b>, что везде, — уровни связаны узнаванием, а не хлебными крошками. Цветом сказано только про <b>отклонение</b>: застрявшая строка — единственная подкрашенная, остальное нейтрально (FXPro). Время — <b>tabular</b> и вправо: колонка чисел сравнивается взглядом.</div>
+  </section>
+
+  <!-- ——————————————————— §15 КАНБАН РЕВЬЮ АРТЕФАКТОВ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">15 — очередь ревью</span>
+      <h2>Канбан ревью артефактов: код и не-код в одной очереди</h2>
+      <p>Ревью — поперечный процесс: артефакты копятся на выходах разных стадий разных пайплайнов. Поэтому у очереди свой борд, и колонки здесь — <b>состояния ревью</b>, а не стадии. Спека и дифф стоят рядом: для человека это одна работа.</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — очередь ревью</span>
+        <div class="spacer"></div>
+        <span class="tb-btn">Смотреть по очереди <kbd>⌘⏎</kbd></span>
+      </div>
+      <div class="tboard">
+        <div class="t-col"><div class="t-col-head"><span class="tcd"></span><span class="tct">Ждут тебя</span><span class="tcn">3</span></div>
+          <div class="t-card rv-card"><div class="rv-top"><span class="rv-kind spec">спека</span><span class="rv-file">design.md</span></div><div class="rv-ch">✦ Токены тёмной темы · Design</div><div class="rv-foot"><span class="rv-skill">spec-writer</span><span>12 мин</span></div></div>
+          <div class="t-card rv-card"><div class="rv-top"><span class="rv-kind">план</span><span class="rv-file">plan.md</span></div><div class="rv-ch">¶ Стадии CRISPY · Plan · 6 tasks</div><div class="rv-foot"><span class="rv-skill">decomposer</span><span>1 ч</span></div></div>
+          <div class="t-card rv-card"><div class="rv-top"><span class="rv-kind code">дифф</span><span class="rv-file">+96 −12</span></div><div class="rv-ch">⚑ Контраст по APCA · PR</div><div class="rv-foot"><span class="rv-skill">impl-swift</span><span>4 мин</span></div></div>
+        </div>
+        <div class="t-col live"><div class="t-col-head"><span class="tcd"></span><span class="tct">Смотрю</span><span class="tcn">1</span></div>
+          <div class="t-card rv-card live"><div class="rv-top"><span class="rv-kind spec">спека</span><span class="rv-file">contract.md</span></div><div class="rv-ch">✦ Центр уведомлений · Контракты</div><div class="rv-foot"><span class="rv-skill">contract-designer</span><span style="color:var(--brand-cyan)">◉ открыт</span></div></div>
+        </div>
+        <div class="t-col"><div class="t-col-head"><span class="tcd" style="background:var(--sem-warning)"></span><span class="tct">Вернул</span><span class="tcn">1</span></div>
+          <div class="t-card rv-card"><div class="rv-top"><span class="rv-kind spec">спека</span><span class="rv-file">design.md</span></div><div class="rv-ch">⟳ Хранилище инбокса · Design</div><div class="rv-foot"><span class="rv-skill" style="color:var(--sem-warning)">▲ spec-writer</span><span>вчера</span></div></div>
+        </div>
+        <div class="t-col done"><div class="t-col-head"><span class="tcd"></span><span class="tct">Принято · июль</span><span class="tcn">18</span></div>
+          <div class="t-card rv-card done"><div class="rv-top"><span class="rv-kind code">дифф</span><span class="rv-file">+310 −24</span></div><div class="rv-ch">✦ Орб-иконка · PR</div><div class="rv-foot"><span class="rv-skill">impl-swift</span><span>вчера</span></div></div>
+          <div class="fold-note">+17 раньше · схлопнется 1 авг</div>
+        </div>
+      </div>
+    </div>
+    <div class="caption"><b>Дизайн-решения:</b> <b>колонки — состояния ревью</b>, не стадии: очередь поперечна пайплайнам, и стадия здесь лишь адрес карточки («Design», «PR»). Тип артефакта — <b>чип формой и словом</b> («спека» / «план» / «дифф»), потому что ревью спеки и ревью диффа — разная работа, и глаз должен делить их до чтения. Каждый артефакт несёт <b>скилл-автора</b>: возврат адресуется скиллу (§12), поэтому автор виден уже в очереди, а возвращённая карточка помечает скилл warning'ом. «Смотрю» — <b>ровно одна карточка</b>: очередь ревью однопоточна, это дисциплина, а не ограничение. «Принято» живёт <b>календарным месяцем</b>, как и на доске change'ей (§6), — одно понятие спринта на весь продукт.</div>
+  </section>
+
   <footer class="note">
     Все значения — из <code>docs/design/13-tokens.md</code> (единственный источник): поверхности через светлоту,
     текст альфа-белым, request changes = warning, «в работе» = циан, «ждёт ревью» = ультрамарин, один glow на зону,
@@ -1946,6 +2452,20 @@
     в узкой панели; <b>заголовки карт канбана</b> резались в «…» — мнемо-имя теперь переносится в 2 строки целиком
     (узнаваемость важнее, карта вертикально просторна); <b>лишние блики</b> — свечение орба в пресетах тем осталось
     только на выбранной теме (один glow на зону, канон), плоские орбы у «Контраст +» и залоченной «Светлой».
+    <br><br>
+    <b>Ревизия v10 — доменная модель в экранах.</b> Модель зафиксирована в
+    <code>reference/ui/domain-model.md</code>: проект (лейблы) → change (артефакты) → роутинг
+    (тип + характеристики) → пайплайн (свой у типа) → стадия (артефакты вход/выход, ревью) →
+    атомарные tasks. Решения по развилкам: <b>доска на каждый пайплайн</b> (колонки — точные стадии,
+    не усреднённые фазы) и <b>спринт = календарный месяц</b> (done схлопывается по границе).
+    Переработана <b>§6</b> — переключатель пайплайнов как виджет-сводка, артефакт в шапке колонки,
+    лейбл проекта категорией-формой, пустая стадия схлопывается в полоску (УВЛ), Готово живёт месяцем.
+    Новые экраны: <b>§11</b> семантический зум change → его атомарные tasks без модалки (Birdview)
+    с незыблемым якорем (Worldchess); <b>§12</b> дифф спеки блоками и словами + атрибуция скилла и
+    обратная связь ему (ревью чинит систему, а не только артефакт); <b>§13</b> объяснимый роутинг —
+    факт вместо прогноза (Birdview), последствие решения видно до нажатия; <b>§14</b> сквозной вид по
+    атомарным задачам таблицей (осознанный отказ от парности: у задачи нет пайплайна); <b>§15</b>
+    очередь ревью артефактов — код и не-код рядом, колонки = состояния ревью.
   </footer>
 
 </div>
