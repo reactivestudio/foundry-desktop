@@ -1,0 +1,52 @@
+name: '[CI] PR checks'
+
+on:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-changes:
+    name: Проверить изменения
+    # Раннер пиннится осознанно, не macos-latest: от версии зависят снапшот-голдены
+    # (практики, глава 07 §4). macOS-минуты стоят 10× Linux — держим одну тонкую джобу.
+    runs-on: macos-26
+    timeout-minutes: 20
+
+    steps:
+      - name: Получить исходники
+        uses: actions/checkout@v7
+
+      - name: Восстановить кэш SPM
+        uses: actions/cache@v6
+        with:
+          path: |
+            Packages/FoundryKit/.build
+            ~/Library/Caches/org.swift.swiftpm
+          key: spm-${{ runner.os }}-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Проверить форматирование
+        run: |
+          swift format lint --strict --recursive \
+            Packages/FoundryKit/Sources Packages/FoundryKit/Tests App
+
+      - name: Прогнать тесты пакета
+        working-directory: Packages/FoundryKit
+        run: swift test
+
+      # Приложение собирается без подписи: проверяем, что xcodeproj + пакет
+      # сходятся, а не готовим дистрибутив (этим занят release.yml).
+      - name: Собрать приложение
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project Foundry.xcodeproj \
+            -scheme Foundry \
+            -configuration Release \
+            -destination 'platform=macOS,arch=arm64' \
+            -derivedDataPath .build/DerivedData \
+            CODE_SIGN_IDENTITY=- \
+            | xcbeautify

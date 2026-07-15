@@ -2,7 +2,7 @@
 
 > Серия practices · [оглавление](README.md)
 
-Контекст: foundry-desktop — SwiftUI-приложение (Swift 6.3, Xcode 26.x, macOS 26),
+Контекст: foundry-desktop — SwiftUI-приложение (Swift 6.2.x, Xcode 26.x, target macOS 15),
 основной автор кода — AI-агент через CLI. Тесты — главный механизм, которым агент
 проверяет собственную работу, поэтому весь стек качества обязан быть запускаемым
 и парсируемым из терминала. Про сборку и CI — [глава 08](08-project-tooling-distribution.md).
@@ -487,7 +487,7 @@ foundry-команд, индексацию, миграции GRDB, первый 
 
 MetricKit на macOS — усечённый и в процессе редизайна; сам по себе недостаточен.
 Позиция проекта: телеметрии нет; при репорте бага пользователь прикладывает
-`~/Library/Logs/DiagnosticReports/FoundryDesktop-*.ips` и экспорт `log show`.
+`~/Library/Logs/DiagnosticReports/Foundry-*.ips` и экспорт `log show`.
 Если когда-нибудь захочется автоматики — Sentry (opt-in, `beforeSend`-скраббинг),
 не раньше.
 
@@ -552,7 +552,7 @@ swift test --filter FoundryCLITests          # точечно
 
 ```bash
 set -o pipefail && xcodebuild test \
-  -project FoundryDesktop.xcodeproj -scheme FoundryDesktop \
+  -project Foundry.xcodeproj -scheme Foundry \
   -destination 'platform=macOS,arch=arm64' \
   -resultBundlePath .build/Tests.xcresult \
   | xcbeautify

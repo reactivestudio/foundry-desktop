@@ -1,0 +1,159 @@
+name: '[CD] publish dmg'
+
+on:
+  # Релиз создаёт человек в GitHub — этот workflow только собирает дистрибутивы
+  # и прикрепляет их к уже созданному релизу. Тег при создании релиза заводится
+  # самим GitHub, отдельный триггер на push тега не нужен.
+  release:
+    types: [published]
+  # Пробный прогон без релиза: собирает дистрибутивы и кладёт их в артефакты
+  # прогона, релиз не трогает.
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Версия без префикса v (например 0.1.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  attach-distributions:
+    name: Собрать и прикрепить дистрибутивы
+    runs-on: macos-26
+    timeout-minutes: 30
+
+    steps:
+      - name: Получить исходники
+        uses: actions/checkout@v7
+        with:
+          # CURRENT_PROJECT_VERSION считается как git rev-list --count HEAD —
+          # на shallow-клоне число будет неверным и перестанет монотонно расти.
+          fetch-depth: 0
+
+      - name: Определить версию
+        id: version
+        # Входные данные приходят через env, а не подстановкой ${{ }} в тело
+        # скрипта — иначе значение инпута исполняется как shell-код.
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ -n "$RELEASE_TAG" ]; then
+            version="${RELEASE_TAG#v}"
+          else
+            version="$INPUT_VERSION"
+          fi
+          # Строго X.Y.Z, без пре-релизных суффиксов: имя дистрибутива
+          # (Foundry-X.Y.Z.dmg) обязано попадать под шаблон уборки старых
+          # дистрибутивов ниже. Иначе сборка осела бы на релизе навсегда —
+          # уборка её не узнает. Глоб для этого слишком дыряв: под
+          # [0-9]*.[0-9]*.[0-9]* проходят и '0.1.0-beta', и '0abc.1def.2ghi'.
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "!! Ожидалась версия вида X.Y.Z, получено: '$version'" >&2
+            exit 64
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Версия релиза: $version"
+
+      - name: Восстановить кэш SPM
+        uses: actions/cache@v6
+        with:
+          path: |
+            Packages/FoundryKit/.build
+            ~/Library/Caches/org.swift.swiftpm
+          key: spm-${{ runner.os }}-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Прогнать тесты пакета
+        working-directory: Packages/FoundryKit
+        run: swift test
+
+      - name: Собрать дистрибутив
+        run: ./scripts/build-release.sh '${{ steps.version.outputs.version }}'
+
+      - name: Сохранить дистрибутив в артефакты прогона
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v7
+        with:
+          name: Foundry-${{ steps.version.outputs.version }}
+          path: dist/*
+          if-no-files-found: error
+
+      # Отдельным шагом до загрузки: при повторном прогоне на релизе остаётся
+      # дистрибутив прошлой сборки, а при смене версии его имя не совпадёт с
+      # новым — --clobber бы его не перезаписал, и к релизу оказались бы
+      # прикреплены две разные версии сразу.
+      - name: Удалить старые дистрибутивы из релиза
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          # Удаляются только наши дистрибутивы: всё остальное, что человек
+          # прикрепил к релизу руками, workflow трогать не должен. Поэтому
+          # шаблон требует ровно X.Y.Z, а не '.*': иначе под удаление попал бы
+          # и приложенный руками Foundry-0.1.2-dSYMs.zip. В шаблоне оставлены
+          # прежние имена (FoundryDesktop-*, ZIP), чтобы подчистить релизы,
+          # куда их клал workflow до переименования.
+          stale=$(gh release view "$RELEASE_TAG" --json assets --jq \
+            '.assets[].name | select(test("^Foundry(Desktop)?-[0-9]+\\.[0-9]+\\.[0-9]+\\.(dmg|zip)$"))')
+          if [ -z "$stale" ]; then
+            echo "Старых дистрибутивов нет"
+            exit 0
+          fi
+          echo "$stale" | while read -r asset; do
+            echo "Удаляю $asset"
+            gh release delete-asset "$RELEASE_TAG" "$asset" --yes
+          done
+
+      - name: Прикрепить дистрибутив к релизу
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release upload "$RELEASE_TAG" \
+            "dist/Foundry-$VERSION.dmg" \
+            --clobber
+
+      # Без инструкции скачанный дистрибутив бесполезен: сборка ad-hoc, и
+      # Gatekeeper блокирует её при первом запуске.
+      - name: Дополнить описание релиза инструкцией по установке
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release view "$RELEASE_TAG" --json body --jq '.body' > /tmp/body.md
+          # Маркер делает шаг идемпотентным: повторный прогон не приклеит
+          # инструкцию второй раз и не затрёт то, что написал человек.
+          if grep -q 'install-instructions' /tmp/body.md; then
+            echo "Инструкция уже на месте"
+            exit 0
+          fi
+
+          cat >> /tmp/body.md <<EOF
+
+          <!-- install-instructions -->
+          ## Установка
+
+          Скачай **Foundry-$VERSION.dmg**, открой и перетащи \`Foundry.app\`
+          в \`Applications\`.
+
+          Сборка подписана ad-hoc, без Developer ID и notarization, поэтому при первом
+          запуске macOS её заблокирует («приложение повреждено» или «неизвестный
+          разработчик»). Это ожидаемо. Сними карантин:
+
+          \`\`\`sh
+          xattr -dr com.apple.quarantine /Applications/Foundry.app
+          \`\`\`
+
+          Либо: правый клик по приложению → **Открыть** → **Открыть** в диалоге.
+
+          Universal (Apple Silicon + Intel), требуется macOS 15+.
+          EOF
+
+          gh release edit "$RELEASE_TAG" --notes-file /tmp/body.md

@@ -4,7 +4,7 @@
 
 Эта глава — про **поведение**: что должно происходить при клике, шорткате, drag'е и перезапуске, чтобы foundry-desktop ощущался родным Mac-приложением, а не Electron-подделкой или iPad-портом. Визуальный слой (Liquid Glass, типографика, паттерны экранов) — в [05-ui-design.md](05-ui-design.md). Код сцен, окон и state-менеджмента — в [03-swiftui-architecture.md](03-swiftui-architecture.md).
 
-Таргет: **macOS 26 SDK (Tahoe), Xcode 26**. macOS 27 "Golden Gate" (осень 2026) поведенческих конвенций не меняет — только шлифует визуал.
+Таргет: сборка против **macOS 26 SDK (Xcode 26)**, **deployment target — macOS 15 Sequoia**. Поведенческие конвенции главы от версии macOS не зависят; редкие 15+-пометки (`.pointerStyle`) уже в пределах таргета.
 
 ---
 
@@ -354,7 +354,7 @@ extension Artifact: Transferable {
 - Чарты аналитики — accessibility descriptions + **Audio Graphs** (`AXChartDescriptor`).
 - Заголовки секций — traits `.isHeader` для rotor-навигации.
 - Тест — Accessibility Inspector (Xcode) + живой прогон VoiceOver (⌘F5) по канбану и ревью.
-- С 2025 в App Store — **Accessibility Nutrition Labels**: декларация поддерживаемых фич. Заполняем честно.
+- ⚠️ Не применимо: **Accessibility Nutrition Labels** (с 2025) — требование страницы App Store, а мы вне MAS навсегда ([глава 06 §7](06-system-integration.md), [глава 08 §4](08-project-tooling-distribution.md)). Практики доступности выше действуют независимо от канала дистрибуции.
 
 ### 5.2 Keyboard-only
 
