@@ -147,8 +147,8 @@
   .tb-btn:hover { background: rgba(255,255,255,0.06); }
 
   /* трёхпанельная сетка */
-  .three { display: grid; grid-template-columns: 232px minmax(0,1fr) 340px; min-height: 640px; }
-  @media (max-width: 900px){ .three { grid-template-columns: 1fr; } .pane.sidebar,.pane.inspector{ display:none; } }
+  .three { display: grid; grid-template-columns: 44px 214px minmax(0,1fr) 332px; min-height: 640px; }
+  @media (max-width: 900px){ .three { grid-template-columns: 44px 1fr; } .pane.sidebar,.pane.inspector{ display:none; } }
 
   .pane { min-width: 0; }
   .pane.sidebar {
@@ -163,6 +163,9 @@
   .pane.inspector { background: var(--bg-surface); display: flex; flex-direction: column; }
 
   /* сайдбар */
+  /* раздел назван словом — это плата за рейл из одних иконок:
+     пиктограмма подсвечена, но «где я» отвечает текст, а не догадка */
+  .side-head { font-size: 14px; font-weight: 600; color: var(--t-primary); padding: 0 var(--s2) var(--s2); }
   .side-label { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-tertiary); padding: 0 var(--s2) var(--s1); }
   .side-item {
     display: flex; align-items: center; gap: var(--s2); height: 28px; padding: 0 var(--s2);
@@ -1210,6 +1213,72 @@
   .ins-src { font-size: 10px; color: var(--t-disabled); line-height: 1.5; padding-top: var(--s2); border-top: 1px dashed var(--b-subtle); }
   .ins-src b { color: var(--t-tertiary); font-weight: 600; }
 
+  /* ——————————————————————————————————————————————————————————————
+     ВОЗДУХ МЕЖДУ ПАНЕЛЯМИ (v15) — касается всех экранов
+     Референс: OrbitStack (reference/ui/behance/orbitstack-02.png) — панель
+     лежит карточкой на подложке, а не примыкает к соседней.
+     Довод: линейка — нарисованный объект, который спорит за внимание; зазор
+     группирует близостью и не стоит ни капли краски. Это тот же приём «воздух
+     вместо линеек», который в ревизии v3 применили к строкам инбокса, — теперь
+     уровнем выше, панель к панели.
+     Стек светлот берём прямо из токенов и наконец применяем честно:
+     окно — base (стол) · панель — surface (карточка на столе) · элемент внутри
+     панели — raised. До этого content-панели были base, а боковые surface —
+     перепад ничего не значил.
+     ——————————————————————————————————————————————————————————————— */
+  .three, .diff-dual, .spec-dual, .route-dual, .ins-dual, .skl-dual, .prj-dual {
+    gap: var(--s2); padding: var(--s2); background: var(--bg-base);
+  }
+  .pane.sidebar, .pane.list, .pane.inspector,
+  .diff-main, .risk-panel, .spec-main, .skill-panel, .route-main, .route-out,
+  .ins-main, .ins-side, .skl-list, .skl-pane, .prj-list, .prj-pane {
+    background: var(--bg-surface);
+    border: 1px solid var(--b-subtle);
+    border-radius: var(--r-l);
+    overflow: hidden;
+  }
+  /* линейки-разделители панелей больше не нужны: их работу делает зазор */
+  .pane.sidebar, .diff-main, .spec-main, .route-main, .ins-main, .skl-list, .prj-list { border-right: none; }
+  /* то, что было surface на base, поднимается на raised — иначе сольётся с панелью */
+  .skl-fact, .dg-head, .sb-head, .list-head { background: var(--bg-raised); }
+  .skl-card, .prj-card { background: none; }
+
+  /* ——— рейл разделов (Okashi: «узкий левый icon-rail», user-refs.md) ———
+     Только иконки и альты. Иконка без подписи двусмысленна, поэтому раздел
+     всегда назван словом в шапке соседней панели: где ты находишься, видно
+     текстом, а не только подсветкой пиктограммы.
+     Рейл не добавлен сверху, а забрал навигацию, размазанную по экрану:
+     сегмент «Инбокс · Канбан · Лог» из шапки списка убран (УВЛ). */
+  .rail { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: var(--s2) 0;
+          background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l); }
+  .rl { position: relative; width: 30px; height: 30px; border-radius: var(--r-m); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--t-tertiary); }
+  .rl:hover { background: rgba(255,255,255,0.06); color: var(--t-secondary); }
+  .rl.sel { background: rgba(47,92,255,0.16); color: var(--t-accent); }
+  .rl-sp { flex: 1; }
+  /* бейдж-счётчик в навигации (Chainview) — нейтральный, кроме требующего решения */
+  .rl-b { position: absolute; top: 1px; right: 1px; min-width: 12px; height: 12px; padding: 0 3px; border-radius: var(--r-full);
+          background: rgba(255,255,255,0.16); color: var(--t-primary); font-size: 8px; font-weight: 600;
+          display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
+  .rl-b.warn { background: var(--sem-warning); color: #201700; }
+  /* альт: в приложении — системный тултип; здесь показан у наведённого пункта */
+  .rl-tip { position: absolute; left: 37px; top: 50%; transform: translateY(-50%); white-space: nowrap; z-index: 6;
+            background: var(--bg-overlay); border: 1px solid var(--b-default); border-radius: var(--r-m);
+            padding: 4px 9px; font-size: 11px; color: var(--t-primary); box-shadow: 0 8px 24px -8px rgba(0,0,0,0.8); }
+  .rl-tip kbd { margin-left: 7px; color: var(--t-disabled); font-family: var(--font-mono); font-size: 9px; }
+
+  /* низ сайдбара — карточка статуса агента (Chainview: промо-карточка внизу сайдбара).
+     Расход лимита здесь тот же, что метрика в §19: цена работы видна всегда, а не только в отчёте */
+  .agent-card-s { margin-top: auto; border: 1px solid var(--b-subtle); border-radius: var(--r-m); padding: 9px; background: rgba(255,255,255,0.02); }
+  .acs-h { display: flex; align-items: center; gap: 7px; }
+  .acs-n { font-size: 11px; color: var(--t-secondary); }
+  .acs-m { margin-left: auto; font-family: var(--font-mono); font-size: 9px; color: var(--t-disabled); }
+  .acs-slots { display: flex; gap: 3px; margin-top: 8px; }
+  .acs-slots i { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.10); }
+  .acs-slots i.on { background: var(--brand-cyan); }
+  .acs-l { display: flex; justify-content: space-between; font-size: 9px; color: var(--t-disabled); margin-top: 7px; }
+  .acs-bar { height: 3px; border-radius: 2px; background: rgba(255,255,255,0.10); margin-top: 3px; overflow: hidden; }
+  .acs-bar i { display: block; height: 100%; width: 62%; background: rgba(255,255,255,0.32); border-radius: 2px; }
+
   /* появление */
   @media (prefers-reduced-motion: no-preference){
     .win, .variant, .kpi, .small-mult { animation: rise 0.5s ease-out both; }
@@ -1262,8 +1331,8 @@
   <section class="block">
     <div class="sec-head">
       <span class="sec-num">01 — основной макет</span>
-      <h2>Главное окно: сайдбар · инбокс ревью · инспектор</h2>
-      <p>Асимметричный трёхпанельник по мотиву «Секьюриджи»: узкий список слева, широкая деталь справа, а зона «требуют внимания» всегда прижата к верху и не тонет в потоке. Плотность десктопная, хром — системный Liquid Glass, данные — на <code style="font-family:var(--font-mono);font-size:11px;color:var(--t-accent)">bg.base</code>.</p>
+      <h2>Главное окно: рейл · сайдбар · инбокс ревью · инспектор</h2>
+      <p>Асимметричный панельник по мотиву «Секьюриджи»: узкий список слева, широкая деталь справа, а зона «требуют внимания» всегда прижата к верху и не тонет в потоке. Слева — <b>рейл разделов</b> (Okashi): только иконки и альты. Панели <b>не примыкают</b> — между ними видна подложка окна (OrbitStack): границу держит зазор, а не линейка.</p>
     </div>
 
     <div class="win">
@@ -1276,10 +1345,27 @@
       </div>
 
       <div class="three">
+        <!-- рейл разделов: только иконки и альты (Okashi). Раздел назван словом
+             в шапке соседней панели — иконка одна не отвечает «где я» -->
+        <nav class="rail">
+          <span class="rl sel" title="Инбокс"><span>▤</span><span class="rl-b warn">2</span></span>
+          <span class="rl" title="Канбан"><span>▦</span></span>
+          <span class="rl" title="Ревью артефактов"><span>✓</span><span class="rl-b">5</span></span>
+          <span class="rl" title="Задачи"><span>≡</span></span>
+          <span class="rl" title="Проекты"><span>◇</span></span>
+          <span class="rl" title="Insights"><span>◔</span></span>
+          <span class="rl" title="Скиллы"><span>✎</span>
+            <span class="rl-tip">Скиллы<kbd>⌘7</kbd></span>
+          </span>
+          <span class="rl-sp"></span>
+          <span class="rl" title="Настройки"><span>⚙</span></span>
+        </nav>
+
         <!-- сайдбар -->
         <aside class="pane sidebar">
+          <div class="side-head">Инбокс</div>
           <div class="side-sec">
-            <div class="side-label">Проекты</div>
+            <div class="side-label">Фильтр по проекту</div>
             <div class="side-item sel"><span class="ico">◆</span><span class="grow">foundry-desktop</span><span class="count pill">3</span></div>
             <div class="side-item"><span class="ico">◆</span><span class="grow">crispy-core</span><span class="count pill">2</span></div>
             <div class="side-item"><span class="ico">◇</span><span class="grow">memory-vault</span><span class="count">1</span></div>
@@ -1294,7 +1380,15 @@
             <div class="side-item"><span class="ico">✓</span><span class="grow">Готово сегодня</span><span class="count">9</span></div>
             <div class="side-hint">Клик по счётчику — фильтр списка. Виджет-сводка и есть пульт: отдельной панели фильтров нет.</div>
           </div>
-          <div class="side-foot"><span class="orb"></span><span>Claude активен · 2 лупа</span></div>
+          <!-- карточка статуса агента внизу сайдбара (Chainview): расход лимита —
+               та же метрика, что в §19, но видна всегда, а не только в отчёте -->
+          <div class="agent-card-s">
+            <div class="acs-h"><span class="orb"></span><span class="acs-n">Claude</span><span class="acs-m">Opus 4.8</span></div>
+            <div class="acs-slots"><i class="on"></i><i class="on"></i><i></i></div>
+            <div class="acs-l"><span>2 из 3 слотов заняты</span></div>
+            <div class="acs-l" style="margin-top:9px"><span>Лимит недели</span><span>≈ 62 %</span></div>
+            <div class="acs-bar"><i></i></div>
+          </div>
         </aside>
 
         <!-- список ревью -->
@@ -1303,7 +1397,6 @@
             <span class="filter-token">Все на ревью <span class="x">✕</span></span>
             <div style="flex:1"></div>
             <span class="filter-ghost"><span class="fkey">A–Z</span> печатай — фильтр</span>
-            <div class="seg"><span class="on">Инбокс</span><span>Канбан</span><span>Лог</span></div>
           </div>
 
           <!-- секции по приоритету, не по проекту (Superpedestrian); заголовки в инфостиле (Бирман) -->
@@ -1437,7 +1530,7 @@
         </aside>
       </div>
     </div>
-    <div class="caption"><b>Дизайн-решения (каждое — из проекта бюро):</b> строка названа <b>мнемо-именем</b>, а хеш-ветка ушла во вторую строку — «Контраст по APCA» ищется глазом быстрее, чем <code style="font-family:var(--font-mono)">feat/apc-contrast</code> (Admiral). Тип change'а — <b>пиктограмма-якорь</b> в начале, опознаётся периферией (Главбух). Позиция в 8 стадиях CRISPY — <b>словами в строке</b> («стадия 3 из 8»), а графический прогресс не дублируется: живёт в большом степпере инспектора, где заливается объект (Admiral + УВЛ Горбунова — убрать лишний рейл из строки). Секции — <b>по приоритету, не по проекту</b>: решать → ждёт → пишется (Superpedestrian), а заголовки в инфостиле-глаголах (Бирман). Подсвечены ровно <b>две опорные строки</b> — «дольше всех» и «крупный дифф», остальное нейтрально (Onetwotrip). Счётчик в сайдбаре <b>и есть фильтр</b> — отдельной панели нет (Superpedestrian). Число получает <b>базлайн</b>: «3 · норма 2» (Бирман). Live-лупы — <b>в закреплённой полосе</b> у нижней кромки, не вперемешку с очередью (FXPro). Печать где угодно фильтрует — поле не ловит фокус (FXPro).</div>
+    <div class="caption"><b>Дизайн-решения (каждое — из проекта бюро):</b> строка названа <b>мнемо-именем</b>, а хеш-ветка ушла во вторую строку — «Контраст по APCA» ищется глазом быстрее, чем <code style="font-family:var(--font-mono)">feat/apc-contrast</code> (Admiral). Тип change'а — <b>пиктограмма-якорь</b> в начале, опознаётся периферией (Главбух). Позиция в 8 стадиях CRISPY — <b>словами в строке</b> («стадия 3 из 8»), а графический прогресс не дублируется: живёт в большом степпере инспектора, где заливается объект (Admiral + УВЛ Горбунова — убрать лишний рейл из строки). Секции — <b>по приоритету, не по проекту</b>: решать → ждёт → пишется (Superpedestrian), а заголовки в инфостиле-глаголах (Бирман). Подсвечены ровно <b>две опорные строки</b> — «дольше всех» и «крупный дифф», остальное нейтрально (Onetwotrip). Счётчик в сайдбаре <b>и есть фильтр</b> — отдельной панели нет (Superpedestrian). Число получает <b>базлайн</b>: «3 · норма 2» (Бирман). Live-лупы — <b>в закреплённой полосе</b> у нижней кромки, не вперемешку с очередью (FXPro). Печать где угодно фильтрует — поле не ловит фокус (FXPro). <b>Рейл разделов</b> (Okashi из наших референсов) — только иконки и альты; он не добавлен сверху, а <b>забрал</b> навигацию, размазанную по экрану: сегмент «Инбокс · Канбан · Лог» из шапки списка убран, иначе одно переключение жило бы в двух местах (УВЛ). Плата за иконки без подписей названа и уплачена: <b>раздел назван словом</b> — «Инбокс» стоит в шапке соседней панели, потому что подсветки пиктограммы мало, чтобы ответить «где я»; глифы здесь — заглушки под SF Symbols. Бейдж на пункте рейла <b>янтарный только там, где требуется решение</b> (2), остальные нейтральны — цвет на значимом. <b>Панели не примыкают</b> (OrbitStack): между ними видна подложка окна, и границу держит зазор, а не линейка — то же «воздух вместо линеек», что уже применено к строкам инбокса, только уровнем выше. Перепад светлот теперь наконец что-то значит: окно — base, панель — surface, элемент внутри — raised. <b>Низ сайдбара — карточка статуса агента</b> (Chainview): слоты и <b>расход недельного лимита</b> — та же метрика, что в §19, но видна всегда, а не только когда откроешь отчёт.</div>
   </section>
 
   <!-- ——————————————————— §2 ВАРИАНТЫ РАСКЛАДКИ ——————————————————— -->
@@ -3422,6 +3515,26 @@
     модели, и «0» отличается от «—». <b>Происхождение чисел названо</b>: токены — факт из сессии,
     лимит недели — оценка по плану, поэтому «≈ 62 %». Вкладки показывают, что Insights — раздел:
     Расход, Скиллы, Пропускная — следующие срезы того же вопроса.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v15 — рейл разделов и воздух между панелями (все экраны).</b>
+    <b>Воздух.</b> Референс — OrbitStack (<code>reference/ui/behance/orbitstack-02.png</code>): панель лежит
+    карточкой на подложке, а не примыкает к соседней. Довод не косметический: <b>линейка — нарисованный
+    объект, который спорит за внимание, а зазор группирует близостью и не стоит ни капли краски</b>. Это тот
+    же приём «воздух вместо линеек», что в ревизии v3 применили к строкам инбокса, — теперь уровнем выше,
+    панель к панели. Заодно <b>честно применён стек светлот из токенов</b>: окно — base (стол), панель —
+    surface (карточка на столе), элемент внутри панели — raised. До этого content-панели были base, а
+    боковые surface, и перепад не значил ничего; теперь перепад значит уровень, а границы панелей держит
+    зазор, а не 1px-линия.
+    <b>Рейл.</b> Okashi из <code>reference/ui/user-refs.md</code> («узкий левый icon-rail», висел ⏳ с первой
+    партии): 44px, только иконки и альты, бейджи-счётчики на пунктах (Chainview). Главное — <b>рейл не
+    добавлен сверху, а забрал</b> навигацию, размазанную по экрану: сегмент «Инбокс · Канбан · Лог» из шапки
+    списка убран, иначе было бы два места для одного переключения (УВЛ). Плата за иконки без подписей названа
+    и уплачена: <b>раздел назван словом</b> в шапке соседней панели («Инбокс») — подсветки пиктограммы мало,
+    чтобы ответить «где я». Глифы в макете — заглушки под SF Symbols.
+    <b>Низ сайдбара — карточка статуса агента</b> (Chainview, тоже ⏳ с первой партии): Claude · Opus 4.8 ·
+    2 из 3 слотов · ≈ 62 % недельного лимита. Расход лимита здесь — <b>та же метрика, что в §19</b>: цена
+    работы видна всегда, а не только когда откроешь отчёт. CTA-кнопку из референса не взяли — «запустить»
+    уже живёт в ⌘K и ＋ титлбара.
   </footer>
 
 </div>
