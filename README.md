@@ -64,22 +64,34 @@ xcodebuild build -project FoundryDesktop.xcodeproj -scheme FoundryDesktop \
   -destination 'platform=macOS,arch=arm64' CODE_SIGN_IDENTITY=- | xcbeautify
 ```
 
-Релизные артефакты локально (ZIP + DMG в `dist/`):
+Дистрибутивы локально (ZIP + DMG в `dist/`):
 
 ```sh
 ./scripts/build-release.sh 0.1.0
 ```
 
 CI (`.github/workflows/ci.yml`) на push/PR гоняет lint → тесты пакета → сборку
-приложения. Релиз (`release.yml`) собирает universal-бандл на теге `v*` и
-публикует ZIP + DMG в GitHub Release:
+приложения.
+
+### Как выпустить релиз
+
+Релиз создаёт человек, сборку — GitHub Actions. Достаточно создать релиз в
+GitHub с тегом вида `v0.1.0` (тег заводится там же, пушить его руками не нужно):
 
 ```sh
-git tag v0.1.0 && git push origin v0.1.0
+gh release create v0.1.0 --title "FoundryDesktop 0.1.0" --notes "Что нового…"
 ```
 
-`workflow_dispatch` у `release.yml` собирает те же артефакты без тега и кладёт их
-в Actions artifacts — для проверки, не создавая релиз.
+Дальше `release.yml` сам, по событию `release: published`: соберёт universal-бандл,
+удалит с релиза дистрибутивы прошлой сборки, прикрепит свежие ZIP + DMG и
+допишет в описание инструкцию по установке. Повторный запуск безопасен —
+дистрибутивы заменяются, описание не дублируется.
+
+Workflow удаляет только файлы вида `FoundryDesktop-*.dmg|zip`; всё, что
+прикреплено к релизу руками, остаётся нетронутым.
+
+`workflow_dispatch` у `release.yml` собирает те же дистрибутивы без релиза и
+кладёт их в артефакты прогона — для проверки, ничего не публикуя.
 
 ### Установка скачанного билда
 
