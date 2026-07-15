@@ -717,36 +717,42 @@
   .ob-sub { font-size: 12px; color: var(--t-tertiary); margin-bottom: var(--s4); }
 
   /* выбор агента: карточки большие — это развилка архитектуры, а не строка настроек */
-  .agent-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s2); }
+  /* 3 в ряд, остальные ниже — карточка крупная, это развилка архитектуры, а не строка настроек */
+  .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s3); }
   .agent-card {
     position: relative; overflow: hidden; isolation: isolate;
-    border: 1px solid var(--b-subtle); border-radius: var(--r-xl); padding: 13px;
-    background: var(--bg-surface); display: flex; flex-direction: column; gap: 7px;
-    align-items: flex-start; min-height: 196px; --vglow: rgba(255,255,255,0.16);
+    border: 1px solid var(--b-subtle); border-radius: var(--r-xl); padding: 15px;
+    background: var(--bg-surface); display: flex; flex-direction: column; gap: 11px;
+    min-height: 180px; --vglow: rgba(255,255,255,0.16); --vtint: rgba(255,255,255,0.05); --vedge: rgba(255,255,255,0.14);
   }
+  .agent-card:hover { border-color: var(--b-default); }
   /* амбиентное свечение: логотип — источник света, стекло ловит его по краям (мудборд, приём 3).
      Светится ТОЛЬКО выбранная — один glow на зону (канон). Выбор виден светом, не только рамкой. */
-  .agent-card.sel { border-color: rgba(47,92,255,0.5); background: var(--bg-raised); }
+  .agent-card.sel { border-color: rgba(47,92,255,0.5); background: var(--bg-raised); box-shadow: 0 14px 38px -14px rgba(0,0,0,0.8); }
   .agent-card.sel::before {
-    content: ""; position: absolute; z-index: -1; left: -24px; top: -34px; width: 170px; height: 140px;
-    background: radial-gradient(closest-side, var(--vglow), transparent 100%); filter: blur(16px);
+    content: ""; position: absolute; z-index: -1; left: -30px; top: -44px; width: 210px; height: 172px;
+    background: radial-gradient(closest-side, var(--vglow), transparent 100%); filter: blur(18px);
   }
-  .alogo-row { display: flex; align-items: flex-start; gap: 6px; width: 100%; }
+  .ahead { display: flex; align-items: center; gap: 11px; }
+  /* плитка логотипа тонируется цветом самого логотипа — приём OrbitStack (иконка + подложка в тон) */
   .alogo {
-    width: 52px; height: 52px; border-radius: var(--r-l); flex: none;
+    width: 60px; height: 60px; border-radius: 15px; flex: none;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(255,255,255,0.04); border: 1px solid var(--b-subtle);
+    background: var(--vtint); border: 1px solid var(--vedge);
   }
-  .agent-card.sel .alogo { background: rgba(255,255,255,0.07); box-shadow: 0 0 0 1px var(--vglow), 0 10px 26px -8px var(--vglow); }
-  .agent-name { font-size: 13px; font-weight: 600; color: var(--t-primary); }
-  .agent-desc { font-size: 10px; color: var(--t-tertiary); line-height: 1.5; }
+  .agent-card.sel .alogo { box-shadow: 0 0 0 1px var(--vglow), 0 12px 28px -10px var(--vglow); }
+  .atitle { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .agent-name { font-size: 15px; font-weight: 600; color: var(--t-primary); }
+  .avendor { font-size: 11px; color: var(--t-tertiary); }
+  .agent-desc { font-size: 12px; color: var(--t-secondary); line-height: 1.5; }
   /* факт, а не прогноз: карточка агента и есть проверка окружения */
-  .agent-fact { margin-top: auto; display: flex; flex-direction: column; gap: 3px; font-size: 9px; font-family: var(--font-mono); color: var(--t-tertiary); width: 100%; }
+  .agent-fact { margin-top: auto; display: flex; flex-wrap: wrap; gap: 3px var(--s3); padding-top: 10px; border-top: 1px solid var(--b-subtle); font-size: 10px; font-family: var(--font-mono); color: var(--t-tertiary); }
   .agent-fact .ok { color: var(--sem-success); }
   .agent-fact .no { color: var(--t-disabled); }
+  .agent-fact .w100 { flex-basis: 100%; }
   /* статус — словом, а не прозрачностью: гасить карточку значит прятать логотип */
-  .asoon { margin-left: auto; flex: none; padding: 1px 6px; border-radius: var(--r-full); border: 1px solid var(--b-subtle); background: rgba(255,255,255,0.04); font-size: 9px; color: var(--t-disabled); }
-  .apick { margin-left: auto; flex: none; font-size: 10px; color: var(--t-accent); white-space: nowrap; }
+  .asoon { margin-left: auto; align-self: flex-start; flex: none; padding: 2px 8px; border-radius: var(--r-full); border: 1px solid var(--b-subtle); background: rgba(255,255,255,0.04); font-size: 10px; color: var(--t-disabled); }
+  .apick { margin-left: auto; align-self: flex-start; flex: none; font-size: 11px; color: var(--t-accent); white-space: nowrap; }
   .agent-note { margin-top: var(--s3); font-size: 11px; color: var(--t-tertiary); }
   .agent-note b { color: var(--t-secondary); font-weight: 600; }
 
@@ -2491,8 +2497,8 @@
   <section class="block">
     <div class="sec-head">
       <span class="sec-num">16 — онбординг</span>
-      <h2>Настройка: агент, доступ, структура, первый проект</h2>
-      <p>Четыре шага — и только те, без которых нельзя начать. Тема и плотность сюда не едут: они ничего не блокируют и живут в настройках (§10). Каждый шаг показывает <b>факт</b>, а не обещание: что нашлось, что будет создано, что потеряется.</p>
+      <h2>Настройка с нуля: агент, компоненты, доступ, первый проект</h2>
+      <p>Пять шагов — и только те, без которых нельзя начать. Тема и плотность сюда не едут: они ничего не блокируют и живут в настройках (§10). Каждый шаг показывает <b>факт</b>, а не обещание: что нашлось, что будет создано, что потеряется.</p>
     </div>
 
     <!-- шаг 1: агент -->
@@ -2512,97 +2518,69 @@
         <div class="ob-h">Кто будет писать код</div>
         <div class="ob-sub">Foundry не пишет сам — он ведёт агента по стадиям. Агента можно сменить позже, пайплайны от него не зависят.</div>
         <div class="agent-grid">
-          <!-- Claude Code — выбран, светится своим фирменным цветом -->
-          <div class="agent-card sel" style="--vglow:rgba(217,119,87,0.30)">
-            <div class="alogo-row">
-              <span class="alogo">
-                <svg width="34" height="34" viewBox="0 0 64 64" aria-label="Claude">
+          <div class="agent-card sel" style="--vglow:rgba(217,119,87,0.32);--vtint:rgba(217,119,87,0.13);--vedge:rgba(217,119,87,0.32)">
+            <div class="ahead">
+              <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="Claude">
                   <g stroke="#D97757" stroke-width="5.4" stroke-linecap="round">
                     <line x1="55" y1="32" x2="9" y2="32"/><line x1="51.9" y1="20.5" x2="12.1" y2="43.5"/>
                     <line x1="43.5" y1="12.1" x2="20.5" y2="51.9"/><line x1="32" y1="9" x2="32" y2="55"/>
                     <line x1="20.5" y1="12.1" x2="43.5" y2="51.9"/><line x1="12.1" y1="20.5" x2="51.9" y2="43.5"/>
-                  </g>
-                </svg>
-              </span>
+                  </g></svg></span>
+              <div class="atitle"><div class="agent-name">Claude Code</div><div class="avendor">Anthropic</div></div>
               <span class="apick">◉ выбран</span>
             </div>
-            <div class="agent-name">Claude Code</div>
-            <div class="agent-desc">Anthropic. Ведёт стадии CRISPY, пишет спеки и код в worktree.</div>
-            <div class="agent-fact">
-              <span class="ok">✓ найден · v2.1.4</span>
-              <span class="ok">✓ вход · Max</span>
-              <span>Opus 4.8 · по умолчанию</span>
-            </div>
+            <div class="agent-desc">Ведёт стадии CRISPY: пишет спеки, планы и код в worktree. Читает правила из <code style="font-family:var(--font-mono)">~/.claude</code>.</div>
+            <div class="agent-fact"><span class="ok">✓ найден · v2.1.4</span><span class="ok">✓ вход · Max</span><span class="w100">Opus 4.8 · модель по умолчанию</span></div>
           </div>
-
-          <!-- Codex CLI — OpenAI -->
-          <div class="agent-card" style="--vglow:rgba(255,255,255,0.18)">
-            <div class="alogo-row">
-              <span class="alogo">
-                <svg width="34" height="34" viewBox="0 0 64 64" aria-label="OpenAI">
+          <div class="agent-card" style="--vtint:rgba(255,255,255,0.07);--vedge:rgba(255,255,255,0.18)">
+            <div class="ahead">
+              <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="OpenAI">
                   <g fill="none" stroke="#FFFFFF" stroke-width="4.2">
                     <ellipse cx="32" cy="32" rx="10.5" ry="24"/>
                     <ellipse cx="32" cy="32" rx="10.5" ry="24" transform="rotate(60 32 32)"/>
                     <ellipse cx="32" cy="32" rx="10.5" ry="24" transform="rotate(120 32 32)"/>
-                  </g>
-                </svg>
-              </span>
+                  </g></svg></span>
+              <div class="atitle"><div class="agent-name">Codex CLI</div><div class="avendor">OpenAI</div></div>
               <span class="asoon">скоро</span>
             </div>
-            <div class="agent-name">Codex CLI</div>
-            <div class="agent-desc">OpenAI. CLI-агент, тот же контракт «стадия → артефакт».</div>
+            <div class="agent-desc">CLI-агент под тот же контракт «стадия → артефакт». Свои правила и MCP — стадии переносятся без переписывания.</div>
             <div class="agent-fact"><span class="no">не установлен</span><span class="no">адаптер в работе</span></div>
           </div>
-
-          <!-- Gemini CLI — Google -->
-          <div class="agent-card" style="--vglow:rgba(66,133,244,0.28)">
-            <div class="alogo-row">
-              <span class="alogo">
-                <svg width="34" height="34" viewBox="0 0 64 64" aria-label="Gemini">
+          <div class="agent-card" style="--vtint:rgba(66,133,244,0.13);--vedge:rgba(66,133,244,0.30)">
+            <div class="ahead">
+              <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="Gemini">
                   <defs><linearGradient id="gemg" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0" stop-color="#4285F4"/><stop offset="0.55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/>
                   </linearGradient></defs>
-                  <path d="M32 5 C33.6 19 45 30.4 59 32 C45 33.6 33.6 45 32 59 C30.4 45 19 33.6 5 32 C19 30.4 30.4 19 32 5 Z" fill="url(#gemg)"/>
-                </svg>
-              </span>
+                  <path d="M32 5 C33.6 19 45 30.4 59 32 C45 33.6 33.6 45 32 59 C30.4 45 19 33.6 5 32 C19 30.4 30.4 19 32 5 Z" fill="url(#gemg)"/></svg></span>
+              <div class="atitle"><div class="agent-name">Gemini CLI</div><div class="avendor">Google</div></div>
               <span class="asoon">скоро</span>
             </div>
-            <div class="agent-name">Gemini CLI</div>
-            <div class="agent-desc">Google. Длинный контекст, открытый CLI.</div>
+            <div class="agent-desc">Длинный контекст и открытый CLI. Сильная сторона — объёмные стадии Research и Design.</div>
             <div class="agent-fact"><span class="no">не установлен</span><span class="no">адаптер в работе</span></div>
           </div>
-
-          <!-- Cursor -->
-          <div class="agent-card" style="--vglow:rgba(201,205,214,0.20)">
-            <div class="alogo-row">
-              <span class="alogo">
-                <svg width="34" height="34" viewBox="0 0 64 64" aria-label="Cursor">
+          <div class="agent-card" style="--vtint:rgba(201,205,214,0.10);--vedge:rgba(201,205,214,0.22)">
+            <div class="ahead">
+              <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="Cursor">
                   <path d="M32 6 L56 20 L32 34 L8 20 Z" fill="#EDEFF3"/>
                   <path d="M8 20 L32 34 L32 61 L8 47 Z" fill="#7E848F"/>
-                  <path d="M56 20 L56 47 L32 61 L32 34 Z" fill="#C3C8D1"/>
-                </svg>
-              </span>
+                  <path d="M56 20 L56 47 L32 61 L32 34 Z" fill="#C3C8D1"/></svg></span>
+              <div class="atitle"><div class="agent-name">Cursor</div><div class="avendor">Anysphere</div></div>
               <span class="asoon">скоро</span>
             </div>
-            <div class="agent-name">Cursor</div>
-            <div class="agent-desc">Anysphere. Агент редактора и его CLI-режим.</div>
+            <div class="agent-desc">Агент редактора и его CLI-режим. Сильная сторона — точечные правки на стадии Implement.</div>
             <div class="agent-fact"><span class="no">не установлен</span><span class="no">адаптер в работе</span></div>
           </div>
-
-          <!-- GitHub Copilot -->
-          <div class="agent-card" style="--vglow:rgba(255,255,255,0.18)">
-            <div class="alogo-row">
-              <span class="alogo">
-                <svg width="34" height="34" viewBox="0 0 64 64" aria-label="GitHub Copilot">
+          <div class="agent-card" style="--vtint:rgba(255,255,255,0.07);--vedge:rgba(255,255,255,0.18)">
+            <div class="ahead">
+              <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="GitHub Copilot">
                   <path d="M12 25 C12 25 16 14 24 14 C29 14 31 17 32 19 C33 17 35 14 40 14 C48 14 52 25 52 25 C55 27 56 31 56 35 C56 47 46 55 32 55 C18 55 8 47 8 35 C8 31 9 27 12 25 Z" fill="#FFFFFF"/>
                   <ellipse cx="24" cy="37" rx="4.2" ry="6" fill="#0D0C14"/>
-                  <ellipse cx="40" cy="37" rx="4.2" ry="6" fill="#0D0C14"/>
-                </svg>
-              </span>
+                  <ellipse cx="40" cy="37" rx="4.2" ry="6" fill="#0D0C14"/></svg></span>
+              <div class="atitle"><div class="agent-name">GitHub Copilot</div><div class="avendor">GitHub</div></div>
               <span class="asoon">скоро</span>
             </div>
-            <div class="agent-name">GitHub Copilot</div>
-            <div class="agent-desc">GitHub. Coding agent и Copilot CLI.</div>
+            <div class="agent-desc">Coding agent и Copilot CLI. Ближе всех к GitHub: PR, ревью и CI без лишнего клея.</div>
             <div class="agent-fact"><span class="no">не установлен</span><span class="no">адаптер в работе</span></div>
           </div>
         </div>
