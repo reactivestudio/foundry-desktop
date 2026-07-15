@@ -1171,6 +1171,45 @@
   .pp.off .pp-i { color: var(--t-disabled); }
   .pp.off .pp-name { color: var(--t-tertiary); }
 
+  /* ——— §19 insights · переделка ——— */
+  .ins-tabs { display: flex; gap: 2px; padding: var(--s2) var(--s4) 0; background: var(--bg-surface); border-bottom: 1px solid var(--b-subtle); }
+  .ins-tab { padding: 7px 13px; font-size: 12px; color: var(--t-tertiary); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .ins-tab.on { color: var(--t-primary); border-bottom-color: var(--brand-ultramarine); }
+  .ins-dual { display: grid; grid-template-columns: minmax(0,1fr) 268px; }
+  .ins-main { padding: var(--s4); background: var(--bg-base); border-right: 1px solid var(--b-subtle); display: flex; flex-direction: column; gap: var(--s4); }
+  .ins-h { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--t-disabled); margin-bottom: var(--s3); }
+
+  /* стадия = одна полоса: первый прогон + переделка. Порядок пайплайновый —
+     видно, что чем правее переделка, тем она дороже */
+  .ib-head, .ib { display: grid; grid-template-columns: 84px minmax(0,1fr) 66px 58px; align-items: center; gap: 3px var(--s3); }
+  .ib-head { font-size: 9px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--t-disabled); padding-bottom: 6px; border-bottom: 1px solid var(--b-subtle); margin-bottom: 6px; }
+  .ib-head .r { text-align: right; }
+  .ib { padding: 3px 0; }
+  .ib-name { font-size: 11px; color: var(--t-secondary); }
+  .ib.off .ib-name { color: var(--t-disabled); }
+  .ib-track { display: flex; height: 13px; gap: 1px; }
+  .ib-base { background: rgba(255,255,255,0.20); border-radius: 2px; }
+  .ib-re { background: rgba(251,191,36,0.60); border-radius: 2px; }
+  .ib-tok { font-family: var(--font-mono); font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; text-align: right; }
+  .ib-ret { font-size: 10px; color: var(--t-tertiary); font-variant-numeric: tabular-nums; text-align: right; }
+  .ib-ret.hot { color: var(--sem-warning); }
+  .ib-ret.zero { color: var(--t-disabled); }
+  .ib-why { grid-column: 2/-1; font-size: 9px; color: var(--t-disabled); }
+  .ib-legend { display: flex; gap: var(--s4); font-size: 10px; color: var(--t-tertiary); margin-top: var(--s3); }
+  .ib-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .ib-legend .lb { background: rgba(255,255,255,0.20); }
+  .ib-legend .lr { background: rgba(251,191,36,0.60); }
+
+  .ins-side { padding: var(--s4); background: var(--bg-surface); display: flex; flex-direction: column; gap: var(--s3); }
+  .rc { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px var(--s2); padding-bottom: 8px; border-bottom: 1px solid var(--b-subtle); }
+  .rc-name { font-size: 11px; color: var(--t-secondary); }
+  .rc-v { font-family: var(--font-mono); font-size: 12px; color: var(--t-secondary); font-variant-numeric: tabular-nums; }
+  .rc.hot .rc-name, .rc.hot .rc-v { color: var(--sem-warning); }
+  .rc-sub { grid-column: 1/-1; font-size: 9px; color: var(--t-disabled); }
+  /* происхождение числа названо: токен — факт из сессии, лимит — оценка (Бирман) */
+  .ins-src { font-size: 10px; color: var(--t-disabled); line-height: 1.5; padding-top: var(--s2); border-top: 1px dashed var(--b-subtle); }
+  .ins-src b { color: var(--t-tertiary); font-weight: 600; }
+
   /* появление */
   @media (prefers-reduced-motion: no-preference){
     .win, .variant, .kpi, .small-mult { animation: rise 0.5s ease-out both; }
@@ -3110,6 +3149,133 @@
     <div class="caption"><b>Дизайн-решения:</b> экран отвечает на вопрос «что такое проект <b>для системы</b>», а не «где лежит репозиторий»: путь к репо — одна строка в якоре, а тело экрана — <b>лейблы и следующие из них пайплайны</b>. Это единственная причина, по которой экран вообще нужен: <b>категория проекта — признак роутинга</b> (§13, таблица признаков), поэтому лейбл «бизнес» меняет поведение, а не оформление, и сказано это вслух строкой под лейблами. <b>Список проектов и есть фильтр по лейблу</b> (Superpedestrian: виджет-сводка = контрол-панель): секции — категории со счётчиками, отдельной панели фильтров не нужно, а сама группировка показывает распределение работы по категориям. <b>Категория кодируется формой, а не цветом</b> (▣ инфра · ◆ утилита · ● бизнес) — та же пиктограмма, что на картах канбана §6: лейблы не радуга (FXPro), и с дейтеранопией список читается так же. Счётчики change'ей <b>нейтральны все</b>: 12 против 0 — это про размер проекта, а не про беду, красить тут нечего. <b>Факт-полоса — тот же компонент, что у скилла</b> (§17), и с тем же правилом: число + подпись + исторический базис («12 change'ей в июле · в июне было 9»), без рейтингов и «здоровья проекта». <b>Выключенный пайплайн назван причиной, а не галочкой</b>: «в проекте один сервис — стадии Контракты и Интеграция нечему связывать», «приложение на машине пользователя, а не сервис на проде». Это главное решение экрана: пустой чекбокс заставляет гадать и провоцирует включить всё на всякий случай, а причина <b>объясняет систему</b> и заодно показывает, что пайплайны — не меню, а следствие. Пять пайплайнов показаны все, включая выключенные: «3 из 5» — факт, и видно, чего проект лишён. Состояние — <b>✓ / ○ из того же алфавита</b>, что чеклист §3 и диагнозы §17. Якорь проекта — <b>тот же компонент</b>, что зум в change (§11) и карточка скилла (§17): координаты не меняются между сценами (Worldchess). Отдельного экрана «настройки проекта» нет (УВЛ): проект — это и есть его лейблы и пайплайны, разносить их по двум местам не на чем.</div>
   </section>
 
+  <!-- ——————————————————— §19 INSIGHTS · ПЕРЕДЕЛКА ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">19 — insights · переделка</span>
+      <h2>Возврат на Implement в 11 раз дороже, чем на Design</h2>
+      <p>§4 отвечает «что происходит сейчас» — пропускная способность, длительность, где сейчас change'и. Insights отвечает на другой вопрос: <b>во что нам это обходится</b>. Возвраты и токены — не два отчёта, а один: <b>цена возврата — это токены, сожжённые повторно</b>. И тогда видно, что возвраты не равны между собой.</p>
+    </div>
+
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">Insights</span>
+        <div class="spacer"></div>
+        <span class="tb-btn">Июль 2026</span>
+        <span class="tb-btn">Все проекты</span>
+      </div>
+
+      <div class="ins-tabs">
+        <span class="ins-tab on">Переделка</span>
+        <span class="ins-tab">Расход</span>
+        <span class="ins-tab">Скиллы</span>
+        <span class="ins-tab">Пропускная</span>
+      </div>
+
+      <div class="ins-dual">
+        <div class="ins-main">
+          <div class="skl-fact">
+            <div class="fct">
+              <div class="fn warn">35<span class="fu">%</span></div>
+              <div class="fl">расхода — переделка</div>
+              <div class="fb">в июне — 44 %</div>
+            </div>
+            <div class="fct">
+              <div class="fn">1,9<span class="fu">М</span></div>
+              <div class="fl">токенов за июль</div>
+              <div class="fb">≈ 62 % недельного лимита</div>
+            </div>
+            <div class="fct">
+              <div class="fn">14</div>
+              <div class="fl">возвратов</div>
+              <div class="fb">8 поймали до Implement</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="ins-h">Расход по стадиям · порядок пайплайна</div>
+            <div class="ib-head">
+              <span>Стадия</span><span></span><span class="r">Токенов</span><span class="r">Возвратов</span>
+            </div>
+
+            <div class="ib">
+              <span class="ib-name">Questions</span>
+              <div class="ib-track"><span class="ib-base" style="width:3.4%"></span></div>
+              <span class="ib-tok">42К</span><span class="ib-ret zero">—</span>
+            </div>
+            <div class="ib">
+              <span class="ib-name">Research</span>
+              <div class="ib-track"><span class="ib-base" style="width:7.9%"></span></div>
+              <span class="ib-tok">96К</span><span class="ib-ret zero">—</span>
+            </div>
+            <div class="ib">
+              <span class="ib-name">Design</span>
+              <div class="ib-track"><span class="ib-base" style="width:17.2%"></span><span class="ib-re" style="width:5.1%"></span></div>
+              <span class="ib-tok">272К</span><span class="ib-ret hot">6</span>
+            </div>
+            <div class="ib">
+              <span class="ib-name">Structure</span>
+              <div class="ib-track"><span class="ib-base" style="width:6.1%"></span></div>
+              <span class="ib-tok">74К</span><span class="ib-ret zero">—</span>
+            </div>
+            <div class="ib">
+              <span class="ib-name">Plan</span>
+              <div class="ib-track"><span class="ib-base" style="width:11.3%"></span><span class="ib-re" style="width:2.0%"></span></div>
+              <span class="ib-tok">162К</span><span class="ib-ret">2</span>
+            </div>
+            <div class="ib off">
+              <span class="ib-name">Worktree</span>
+              <div class="ib-track"></div>
+              <span class="ib-tok">0</span><span class="ib-ret zero">—</span>
+              <span class="ib-why">стадию делает foundry-cli, агент не запускается — детерминированное не жжёт токены совсем</span>
+            </div>
+            <div class="ib">
+              <span class="ib-name">Implement</span>
+              <div class="ib-track"><span class="ib-base" style="width:52.5%"></span><span class="ib-re" style="width:47.5%"></span></div>
+              <span class="ib-tok">1 220К</span><span class="ib-ret hot">5</span>
+            </div>
+            <div class="ib">
+              <span class="ib-name">PR</span>
+              <div class="ib-track"><span class="ib-base" style="width:4.8%"></span><span class="ib-re" style="width:0.7%"></span></div>
+              <span class="ib-tok">67К</span><span class="ib-ret">1</span>
+            </div>
+
+            <div class="ib-legend">
+              <span><i class="lb"></i>первый прогон</span>
+              <span><i class="lr"></i>переделка после возврата</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="ins-side">
+          <div class="ins-h" style="margin-bottom:0">Цена одного возврата</div>
+          <div class="rc hot">
+            <span class="rc-name">Implement</span><span class="rc-v">116К</span>
+            <span class="rc-sub">580К на 5 возвратов</span>
+          </div>
+          <div class="rc">
+            <span class="rc-name">Plan</span><span class="rc-v">12К</span>
+            <span class="rc-sub">24К на 2 возврата</span>
+          </div>
+          <div class="rc">
+            <span class="rc-name">Design</span><span class="rc-v">10К</span>
+            <span class="rc-sub">62К на 6 возвратов</span>
+          </div>
+          <div class="rc">
+            <span class="rc-name">PR</span><span class="rc-v">9К</span>
+            <span class="rc-sub">9К на 1 возврат</span>
+          </div>
+
+          <div class="fold-note" style="text-align:left;line-height:1.5">На Design вернули <b style="color:var(--t-secondary)">6 раз</b> и сожгли 62К.<br>На Implement — <b style="color:var(--t-secondary)">5 раз</b> и сожгли 580К.</div>
+
+          <div class="ins-src"><b>Откуда числа.</b> Токены — факт из сессии агента, их отдаёт foundry-cli. Лимит недели — оценка по плану Max, поэтому «≈». Стадии без агента считаются нулём, а не пропуском.</div>
+        </aside>
+      </div>
+    </div>
+    <div class="caption"><b>Дизайн-решения:</b> раздел отделён от §4 по вопросу, а не по типу графика: <b>§4 — «что происходит сейчас»</b> (пропускная, длительность, где change'и), <b>Insights — «во что это обходится»</b>. Смешивать их значит получить дашборд, на который смотрят и ничего не решают. <b>Возвраты и токены — не два отчёта, а один</b>: цена возврата = токены, сожжённые повторно. Это главное решение экрана; по отдельности «14 возвратов» и «1,9М токенов» не значат ничего, а вместе дают <b>число, которое меняет решение</b> — 116К против 10К. Отсюда и заголовок раздела: не «Аналитика возвратов», а <b>вывод, который из неё следует</b> (Бирман: заголовок — не рубрика, а утверждение). <b>Главная метрика — доля переделки</b> (35 %), а не абсолютный расход: «1,9М токенов» само по себе ни хорошо ни плохо, а «треть работы сделана дважды» — уже диагноз; и у него <b>исторический базис</b> — в июне было 44 %. <b>Стадия — одна полоса, а не две</b>: первый прогон и переделка в одном треке, потому что вопрос «какая доля этой стадии — переделка», а не «сравните два числа». Порядок строк — <b>пайплайновый, не по убыванию</b>: сортировка по величине спрятала бы главное — чем правее стадия, тем дороже на ней возврат; на убывающей сортировке этот факт не виден вообще. <b>Цвет только на значимом</b> (FXPro): янтарь — исключительно переделка и счётчики возвратов там, где их много; первый прогон нейтрален, потому что это норма, а не проблема. <b>Инверсия наивного чтения</b> — то, ради чего экран и сделан: возвратов на Design <b>больше</b> (6 против 5), а стоят они в 11 раз меньше. Значит «меньше возвратов» — неверная цель, верная — <b>«возвраты раньше»</b>; в сноске справа это оставлено арифметикой, а не советом: система показывает числа, вывод делает человек. <b>Worktree — ноль, и сказано почему</b>: стадию делает foundry-cli без агента. Это не дырка в данных, а <b>аргумент архитектуры</b> из доменной модели: детерминированное не жжёт токены, и видно, что переносить в cli выгодно. Ноль показан как «0», а отсутствие данных было бы «—»: разные вещи не должны выглядеть одинаково. <b>Происхождение каждого числа названо</b> (Бирман: не выдумывать точность): токены — факт из сессии, лимит недели — оценка по плану, поэтому «≈ 62 %» и никак иначе; человек в токенах не думает, поэтому у абсолютного числа стоит вторая единица — доля лимита. Вкладки показывают, что <b>Insights — раздел, а не экран</b>: «Расход», «Скиллы», «Пропускная» — следующие срезы того же вопроса.</div>
+  </section>
+
   <footer class="note">
     Все значения — из <code>docs/design/13-tokens.md</code> (единственный источник): поверхности через светлоту,
     текст альфа-белым, request changes = warning, «в работе» = циан, «ждёт ревью» = ультрамарин, один glow на зону,
@@ -3241,6 +3407,21 @@
     гадать, причина объясняет систему. Факт-полоса — тот же компонент, что у скилла (§17), с тем же
     правилом «число + базлайн, без рейтингов»; единица набрана мельче числа. Отдельного экрана
     «настройки проекта» нет (УВЛ): проект — это и есть его лейблы и пайплайны.
+    <br><br>
+    <b style="color:var(--t-secondary)">Ревизия v14 — Insights · Переделка (§19).</b> Новый раздел,
+    отделённый от §4 <b>по вопросу, а не по типу графика</b>: §4 — «что происходит сейчас», Insights —
+    «во что это обходится». <b>Возвраты и токены — не два отчёта, а один</b>: цена возврата = токены,
+    сожжённые повторно; по отдельности «14 возвратов» и «1,9М токенов» не значат ничего, вместе дают
+    число, которое меняет решение. Главная метрика — <b>доля переделки</b> (35 %, в июне 44 %), а не
+    абсолютный расход. Стадия — <b>одна полоса</b> (первый прогон + переделка), порядок строк
+    <b>пайплайновый, не по убыванию</b>: на сортировке по величине пропал бы главный факт — чем правее
+    стадия, тем дороже на ней возврат. <b>Инверсия наивного чтения</b>: возвратов на Design больше
+    (6 против 5), а стоят они в 11 раз меньше — значит верная цель не «меньше возвратов», а
+    «возвраты раньше»; вывод оставлен арифметикой, не советом. <b>Worktree — ноль, и сказано почему</b>:
+    стадию делает foundry-cli без агента; это не дырка в данных, а аргумент архитектуры из доменной
+    модели, и «0» отличается от «—». <b>Происхождение чисел названо</b>: токены — факт из сессии,
+    лимит недели — оценка по плану, поэтому «≈ 62 %». Вкладки показывают, что Insights — раздел:
+    Расход, Скиллы, Пропускная — следующие срезы того же вопроса.
   </footer>
 
 </div>
