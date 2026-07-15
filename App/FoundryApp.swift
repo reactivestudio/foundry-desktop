@@ -2,7 +2,7 @@ import FoundryFeatures
 import SwiftUI
 
 @main
-struct FoundryDesktopApp: App {
+struct FoundryApp: App {
     @State private var store = RunStore()
 
     var body: some Scene {

@@ -43,8 +43,8 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild build \
-            -project FoundryDesktop.xcodeproj \
-            -scheme FoundryDesktop \
+            -project Foundry.xcodeproj \
+            -scheme Foundry \
             -configuration Release \
             -destination 'platform=macOS,arch=arm64' \
             -derivedDataPath .build/DerivedData \
