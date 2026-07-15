@@ -378,8 +378,22 @@ xcrun notarytool submit .build/FoundryDesktop.zip \
 
 | Workflow | Триггер | Шаги |
 |---|---|---|
-| `ci.yml` | push/PR | `swift format lint --strict` → `swift test` (пакет) → `xcodebuild test \| xcbeautify` (без подписи) → отдельная job: контракт-тесты с установленным foundry (`RUN_CONTRACT_TESTS=1`) |
-| `release.yml` | тег `v*` | archive → export (sign) → notarize → staple → ZIP + DMG → `generate_appcast` → `gh release create` → бамп cask в tap |
+| `ci.yml` | PR | `swift format lint --strict` → `swift test` (пакет) → `xcodebuild test \| xcbeautify` (без подписи) → отдельная job: контракт-тесты с установленным foundry (`RUN_CONTRACT_TESTS=1`) |
+| `release.yml` | `release: published` | archive → export (sign) → notarize → staple → ZIP + DMG → `generate_appcast` → `gh release create` → бамп cask в tap |
+
+**Колонка «Триггер» — фактическая, «Шаги» — целевые.** Триггеры зафиксированы
+решением и реализованы:
+
+- CI **не гоняется на push в master** осознанно: macOS-минуты стоят 10× Linux, а
+  содержимое PR проверено до мержа. Цена — поломка master всплывёт на следующем
+  PR, а не сразу после мержа.
+- Релиз собирается **по событию `release: published`**, а не по пушу тега: релиз
+  создаёт человек в GitHub, тег заводится там же, отдельный триггер на тег не
+  нужен.
+
+Шаги — целевое состояние: notarization, `generate_appcast` и бамп cask появятся
+вместе с Developer ID (§4.1–4.3, §4.5). Что реализовано на сегодня и чем это
+отличается от канона — в README репозитория.
 
 ---
 

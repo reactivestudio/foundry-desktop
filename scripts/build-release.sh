@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Собирает дистрибутивы релиза: FoundryDesktop-<version>.zip и FoundryDesktop-<version>.dmg в dist/.
+# Собирает дистрибутив релиза: FoundryDesktop-<version>.dmg в dist/.
+#
+# Только DMG. ZIP по канону (практики, глава 08 §4.3) нужен Sparkle-автообновлениям —
+# вернуть, когда Sparkle подключат.
 #
 # Использование:  ./scripts/build-release.sh <version>
 # Пример:         ./scripts/build-release.sh 0.1.0
@@ -57,10 +60,6 @@ xcodebuild archive \
 
 test -d "$APP_BUNDLE" || { echo "!! archive не содержит .app: $APP_BUNDLE" >&2; exit 1; }
 
-echo "==> ZIP"
-# ditto, не zip: сохраняет ресурс-форки и подпись бандла нетронутыми.
-ditto -c -k --keepParent "$APP_BUNDLE" "$DIST_DIR/FoundryDesktop-$VERSION.zip"
-
 echo "==> DMG"
 # create-dmg выходит с кодом 2, когда не нашёл identity для подписи DMG — у нас его
 # нет никогда, и это ожидаемо: сам DMG при этом создаётся валидным. Любой другой
@@ -80,7 +79,7 @@ if [[ "$produced_dmg" != "$DIST_DIR/FoundryDesktop-$VERSION.dmg" ]]; then
     mv "$produced_dmg" "$DIST_DIR/FoundryDesktop-$VERSION.dmg"
 fi
 
-echo "==> Проверка дистрибутивов"
+echo "==> Проверка дистрибутива"
 codesign --verify --strict "$APP_BUNDLE"
 hdiutil verify "$DIST_DIR/FoundryDesktop-$VERSION.dmg" >/dev/null
 echo "    подпись: $(codesign -dv "$APP_BUNDLE" 2>&1 | grep -o 'Signature=.*')"
