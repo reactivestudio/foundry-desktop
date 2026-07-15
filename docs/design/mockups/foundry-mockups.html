@@ -702,6 +702,54 @@
   .rv-ch { font-size: 10px; color: var(--t-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .rv-foot { display: flex; align-items: center; justify-content: space-between; font-size: 9px; color: var(--t-tertiary); }
   .rv-skill { font-family: var(--font-mono); font-size: 9px; color: #C4A6FF; }
+
+  /* ——— §16 онбординг ——— */
+  .ob-steps { display: flex; align-items: center; gap: var(--s2); padding: 10px var(--s4); background: var(--bg-surface); border-bottom: 1px solid var(--b-subtle); }
+  .ob-st { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--t-disabled); }
+  .ob-st .obn { width: 17px; height: 17px; border-radius: 50%; border: 1px solid var(--b-default); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; flex: none; }
+  .ob-st.now { color: var(--t-primary); }
+  .ob-st.now .obn { background: var(--brand-ultramarine); border-color: var(--brand-ultramarine); color: #fff; }
+  .ob-st.done { color: var(--t-tertiary); }
+  .ob-st.done .obn { border-color: var(--sem-success); color: var(--sem-success); }
+  .ob-sep { flex: 1; height: 1px; background: var(--b-subtle); max-width: 34px; }
+  .ob-body { padding: var(--s5) var(--s4); background: var(--bg-base); }
+  .ob-h { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+  .ob-sub { font-size: 12px; color: var(--t-tertiary); margin-bottom: var(--s4); }
+
+  /* выбор агента: карточки большие — это развилка архитектуры, а не строка настроек */
+  .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s3); }
+  .agent-card { border: 1px solid var(--b-subtle); border-radius: var(--r-xl); padding: var(--s4); background: var(--bg-surface); display: flex; flex-direction: column; gap: var(--s2); align-items: flex-start; min-height: 168px; }
+  .agent-card.sel { border-color: rgba(47,92,255,0.55); background: rgba(47,92,255,0.08); }
+  .agent-card.soon { opacity: 0.42; }
+  .alogo { width: 40px; height: 40px; border-radius: var(--r-m); display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid var(--b-subtle); }
+  .agent-name { font-size: 14px; font-weight: 600; color: var(--t-primary); }
+  .agent-desc { font-size: 11px; color: var(--t-tertiary); line-height: 1.5; }
+  /* факт, а не прогноз: карточка агента и есть проверка окружения */
+  .agent-fact { margin-top: auto; display: flex; flex-direction: column; gap: 3px; font-size: 10px; font-family: var(--font-mono); color: var(--t-tertiary); }
+  .agent-fact .ok { color: var(--sem-success); }
+  .agent-fact .no { color: var(--t-disabled); }
+  .agent-pick { margin-left: auto; }
+
+  /* доступ: сначала зачем, потом системный диалог */
+  .ob-two { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: var(--s5); }
+  .perm-item { display: grid; grid-template-columns: 18px 1fr; gap: 2px var(--s2); padding: 9px 0; border-bottom: 1px solid var(--b-subtle); }
+  .perm-ic { color: var(--t-tertiary); font-size: 12px; }
+  .perm-what { font-size: 12px; font-weight: 600; color: var(--t-primary); }
+  .perm-why { grid-column: 2; font-size: 11px; color: var(--t-tertiary); line-height: 1.5; }
+  .perm-item.granted .perm-ic { color: var(--sem-success); }
+  /* мини-превью результата: дерево видно ДО создания (как пресеты §10, как роутинг §13) */
+  .tree { font-family: var(--font-mono); font-size: 11px; line-height: 1.75; color: var(--t-secondary); background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l); padding: 11px 13px; white-space: pre; overflow-x: auto; }
+  .tree .tc { color: var(--t-disabled); }
+  .tree .tn { color: var(--t-accent); }
+  .path-row { display: flex; align-items: center; gap: var(--s2); margin-top: var(--s3); }
+  .path-in { flex: 1; padding: 6px 10px; border-radius: var(--r-m); border: 1px solid var(--b-default); background: var(--bg-base); font-family: var(--font-mono); font-size: 11px; color: var(--t-primary); }
+  .warn-line { display: flex; align-items: flex-start; gap: 7px; margin-top: var(--s3); padding: 8px 10px; border-radius: var(--r-m); border: 1px solid rgba(251,191,36,0.35); background: rgba(251,191,36,0.07); font-size: 11px; color: var(--t-secondary); line-height: 1.5; }
+  .warn-line .wi { color: var(--sem-warning); flex: none; }
+  /* деструктив — красный контур, а не заливка: он должен быть возможен, но не манить */
+  .btn.danger-out { color: var(--sem-error); border-color: rgba(248,113,113,0.45); background: rgba(248,113,113,0.07); }
+  .mbtns .btn.danger-out { margin-right: auto; }
+  .modal .mfact { font-family: var(--font-mono); font-size: 11px; color: var(--t-tertiary); background: var(--bg-base); border: 1px solid var(--b-subtle); border-radius: var(--r-m); padding: 7px 9px; margin: 0 0 var(--s3); }
+  .modal .mlose { color: var(--sem-error); }
   .kb-card {
     background: var(--bg-surface); border: 1px solid var(--b-subtle); border-radius: var(--r-l);
     padding: var(--s3); display: flex; flex-direction: column; gap: 6px; cursor: default;
@@ -2387,6 +2435,146 @@
     <div class="caption"><b>Дизайн-решения:</b> <b>колонки — состояния ревью</b>, не стадии: очередь поперечна пайплайнам, и стадия здесь лишь адрес карточки («Design», «PR»). Тип артефакта — <b>чип формой и словом</b> («спека» / «план» / «дифф»), потому что ревью спеки и ревью диффа — разная работа, и глаз должен делить их до чтения. Каждый артефакт несёт <b>скилл-автора</b>: возврат адресуется скиллу (§12), поэтому автор виден уже в очереди, а возвращённая карточка помечает скилл warning'ом. «Смотрю» — <b>ровно одна карточка</b>: очередь ревью однопоточна, это дисциплина, а не ограничение. «Принято» живёт <b>календарным месяцем</b>, как и на доске change'ей (§6), — одно понятие спринта на весь продукт.</div>
   </section>
 
+  <!-- ——————————————————— §16 ОНБОРДИНГ ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">16 — онбординг</span>
+      <h2>Настройка: агент, доступ, структура, первый проект</h2>
+      <p>Четыре шага — и только те, без которых нельзя начать. Тема и плотность сюда не едут: они ничего не блокируют и живут в настройках (§10). Каждый шаг показывает <b>факт</b>, а не обещание: что нашлось, что будет создано, что потеряется.</p>
+    </div>
+
+    <!-- шаг 1: агент -->
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — настройка</span>
+      </div>
+      <div class="ob-steps">
+        <span class="ob-st now"><span class="obn">1</span>Агент</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">2</span>Доступ и структура</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">3</span>Первый проект</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">4</span>Прогон</span>
+      </div>
+      <div class="ob-body">
+        <div class="ob-h">Кто будет писать код</div>
+        <div class="ob-sub">Foundry не пишет сам — он ведёт агента по стадиям. Агента можно сменить позже, пайплайны от него не зависят.</div>
+        <div class="agent-grid">
+          <div class="agent-card sel">
+            <div style="display:flex;align-items:center;gap:10px;width:100%">
+              <span class="alogo">
+                <svg width="22" height="22" viewBox="0 0 40 40" aria-label="Claude">
+                  <g stroke="#D97757" stroke-width="3.4" stroke-linecap="round">
+                    <line x1="20" y1="7" x2="20" y2="33"/><line x1="7" y1="20" x2="33" y2="20"/>
+                    <line x1="10.8" y1="10.8" x2="29.2" y2="29.2"/><line x1="29.2" y1="10.8" x2="10.8" y2="29.2"/>
+                  </g>
+                </svg>
+              </span>
+              <span class="agent-pick" style="color:var(--t-accent);font-size:11px">◉ выбран</span>
+            </div>
+            <div class="agent-name">Claude Code</div>
+            <div class="agent-desc">CLI-агент Anthropic. Ведёт стадии CRISPY, пишет спеки и код, работает в worktree.</div>
+            <div class="agent-fact">
+              <span class="ok">✓ найден · v2.1.4</span>
+              <span class="ok">✓ вход выполнен · Max</span>
+              <span>Opus 4.8 · по умолчанию</span>
+            </div>
+          </div>
+          <div class="agent-card soon">
+            <div style="display:flex;align-items:center;gap:10px;width:100%">
+              <span class="alogo"><svg width="20" height="20" viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="3"/><circle cx="20" cy="20" r="4" fill="rgba(255,255,255,0.5)"/></svg></span>
+            </div>
+            <div class="agent-name">Codex CLI</div>
+            <div class="agent-desc">Второй агент под тот же контракт стадий.</div>
+            <div class="agent-fact"><span class="no">скоро</span></div>
+          </div>
+          <div class="agent-card soon">
+            <div style="display:flex;align-items:center;gap:10px;width:100%">
+              <span class="alogo"><svg width="20" height="20" viewBox="0 0 40 40"><rect x="9" y="9" width="22" height="22" rx="5" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="3"/><line x1="15" y1="20" x2="25" y2="20" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-linecap="round"/></svg></span>
+            </div>
+            <div class="agent-name">Свой адаптер</div>
+            <div class="agent-desc">Любой CLI, который умеет контракт «стадия → артефакт».</div>
+            <div class="agent-fact"><span class="no">скоро</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="actionbar"><div class="btns"><span class="btn primary">Дальше <kbd>⌘⏎</kbd></span></div></div>
+    </div>
+
+    <!-- шаг 2: доступ и структура -->
+    <div class="win" style="margin-top:var(--s5)">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">foundry — настройка</span>
+      </div>
+      <div class="ob-steps">
+        <span class="ob-st done"><span class="obn">✓</span>Агент</span><span class="ob-sep"></span>
+        <span class="ob-st now"><span class="obn">2</span>Доступ и структура</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">3</span>Первый проект</span><span class="ob-sep"></span>
+        <span class="ob-st"><span class="obn">4</span>Прогон</span>
+      </div>
+      <div class="ob-body">
+        <div class="ob-two">
+          <div>
+            <div class="ob-h">Зачем нужен доступ</div>
+            <div class="ob-sub">Сначала объясняем, потом просим — системный диалог не появится внезапно.</div>
+            <div class="perm-item granted">
+              <span class="perm-ic">✓</span><span class="perm-what">Папка ~/foundry</span>
+              <span class="perm-why">Читать и писать: worktree'ы, артефакты стадий, база очереди. Без неё агенту негде работать.</span>
+            </div>
+            <div class="perm-item">
+              <span class="perm-ic">○</span><span class="perm-what">Уведомления</span>
+              <span class="perm-why">Сказать, когда change ждёт твоего ревью или упал CI. Можно пропустить — тогда только значок в меню.</span>
+            </div>
+            <div class="perm-item">
+              <span class="perm-ic">○</span><span class="perm-what">Связка ключей</span>
+              <span class="perm-why">Хранить токен агента в Keychain, а не в файле рядом с кодом.</span>
+            </div>
+          </div>
+          <div>
+            <div class="ob-h">Что будет создано</div>
+            <div class="ob-sub">Структура повторяет модель: стадии кладут артефакты, ревью правит скиллы.</div>
+            <div class="tree">
+<span class="tn">~/foundry/</span>
+├── <span class="tn">projects/</span>    <span class="tc">репозитории и worktree'ы</span>
+├── <span class="tn">artifacts/</span>   <span class="tc">спеки, планы, диффы по стадиям</span>
+├── <span class="tn">skills/</span>      <span class="tc">правила скиллов — сюда едут</span>
+│                <span class="tc">замечания из ревью (§12)</span>
+├── <span class="tn">pipelines/</span>   <span class="tc">пайплайны по типам change'а</span>
+└── <span class="tn">foundry.db</span>   <span class="tc">очередь, прогоны, история</span>
+            </div>
+            <div class="path-row">
+              <span class="path-in">~/foundry</span>
+              <span class="btn ghost">Выбрать…</span>
+            </div>
+            <div class="warn-line"><span class="wi">▲</span><span>В <b>~/foundry</b> уже есть файлы. Создание перезапишет <code style="font-family:var(--font-mono)">projects/</code> и <code style="font-family:var(--font-mono)">foundry.db</code>.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="actionbar"><div class="btns">
+        <span class="btn ghost">Назад</span>
+        <span class="btn primary">Запросить доступ и создать <kbd>⌘⏎</kbd></span>
+      </div></div>
+    </div>
+
+    <!-- модалка: папка не пуста -->
+    <div class="ov-stage" style="margin-top:var(--s5);min-height:250px">
+      <span class="ov-label">модалка · папка не пуста</span>
+      <div class="ov-scrim"></div>
+      <div class="modal" style="max-width:360px">
+        <h4>Перезаписать ~/foundry?</h4>
+        <div class="mfact">3 папки · 128 файлов · 24 МБ<br>последнее изменение — вчера, 18:44</div>
+        <p>Структура перезапишет <b>projects/</b> и <b>foundry.db</b>. <span class="mlose">Файлы удалятся с диска — Undo не будет.</span></p>
+        <div class="mbtns">
+          <span class="btn danger-out">Перезаписать</span>
+          <span class="btn ghost">Отмена</span>
+          <span class="btn primary">Выбрать другую папку</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="caption"><b>Дизайн-решения:</b> в онбординге <b>только блокирующее</b> — агент, доступ, структура, первый проект; тема и плотность ничего не блокируют и остаются в §10 (УВЛ: мастер не место для вкусов). Карточка агента <b>и есть проверка окружения</b>: не «всё готово», а факт — «найден · v2.1.4», «вход выполнен · Max» (факт вместо прогноза, Birdview); отдельного шага «проверим систему» поэтому не нужно. Логотип агента <b>сохраняет свой цвет</b> — это чужая идентичность, единственное законное исключение из правила «один акцент»: терракота Claude не спорит с ультрамарином, потому что не кодирует статус. Пустые карточки «скоро» показаны, а не спрятаны: видно, что <b>выбор агента — развилка архитектуры</b>, а не хардкод. Доступ объясняется <b>до</b> системного диалога и словами «зачем», а не «разрешите доступ к файлам». Дерево показано <b>до создания</b> — тот же приём, что пресеты плотности (§10) и последствие роутинга (§13): результат виден до нажатия. Структура <b>повторяет доменную модель</b>: <code style="font-family:var(--font-mono)">skills/</code> существует потому, что ревью правит скиллы (§12). Предупреждение живёт <b>в самом экране</b> строкой-warning, а модалка поднимается только на необратимом: канон разрешает модалку, когда решение короткое и обязательное (§8), а Undo невозможен — файлы уйдут с диска. В модалке — <b>факт того, что потеряется</b> (3 папки · 128 файлов · 24 МБ), а не абстрактное «данные будут утеряны», и <b>третий выход</b> «выбрать другую папку»: модалка не ловушка из двух кнопок. <b>Безопасный путь — акцент, деструктив — красный контур, а не заливка</b>: залитая красная кнопка магнитит на необратимое, а модалка поднялась, чтобы остановить. Деструктив ушёл влево от остальных (маковская конвенция), акцент остался справа, где его ищет рука.</div>
+  </section>
+
   <footer class="note">
     Все значения — из <code>docs/design/13-tokens.md</code> (единственный источник): поверхности через светлоту,
     текст альфа-белым, request changes = warning, «в работе» = циан, «ждёт ревью» = ультрамарин, один glow на зону,
@@ -2466,6 +2654,16 @@
     факт вместо прогноза (Birdview), последствие решения видно до нажатия; <b>§14</b> сквозной вид по
     атомарным задачам таблицей (осознанный отказ от парности: у задачи нет пайплайна); <b>§15</b>
     очередь ревью артефактов — код и не-код рядом, колонки = состояния ревью.
+    <br><br>
+    <b>Ревизия v11 — онбординг (§16).</b> Четыре шага и только блокирующее: агент, доступ и структура,
+    первый проект, прогон; тема и плотность остались в §10 — они ничего не блокируют.
+    Карточка агента <b>и есть проверка окружения</b> (найден · v2.1.4 · вход выполнен), поэтому
+    отдельного шага «проверим систему» нет. Логотип агента сохраняет свой цвет — чужая идентичность,
+    единственное законное исключение из «одного акцента». Доступ объясняется <b>до</b> системного
+    диалога; дерево структуры показано <b>до</b> создания и повторяет доменную модель
+    (<code>skills/</code> есть потому, что ревью правит скиллы). Модалка поднимается только на
+    необратимом (канон §8): в ней факт потери, третий выход «выбрать другую папку», безопасный путь —
+    акцент, деструктив — красный контур слева.
   </footer>
 
 </div>
