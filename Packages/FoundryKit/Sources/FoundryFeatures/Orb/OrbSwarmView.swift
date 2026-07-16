@@ -16,6 +16,18 @@ public struct OrbSwarmView: View {
     /// сведение ×8 усредняет 11 175 частиц в 44 пикселя, и зерна не остаётся.
     public static let minimumUsefulSize: CGFloat = 64
 
+    /// Холст роя — тот самый почти-чёрный, на котором рой утверждён.
+    ///
+    /// Снято с кадра, а не выведено из `clearColor`: рой считает в ЛИНЕЙНОМ
+    /// цвете, а гамму (`pow(c, 1/2.2)`, см. `OrbSwarm.metal`) возвращает
+    /// пост-пасс — поэтому линейные 0.00021/0.00033/0.00160 на экране дают
+    /// именно #05060C.
+    ///
+    /// Константа общая нарочно: подложка под роем обязана быть ровно этой, иначе
+    /// непрозрачный слой роя проступит на фоне квадратом. Раньше фон ленты был
+    /// задан отдельно (#08080F) и расходился с роем на 3/255.
+    public static let canvas = Color(red: 5 / 255, green: 6 / 255, blue: 12 / 255)
+
     private let size: CGFloat
     private let preset: OrbSwarmConfig.Preset
     private let animating: Bool
@@ -115,11 +127,16 @@ private struct OrbSwarmLayer: NSViewRepresentable {
         /// при 60 fps это 1.3% его времени. Разница между 30 и 60 в расходе
         /// незаметна, а в картинке — заметна.
         private func applyFrameRate(view: MTKView, preset: OrbSwarmConfig.Preset) {
-            let displayMax = view.window?.screen?.maximumFramesPerSecond ?? 60
-            let required = preset.minimumFramesPerSecond
-            // Промежуточные значения MTKView всё равно квантует к тому, что
-            // умеет экран, поэтому берём ближайшую достижимую ступень сверху.
-            view.preferredFramesPerSecond = required <= 60 ? min(60, displayMax) : displayMax
+            let displayHz = view.window?.screen?.maximumFramesPerSecond ?? 60
+            view.preferredFramesPerSecond = OrbSwarmConfig.achievableFrameRate(
+                preset: preset, displayHz: displayHz)
+            // Больше, чем умеет экран, не выпросишь — но и делать вид, что порог
+            // выполнен, нельзя: на 60 Гц fine недостижим, и это надо знать, а не
+            // молча получить шагающий рой.
+            assert(
+                !OrbSwarmConfig.steps(preset: preset, displayHz: displayHz),
+                "\(preset.rawValue) требует \(preset.minimumFramesPerSecond) fps,"
+                    + " экран даёт \(displayHz) — рой будет шагать. Нужен .standard.")
         }
 
         /// Перекрытое или свёрнутое окно кадров не просит: рисовать в никуда —

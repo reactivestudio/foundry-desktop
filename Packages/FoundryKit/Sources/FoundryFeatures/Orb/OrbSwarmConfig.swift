@@ -133,6 +133,32 @@ public struct OrbSwarmConfig: Equatable, Sendable {
         return count.squareRoot() / scale
     }
 
+    /// Экран не даёт пресету его порога частоты — рой будет заметно шагать.
+    ///
+    /// Третье ограничение, независимое от `flickers` и `unreadable`: те про
+    /// размер, это про экран. `fine` требует 82 fps, поэтому на обычных 60 Гц
+    /// он недостижим в принципе — тонкий помол годен в движении только на
+    /// ProMotion. Молчать об этом нельзя: кламп до 60 не «почти выполняет»
+    /// порог, а рвёт след частицы, ради которого зерно и мельчили.
+    public static func steps(preset: Preset, displayHz: Int) -> Bool {
+        displayHz < preset.minimumFramesPerSecond
+    }
+
+    /// Наименьшая частота, которую экран РЕАЛЬНО умеет и которая не ниже порога
+    /// пресета.
+    ///
+    /// Просить ровно порог нельзя: система выдаёт только делители частоты
+    /// экрана, и запрос 41 на 60 Гц округлится вниз, до 30 — то есть под порог,
+    /// ради обхода которого всё и считалось. Поэтому берём ступень сверху.
+    ///
+    /// На ProMotion это ещё и экономит: standard получит 60 из 120 — порог
+    /// выполнен, а кадров вдвое меньше.
+    public static func achievableFrameRate(preset: Preset, displayHz: Int) -> Int {
+        let divisor = displayHz / preset.minimumFramesPerSecond
+        guard divisor >= 1 else { return displayHz }   // порог недостижим — выжимаем максимум
+        return displayHz / divisor
+    }
+
     public var summary: String {
         var out = "\(Int(size)) · зерно \(String(format: "%.3f", grain * 100))% · \(count) частиц"
             + " · точка \(String(format: "%.2f", pointSizeOnScreen)) pt · сведение ×\(supersample)"

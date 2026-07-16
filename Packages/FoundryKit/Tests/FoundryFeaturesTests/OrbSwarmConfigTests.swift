@@ -87,6 +87,41 @@ struct OrbSwarmConfigTests {
         }
     }
 
+    // Третье ограничение, помимо flickers и unreadable: экран. Оно не про
+    // размер, а про то, сколько кадров железо вообще даёт.
+    @Test("fine недостижим на 60 Гц: ему нужно 82 fps")
+    func fineNeedsProMotion() {
+        #expect(OrbSwarmConfig.steps(preset: .fine, displayHz: 60))
+        #expect(!OrbSwarmConfig.steps(preset: .fine, displayHz: 120))
+        // standard проходит везде — потому он и стоит в пустом состоянии.
+        #expect(!OrbSwarmConfig.steps(preset: .standard, displayHz: 60))
+        #expect(!OrbSwarmConfig.steps(preset: .standard, displayHz: 120))
+    }
+
+    // Просить ровно порог нельзя: система выдаёт только делители частоты экрана,
+    // и запрос 41 на 60 Гц округлится ВНИЗ, до 30 — под порог. Ступень берём
+    // сверху.
+    @Test("Частота округляется вверх до достижимой, а не вниз под порог")
+    func frameRateRoundsUpToAchievableStep() {
+        // 41 на 60 Гц — ближайшая достижимая ступень сверху это 60, не 30.
+        #expect(OrbSwarmConfig.achievableFrameRate(preset: .standard, displayHz: 60) == 60)
+        // На ProMotion standard берёт 60 из 120: порог выполнен вдвое дешевле.
+        #expect(OrbSwarmConfig.achievableFrameRate(preset: .standard, displayHz: 120) == 60)
+        #expect(OrbSwarmConfig.achievableFrameRate(preset: .fine, displayHz: 120) == 120)
+        // Порог недостижим — выжимаем максимум экрана и ругаемся ассертом.
+        #expect(OrbSwarmConfig.achievableFrameRate(preset: .fine, displayHz: 60) == 60)
+    }
+
+    // Логотип в пустом состоянии: 128 pt, standard. Оба числа обязаны держаться
+    // за замеры, а не за вкус — тест ловит, если размер поедет.
+    @Test("Логотип пустого состояния читается и не шагает")
+    func emptyStateLogoHolds() {
+        let cfg = OrbSwarmConfig(preset: .standard, size: 128, scale: 2)
+        #expect(!cfg.unreadable)
+        #expect(!cfg.flickers)
+        #expect(!OrbSwarmConfig.steps(preset: .standard, displayHz: 60))
+    }
+
     // У fine вчетверо больше частиц, значит его порог ровно вдвое дальше:
     // частиц/px = N/выход², а выход растёт линейно.
     @Test("Порог fine ровно вдвое дальше порога standard")
