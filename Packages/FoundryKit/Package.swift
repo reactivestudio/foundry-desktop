@@ -6,6 +6,8 @@ let package = Package(
     platforms: [.macOS(.v15)],
     products: [
         .library(name: "FoundryFeatures", targets: ["FoundryFeatures"]),
+        // Замер роя на настоящей Metal-железке: swift run OrbBench
+        .executable(name: "OrbBench", targets: ["OrbBench"]),
     ],
     dependencies: [
         // Пре-1.0 — пиновать версию (practices 06 §1.1).
@@ -22,8 +24,10 @@ let package = Package(
         ),
         .target(
             name: "FoundryFeatures",
-            dependencies: ["FoundryCore", "FoundryCLI"]
+            dependencies: ["FoundryCore", "FoundryCLI"],
+            resources: [.process("Orb/OrbSwarm.metal")]
         ),
+        .executableTarget(name: "OrbBench", dependencies: ["FoundryFeatures"]),
         .testTarget(name: "FoundryCoreTests", dependencies: ["FoundryCore"]),
         .testTarget(name: "FoundryCLITests", dependencies: ["FoundryCLI"]),
         .testTarget(name: "FoundryFeaturesTests", dependencies: ["FoundryFeatures"]),
