@@ -17,7 +17,9 @@ public struct RunConsoleView: View {
             Divider().overlay(.white.opacity(0.08))
             promptArea
         }
-        .background(Color(red: 0.03, green: 0.03, blue: 0.06))
+        // Холст — общий с роем: логотип непрозрачен, и любой другой почти-чёрный
+        // проступил бы под ним квадратом.
+        .background(OrbSwarmView.canvas)
         .preferredColorScheme(.dark)
         .frame(minWidth: 640, minHeight: 480)
     }
@@ -96,24 +98,24 @@ public struct RunConsoleView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    /// Пустое состояние — единственное место, где приложение представляется, и
+    /// потому единственное место логотипа. Рой тут живёт бесплатно: показывается
+    /// он ровно тогда, когда работы нет, и исчезает с первым же событием ленты.
+    ///
+    /// 128 pt и `.standard` — не вкус, а два замера. Порог читаемости standard —
+    /// 53 pt, так что 128 берёт его с запасом. А `.fine` при 128 тоже читался бы,
+    /// но требует 82 fps и на обычных 60 Гц заметно шагает: тонкий помол годен
+    /// в движении только на ProMotion.
     private var emptyState: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "sparkles")
-                .font(.system(size: 36))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [.cyan, .purple],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+        VStack(spacing: 18) {
+            OrbSwarmView(size: 128, preset: .standard)
             Text(
                 "Выбери проект, напиши промпт — claude запустится в его каталоге.\nСессию можно продолжить: claude --resume <id> из каталога проекта."
             )
             .multilineTextAlignment(.center)
             .foregroundStyle(.secondary)
         }
-        .padding(.top, 120)
+        .padding(.top, 72)
     }
 
     private func failureCard(_ message: String) -> some View {
