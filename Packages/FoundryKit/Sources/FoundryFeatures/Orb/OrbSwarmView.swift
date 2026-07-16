@@ -3,10 +3,10 @@ import SwiftUI
 
 /// Рой «Восход» в SwiftUI.
 ///
-/// Считать рой дёшево: на M1 Max логотип 64 занимает GPU на 0.107 мс в кадре —
-/// 0.6% бюджета при 60 fps. Дорого другое: будить GPU по 60 раз в секунду,
-/// когда показывать нечего. Поэтому вид анимирует только пока `animating`, а в
-/// покое замирает на кадре и кадров не просит.
+/// Считать рой дёшево: на M1 Max логотип 64 занимает GPU на 0.212 мс в кадре —
+/// 1.3% бюджета при 60 fps. Дорого другое: будить GPU, когда показывать нечего.
+/// Поэтому вид анимирует только пока `animating`, а в покое замирает на кадре и
+/// кадров не просит.
 ///
 /// Ниже 64 pt рой не имеет смысла: зерно не помещается в пиксель, сведение
 /// усредняет частицы в сплошное пятно, и «рой» перестаёт читаться роем —
@@ -52,9 +52,6 @@ private struct OrbSwarmLayer: NSViewRepresentable {
         // Фон роя непрозрачен (#05060C) — слой тоже, иначе композитор зря
         // смешивал бы его с подложкой.
         view.layer?.isOpaque = true
-        // Рой медленный: оборот 20.9 с, цикл 54 с. На 30 fps разницы не видно,
-        // а расход вдвое ниже.
-        view.preferredFramesPerSecond = 30
         view.delegate = context.coordinator
         context.coordinator.configure(view: view, size: size, preset: preset)
         context.coordinator.setAnimating(animating, view: view)
@@ -104,7 +101,25 @@ private struct OrbSwarmLayer: NSViewRepresentable {
                 }
             }
             config = cfg
+            applyFrameRate(view: view, preset: preset)
             observeOcclusion(view: view)
+        }
+
+        /// Частота кадров — из порога пресета, а не из экономии.
+        ///
+        /// 30 fps тут мало, хотя рой и кажется медленным: за кадр частица
+        /// проходит 1.4 своего диаметра, след рвётся и видна ступенька. Порог
+        /// standard — 41 fps, fine — 82 (зерно вдвое мельче при том же сдвиге).
+        ///
+        /// Экономить нечем: на M1 Max логотип 64 занимает GPU на 0.212 мс, и
+        /// при 60 fps это 1.3% его времени. Разница между 30 и 60 в расходе
+        /// незаметна, а в картинке — заметна.
+        private func applyFrameRate(view: MTKView, preset: OrbSwarmConfig.Preset) {
+            let displayMax = view.window?.screen?.maximumFramesPerSecond ?? 60
+            let required = preset.minimumFramesPerSecond
+            // Промежуточные значения MTKView всё равно квантует к тому, что
+            // умеет экран, поэтому берём ближайшую достижимую ступень сверху.
+            view.preferredFramesPerSecond = required <= 60 ? min(60, displayMax) : displayMax
         }
 
         /// Перекрытое или свёрнутое окно кадров не просит: рисовать в никуда —
