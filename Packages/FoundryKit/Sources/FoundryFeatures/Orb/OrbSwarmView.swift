@@ -32,9 +32,11 @@ public struct OrbSwarmView: View {
     private let preset: OrbSwarmConfig.Preset
     private let animating: Bool
 
-    public init(size: CGFloat = 64,
-                preset: OrbSwarmConfig.Preset = .standard,
-                animating: Bool = true) {
+    public init(
+        size: CGFloat = 64,
+        preset: OrbSwarmConfig.Preset = .standard,
+        animating: Bool = true
+    ) {
         self.size = size
         self.preset = preset
         self.animating = animating
@@ -168,7 +170,7 @@ private struct OrbSwarmLayer: NSViewRepresentable {
             animating = on
             view.isPaused = !on
             view.enableSetNeedsDisplay = !on
-            if !on { view.needsDisplay = true }   // дорисовать замерший кадр
+            if !on { view.needsDisplay = true }  // дорисовать замерший кадр
         }
 
         func stop() {
@@ -182,8 +184,9 @@ private struct OrbSwarmLayer: NSViewRepresentable {
 
         func draw(in view: MTKView) {
             guard let renderer,
-                  let drawable = view.currentDrawable,
-                  let cb = renderer.makeCommandBuffer() else { return }
+                let drawable = view.currentDrawable,
+                let cb = renderer.makeCommandBuffer()
+            else { return }
             let t = animating ? Float(CACurrentMediaTime() - start) : frozen
             if animating { frozen = t }
             renderer.encode(into: cb, output: drawable.texture, time: t)

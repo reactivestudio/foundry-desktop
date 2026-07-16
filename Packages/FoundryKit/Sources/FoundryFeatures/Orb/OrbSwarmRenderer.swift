@@ -32,7 +32,7 @@ public final class OrbSwarmRenderer {
 
         public var description: String {
             switch self {
-            case .noLibrary(let m):  return "не собралась библиотека шейдеров: \(m)"
+            case .noLibrary(let m): return "не собралась библиотека шейдеров: \(m)"
             case .noFunction(let n): return "в библиотеке нет функции \(n)"
             }
         }
@@ -119,8 +119,10 @@ public final class OrbSwarmRenderer {
     }
 
     public func update(config newConfig: OrbSwarmConfig) {
-        guard newConfig.buffer != config.buffer || newConfig.count != config.count
-                || newConfig.pointSize != config.pointSize else {
+        guard
+            newConfig.buffer != config.buffer || newConfig.count != config.count
+                || newConfig.pointSize != config.pointSize
+        else {
             config = newConfig
             return
         }
@@ -147,9 +149,11 @@ public final class OrbSwarmRenderer {
 
     /// Кодирует оба прохода. Вызывающий сам коммитит буфер — так замер может
     /// повесить обработчик, а окно презентует drawable.
-    public func encode(into commandBuffer: MTLCommandBuffer,
-                       output: MTLTexture,
-                       time: Float) {
+    public func encode(
+        into commandBuffer: MTLCommandBuffer,
+        output: MTLTexture,
+        time: Float
+    ) {
         // 1. частицы — непрозрачными, с тестом глубины, в линейный буфер
         let pass = MTLRenderPassDescriptor()
         pass.colorAttachments[0].texture = colorTexture

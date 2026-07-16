@@ -1,4 +1,5 @@
 import Testing
+
 @testable import FoundryFeatures
 
 // Раскладка роя обязана совпадать с прототипом design/loader-logo.html число в

@@ -14,20 +14,20 @@ struct Case {
     let size: Float
 }
 
-let scale: Float = 2.0        // Retina
+let scale: Float = 2.0  // Retina
 let warmup = 20
 let frames = 200
 
 let cases: [Case] = [
     Case(label: "орб в тулбаре 22", preset: .standard, size: 22),
-    Case(label: "логотип 64",       preset: .standard, size: 64),
-    Case(label: "логотип 128",      preset: .standard, size: 128),
-    Case(label: "логотип 128 fine", preset: .fine,     size: 128),
-    Case(label: "логотип 256",      preset: .standard, size: 256),
-    Case(label: "логотип 512",      preset: .standard, size: 512),
-    Case(label: "логотип 512 fine", preset: .fine,     size: 512),
-    Case(label: "логотип 64 fine",  preset: .fine,     size: 64),
-    Case(label: "логотип 32",       preset: .standard, size: 32),
+    Case(label: "логотип 64", preset: .standard, size: 64),
+    Case(label: "логотип 128", preset: .standard, size: 128),
+    Case(label: "логотип 128 fine", preset: .fine, size: 128),
+    Case(label: "логотип 256", preset: .standard, size: 256),
+    Case(label: "логотип 512", preset: .standard, size: 512),
+    Case(label: "логотип 512 fine", preset: .fine, size: 512),
+    Case(label: "логотип 64 fine", preset: .fine, size: 64),
+    Case(label: "логотип 32", preset: .standard, size: 32),
 ]
 
 guard let device = MTLCreateSystemDefaultDevice() else {
@@ -57,9 +57,10 @@ func rpad(_ s: String, _ w: Int) -> String {
     s.count >= w ? s : String(repeating: " ", count: w - s.count) + s
 }
 
-print(pad("конфигурация", 19) + rpad("частиц", 7) + rpad("SS", 4) + rpad("буфер", 7)
-      + rpad("точка", 7) + rpad("част/px", 8)
-      + rpad("GPU мс", 9) + rpad("макс мс", 9) + rpad("% кадра", 9))
+print(
+    pad("конфигурация", 19) + rpad("частиц", 7) + rpad("SS", 4) + rpad("буфер", 7)
+        + rpad("точка", 7) + rpad("част/px", 8)
+        + rpad("GPU мс", 9) + rpad("макс мс", 9) + rpad("% кадра", 9))
 
 for c in cases {
     let cfg = OrbSwarmConfig(preset: c.preset, size: c.size, scale: scale)
@@ -93,13 +94,14 @@ for c in cases {
     var warn = ""
     if cfg.unreadable { warn += "  ⚠ пятно: \(String(format: "%.1f", cfg.particlesPerPixel)) частиц/px" }
     if cfg.flickers { warn += "  ⚠ мельтешит" }
-    print(pad(c.label, 19) + rpad("\(cfg.count)", 7) + rpad("×\(cfg.supersample)", 4)
-          + rpad("\(cfg.buffer)", 7)
-          + rpad(String(format: "%.2f", cfg.pointSizeOnScreen), 7)
-          + rpad(String(format: "%.2f", cfg.particlesPerPixel), 8)
-          + rpad(String(format: "%.3f", median), 9)
-          + rpad(String(format: "%.3f", worst), 9)
-          + rpad(String(format: "%.2f%%", share), 9) + warn)
+    print(
+        pad(c.label, 19) + rpad("\(cfg.count)", 7) + rpad("×\(cfg.supersample)", 4)
+            + rpad("\(cfg.buffer)", 7)
+            + rpad(String(format: "%.2f", cfg.pointSizeOnScreen), 7)
+            + rpad(String(format: "%.2f", cfg.particlesPerPixel), 8)
+            + rpad(String(format: "%.3f", median), 9)
+            + rpad(String(format: "%.3f", worst), 9)
+            + rpad(String(format: "%.2f%%", share), 9) + warn)
 }
 
 print("")
@@ -129,12 +131,14 @@ if CommandLine.arguments.contains("--dump") {
         for t in times {
             guard let cb = r.makeCommandBuffer() else { continue }
             r.encode(into: cb, output: out, time: t)
-            cb.commit(); cb.waitUntilCompleted()
+            cb.commit()
+            cb.waitUntilCompleted()
 
             let count = cfg.output * cfg.output * 4
             var bytes = [UInt8](repeating: 0, count: count)
-            out.getBytes(&bytes, bytesPerRow: cfg.output * 4,
-                         from: MTLRegionMake2D(0, 0, cfg.output, cfg.output), mipmapLevel: 0)
+            out.getBytes(
+                &bytes, bytesPerRow: cfg.output * 4,
+                from: MTLRegionMake2D(0, 0, cfg.output, cfg.output), mipmapLevel: 0)
             let name = "\(c.preset.rawValue)-\(Int(c.size))-t\(Int(t)).raw"
             try Data(bytes).write(to: dir.appendingPathComponent(name))
             print("\(name) — \(cfg.output)×\(cfg.output)")

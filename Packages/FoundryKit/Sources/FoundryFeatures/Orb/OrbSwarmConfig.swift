@@ -15,7 +15,7 @@ public struct OrbSwarmConfig: Equatable, Sendable {
     static let taper: Float = 0.5
 
     /// Зерно утверждённого лоадера: точка 2.6 px в кадре 900 против тела кадра.
-    static let grainLoader: Float = (2.6 * 2.4 / 900) / (orb * 2.4)   // 1.376%
+    static let grainLoader: Float = (2.6 * 2.4 / 900) / (orb * 2.4)  // 1.376%
 
     /// Заполненность утверждённого роя = N × зерно². Держим её постоянной,
     /// поэтому N = coverage / зерно². Без пересчёта «мельче зерно» означало бы
@@ -39,7 +39,7 @@ public struct OrbSwarmConfig: Equatable, Sendable {
 
         var grain: Float {
             switch self {
-            case .fine:     return 0.00504
+            case .fine: return 0.00504
             case .standard: return 0.01008
             }
         }
@@ -54,7 +54,7 @@ public struct OrbSwarmConfig: Equatable, Sendable {
         /// У fine зерно вдвое мельче при том же сдвиге, поэтому порог вдвое выше.
         var minimumFramesPerSecond: Int {
             switch self {
-            case .fine:     return 82
+            case .fine: return 82
             case .standard: return 41
             }
         }
@@ -96,7 +96,8 @@ public struct OrbSwarmConfig: Equatable, Sendable {
 
         var ss = 1
         while ss < Self.maxSupersample,
-              grain * Self.orb * Self.zoom * Float(out) * Float(ss) < Self.minPointSize {
+            grain * Self.orb * Self.zoom * Float(out) * Float(ss) < Self.minPointSize
+        {
             ss *= 2
         }
         self.supersample = ss
@@ -155,21 +156,24 @@ public struct OrbSwarmConfig: Equatable, Sendable {
     /// выполнен, а кадров вдвое меньше.
     public static func achievableFrameRate(preset: Preset, displayHz: Int) -> Int {
         let divisor = displayHz / preset.minimumFramesPerSecond
-        guard divisor >= 1 else { return displayHz }   // порог недостижим — выжимаем максимум
+        guard divisor >= 1 else { return displayHz }  // порог недостижим — выжимаем максимум
         return displayHz / divisor
     }
 
     public var summary: String {
-        var out = "\(Int(size)) · зерно \(String(format: "%.3f", grain * 100))% · \(count) частиц"
+        var out =
+            "\(Int(size)) · зерно \(String(format: "%.3f", grain * 100))% · \(count) частиц"
             + " · точка \(String(format: "%.2f", pointSizeOnScreen)) pt · сведение ×\(supersample)"
             + " · буфер \(buffer)"
             + " · \(String(format: "%.2f", particlesPerPixel)) частиц/px"
         if unreadable {
-            out += "\n⚠ частиц больше, чем пикселей (\(String(format: "%.2f", particlesPerPixel))/px):"
+            out +=
+                "\n⚠ частиц больше, чем пикселей (\(String(format: "%.2f", particlesPerPixel))/px):"
                 + " рой вырождается в пятно"
         }
         if flickers {
-            out += "\n⚠ точка \(String(format: "%.2f", pointSize)) px в буфере при пороге"
+            out +=
+                "\n⚠ точка \(String(format: "%.2f", pointSize)) px в буфере при пороге"
                 + " \(Self.minPointSize): рой будет мельтешить на движении"
         }
         return out
