@@ -112,6 +112,8 @@ print("% кадра — доля бюджета 16.7 мс при 60 fps.")
 if CommandLine.arguments.contains("--dump") {
     let dir = URL(fileURLWithPath: "/tmp/orbshots")
     try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    // Цикл роя — 54 с; берём девять точек, чтобы поймать обе семьи и переходы.
+    let times: [Float] = stride(from: Float(0), to: 54, by: 6).map { $0 }
     for c in cases {
         let cfg = OrbSwarmConfig(preset: c.preset, size: c.size, scale: scale)
         let r = try OrbSwarmRenderer(device: device, config: cfg, outputFormat: .rgba8Unorm)
@@ -119,17 +121,23 @@ if CommandLine.arguments.contains("--dump") {
             pixelFormat: .rgba8Unorm, width: cfg.output, height: cfg.output, mipmapped: false)
         d.usage = [.renderTarget, .shaderRead]
         d.storageMode = .shared
-        guard let out = device.makeTexture(descriptor: d), let cb = r.makeCommandBuffer() else { continue }
-        // Кадр 20 — тот же, что снимался с прототипа.
-        r.encode(into: cb, output: out, time: 20.0)
-        cb.commit(); cb.waitUntilCompleted()
+        guard let out = device.makeTexture(descriptor: d) else { continue }
 
-        let count = cfg.output * cfg.output * 4
-        var bytes = [UInt8](repeating: 0, count: count)
-        out.getBytes(&bytes, bytesPerRow: cfg.output * 4,
-                     from: MTLRegionMake2D(0, 0, cfg.output, cfg.output), mipmapLevel: 0)
-        let name = "\(c.preset.rawValue)-\(Int(c.size)).raw"
-        try Data(bytes).write(to: dir.appendingPathComponent(name))
-        print("\(name) — \(cfg.output)×\(cfg.output)")
+        // Логотип — это ОДИН кадр из цикла в 54 с, и какой именно достанется
+        // зрителю, никто не выбирает. Поэтому снимаем не «кадр 20», а развёртку
+        // по циклу: если форма читается только иногда, логотипом это не годится.
+        for t in times {
+            guard let cb = r.makeCommandBuffer() else { continue }
+            r.encode(into: cb, output: out, time: t)
+            cb.commit(); cb.waitUntilCompleted()
+
+            let count = cfg.output * cfg.output * 4
+            var bytes = [UInt8](repeating: 0, count: count)
+            out.getBytes(&bytes, bytesPerRow: cfg.output * 4,
+                         from: MTLRegionMake2D(0, 0, cfg.output, cfg.output), mipmapLevel: 0)
+            let name = "\(c.preset.rawValue)-\(Int(c.size))-t\(Int(t)).raw"
+            try Data(bytes).write(to: dir.appendingPathComponent(name))
+            print("\(name) — \(cfg.output)×\(cfg.output)")
+        }
     }
 }
