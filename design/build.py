@@ -19,6 +19,7 @@
 
 import html
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -183,6 +184,60 @@ def rgba_text(rgb, alpha):
 def parse_tracking(tracking):
     """«+6%» → 0.06 (доля кегля)."""
     return float(tracking.strip().lstrip("+").rstrip("%")) / 100.0
+
+
+# --------------------------------------------------------------------------
+# Колориметрия: OKLCH и контраст
+#
+# Канон объявляет о себе проверяемые вещи: «равные шаги ΔL ≈ 0.03 в OKLCH»,
+# «hue удержан в 294±1», «янтарь всего в 9° от sem.warning», «ультрамарин
+# даёт 4.0:1 и не проходит». Заявление, которое некому проверить, — не
+# правило, а намерение (доктрина: правило, которое не проверяется, не
+# существует). Поэтому числа считаются здесь из hex, а не переписываются
+# из главы: если кто-то подвинет цвет, витрина покажет новую правду сама.
+# --------------------------------------------------------------------------
+
+def srgb_to_linear(channel):
+    """0–255 → линейный sRGB 0–1."""
+    value = channel / 255.0
+    return value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4
+
+
+def oklch(rgb):
+    """(r,g,b) 0–255 → (L, C, H): светлота 0–1, хрома, тон в градусах.
+    Матрицы — Björn Ottosson, OKLab."""
+    red, green, blue = (srgb_to_linear(channel) for channel in rgb)
+    long_ = 0.4122214708 * red + 0.5363325363 * green + 0.0514459929 * blue
+    medium = 0.2119034982 * red + 0.6806995451 * green + 0.1073969566 * blue
+    short = 0.0883024619 * red + 0.2817188376 * green + 0.6299787005 * blue
+    long_, medium, short = (cube_root(value) for value in (long_, medium, short))
+    lightness = 0.2104542553 * long_ + 0.7936177850 * medium - 0.0040720468 * short
+    green_red = 1.9779984951 * long_ - 2.4285922050 * medium + 0.4505937099 * short
+    blue_yellow = 0.0259040371 * long_ + 0.7827717662 * medium - 0.8086757660 * short
+    chroma = math.hypot(green_red, blue_yellow)
+    hue = math.degrees(math.atan2(blue_yellow, green_red)) % 360.0
+    return lightness, chroma, hue
+
+
+def cube_root(value):
+    return value ** (1.0 / 3.0) if value >= 0 else -((-value) ** (1.0 / 3.0))
+
+
+def relative_luminance(rgb):
+    """WCAG 2.x: яркость цвета."""
+    red, green, blue = (srgb_to_linear(channel) for channel in rgb)
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+
+def composite(rgb, alpha, over):
+    """Альфа-белый — это не цвет, а рецепт: пока он не лёг на фон, контраст
+    у него посчитать нельзя. Браузер смешивает в sRGB — здесь так же."""
+    return tuple(alpha * rgb[index] + (1.0 - alpha) * over[index] for index in range(3))
+
+
+def contrast_ratio(first, second):
+    bright, dark = sorted((relative_luminance(first), relative_luminance(second)), reverse=True)
+    return (bright + 0.05) / (dark + 0.05)
 
 
 # --------------------------------------------------------------------------
@@ -941,223 +996,760 @@ def collect_rejected():
     return found
 
 
-SHOWCASE_STYLE = """
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg-base);
-    color: var(--text-primary);
-    font-family: var(--font-text);
-    font-size: var(--type-body-size);
-    line-height: var(--type-body-leading);
-  }
-  a { color: var(--text-accent); }
-  code { font-family: var(--font-mono); font-size: var(--type-mono-s-size); }
+# Одна строка на категорию — обоснование, которым секция открывается.
+# Границы категорий описаны в design/parts/README.md; здесь только подписи.
+BOARD_LEDE = {
+    "1-foundation": "Это значение, а не вещь. Всё ниже нарисовано из tokens.json — "
+                    "поменяется хекс в источнике, поменяется эта страница.",
+    "2-marks": "Это опознавательный знак продукта: иконка, вордмарк, орб, лоадер, DMG.",
+    "3-elements": "В одиночку смысла не имеет и про домен не знает.",
+    "4-blocks": "Смысл имеет и про домен знает: change, стадия, CRISPY.",
+    "5-layers": "Это контейнер для другого: окно, панель, поповер, модалка, тост.",
+    "6-views": "Это целый экран — и вся система, работающая на нём разом.",
+    "7-behaviour": "Это сквозное поведение, а не вещь на экране.",
+}
 
-  header {
-    padding: var(--space-8) var(--space-8) var(--space-5);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-  h1 {
-    margin: 0 0 var(--space-2);
-    font-size: var(--type-title-size);
-    line-height: var(--type-title-leading);
-    font-weight: var(--type-title-weight);
-  }
-  header p { margin: 0; color: var(--text-secondary); max-width: 640px; }
+# Макет девятнадцати экранов: единственное место, где систему видно в работе.
+MOCKUPS = "../docs/design/mockups/foundry-mockups.html"
 
-  nav {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1);
-    padding: var(--space-3) var(--space-8);
-    background: var(--bg-raised);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-  nav a {
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-m);
-    color: var(--text-secondary);
-    text-decoration: none;
-  }
-  nav a:hover { background: var(--bg-hover); color: var(--text-primary); }
-  nav .count { color: var(--text-tertiary); }
+# Образцы лестницы кеглей — реальные строки продукта. Lorem прячет ровно то,
+# ради чего лестницу и смотрят (02 §13, дизайн от данных): длину, цифры,
+# кириллицу и то, как «Вернуть на доработку» ведёт себя в 13 pt.
+TYPE_SPECIMEN = {
+    "hero": "Foundry AI",
+    "display": "142",
+    "title": "Ревью артефактов",
+    "heading": "Ждёт твоего ревью",
+    "body": "Questions · Research · Design · Structure · Plan · Worktree · Implement · PR",
+    "body-em": "Вернуть на доработку",
+    "caption": "backlog · in-progress · done · declined",
+    "caption2": "0 4 8 12 16 итераций",
+    "label": "Проекты",
+    "mono": "git worktree add ../crispy-42a1f stage/implement",
+    "mono-s": "42a1f · 1284 строки",
+}
 
-  main { padding: var(--space-6) var(--space-8) var(--space-10); }
-  section { margin-bottom: var(--space-10); }
-  section > h2 {
-    margin: 0 0 var(--space-1);
-    font-size: var(--type-heading-size);
-    line-height: var(--type-heading-leading);
-    font-weight: var(--type-heading-weight);
-  }
-  section > p.note { margin: 0 0 var(--space-5); color: var(--text-secondary); max-width: 720px; }
+# Ступени, которые складываются в лестницу светлоты. Остальные bg.* —
+# накладки поверх текущего уровня, у них нет своей ступени (bg._role).
+RAMP_GROUPS = [
+    ("bg", ["base", "surface", "raised", "overlay"]),
+]
 
-  .band {
-    padding: var(--space-5);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-xl);
-    background: var(--bg-surface);
-  }
-  .band.candidates { border-color: var(--sem-warning-border); }
+# Порог WCAG для обычного текста. Недоступное WCAG 1.4.3 не нормирует —
+# требовать от него контраста значило бы поднять ложную тревогу на доске.
+CONTRAST_THRESHOLD = 4.5
+CONTRAST_EXEMPT = {"text.disabled"}
 
-  .grid { display: grid; gap: var(--space-5); grid-template-columns: 1fr; }
-  @media (min-width: 1100px) { .grid { grid-template-columns: 1fr 1fr; } }
+# Ультрамарин в матрице текста стоит не по ошибке: text._role объявляет, что
+# текстом он не бывает, и доска обязана показать, ПОЧЕМУ — 4.0:1 на bg.base.
+# Правило, которое видно проваливающимся, не нуждается в заучивании.
+CONTRAST_EXTRA_INKS = ["brand.ultramarine"]
 
-  .card {
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-l);
-    background: var(--bg-surface);
-    overflow: hidden;
-  }
-  .card-head {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-2);
-    padding: var(--space-4) var(--space-4) 0;
-  }
-  .card-head h3 {
-    margin: 0;
-    font-size: var(--type-heading-size);
-    line-height: var(--type-heading-leading);
-    font-weight: var(--type-heading-weight);
-  }
-  .card-head .slug { color: var(--text-tertiary); font-family: var(--font-mono); }
+# text.on-accent — тот же белый 100%, что и text.primary, и работа у него
+# не на поверхностях, а на заливках. В матрице поверхностей он был бы вторым
+# рисунком того же числа (11 §1.1): те же чернила, тот же ответ.
+CONTRAST_SKIP_INKS = {"text.on-accent"}
 
-  .chip {
-    padding: 0 var(--space-2);
-    border-radius: var(--radius-s);
-    font-size: var(--type-caption-size);
-    line-height: var(--type-caption-leading);
-    white-space: nowrap;
-  }
-  .chip-accepted { background: var(--sem-success-fill); color: var(--sem-success); }
-  .chip-candidate { background: var(--sem-warning-fill); color: var(--sem-warning); }
-  .chip-rejected { background: var(--sem-error-fill); color: var(--sem-error); }
-
-  /* Образец — якорь карточки: идёт первым и держит её размером (02 §2.3). */
-  .stage { background: var(--bg-base); border-bottom: 1px solid var(--border-subtle); }
-  .stage iframe { display: block; width: 100%; border: 0; }
-  .stage-note {
-    margin: 0;
-    padding: var(--space-2) var(--space-4);
-    color: var(--text-tertiary);
-    font-size: var(--type-caption-size);
-    line-height: var(--type-caption-leading);
-  }
-
-  dl { margin: 0; padding: var(--space-4); }
-  dt {
-    margin-bottom: var(--space-1);
-    color: var(--text-tertiary);
-    font-size: var(--type-label-size);
-    line-height: var(--type-label-leading);
-    font-weight: var(--type-label-weight);
-    text-transform: var(--type-label-caps);
-    letter-spacing: var(--type-label-tracking);
-  }
-  dd { margin: 0 0 var(--space-3); color: var(--text-secondary); }
-  dd:last-child { margin-bottom: 0; }
-  dd.never { color: var(--text-primary); }
-  dd.debt { color: var(--sem-warning); }
-
-  .tokens { display: flex; flex-wrap: wrap; gap: var(--space-1); }
-  .tokens span {
-    padding: 0 var(--space-1);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-s);
-    font-family: var(--font-mono);
-    font-size: var(--type-mono-s-size);
-    color: var(--text-secondary);
-  }
-
-  /* Родословную читают раз в жизни — она лежит за раскрытием (02 §1.1). */
-  details { border-top: 1px solid var(--border-subtle); }
-  details summary {
-    padding: var(--space-2) var(--space-4);
-    color: var(--text-tertiary);
-    font-size: var(--type-label-size);
-    line-height: var(--type-label-leading);
-    font-weight: var(--type-label-weight);
-    text-transform: var(--type-label-caps);
-    letter-spacing: var(--type-label-tracking);
-    cursor: pointer;
-    list-style-position: inside;
-  }
-  details summary:hover { color: var(--text-secondary); }
-  details p {
-    margin: 0;
-    padding: 0 var(--space-4) var(--space-4);
-    color: var(--text-tertiary);
-  }
-
-  /* Кандидат в своей категории: строка-ссылка в приёмную, не второй образец. */
-  .reference {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin: var(--space-3) 0 0;
-    padding: var(--space-2) var(--space-3);
-    border: 1px dashed var(--border-default);
-    border-radius: var(--radius-m);
-    color: var(--text-tertiary);
-  }
-
-  .empty {
-    padding: var(--space-6);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-l);
-    color: var(--text-tertiary);
-    text-align: center;
-  }
-
-  table.rejected { width: 100%; border-collapse: collapse; }
-  table.rejected th, table.rejected td {
-    padding: var(--space-2) var(--space-3);
-    border-bottom: 1px solid var(--border-subtle);
-    text-align: left;
-    vertical-align: top;
-  }
-  table.rejected th {
-    color: var(--text-tertiary);
-    font-size: var(--type-caption-size);
-    font-weight: var(--type-caption-weight);
-  }
-  table.rejected td { color: var(--text-secondary); }
-"""
+# Заявленный контраст пишется в источнике с одним знаком после запятой,
+# поэтому честная ошибка округления — до 0.05. Всё, что разъехалось сильнее,
+# разъехалось не округлением.
+CONTRAST_CLAIM_TOLERANCE = 0.055
 
 STATUS_CHIP = {"принят": "chip-accepted", "кандидат": "chip-candidate", "отвергнут": "chip-rejected"}
+
+# Разбиение прозы на фразы. Точка с пробелом и заглавной дальше — граница;
+# «13-tokens.md», «§4.2» и «0.03» точками не режутся.
+SENTENCE = re.compile(r"(?<=[.!?])\s+(?=[А-ЯЁA-Z«])")
+
+# Метки запрета в прозе токенов. Список закрытый и короткий намеренно: он
+# ловит то, что автор токена выделил САМ (капсом или прямым «не …»), и не
+# пытается понять русский язык. Не поймал — значит, автор не выделил.
+PROHIBITION = re.compile(
+    r"НИКОГДА|ЗАПРЕЩ|ЖЁСТКОЕ ПРАВИЛО|отвергнут|"
+    r"не возвращать|не применя|не используется|не хардкод|не перепрыгивает|"
+    r"не смешив|не больше|не как |не бывает|"
+    r"промежуточных значений нет|дублируется формой"
+)
+
+# Группы, которые секция «Основа» рисует. «Можно» закрывает ровно то, что
+# читатель только что видел доказанным, — поэтому список тут, а не «все
+# группы источника»: у font, icon и row правило есть, но доска его не
+# показывала, и объявлять его в суждении было бы враньём про эту страницу.
+# «Нельзя» так не сужается: запрет остаётся запретом, где бы он ни лежал.
+FOUNDATION_GROUPS = ["brand", "bg", "border", "text", "sem", "space", "radius", "type",
+                     "motion", "glow"]
 
 
 def escape(value):
     return html.escape(str(value), quote=True)
 
 
-def render_card(record):
-    """Одна часть. Порядок сверху вниз — образец, имя, зачем, никогда, чипы,
-    родословная за раскрытием.
+def sentences(text):
+    return [part.strip() for part in SENTENCE.split((text or "").strip()) if part.strip()]
 
-    Образец идёт первым и держит карточку размером: на витрину приходят
-    с вопросом «как это выглядит», а якорь обязан совпадать с вопросом,
-    с которым пришли (02-composition.md §2.3). Проза о части — подпорка
-    к образцу, и чернил ей положено меньше, чем данным (11-dataviz.md §1.1).
-    Родословная — происхождение, а не закон: её читают раз в жизни, когда
-    спорят, откуда взялось, поэтому она уходит за раскрытие (02 §1.1, третий
-    вопрос маршрута). «Никогда» так свернуть нельзя: это главное поле
-    контракта, оно обязано читаться без клика.
 
-    iframe — чтобы части не передрались стилями (README, «Файл части»).
+def first_sentence(text):
+    parts = sentences(text)
+    return parts[0] if parts else ""
+
+
+def rest_sentences(text):
+    return sentences(text)[1:]
+
+
+def prohibitions(text):
+    """Фразы прозы, помеченные автором как запрет."""
+    return [phrase for phrase in sentences(text) if PROHIBITION.search(phrase)]
+
+
+# --------------------------------------------------------------------------
+# Обложка
+# --------------------------------------------------------------------------
+
+def count_tokens(tokens):
+    return sum(1 for _path, _token in iterate_tokens(tokens))
+
+
+def board_cover(tokens, law_parts, candidates, rejected):
+    """Единственная задача обложки — показать, что это спроектированная вещь.
+    Цифры на ней не украшение: это состояние системы на момент сборки."""
+    facts = [
+        (count_tokens(tokens), "токенов в источнике"),
+        (len(law_parts), "частей — закон"),
+        (len(candidates), "в приёмной — не закон"),
+        (len(rejected), "отвергнуто, с причиной"),
+    ]
+    lines = ['<section class="cover">']
+    lines.append("  <h1>Дизайн-система Foundry</h1>")
+    lines.append('  <p class="lede">Не описание системы, а сама система, собранная в одном месте: '
+                 "каждая ступень, кегль и отступ ниже — <b>не картинка решения, а решение</b>. "
+                 "Значения приезжают из <code>tokens.json</code> при сборке; поменяется хекс "
+                 "в источнике — поменяется эта страница.</p>")
+    lines.append('  <div class="cover-facts">')
+    for number, caption in facts:
+        lines.append('    <div class="cover-fact"><b>%d</b><span>%s</span></div>' % (number, escape(caption)))
+    lines.append("  </div>")
+    lines.append("</section>")
+    return lines
+
+
+# --------------------------------------------------------------------------
+# 01 · Основа — секция, ради которой доска существует
+# --------------------------------------------------------------------------
+
+def ink_on(tokens, path):
+    """Цвет подписи на цветной ступени витрина не выбирает вкусом, а считает:
+    что контрастнее — белый или bg.base. Ровно там, где выбор переворачивается,
+    и проходит граница text.on-accent («на циане, мадженте и янтаре белый
+    ЗАПРЕЩЁН»)."""
+    token = find_token(tokens, path)
+    rgb = resolve_rgb(tokens, token, path)
+    base = resolve_rgb(tokens, find_token(tokens, "bg.base"), "bg.base")
+    return "on-dark" if contrast_ratio((255, 255, 255), rgb) < contrast_ratio(base, rgb) else ""
+
+
+def ramp_block(tokens, group_name, names, title, hint, prove_steps):
+    """Лестница вместо сетки свотчей.
+
+    Сетка свотчей показывает N цветов; лестница показывает N решений. Ступень
+    видна только рядом с соседней — поэтому полоса непрерывна, и поэтому под
+    ней стоит столбик длиной ∝ ΔL: правило «равные шаги ΔL ≈ 0.03» доска
+    ОБЯЗАНА показать глазу, а не пересказать словами.
+    """
+    steps = []
+    previous = None
+    for name in names:
+        path = "%s.%s" % (group_name, name)
+        token = find_token(tokens, path)
+        rgb = resolve_rgb(tokens, token, path)
+        lightness, chroma, hue = oklch(rgb)
+        steps.append({
+            "path": path,
+            "hex": resolve_hex(tokens, token, path),
+            "L": lightness,
+            "C": chroma,
+            "H": hue,
+            "delta": None if previous is None else lightness - previous,
+            "role": token.get("role", ""),
+            "ink": ink_on(tokens, path),
+        })
+        previous = lightness
+
+    columns = "repeat(%d, 1fr)" % len(steps)
+    lines = ['<div class="block" id="ramp-%s">' % escape(group_name)]
+    lines.append('  <div class="block-head"><h3>%s</h3><span class="hint">%s</span></div>' % (title, hint))
+    lines.append('  <div class="ramp-band" style="grid-template-columns: %s">' % columns)
+    for step in steps:
+        lines.append('    <div class="ramp-cell %s" style="background: %s" data-token="%s" data-hex="%s">'
+                     % (step["ink"], "var(%s)" % variable_name(step["path"]),
+                        escape(step["path"]), escape(step["hex"])))
+        lines.append("      <b>%s</b>" % escape(step["path"]))
+        lines.append('      <span class="v">%s</span>' % escape(step["hex"]))
+        lines.append('      <span class="v">L %.3f · C %.3f · H %.1f°</span>'
+                     % (step["L"], step["C"], step["H"]))
+        lines.append("    </div>")
+    lines.append("  </div>")
+
+    if prove_steps:
+        lines.append('  <div class="ramp-deltas" style="grid-template-columns: %s">' % columns)
+        for index, step in enumerate(steps):
+            if step["delta"] is None:
+                continue
+            # Столбик длиной ∝ ΔL, посаженный на стык ступеней. Множитель —
+            # данные; единица длины — токен, чтобы и здесь не было сырых px.
+            width = "calc(var(--space-10) * %s)" % format_number(abs(step["delta"]) * 31.25)
+            lines.append('    <span class="ramp-delta" style="grid-column: %d">' % (index + 1))
+            lines.append('      <i style="width: %s"></i>' % width)
+            lines.append("      <span>ΔL %+.3f</span>" % step["delta"])
+            lines.append("    </span>")
+        lines.append("  </div>")
+
+    lines.append('  <ul class="roles">')
+    for step in steps:
+        lines.append('    <li><i class="swatch" style="background: %s"></i>'
+                     '<span class="t">%s</span><span class="r">%s</span></li>'
+                     % ("var(%s)" % variable_name(step["path"]), escape(step["path"]),
+                        escape(step["role"])))
+    lines.append("  </ul>")
+    lines.append("</div>")
+    return lines
+
+
+def states_block(tokens):
+    """Статичная доска умеет нарисовать только картинку ховера. Эта — ховерится."""
+    lines = ['<div class="block" id="ramp-states">']
+    lines.append('  <div class="block-head"><h3>Состояния поверхности</h3>'
+                 '<span class="hint">наведи и нажми — это не картинка состояния, '
+                 "а состояние</span></div>")
+    lines.append('  <div class="states">')
+    rows = [
+        ("bg.hover", "Вернуть спеку на доработку", "покой → наведи"),
+        ("bg.pressed", "Собрать PR из ветки stage/implement", "наведи → нажми"),
+        ("bg.selected", "Дифф спеки: блоками и словами", "выбранная строка"),
+    ]
+    for path, text, hint in rows:
+        token = find_token(tokens, path)
+        selected = " selected" if path == "bg.selected" else ""
+        lines.append('    <div class="row%s" data-token="%s"><span class="t">%s</span>'
+                     '<span class="m">%s · %s</span></div>'
+                     % (selected, escape(path), escape(text), escape(path), escape(hint)))
+    lines.append("  </div>")
+    lines.append('  <ul class="roles">')
+    for path, _text, _hint in rows:
+        token = find_token(tokens, path)
+        lines.append('    <li><i class="swatch" style="background: %s"></i>'
+                     '<span class="t">%s</span><span class="r">%s</span></li>'
+                     % ("var(%s)" % variable_name(path), escape(path), escape(token.get("role", ""))))
+    lines.append("  </ul>")
+    lines.append("</div>")
+    return lines
+
+
+def contrast_payload(tokens):
+    """Данные для счёта контраста в браузере. Считает страница, а не автор:
+    таблица чисел в главе — это утверждение, а посчитанное при читателе —
+    доказательство. Разница между дизайн-системой и стайлгайдом ровно тут."""
+    surfaces = []
+    for name in ["base", "surface", "raised", "overlay"]:
+        path = "bg.%s" % name
+        surfaces.append({"path": path, "rgb": resolve_rgb(tokens, find_token(tokens, path), path)})
+
+    inks = []
+    for name, token in tokens["text"].items():
+        if is_documentation_key(name):
+            continue
+        path = "text.%s" % name
+        if path in CONTRAST_SKIP_INKS:
+            continue
+        inks.append({
+            "path": path,
+            "rgb": resolve_rgb(tokens, token, path),
+            "alpha": token.get("alpha", 1.0),
+            "role": token.get("role", ""),
+            "exempt": path in CONTRAST_EXEMPT,
+        })
+    for name, token in tokens["sem"].items():
+        if is_documentation_key(name) or name.endswith("-fill") or name.endswith("-border"):
+            continue
+        path = "sem.%s" % name
+        inks.append({"path": path, "rgb": resolve_rgb(tokens, token, path),
+                     "alpha": token.get("alpha", 1.0), "role": token.get("role", ""), "exempt": False})
+    for path in CONTRAST_EXTRA_INKS:
+        token = find_token(tokens, path)
+        inks.append({"path": path, "rgb": resolve_rgb(tokens, token, path),
+                     "alpha": 1.0, "role": token.get("role", ""), "exempt": False})
+
+    accents = []
+    for name, token in tokens["brand"].items():
+        if is_documentation_key(name) or token.get("kind") != "color":
+            continue
+        path = "brand.%s" % name
+        accents.append({"path": path, "rgb": resolve_rgb(tokens, token, path)})
+
+    on_accent = find_token(tokens, "text.on-accent")
+    return {
+        "surfaces": surfaces,
+        "inks": inks,
+        "accents": accents,
+        "onAccent": {"path": "text.on-accent",
+                     "rgb": resolve_rgb(tokens, on_accent, "text.on-accent"),
+                     "alpha": on_accent.get("alpha", 1.0)},
+        "threshold": CONTRAST_THRESHOLD,
+        # Чем красить подпись в клетке: красным провала и почти-чёрным —
+        # оба берутся из источника, а не придумываются в скрипте.
+        "error": resolve_rgb(tokens, find_token(tokens, "sem.error"), "sem.error"),
+        "base": resolve_rgb(tokens, find_token(tokens, "bg.base"), "bg.base"),
+    }
+
+
+def contrast_drift(tokens):
+    """Токены, у которых заявленный контраст разошёлся с посчитанным.
+
+    Поле «contrast» в источнике — это утверждение, сделанное когда-то рукой.
+    Утверждение живёт ровно до первой правки цвета: подвинули лестницу —
+    и число в поле стало археологией, а выглядит как факт. Доска считает
+    контраст сама, а значит — обязана сказать, где источник врёт. Это и есть
+    разница между «система заявляет о себе» и «система знает о себе»:
+    заявление проверить некому, а посчитанное расходится вслух.
+    """
+    base = resolve_rgb(tokens, find_token(tokens, "bg.base"), "bg.base")
+    drifted = []
+    for path, token in iterate_tokens(tokens):
+        claim = token.get("contrast")
+        if not claim:
+            continue
+        try:
+            claimed = float(str(claim).split(":")[0])
+        except ValueError:
+            continue
+        rgb = resolve_rgb(tokens, token, path)
+        actual = contrast_ratio(composite(rgb, token.get("alpha", 1.0), base), base)
+        if abs(actual - claimed) > CONTRAST_CLAIM_TOLERANCE:
+            drifted.append((path, claimed, actual))
+    return drifted
+
+
+def contrast_block(tokens):
+    ultramarine = resolve_rgb(tokens, find_token(tokens, "brand.ultramarine"), "brand.ultramarine")
+    base = resolve_rgb(tokens, find_token(tokens, "bg.base"), "bg.base")
+    failure = contrast_ratio(ultramarine, base)
+    drifted = contrast_drift(tokens)
+
+    lines = ['<div class="block" id="contrast">']
+    lines.append('  <div class="block-head"><h3>Контраст</h3>'
+                 '<span class="hint">посчитан браузером сейчас, при открытии страницы: '
+                 "альфа-белый сперва кладётся на фон, потом берётся WCAG — "
+                 "иначе цифра врёт</span></div>")
+    lines.append('  <div class="grid">')
+
+    lines.append('    <div class="col-8">')
+    lines.append('      <table class="matrix" id="matrix-inks">')
+    lines.append("        <thead><tr><th>Чернила</th></tr></thead>")
+    lines.append("        <tbody></tbody>")
+    lines.append("      </table>")
+    lines.append('      <p class="matrix-note">%s — WCAG 1.4.3 недоступное не нормирует: '
+                 "порог %s к нему не применяется, и провалом это не помечено.</p>"
+                 % (", ".join("<code>%s</code>" % escape(path) for path in sorted(CONTRAST_EXEMPT)),
+                    format_number(CONTRAST_THRESHOLD)))
+    lines.append('      <p class="verdict-note">Ультрамарин <code>brand.ultramarine</code> даёт '
+                 "<b>%.1f:1</b> на <code>bg.base</code> — порог 4.5 не взят, и это видно "
+                 "в таблице, а не в примечании. Поэтому текстом всегда "
+                 "<code>text.accent</code>. Правило, которое видно проваливающимся, "
+                 "не нужно заучивать.</p>" % failure)
+    lines.append("    </div>")
+
+    lines.append('    <div class="col-4">')
+    lines.append('      <table class="matrix" id="matrix-accents">')
+    lines.append("        <thead><tr><th>Заливка</th></tr></thead>")
+    lines.append("        <tbody></tbody>")
+    lines.append("      </table>")
+    lines.append('      <p class="verdict-note">%s</p>'
+                 % escape(find_token(tokens, "text.on-accent").get("role", "")))
+    lines.append("    </div>")
+    lines.append("  </div>")
+
+    if drifted:
+        lines.append('  <div class="finding">')
+        lines.append("    <p><b>Источник разошёлся сам с собой.</b> У этих токенов поле "
+                     "<code>contrast</code> в <code>tokens.json</code> не совпало с тем, "
+                     "что доска только что посчитала:</p>")
+        lines.append('    <ul class="roles">')
+        for path, claimed, actual in drifted:
+            lines.append('      <li><i class="swatch" style="background: %s"></i>'
+                         '<span class="t">%s</span><span class="r">заявлено %.1f:1 — '
+                         "на деле <b>%.2f:1</b></span></li>"
+                         % ("var(%s)" % variable_name(path), escape(path), claimed, actual))
+        lines.append("    </ul>")
+        lines.append("    <p>Числа не выдуманы: заявленные совпадают с прежней лестницей "
+                     "поверхностей, снятой 2026-07-17. У <code>text.*</code> их тогда "
+                     "пересчитали, у этих — забыли, и <code>bg._role</code> до сих пор "
+                     "уверяет, что «все контрасты пересчитаны». Поле <code>contrast</code> "
+                     "руками не поддерживается: расхождение видно только тому, кто считает, "
+                     "а не переписывает.</p>")
+        lines.append("  </div>")
+    lines.append("</div>")
+    return lines
+
+
+def typography_block(tokens):
+    """Лестница в натуральную величину. Таблица чисел не показывает кегль —
+    она о нём рассказывает; 13 pt узнаётся только тем, что он 13 pt."""
+    lines = ['<div class="block" id="type">']
+    lines.append('  <div class="block-head"><h3>Типографика</h3>'
+                 '<span class="hint">в натуральную величину, на реальных строках '
+                 "продукта — на lorem не видно ни длины, ни кириллицы</span></div>")
+    lines.append('  <div class="ladder">')
+    for name, token in tokens["type"].items():
+        if is_documentation_key(name):
+            continue
+        path = "type.%s" % name
+        variable = variable_name(path)
+        style = ("font-family: var(%s-family); font-size: var(%s-size); "
+                 "line-height: var(%s-leading); font-weight: var(%s-weight)"
+                 % (variable, variable, variable, variable))
+        if token.get("caps"):
+            style += "; text-transform: var(%s-caps)" % variable
+        if token.get("tracking"):
+            style += "; letter-spacing: var(%s-tracking)" % variable
+        measures = "%s/%s · %s" % (format_number(token["size"]), format_number(token["leading"]),
+                                   token["weight"])
+        if token.get("tracking"):
+            measures += " · %s" % token["tracking"]
+        lines.append('    <div class="ladder-rung">')
+        lines.append('      <div class="ladder-meta">')
+        lines.append('        <span class="t" data-token="%s">%s</span>' % (escape(path), escape(path)))
+        lines.append('        <span class="d">%s</span>' % escape(measures))
+        lines.append('        <span class="j">%s</span>' % escape(token.get("role", "")))
+        lines.append("      </div>")
+        # Запасного варианта здесь нет намеренно. Раньше строка бралась из
+        # token["role"] — и лестница молча набирала кеглем 34 описание кегля 34:
+        # образцом становилась документация об образце, ровно та болезнь, от
+        # которой доска и лечит. Забыл строку — сборка не соберётся.
+        if name not in TYPE_SPECIMEN:
+            raise ValueError(
+                "«type.%s» нечем показать: добавь реальную строку продукта в "
+                "TYPE_SPECIMEN (design/build.py). Не роль токена и не lorem — "
+                "строку, которая правда стоит на экране этим кеглем." % name)
+        lines.append('      <div class="ladder-sample" style="%s">%s</div>'
+                     % (style, escape(TYPE_SPECIMEN[name])))
+        lines.append("    </div>")
+    lines.append("  </div>")
+
+    # Кража у Geist: имя даёт работа, а не размер. У нас это уже так —
+    # и это единственное место, где видно, что так.
+    body = tokens["type"]["body"]
+    body_em = tokens["type"]["body-em"]
+    if body["size"] == body_em["size"]:
+        lines.append('  <div class="twin">')
+        for name, token in (("body", body), ("body-em", body_em)):
+            variable = variable_name("type.%s" % name)
+            lines.append("    <div>")
+            lines.append('      <span class="label">type.%s · %s/%s %s</span>'
+                         % (escape(name), format_number(token["size"]),
+                            format_number(token["leading"]), escape(token["weight"])))
+            lines.append('      <span style="font-family: var(%s-family); font-size: var(%s-size); '
+                         'line-height: var(%s-leading); font-weight: var(%s-weight)">%s</span>'
+                         % (variable, variable, variable, variable,
+                            escape(TYPE_SPECIMEN.get(name, ""))))
+            lines.append('      <span class="hint">%s</span>' % escape(token.get("role", "")))
+            lines.append("    </div>")
+        lines.append("  </div>")
+        lines.append('  <p class="section-lede" style="margin-top: var(--space-3)">Один кегль — '
+                     "два токена. Имя в шкале даёт работа, а не размер: <code>type.body</code> "
+                     "и <code>type.body-em</code> оба %s pt, и это не дубль, а два разных "
+                     "решения.</p>" % format_number(body["size"]))
+    lines.append("</div>")
+    return lines
+
+
+def spacing_block(tokens):
+    """Шкала, измеряющая сама себя: столбик длиной ровно в свой токен.
+    Таблица чисел этого не умеет — 24 pt узнаются только тем, что они 24 pt."""
+    base_pt = min(token["pt"] for name, token in tokens["space"].items()
+                  if not is_documentation_key(name))
+    lines = ['<div class="block" id="space">']
+    lines.append('  <div class="block-head"><h3>Отступы</h3>'
+                 '<span class="hint">столбик длиной ровно в свой токен, 1:1 — '
+                 "линейка, а не таблица</span></div>")
+    lines.append('  <div class="grid">')
+
+    lines.append('    <div class="col-6">')
+    lines.append('      <div class="bars">')
+    for name, token in tokens["space"].items():
+        if is_documentation_key(name):
+            continue
+        path = "space.%s" % name
+        pt = token["pt"]
+        # Рабочая единица 8pt светится, промежуточные 4pt-ступени приглушены:
+        # разница между базой и рабочей единицей — это решение, а не пояснение.
+        off = "" if pt % 8 == 0 else " off"
+        lines.append('        <div class="bar-row%s" data-token="%s" title="%s">' % (off, escape(path), escape(token.get("role", ""))))
+        lines.append('          <span class="t">%s</span>' % escape(path))
+        lines.append('          <span class="n">%s pt</span>' % format_number(pt))
+        lines.append('          <span class="x">×%s</span>' % format_number(pt / base_pt))
+        lines.append('          <i style="width: var(%s)"></i>' % variable_name(path))
+        lines.append("        </div>")
+    lines.append("      </div>")
+    lines.append('      <p class="hint" style="margin-top: var(--space-4); color: var(--text-tertiary)">'
+                 "База %s pt; рабочая единица 8 pt — яркие столбики. Приглушённые — "
+                 "4pt-ступени между ними.</p>" % format_number(base_pt))
+    lines.append("    </div>")
+
+    # Инвариант Бирмана из space._role, нарисованный. Правило про внутреннее
+    # и внешнее словами не показывается: его видно или не видно.
+    lines.append('    <div class="col-6">')
+    lines.append('      <div class="inout">')
+    cases = [
+        ("good", "✓", "Внутри группы space.2, между группами space.5 — две группы, "
+                      "и это видно без единой линейки."),
+        ("bad", "×", "Внутри и между — одинаковый space.3. Групп нет: шесть строк "
+                     "равномерной каши."),
+    ]
+    for kind, mark, text in cases:
+        lines.append('        <div class="inout-case %s">' % kind)
+        lines.append('          <div class="inout-groups">')
+        for _group in range(2):
+            lines.append('            <div class="inout-group">'
+                         '<i class="line"></i><i class="line"></i><i class="line"></i></div>')
+        lines.append("          </div>")
+        lines.append('          <p><span class="verdict-mark">%s</span> %s</p>' % (mark, escape(text)))
+        lines.append("        </div>")
+    lines.append("      </div>")
+    lines.append("    </div>")
+    lines.append("  </div>")
+    lines.append("</div>")
+    return lines
+
+
+def radius_block(tokens):
+    """Концентрика, нарисованная. И заодно — проверка: шкала радиусов
+    воспроизводит сама себя шагом в один space.1, или уже нет."""
+    radius = tokens["radius"]
+    space_1 = tokens["space"]["1"]["pt"]
+    chain = []
+    for outer, inner in (("xl", "l"), ("l", "m")):
+        expected = radius[outer]["pt"] - space_1
+        chain.append({
+            "outer": outer, "inner": inner,
+            "outer_pt": radius[outer]["pt"], "inner_pt": radius[inner]["pt"],
+            "expected": expected, "holds": expected == radius[inner]["pt"],
+        })
+
+    lines = ['<div class="block" id="radius">']
+    lines.append('  <div class="block-head"><h3>Радиусы</h3>'
+                 '<span class="hint">вложенный = внешний − паддинг: правило нарисовано, '
+                 "а не пересказано</span></div>")
+    lines.append('  <div class="grid">')
+    lines.append('    <div class="col-6">')
+    lines.append('      <div class="nest nest-l1" data-token="radius.xl">')
+    lines.append('        <div class="nest-l2" data-token="radius.l">')
+    lines.append('          <div class="nest-l3" data-token="radius.m">Принять</div>')
+    lines.append("        </div>")
+    lines.append("      </div>")
+    lines.append("    </div>")
+    lines.append('    <div class="col-6">')
+    lines.append('      <ul class="nest-legend">')
+    for link in chain:
+        mark = "<b>сходится</b>" if link["holds"] else "НЕ сходится: в шкале %s pt" % format_number(link["inner_pt"])
+        lines.append("        <li>radius.%s %s − space.1 %s = %s → radius.%s · %s</li>"
+                     % (escape(link["outer"]), format_number(link["outer_pt"]),
+                        format_number(space_1), format_number(link["expected"]),
+                        escape(link["inner"]), mark))
+    lines.append("      </ul>")
+    if all(link["holds"] for link in chain):
+        lines.append('      <p class="hint" style="color: var(--text-secondary); '
+                     'margin-top: var(--space-3)">Шкала радиусов построена так, что '
+                     "концентрическое правило шагом в один <code>space.1</code> "
+                     "попадает ровно в следующий токен: %s. Это не совпадение "
+                     "и не украшение — это и есть система." %
+                     escape(" → ".join(["%s" % format_number(chain[0]["outer_pt"])]
+                                       + [format_number(link["inner_pt"]) for link in chain])))
+        lines.append("      </p>")
+    lines.append("    </div>")
+    lines.append("  </div>")
+    lines.append("</div>")
+    return lines
+
+
+def motion_block(tokens):
+    """Движение честно показывается только движением. Переход запускается
+    по интервалу, потому что переход — это переход, а не цикл: гонять его
+    туда-обратно значило бы соврать про кривую (обратный ход ease-out —
+    это ease-in)."""
+    lines = ['<div class="block" id="motion">']
+    lines.append('  <div class="block-head"><h3>Движение</h3>'
+                 '<span class="hint">живьём, теми самыми токенами; при '
+                 "<code>prefers-reduced-motion</code> — молчит</span></div>")
+    for name, token in tokens["motion"].items():
+        if is_documentation_key(name):
+            continue
+        path = "motion.%s" % name
+        milliseconds = token.get("ms")
+        if milliseconds is None:
+            value = "нет длительности · %s" % token["easing"]
+        else:
+            value = "%d мс · %s" % (milliseconds, token["easing"])
+        lines.append('  <div class="motion-row">')
+        lines.append('    <span class="t" data-token="%s">%s</span>' % (escape(path), escape(path)))
+        lines.append('    <span class="d">%s</span>' % escape(value))
+        lines.append('    <span class="motion-track"><i class="motion-dot %s"></i></span>' % escape(name))
+        lines.append("  </div>")
+        lines.append('  <p class="hint" style="padding-bottom: var(--space-3); '
+                     'color: var(--text-tertiary)">%s</p>' % escape(token.get("role", "")))
+    lines.append('  <p class="verdict-note" style="border-left-color: var(--sem-warning); '
+                 'background: var(--sem-warning-fill)"><code>motion.live</code> — состояние, '
+                 "а не переход: длительности у него в источнике нет, и витрина её "
+                 "не выдумывает. Пульс выше показан, но его период — не токен. "
+                 "Видимый долг, а не решение.</p>")
+    lines.append("</div>")
+    return lines
+
+
+def glow_block(tokens):
+    """Рецепт разобран на слои и собран обратно — на том, ради чего он есть.
+
+    И заодно вскрывается дыра: слои живут константами в build.py, а не
+    в tokens.json. Доска показывает её, а не заминает: система, которая
+    не умеет назвать свои дыры, — стайлгайд."""
+    accent = find_token(tokens, "glow.accent")
+    rgb = resolve_rgb(tokens, accent, "glow.accent")
+    inner = "0 0 %dpx %s" % (GLOW_INNER_BLUR, rgba_text(rgb, GLOW_INNER_ALPHA))
+    outer = "0 0 %dpx %s" % (GLOW_OUTER_BLUR, rgba_text(rgb, GLOW_OUTER_ALPHA))
+
+    lines = ['<div class="block" id="glow">']
+    lines.append('  <div class="block-head"><h3>Свечение</h3>'
+                 '<span class="hint">фирменная замена тени: свет в темноте, '
+                 "а не тень под предметом</span></div>")
+    lines.append('  <div class="glow-lab">')
+    cases = [
+        ("покой", "", "заливка без свечения"),
+        ("слой 1 · внутренний ореол", "box-shadow: %s" % inner,
+         "blur %d @ %d%%" % (GLOW_INNER_BLUR, GLOW_INNER_ALPHA * 100)),
+        ("слой 2 · внешний", "box-shadow: %s" % outer,
+         "blur %d @ %d%%" % (GLOW_OUTER_BLUR, GLOW_OUTER_ALPHA * 100)),
+        ("glow.accent · слой 1 + слой 2", "box-shadow: var(--glow-accent)", "токен целиком"),
+    ]
+    for title, style, hint in cases:
+        lines.append('    <div class="glow-case">')
+        lines.append('      <span class="glow-btn" style="%s">Принять</span>' % style)
+        lines.append('      <span class="label">%s</span>' % escape(title))
+        lines.append('      <span class="hint" style="color: var(--text-tertiary)">%s</span>' % escape(hint))
+        lines.append("    </div>")
+    lines.append('    <div class="glow-case">')
+    lines.append('      <span class="glow-btn hoverable">Принять</span>')
+    lines.append('      <span class="label">живьём · наведи</span>')
+    lines.append('      <span class="hint" style="color: var(--text-tertiary)">'
+                 "hover primary — единственное место, где свечение вообще бывает</span>")
+    lines.append("    </div>")
+    lines.append("  </div>")
+    lines.append('  <p class="verdict-note" style="border-left-color: var(--sem-warning); '
+                 'background: var(--sem-warning-fill)">Слои рецепта — blur %d @ %d%% и '
+                 "blur %d @ %d%% — живут константами в <code>design/build.py</code>, "
+                 "а не в <code>tokens.json</code>. Токенов у них нет: цвет свечения "
+                 "система назвать умеет, а его геометрию — нет. Дыра нашлась ровно "
+                 "потому, что доску пришлось собрать из источника."
+                 % (GLOW_INNER_BLUR, GLOW_INNER_ALPHA * 100, GLOW_OUTER_BLUR, GLOW_OUTER_ALPHA * 100))
+    lines.append("</div>")
+    return lines
+
+
+def foundation_verdict(tokens):
+    """«Можно / Нельзя» основы собирается из прозы самих токенов: первая фраза
+    роли — правило, фразы с метками запрета — запрет. Ни одной строки тут
+    не написано руками, и это принципиально: суждение, переписанное в доску
+    вручную, немедленно разъезжается с источником."""
+    can = []
+    cant = []
+    for group_name, group in tokens.items():
+        if is_documentation_key(group_name) or not isinstance(group, dict):
+            continue
+        role = group.get("_role")
+        if role:
+            if group_name in FOUNDATION_GROUPS:
+                can.append((group_name, first_sentence(role)))
+            for phrase in prohibitions(" ".join(rest_sentences(role))):
+                cant.append((group_name, phrase))
+        for token_name, token in group.items():
+            if is_documentation_key(token_name) or not isinstance(token, dict):
+                continue
+            for phrase in prohibitions(token.get("role", "")):
+                cant.append(("%s.%s" % (group_name, token_name), phrase))
+    return can, cant
+
+
+def render_verdict(can, cant, can_title, cant_title):
+    lines = ['<div class="verdict">']
+    for kind, title, items in (("can", can_title, can), ("cant", cant_title, cant)):
+        lines.append('  <div class="%s">' % kind)
+        lines.append("    <h3>%s</h3>" % escape(title))
+        lines.append("    <ul>")
+        for item in items:
+            # Ровно один элемент внутри li: маркер рисует ::before и он же
+            # занимает первую колонку сетки. Второй пустой span сделал бы
+            # ссылку, текст и раскрытие тремя отдельными ячейками — и строка
+            # рассыпалась бы по слову на строку.
+            lines.append("      <li><span>%s</span></li>" % item)
+        lines.append("    </ul>")
+        lines.append("  </div>")
+    lines.append("</div>")
+    return lines
+
+
+def board_foundation(tokens, parts):
+    lines = []
+    lines.extend(ramp_block(
+        tokens, "bg", ["base", "surface", "raised", "overlay"],
+        "Поверхности — лестница светлоты",
+        "четыре ступени, а не четыре цвета: у каждой своя работа, "
+        "и шаг между ними обязан быть равным", True))
+    lines.extend(states_block(tokens))
+    lines.extend(ramp_block(
+        tokens, "brand", ["ultramarine", "purple", "magenta", "cyan", "amber"],
+        "Фирменная гамма",
+        "аналоговый ход по тону; подпись на ступени витрина красит счётом, "
+        "и переворот подписи — это и есть граница text.on-accent", False))
+    lines.extend(ramp_block(
+        tokens, "sem", ["success", "warning", "error", "info"],
+        "Семантика",
+        "смысл, а не украшение: цвет всегда дублируется формой", False))
+    lines.extend(contrast_block(tokens))
+    lines.extend(typography_block(tokens))
+    lines.extend(spacing_block(tokens))
+    lines.extend(radius_block(tokens))
+    lines.extend(motion_block(tokens))
+    lines.extend(glow_block(tokens))
+
+    for record in parts:
+        lines.extend(render_part(record))
+
+    can, cant = foundation_verdict(tokens)
+    can_items = ["<code>%s</code> — %s" % (escape(path), escape(text)) for path, text in can]
+    cant_items = ["<code>%s</code> — %s" % (escape(path), escape(text)) for path, text in cant]
+    lines.extend(render_verdict(can_items, cant_items,
+                                "Можно — правило группы",
+                                "Нельзя — запреты, которыми токены помечены сами"))
+    return lines
+
+
+# --------------------------------------------------------------------------
+# Части
+# --------------------------------------------------------------------------
+
+def render_part(record):
+    """Часть на доске — это её образец.
+
+    Образец занимает всё; имя, слаг и статус — подпись под ним. Прозы тут
+    нет ни строки: «зачем» и «никогда» уехали в суждение, закрывающее
+    секцию. Причина не в экономии места, а в потолке: текста на доске
+    читается заголовок и две строки — всё, что длиннее, не читает никто,
+    и пятнадцать строк прозы в карточке просто прячут образец.
     """
     card = record["card"]
     status = card.get("status", "?")
     chip_class = STATUS_CHIP.get(status, "chip-candidate")
 
-    lines = ['<article class="card" id="part-%s">' % escape(record["slug"])]
-
-    lines.append('  <div class="stage">')
+    lines = ['<article class="part" id="part-%s">' % escape(record["slug"])]
+    lines.append('  <div class="part-stage">')
     if record["specimen"]:
         lines.append('    <iframe src="%s" height="%d" loading="lazy" title="%s"></iframe>'
                      % (escape(record["specimen"]), record["height"], escape(card.get("name", ""))))
@@ -1168,35 +1760,35 @@ def render_card(record):
         lines.append('  <p class="stage-note">высота образца в карточке не указана — '
                      "витрина показывает %dpx и может врать</p>" % DEFAULT_SIDECAR_HEIGHT)
 
-    lines.append('  <div class="card-head">')
-    lines.append("    <h3>%s</h3>" % escape(card.get("name", record["slug"])))
+    lines.append('  <div class="part-meta">')
+    lines.append("    <h4>%s</h4>" % escape(card.get("name", record["slug"])))
     lines.append('    <span class="slug">%s</span>' % escape(record["slug"]))
     lines.append('    <span class="chip %s">%s</span>' % (chip_class, escape(status)))
+    lines.append('    <span class="spacer"></span>')
+    refs = []
+    for chapter in card.get("canon") or []:
+        refs.append('<a href="../docs/design/%s">%s</a>' % (escape(chapter), escape(chapter)))
+    if "swift" in card:
+        refs.append("<code>%s</code>" % escape(card["swift"]) if card["swift"] else "реализации нет")
+    if refs:
+        lines.append('    <span class="refs">%s</span>' % " · ".join(refs))
     lines.append("  </div>")
 
-    lines.append("  <dl>")
-    lines.append("    <dt>Зачем</dt><dd>%s</dd>" % escape(card.get("why", "—")))
-    lines.append('    <dt>Никогда</dt><dd class="never">%s</dd>' % escape(card.get("never", "—")))
+    if card.get("tokens"):
+        lines.append('  <div class="part-tokens">')
+        for token in card["tokens"]:
+            lines.append('    <span data-token="%s">%s</span>' % (escape(token), escape(token)))
+        lines.append("  </div>")
 
+    # Долг и родословная — за раскрытием. Оба честные и оба нужны, но оба
+    # прозой в абзац: у сайдкаров приёмной долг бывает и на пять строк.
+    # Абзац в карточке прячет образец, а статус-чип уже сказал главное —
+    # «кандидат, законом не является». Текст остаётся в DOM: ⌘F найдёт.
     if card.get("debt"):
-        lines.append('    <dt>Долг</dt><dd class="debt">%s</dd>' % escape(card["debt"]))
-
-    if "tokens" in card:
-        tokens_html = "".join("<span>%s</span>" % escape(token) for token in card["tokens"] or []) or "—"
-        lines.append('    <dt>Ест токены</dt><dd class="tokens">%s</dd>' % tokens_html)
-
-    if card.get("canon"):
-        links = ", ".join('<a href="../docs/design/%s">%s</a>' % (escape(chapter), escape(chapter))
-                          for chapter in card["canon"])
-        lines.append("    <dt>Канон</dt><dd>%s</dd>" % links)
-
-    if "swift" in card:
-        if card["swift"]:
-            lines.append("    <dt>Реализация</dt><dd><code>%s</code></dd>" % escape(card["swift"]))
-        else:
-            lines.append('    <dt>Реализация</dt><dd class="debt">реализации нет</dd>')
-
-    lines.append("  </dl>")
+        lines.append('  <details class="debt">')
+        lines.append("    <summary>долг</summary>")
+        lines.append("    <p>%s</p>" % escape(card["debt"]))
+        lines.append("  </details>")
 
     lines.append("  <details>")
     lines.append("    <summary>родословная</summary>")
@@ -1206,17 +1798,309 @@ def render_card(record):
     return lines
 
 
-def render_candidate_reference(record):
-    """Кандидат в своей категории — одной строкой со ссылкой в приёмную.
-    Карточка у части одна: два образца одной вещи — два якоря вместо одного
-    (02 §2.2) и вдвое больше чернил на то же (11 §1.1)."""
-    card = record["card"]
-    return ('<p class="reference"><a href="#part-%s">%s</a> '
-            '<span class="chip chip-candidate">кандидат</span> — лежит в приёмной, законом не является</p>'
-            % (escape(record["slug"]), escape(card.get("name", record["slug"]))))
+def compress(text):
+    """Первая фраза видна, остальное — за раскрытием «+N».
 
+    Единственный приём сжатия на доске, и он один на всё: суждение о части,
+    причина отказа, роль токена. Первая фраза — не произвол: автор кладёт
+    главное первым, и поле «никогда» тем и дорого, что читается без клика.
+    Хвост остаётся в DOM — ⌘F по доске находит и его, то есть ничего
+    не потеряно, только убрано с глаз.
+    """
+    head = first_sentence(text)
+    tail = rest_sentences(text)
+    if not tail:
+        return escape(head)
+    return '%s<details class="more"><summary>+%d</summary><p>%s</p></details>' % (
+        escape(head), len(tail), escape(" ".join(tail)))
+
+
+def part_verdict_line(record, field):
+    """Строка суждения: часть, сжатая до первой фразы."""
+    card = record["card"]
+    return '<a href="#part-%s">%s</a> — %s' % (escape(record["slug"]),
+                                               escape(card.get("name", record["slug"])),
+                                               compress(card.get(field) or "—"))
+
+
+def render_waiting(candidate_parts, folder):
+    """Кандидаты этой категории — одной строкой со ссылкой в приёмную.
+
+    Образец у кандидата один, и он стоит в приёмной. Но смолчать нельзя:
+    секция, показавшая три принятых элемента и ни словом не обмолвившаяся
+    о двух ждущих, врёт составом — читатель уносит, что элементов три.
+    """
+    waiting = [record for record in candidate_parts if record["category"] == folder]
+    if not waiting:
+        return []
+    links = ", ".join('<a href="#part-%s">%s</a>' % (escape(record["slug"]),
+                                                     escape(record["card"].get("name", record["slug"])))
+                      for record in waiting)
+    return ['<p class="reference"><span class="chip chip-candidate">кандидат</span>'
+            "<span>в этой категории ждёт приёмки: %s — лежит в приёмной, законом "
+            "не является</span></p>" % links]
+
+
+def board_parts(records):
+    lines = []
+    if not records:
+        return lines
+    lines.append('<div class="grid">')
+    for record in records:
+        lines.append('  <div class="col-12">')
+        lines.extend("    " + line for line in render_part(record))
+        lines.append("  </div>")
+    lines.append("</div>")
+    return lines
+
+
+# --------------------------------------------------------------------------
+# 06 · Экраны — система в работе
+# --------------------------------------------------------------------------
+
+def board_screens(parts):
+    """Части — это система, разобранная на решения. Здесь она собрана обратно.
+
+    Без этой секции доска остаётся коллекцией деталей: доказательство
+    системы — не в том, что кнопка нарисована, а в том, что она стоит
+    на экране рядом с восемнадцатью другими и не спорит ни с одной.
+    """
+    lines = board_parts(parts)
+    lines.append('<div class="block" id="in-situ">')
+    lines.append('  <div class="block-head"><h3>Девятнадцать экранов, живьём</h3>'
+                 '<span class="hint">не скриншоты — настоящий макет, '
+                 'вставленный сюда целиком</span></div>')
+    lines.append('  <div class="screens">')
+    lines.append('    <iframe src="%s" style="height: calc(var(--space-10) * 15)" '
+                 'loading="lazy" title="Макеты экранов foundry-desktop"></iframe>' % MOCKUPS)
+    lines.append("  </div>")
+    lines.append('  <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">'
+                 "Макет длинный — панель скроллится сама, и ⌘F доски по ней не пройдёт. "
+                 'Читать целиком — <a href="%s">открыть в своей вкладке</a>.</p>' % MOCKUPS)
+    lines.append("</div>")
+    return lines
+
+
+# --------------------------------------------------------------------------
+# Приёмная и кладбище
+# --------------------------------------------------------------------------
+
+def board_intake(records):
+    lines = board_parts(records)
+    can = []
+    cant = []
+    for record in records:
+        can.append(part_verdict_line(record, "why"))
+        cant.append(part_verdict_line(record, "never"))
+    if can:
+        lines.extend(render_verdict(can, cant, "Зачем это спасали", "Чего с этим делать нельзя"))
+    return lines
+
+
+def board_graveyard(items):
+    """Кладбище — содержание, а не сноска.
+
+    Шестнадцать мёртвых идей с причинами стоят дороже принятого: принятое
+    видно на экране, отвергнутое не видно нигде — и потому предлагается
+    заново каждой следующей сессией.
+    """
+    lines = ['<div class="grave">']
+    for item in items:
+        lines.append('  <div class="grave-item">')
+        lines.append("    <h4>%s</h4>" % escape(item["name"]))
+        # Причина — тем же сжатием, что и всё на доске: вердикт виден,
+        # разбирательство — под «+N». Шестнадцать причин по семь строк —
+        # это стена прозы, то есть ровно то, ради ухода от чего доска есть.
+        lines.append("    <p>%s</p>" % compress(item["reason"]))
+        lines.append('    <a href="rejected/%s">%s</a>' % (escape(item["file"]), escape(item["file"])))
+        lines.append("  </div>")
+    lines.append("</div>")
+    return lines
+
+
+# --------------------------------------------------------------------------
+# Живые приборы доски
+#
+# Три штуки, и каждая — то, чего доска-картинка не умеет в принципе:
+# посчитать контраст при читателе, отдать имя токена в буфер, показать
+# переход переходом. Ради них витрина и является страницей, а не PDF.
+# --------------------------------------------------------------------------
+
+CANVAS_SCRIPT = """
+(function () {
+  var data = JSON.parse(document.getElementById("canvas-data").textContent);
+
+  // ——— WCAG, посчитанный здесь ———
+  // Альфа-белый — рецепт, а не цвет: пока он не лёг на фон, контраста
+  // у него нет. Наивный счёт по «rgba(255,255,255,0.7)» врёт.
+  function toLinear(channel) {
+    var value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+  }
+  function luminance(rgb) {
+    return 0.2126 * toLinear(rgb[0]) + 0.7152 * toLinear(rgb[1]) + 0.0722 * toLinear(rgb[2]);
+  }
+  function over(rgb, alpha, background) {
+    return [0, 1, 2].map(function (i) { return alpha * rgb[i] + (1 - alpha) * background[i]; });
+  }
+  function ratio(first, second) {
+    var a = luminance(first), b = luminance(second);
+    if (b > a) { var swap = a; a = b; b = swap; }
+    return (a + 0.05) / (b + 0.05);
+  }
+  function css(rgb) {
+    return "rgb(" + rgb.map(function (c) { return Math.round(c); }).join(",") + ")";
+  }
+
+  // Подпись в клетке обязана быть читаемой на ЛЮБОЙ заливке — иначе доска
+  // о нечитаемости рассказывает нечитаемым текстом. Красный sem.error берётся
+  // только там, где он сам проходит; где не проходит — берётся то, что
+  // контрастнее, а провал держит форма (✕), как и требует sem._role: цвет
+  // никогда не единственный носитель смысла.
+  function legible(backgroundRgb, preferred) {
+    if (preferred && ratio(preferred, backgroundRgb) >= 3) { return preferred; }
+    var white = [255, 255, 255];
+    return ratio(white, backgroundRgb) >= ratio(data.base, backgroundRgb) ? white : data.base;
+  }
+
+  function cell(inkRgb, alpha, backgroundRgb, exempt) {
+    var mixed = over(inkRgb, alpha === undefined ? 1 : alpha, backgroundRgb);
+    var value = ratio(mixed, backgroundRgb);
+    var fails = !exempt && value < data.threshold;
+    var meta = legible(backgroundRgb, fails ? data.error : null);
+    var td = document.createElement("td");
+    td.className = fails ? "fail" : "pass";
+    td.style.background = css(backgroundRgb);
+    td.innerHTML =
+      '<span class="cell">' +
+      '<span class="sample" style="color:' + css(mixed) + '">Ждёт ревью</span>' +
+      '<span class="ratio" style="color:' + css(meta) + '">' + value.toFixed(1) + ":1</span>" +
+      '<span class="flag" style="color:' + css(meta) + '">✕</span></span>';
+    return td;
+  }
+
+  // Матрица 1 — чернила на поверхностях.
+  var inks = document.querySelector("#matrix-inks");
+  var head = inks.querySelector("thead tr");
+  data.surfaces.forEach(function (surface) {
+    var th = document.createElement("th");
+    th.textContent = surface.path;
+    head.appendChild(th);
+  });
+  var inkBody = inks.querySelector("tbody");
+  data.inks.forEach(function (ink) {
+    var tr = document.createElement("tr");
+    var th = document.createElement("th");
+    th.textContent = ink.path;
+    th.title = ink.role;
+    th.setAttribute("data-token", ink.path);
+    tr.appendChild(th);
+    data.surfaces.forEach(function (surface) {
+      tr.appendChild(cell(ink.rgb, ink.alpha, surface.rgb, ink.exempt));
+    });
+    inkBody.appendChild(tr);
+  });
+
+  // Матрица 2 — что можно положить на фирменную заливку. Ровно то место,
+  // где text.on-accent запрещает белый, и видно почему.
+  var accents = document.querySelector("#matrix-accents");
+  var accentHead = accents.querySelector("thead tr");
+  ["белый", "bg.base"].forEach(function (name) {
+    var th = document.createElement("th");
+    th.textContent = name;
+    accentHead.appendChild(th);
+  });
+  var accentBody = accents.querySelector("tbody");
+  var base = data.surfaces[0].rgb;
+  data.accents.forEach(function (accent) {
+    var tr = document.createElement("tr");
+    var th = document.createElement("th");
+    th.textContent = accent.path;
+    th.setAttribute("data-token", accent.path);
+    tr.appendChild(th);
+    tr.appendChild(cell(data.onAccent.rgb, data.onAccent.alpha, accent.rgb, false));
+    tr.appendChild(cell(base, 1, accent.rgb, false));
+    accentBody.appendChild(tr);
+  });
+
+  // ——— Клик копирует имя токена, shift+клик — значение ———
+  // Никакой кнопки: у кнопки «скопировать» нет работы, которой не делает
+  // сам свотч (01 §2.2 — пиксель платит аренду).
+  var toast = document.createElement("div");
+  toast.className = "toast";
+  document.body.appendChild(toast);
+  var timer = null;
+
+  function say(text) {
+    toast.textContent = text;
+    toast.classList.add("on");
+    clearTimeout(timer);
+    timer = setTimeout(function () { toast.classList.remove("on"); }, 1200);
+  }
+
+  function copy(text) {
+    // file:// не везде отдаёт clipboard API — запасной ход обязателен,
+    // иначе прибор работает «почти всегда», то есть не работает.
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { say("скопировано · " + text); },
+                                                function () { fallback(text); });
+    } else { fallback(text); }
+  }
+  function fallback(text) {
+    var field = document.createElement("textarea");
+    field.value = text;
+    field.setAttribute("readonly", "");
+    field.style.position = "fixed";
+    field.style.opacity = "0";
+    document.body.appendChild(field);
+    field.select();
+    try { document.execCommand("copy"); say("скопировано · " + text); }
+    catch (error) { say("скопировать не вышло · " + text); }
+    document.body.removeChild(field);
+  }
+
+  document.addEventListener("click", function (event) {
+    var target = event.target.closest("[data-token]");
+    if (!target) { return; }
+    var hex = target.getAttribute("data-hex");
+    copy(event.shiftKey && hex ? hex : target.getAttribute("data-token"));
+  });
+
+  // ——— Движение: переход показывается переходом ———
+  // Гонять точку туда-обратно нельзя: обратный ход ease-out — это ease-in,
+  // и образец начнёт врать про кривую. Поэтому — прогон и возврат мгновенно.
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    var tracks = document.querySelectorAll(".motion-track");
+    setInterval(function () {
+      tracks.forEach(function (track) { track.classList.add("go"); });
+      setTimeout(function () {
+        tracks.forEach(function (track) {
+          var dot = track.querySelector(".motion-dot");
+          var kept = dot.style.transition;
+          dot.style.transition = "none";
+          track.classList.remove("go");
+          void dot.offsetWidth;
+          dot.style.transition = kept;
+        });
+      }, 900);
+    }, 1800);
+  }
+})();
+"""
+
+
+# --------------------------------------------------------------------------
+# Сборка доски
+# --------------------------------------------------------------------------
 
 def generate_showcase(tokens):
+    """Доска, а не вики.
+
+    Порядок разделов — от значения к вещи и от вещи к экрану: основа →
+    знаки → элементы → блоки → слои → экраны → поведение. Прокрутка одна
+    и непрерывная: якоря, адреса и ⌘F обязаны работать — это документ,
+    которым пользуются, а не витраж, на который смотрят.
+    """
     parts = collect_parts()
     rejected = collect_rejected()
 
@@ -1228,82 +2112,88 @@ def generate_showcase(tokens):
     # Сайдкары идут первыми: это крупное неразобранное, ради чего приёмная и есть.
     candidates = collect_sidecars() + candidate_parts
 
-    lines = ["<!doctype html>", "<html lang=\"ru\">", "<head>", '<meta charset="utf-8">',
-             "<!-- %s -->" % HEADER,
-             "<title>Витрина дизайн-системы — foundry-desktop</title>",
-             '<link rel="stylesheet" href="tokens/tokens.css">',
-             "<style>%s</style>" % SHOWCASE_STYLE,
-             "</head>", "<body>"]
-
-    lines.append("<header>")
-    lines.append("  <h1>Витрина дизайн-системы</h1>")
-    lines.append("  <p>Собрана из частей скриптом <code>design/build.py</code>. Своего содержимого "
-                 "не имеет: правка руками теряется при следующей сборке. Договор о формате части — "
-                 '<a href="parts/README.md">design/parts/README.md</a>, значения — '
-                 '<a href="tokens/tokens.json">tokens.json</a>.</p>')
-    lines.append("</header>")
-
-    lines.append("<nav>")
-    if candidates:
-        lines.append('  <a href="#candidates">Кандидаты <span class="count">%d</span></a>' % len(candidates))
-    for folder, title in CATEGORIES:
+    sections = []
+    for index, (folder, title) in enumerate(CATEGORIES, start=1):
         in_category = [record for record in law_parts if record["category"] == folder]
-        lines.append('  <a href="#%s">%s <span class="count">%d</span></a>'
-                     % (folder, escape(title), len(in_category)))
+        if folder == "1-foundation":
+            body = board_foundation(tokens, in_category)
+        elif folder == "6-views":
+            body = board_screens(in_category)
+        elif in_category:
+            body = board_parts(in_category)
+            body.extend(render_waiting(candidate_parts, folder))
+            can = [part_verdict_line(record, "why") for record in in_category]
+            cant = [part_verdict_line(record, "never") for record in in_category]
+            body.extend(render_verdict(can, cant, "Можно — зачем часть есть",
+                                       "Нельзя — где часть неуместна"))
+        else:
+            waiting = [record for record in candidate_parts if record["category"] == folder]
+            note = ("Принятых частей нет — только кандидаты в приёмной."
+                    if waiting else "Частей пока нет.")
+            body = ['<div class="empty">%s</div>' % note]
+            body.extend(render_waiting(candidate_parts, folder))
+        sections.append({
+            "num": "%02d" % index,
+            "anchor": folder,
+            "title": title,
+            "lede": BOARD_LEDE.get(folder, ""),
+            "body": body,
+        })
+
+    if candidates:
+        sections.append({
+            "num": "—",
+            "anchor": "candidates",
+            "title": "Приёмная",
+            "lede": "Приехало из сессий, приёмку не проходило: ссылаться на это "
+                    "как на решённое нельзя. Законный вход в систему — иначе находки "
+                    "оседают в воркtree и умирают вместе с ним.",
+            "body": board_intake(candidates),
+        })
+
     if rejected:
-        lines.append('  <a href="#rejected">Отвергнуто <span class="count">%d</span></a>' % len(rejected))
+        sections.append({
+            "num": "—",
+            "anchor": "rejected",
+            "title": "Отвергнуто",
+            "lede": "Отвергнутое стоит дороже принятого: принятое видно на экране, "
+                    "а отвергнутое не видно нигде — и потому предлагается заново "
+                    "каждой следующей сессией.",
+            "body": board_graveyard(rejected),
+        })
+
+    lines = ["<!doctype html>", '<html lang="ru">', "<head>", '<meta charset="utf-8">',
+             "<!-- %s -->" % HEADER,
+             "<title>Дизайн-система Foundry</title>",
+             '<link rel="stylesheet" href="tokens/tokens.css">',
+             '<link rel="stylesheet" href="canvas.css">',
+             "</head>", "<body>", '<div class="canvas">']
+
+    lines.extend(board_cover(tokens, law_parts, candidates, rejected))
+
+    lines.append('<nav class="rail">')
+    for section in sections:
+        lines.append('  <a href="#%s"><span class="n">%s</span>%s</a>'
+                     % (escape(section["anchor"]), escape(section["num"]), escape(section["title"])))
     lines.append("</nav>")
 
-    lines.append("<main>")
-
-    if candidates:
-        lines.append('<section id="candidates">')
-        lines.append("  <h2>Приёмная — не закон</h2>")
-        lines.append('  <p class="note">Приехало из сессий, приёмку не проходило. <strong>Ссылаться '
-                     "на это как на решённое нельзя.</strong> Крупные куски лежат неразобранными "
-                     "(своя шкала, сырые значения, линт им не судья) — это законный вход в систему: "
-                     "иначе находки оседают в воркtree и умирают вместе с ним. Проходит приёмку — "
-                     "меняется статус в карточке; не проходит — уезжает на кладбище с причиной.</p>")
-        lines.append('  <div class="band candidates"><div class="grid">')
-        for record in candidates:
-            lines.extend("    " + line for line in render_card(record))
-        lines.append("  </div></div>")
+    for section in sections:
+        lines.append('<section class="section" id="%s">' % escape(section["anchor"]))
+        lines.append('  <div class="section-head"><span class="num">%s</span><h2>%s</h2></div>'
+                     % (escape(section["num"]), escape(section["title"])))
+        if section["lede"]:
+            lines.append('  <p class="section-lede">%s</p>' % escape(section["lede"]))
+        lines.extend("  " + line for line in section["body"])
         lines.append("</section>")
 
-    for folder, title in CATEGORIES:
-        lines.append('<section id="%s">' % folder)
-        lines.append("  <h2>%s</h2>" % escape(title))
-        in_category = [record for record in law_parts if record["category"] == folder]
-        waiting = [record for record in candidate_parts if record["category"] == folder]
-        if not in_category and not waiting:
-            lines.append('  <div class="empty">Частей пока нет.</div>')
-        elif not in_category:
-            lines.append('  <div class="empty">Принятых частей пока нет — только кандидаты в приёмной.</div>')
-        else:
-            lines.append('  <div class="grid">')
-            for record in in_category:
-                lines.extend("    " + line for line in render_card(record))
-            lines.append("  </div>")
-        for record in waiting:
-            lines.append("  " + render_candidate_reference(record))
-        lines.append("</section>")
-
-    if rejected:
-        lines.append('<section id="rejected">')
-        lines.append("  <h2>Отвергнуто</h2>")
-        lines.append('  <p class="note">Кладбище — полноправный житель системы и стоит дороже '
-                     "принятого: принятое видно на экране, отвергнутое не видно нигде и потому "
-                     "предлагается заново каждой следующей сессией.</p>")
-        lines.append('  <table class="rejected">')
-        lines.append("    <tr><th>Что</th><th>Почему отвергнуто</th><th>Файл</th></tr>")
-        for item in rejected:
-            lines.append('    <tr><td>%s</td><td>%s</td><td><a href="rejected/%s"><code>%s</code></a></td></tr>'
-                         % (escape(item["name"]), escape(item["reason"]),
-                            escape(item["file"]), escape(item["file"])))
-        lines.append("  </table>")
-        lines.append("</section>")
-
-    lines.append("</main>")
+    lines.append('<footer class="foot">Собрана из частей и из <a href="tokens/tokens.json">'
+                 "tokens.json</a> скриптом <code>design/build.py</code>. Своего содержимого "
+                 "не имеет: правка руками теряется при следующей сборке. Договор о формате "
+                 'части — <a href="parts/README.md">design/parts/README.md</a>.</footer>')
+    lines.append("</div>")
+    lines.append('<script type="application/json" id="canvas-data">%s</script>'
+                 % json.dumps(contrast_payload(tokens), ensure_ascii=False))
+    lines.append("<script>%s</script>" % CANVAS_SCRIPT)
     lines.append("</body>")
     lines.append("</html>")
     lines.append("")

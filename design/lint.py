@@ -26,14 +26,27 @@ import build
 ROOT = build.ROOT
 
 # Приёмная, кладбище и референсы — заведомо грязные зоны: кандидату можно быть
-# неопрятным, в этом и смысл приёмной. 2-marks — иконка и лоадер, это canvas
-# и WebGL со своими нуждами, сырые значения там неизбежны.
+# неопрятным, в этом и смысл приёмной.
 DIRTY_DIRECTORIES = [
     ROOT / "design" / "candidates",
     ROOT / "design" / "rejected",
     ROOT / "reference",
 ]
-RAW_VALUE_EXEMPT = DIRTY_DIRECTORIES + [ROOT / "design" / "parts" / "2-marks"]
+
+# Поблажка на сырые значения — пофайловая и с названной ценой, а не на папку.
+# Папка «2-marks» была исключена целиком «потому что там canvas и WebGL» —
+# формулировка, под которую пролезает что угодно. На деле иконка и орб оказались
+# картинками и проходят полный линт; сырьё осталось ровно в одном файле и ровно
+# в двух строчках. Пусть исключение и стоит там, где стоит цена.
+RAW_VALUE_EXEMPT_FILES = {
+    # Два белых с альфой в letterpress лейбла «AI»: блик по верхней кромке
+    # плашки и свет под литерами. Это свет внутри знака, а не текст и не
+    # бордер: токена «белый 45%» в системе нет, и заводить его ради двух
+    # значений внутри одного знака — врать про роль. Знак — артефакт, а не
+    # интерфейс, собранный из токенов.
+    ROOT / "design" / "parts" / "2-marks" / "wordmark.html",
+}
+RAW_VALUE_EXEMPT = DIRTY_DIRECTORIES
 
 CARD_FIELDS = ["name", "slug", "status", "height", "why", "never", "tokens", "canon", "swift", "lineage"]
 STATUSES = ["принят", "кандидат", "отвергнут"]
@@ -283,6 +296,35 @@ def first_difference_line(current, expected):
     return 1
 
 
+def check_contrast_claims(report, tokens):
+    """Поле «contrast» в источнике обязано совпадать с посчитанным.
+
+    Числа в этом поле — утверждения, сделанные рукой, и живут они ровно до
+    первой правки цвета. Когда 17.07 лестницу поверхностей сдвинули на
+    #05030D, у text.* контрасты пересчитали, а у sem.* забыли — и три числа
+    остались точными значениями на прежней рампе #07060B. Выглядели фактом,
+    были археологией; поймала их не вычитка, а доска, которая считает сама.
+    Отсюда проверка: рукописному числу рядом с вычислимым верить нельзя,
+    его надо сверять — иначе оно снова разойдётся при следующем сдвиге.
+    """
+    for path, claimed, actual in build.contrast_drift(tokens):
+        report.add(build.TOKENS_JSON, token_line(path),
+                   "«%s»: заявлен контраст %.1f:1, на bg.base выходит %.2f:1 — "
+                   "пересчитать поле contrast или поправить цвет"
+                   % (path, claimed, actual))
+
+
+def token_line(path):
+    """Строка в tokens.json, где объявлен токен «группа.имя» — чтобы сообщение
+    линта было кликабельным, а не заставляло искать глазами."""
+    name = path.split(".")[-1]
+    pattern = re.compile(r'^\s*"%s"\s*:' % re.escape(name))
+    for number, line in enumerate(build.TOKENS_JSON.read_text(encoding="utf-8").splitlines(), 1):
+        if pattern.match(line):
+            return number
+    return 1
+
+
 def check_generated(report, tokens):
     try:
         outputs = build.build_all(tokens)
@@ -324,6 +366,7 @@ def main():
     tokens = build.load_tokens()
 
     check_generated(report, tokens)
+    check_contrast_claims(report, tokens)
 
     parts = part_files()
     slugs = {}
@@ -348,7 +391,7 @@ def main():
         for offset, css in css_fragments(path, text):
             check_root(report, path, text, css, offset)
             check_selectors(report, path, text, css, offset, slug)
-            if not inside(path, RAW_VALUE_EXEMPT):
+            if not inside(path, RAW_VALUE_EXEMPT) and path not in RAW_VALUE_EXEMPT_FILES:
                 check_raw_values(report, path, text, css, offset)
 
     # Общая сцена частей — не часть: селекторов .p-<slug> в ней нет по замыслу,

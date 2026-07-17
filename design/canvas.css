@@ -1,0 +1,867 @@
+/* Сцена витрины — и ничего сверх сцены.
+   Витрина собирается design/build.py из design/tokens/tokens.json и частей;
+   здесь только раскладка доски. Ни одного решения дизайн-системы тут нет:
+   всё, что является решением, приезжает из источника значений.
+
+   Значения — только var(--…) из tokens.css. Исключения (их три, и они
+   перечислены здесь целиком, чтобы никто не искал):
+
+   1. --canvas-column ниже — ширина колонки самой доски. Канон задаёт ширины
+      панелей приложения (02 §8.2), а не документа о приложении; токена нет.
+   2. Кегли обложки и заголовков секций — производные от type.display
+      множителем. Не новые токены: канон 04 §3.2 задаёт шкалу интерфейса
+      приложения, у доски своя обложка. Множитель — единственное сырое число.
+   3. Длины столбиков-данных (ΔL, шкала отступов) считает build.py из
+      tokens.json и отдаёт множителем к space-токену. Это данные, а не
+      решение: столбик обязан быть пропорционален числу (11 §1.3, lie factor).
+
+   Всё остальное сырьё — ошибка, а не исключение. */
+
+.canvas {
+  /* Исключение 1 — см. шапку. */
+  --canvas-column: 1280px;
+  /* Обложка и заголовки секций — производные от type.display (исключение 2). */
+  --canvas-cover: calc(var(--type-display-size) * 2.5);
+  --canvas-section: calc(var(--type-display-size) * 1.4);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-text);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-leading);
+  font-weight: var(--type-body-weight);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--text-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.canvas {
+  max-width: var(--canvas-column);
+  margin: 0 auto;
+  padding: 0 var(--space-8);
+}
+
+/* Сетка доски — 12 колонок, единый гаттер (02 §4.1). Блоки занимают целое
+   число колонок; ничего не висит между. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+/* min-width: 0 — иначе широкий потомок (матрица контраста) не даёт треку сжаться
+   и колонка наезжает на соседнюю. Дефолт grid-элемента — min-content, не ноль. */
+.col-12, .col-8, .col-6, .col-4 { min-width: 0; }
+.col-12 { grid-column: span 12; }
+.col-8 { grid-column: span 8; }
+.col-6 { grid-column: span 6; }
+.col-4 { grid-column: span 4; }
+@media (max-width: 1000px) {
+  .col-8, .col-6, .col-4 { grid-column: span 12; }
+}
+
+/* ——— Обложка ———
+   Единственная задача — с первого взгляда показать, что это спроектированная
+   вещь, а не вики. Поэтому воздух, знак и фирменная гамма (её роль по токену —
+   «орб, hero-акценты», обложка и есть hero). */
+
+.cover {
+  /* Высота обложки — от шкалы отступов, не от вьюпорта: 100vh-герой врёт
+     на каждом экране, кроме одного, и делает страницу непроверяемой
+     (в высоком окне обложка вырастает в километр). Воздух тут нужен
+     щедрый, а не «во весь экран». */
+  min-height: calc(var(--space-10) * 11);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-6);
+  padding: var(--space-10) 0;
+}
+
+.cover h1 {
+  margin: 0;
+  max-width: 15ch;
+  font-size: var(--canvas-cover);
+  line-height: 1.02;
+  font-weight: var(--type-display-weight);
+  letter-spacing: -0.02em;
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.cover .lede {
+  margin: 0;
+  max-width: 58ch;
+  font-size: var(--type-heading-size);
+  line-height: var(--type-heading-leading);
+  color: var(--text-secondary);
+}
+.cover .lede b { color: var(--text-primary); font-weight: var(--type-body-em-weight); }
+
+/* Счётчики обложки — не украшение: это состояние системы, посчитанное
+   при сборке. Числа табличные (04 §10). */
+.cover-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+.cover-fact { display: flex; flex-direction: column; gap: var(--space-1); }
+.cover-fact b {
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-leading);
+  font-weight: var(--type-display-weight);
+  font-variant-numeric: tabular-nums;
+}
+.cover-fact span {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+  color: var(--text-tertiary);
+}
+
+/* ——— Рельс ——— */
+
+.rail {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-4);
+  margin-bottom: var(--space-10);
+  padding: var(--space-3) 0;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.rail a {
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+}
+.rail a:hover { color: var(--text-primary); text-decoration: none; }
+.rail a .n {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-disabled);
+  padding-right: var(--space-1);
+}
+
+/* ——— Секция ——— */
+
+.section { margin-bottom: var(--space-10); scroll-margin-top: var(--space-10); }
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-5);
+  margin-bottom: var(--space-2);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-default);
+}
+.section-head .num {
+  font-family: var(--font-mono);
+  font-size: var(--type-display-size);
+  line-height: var(--canvas-section);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-disabled);
+}
+.section-head h2 {
+  margin: 0;
+  font-size: var(--canvas-section);
+  line-height: var(--canvas-section);
+  font-weight: var(--type-display-weight);
+  letter-spacing: -0.02em;
+}
+
+/* Обоснование открывает секцию ОДНОЙ строкой. Потолок текста на доске —
+   заголовок и две строки; всё, что длиннее, уезжает в «Можно / Нельзя»
+   в конец секции. */
+.section-lede {
+  margin: 0 0 var(--space-8);
+  max-width: 72ch;
+  font-size: var(--type-heading-size);
+  line-height: var(--type-heading-leading);
+  color: var(--text-secondary);
+}
+
+/* ——— Блок внутри секции ——— */
+
+.block { margin-bottom: var(--space-8); scroll-margin-top: var(--space-10); }
+.block-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.block-head h3 {
+  margin: 0;
+  font-size: var(--type-heading-size);
+  line-height: var(--type-heading-leading);
+  font-weight: var(--type-heading-weight);
+}
+.block-head .hint {
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+}
+
+.label {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-leading);
+  font-weight: var(--type-label-weight);
+  text-transform: var(--type-label-caps);
+  letter-spacing: var(--type-label-tracking);
+  color: var(--text-tertiary);
+}
+
+.mono { font-family: var(--font-mono); font-size: var(--type-mono-s-size); }
+
+/* Всё, что можно скопировать, — копируется кликом. Никакой кнопки:
+   ноль интерфейса (01 §2.2, пиксель платит аренду). */
+[data-token] { cursor: copy; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-5);
+  transform: translateX(-50%) translateY(var(--space-4));
+  z-index: 9;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-fast-duration) var(--motion-fast-easing),
+              transform var(--motion-fast-duration) var(--motion-fast-easing);
+}
+.toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ——— 01 · Лестница поверхностей ———
+   Свотч-сетка показывает десять цветов; лестница показывает десять решений.
+   Полоса непрерывна намеренно: ступень видна только рядом с соседней. */
+
+.ramp-band {
+  display: grid;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-l);
+  overflow: hidden;
+}
+.ramp-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  min-height: calc(var(--space-10) * 2);
+  padding: var(--space-3);
+}
+.ramp-cell b {
+  font-size: var(--type-body-em-size);
+  line-height: var(--type-body-em-leading);
+  font-weight: var(--type-body-em-weight);
+  color: var(--text-primary);
+}
+.ramp-cell .v {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  line-height: var(--type-mono-s-leading);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+/* Цвет на светлых ступенях фирменной гаммы: белый там запрещён (text.on-accent). */
+.ramp-cell.on-dark b, .ramp-cell.on-dark .v { color: var(--bg-base); }
+
+/* Доказательство равного шага: столбик длиной ∝ ΔL, посаженный на стык.
+   Три почти одинаковых столбика — и правило «равные шаги ΔL ≈ 0.03» видно,
+   а не заявлено. */
+.ramp-deltas {
+  display: grid;
+  margin-top: var(--space-2);
+}
+.ramp-delta {
+  grid-row: 1;
+  justify-self: start;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.ramp-delta i {
+  display: block;
+  height: var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--text-accent);
+}
+.ramp-delta span {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Роли — то самое «какую работу делает ступень». Одна строка на ступень. */
+.roles { margin: var(--space-5) 0 0; padding: 0; list-style: none; }
+.roles li {
+  display: grid;
+  grid-template-columns: var(--space-4) 19ch 1fr;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
+}
+.roles .swatch {
+  width: var(--space-3);
+  height: var(--space-3);
+  border-radius: var(--radius-s);
+  border: 1px solid var(--border-subtle);
+  align-self: center;
+}
+.roles .t {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-primary);
+}
+/* Потолок текста на доске — заголовок и две строки. Роли приезжают из
+   источника, и некоторые там длиной в абзац (brand.amber объясняет своё
+   разведение с sem.warning на четыре строки). Абзац в списке ступеней
+   ломает список и прячет лестницу — поэтому две строки, а хвост остаётся
+   в DOM: ⌘F его найдёт, и запрет из него уже вынут в «Нельзя». */
+.roles .r {
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* ——— 01 · Состояния поверхности ———
+   Статичная доска умеет нарисовать только картинку ховера. Эти строки
+   действительно ховерятся. */
+.states {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--bg-surface);
+  overflow: hidden;
+}
+.states .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: var(--row-default);
+  padding: 0 var(--space-4);
+  transition: background var(--motion-fast-duration) var(--motion-fast-easing);
+}
+.states .row + .row { border-top: 1px solid var(--border-subtle); }
+.states .row:hover { background: var(--bg-hover); }
+.states .row:active { background: var(--bg-pressed); }
+.states .row.selected { background: var(--bg-selected); }
+.states .row .t { font-weight: var(--type-body-em-weight); }
+.states .row .m {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-tertiary);
+}
+
+/* ——— 01 · Контраст ———
+   Матрица считается в браузере при загрузке: альфа-белый сначала
+   накладывается на фон, потом берётся WCAG. Числа тут не переписаны
+   из таблицы — они посчитаны на глазах у читателя. */
+.matrix { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+/* Ниже расчётной колонки (--canvas-column) матрица шире своего трека. Скроллим её
+   внутри себя: перенос ячейки убил бы сравнение по вертикали, ради которого она и есть. */
+@media (max-width: 1280px) {
+  .matrix { display: block; overflow-x: auto; }
+}
+.matrix th, .matrix td { padding: var(--space-2) var(--space-3); text-align: left; }
+.matrix thead th {
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+  font-weight: var(--type-caption-weight);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.matrix tbody th {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  font-weight: var(--type-mono-weight);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.matrix td { border-radius: var(--radius-s); }
+/* Образец и цифра — одна строка на любой ширине: перенос «Ждёт / ревью» ломает
+   сравнение по вертикали, ради которого матрица и существует (11 §2.1). */
+.matrix .cell { display: flex; align-items: baseline; gap: var(--space-2); white-space: nowrap; }
+.matrix .sample { font-size: var(--type-body-size); font-weight: var(--type-body-em-weight); }
+.matrix .ratio { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-tertiary); }
+/* Провал дублируется формой, а не только цветом (sem._role, дейтеранопия). */
+.matrix .fail .ratio { color: var(--sem-error); }
+.matrix .fail .flag { color: var(--sem-error); font-size: var(--type-caption-size); }
+.matrix .pass .flag { visibility: hidden; }
+
+.verdict-note {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: var(--border-focus-width) solid var(--sem-error);
+  background: var(--sem-error-fill);
+  border-radius: 0 var(--radius-m) var(--radius-m) 0;
+  color: var(--text-primary);
+}
+.verdict-note code { font-family: var(--font-mono); font-size: var(--type-mono-s-size); }
+
+/* Находка — то, что доска обнаружила про источник, пока считала.
+   Одна общая область: заголовок, список и объяснение — один объект,
+   а не три соседа (гештальт, 02 §6). */
+.finding {
+  margin: var(--space-5) 0 0;
+  padding: var(--space-4);
+  border-left: var(--border-focus-width) solid var(--sem-warning);
+  background: var(--sem-warning-fill);
+  border-radius: 0 var(--radius-m) var(--radius-m) 0;
+}
+.finding > *:first-child { margin-top: 0; }
+.finding > *:last-child { margin-bottom: 0; }
+.finding p { margin: var(--space-3) 0 0; color: var(--text-secondary); }
+.finding p:first-child { color: var(--text-primary); }
+.finding code { font-family: var(--font-mono); font-size: var(--type-mono-s-size); }
+.finding .roles { margin-top: var(--space-3); }
+
+/* Сноска матрицы: почему клетка не помечена провалом. */
+.matrix-note {
+  margin: var(--space-3) 0 0;
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+}
+.matrix-note code { font-family: var(--font-mono); font-size: var(--type-mono-s-size); }
+
+/* ——— 01 · Типографика ———
+   Лестница в натуральную величину: таблица чисел не показывает кегль,
+   она о нём рассказывает. Образцы — реальные строки продукта. */
+.ladder { border-top: 1px solid var(--border-subtle); }
+.ladder-rung {
+  display: grid;
+  grid-template-columns: 22ch 1fr;
+  gap: var(--space-5);
+  align-items: baseline;
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.ladder-meta { display: flex; flex-direction: column; gap: var(--space-1); }
+.ladder-meta .t {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-primary);
+}
+.ladder-meta .d {
+  font-size: var(--type-caption2-size);
+  line-height: var(--type-caption2-leading);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.ladder-meta .j { font-size: var(--type-caption2-size); line-height: var(--type-caption2-leading); color: var(--text-disabled); }
+.ladder-sample { color: var(--text-primary); }
+
+/* Пара одного кегля: имя даёт работа, а не размер. */
+.twin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-l);
+  background: var(--bg-surface);
+}
+.twin > div { display: flex; flex-direction: column; gap: var(--space-1); }
+
+/* ——— 01 · Отступы ———
+   Столбик длиной ровно в свой токен: шкала измеряет сама себя. */
+.bars { display: flex; flex-direction: column; gap: var(--space-2); }
+.bar-row {
+  display: grid;
+  grid-template-columns: 10ch 5ch 7ch 1fr;
+  align-items: center;
+  gap: var(--space-3);
+}
+.bar-row .t { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-primary); }
+.bar-row .n {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.bar-row .x {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-disabled);
+  font-variant-numeric: tabular-nums;
+}
+.bar-row i {
+  display: block;
+  height: var(--space-3);
+  border-radius: var(--radius-s);
+  background: var(--text-accent);
+}
+.bar-row.off i { background: var(--text-disabled); }
+
+/* Инвариант Бирмана, нарисованный: внутреннее ≤ внешнее. */
+.inout { display: flex; gap: var(--space-5); flex-wrap: wrap; }
+.inout-case {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-l);
+  background: var(--bg-surface);
+}
+.inout-groups { display: flex; flex-direction: column; }
+.inout-group { display: flex; flex-direction: column; }
+.inout-group .line {
+  height: var(--space-2);
+  border-radius: var(--radius-s);
+  background: var(--text-disabled);
+}
+.inout-case.good .inout-groups { gap: var(--space-5); }
+.inout-case.good .inout-group { gap: var(--space-2); }
+.inout-case.bad .inout-groups { gap: var(--space-3); }
+.inout-case.bad .inout-group { gap: var(--space-3); }
+.inout-case p { margin: var(--space-3) 0 0; color: var(--text-secondary); }
+.inout-case.good .verdict-mark { color: var(--sem-success); }
+.inout-case.bad .verdict-mark { color: var(--sem-error); }
+
+/* ——— 01 · Радиусы ———
+   Концентрика: вложенный = внешний − паддинг. Нарисована, не описана. */
+.nest {
+  display: inline-flex;
+  border: 1px solid var(--border-strong);
+}
+.nest-l1 { padding: var(--space-1); border-radius: var(--radius-xl); background: var(--bg-overlay); }
+.nest-l2 { padding: var(--space-1); border-radius: var(--radius-l); background: var(--bg-raised); }
+.nest-l3 {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  height: var(--control-h-default);
+  border-radius: var(--radius-m);
+  background: var(--brand-ultramarine);
+  color: var(--text-on-accent);
+  font-weight: var(--type-body-em-weight);
+}
+.nest-legend { margin: var(--space-4) 0 0; padding: 0; list-style: none; }
+.nest-legend li {
+  padding: var(--space-1) 0;
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.nest-legend li b { color: var(--sem-success); font-weight: var(--type-mono-weight); }
+
+/* ——— 01 · Движение ———
+   Живые образцы: длительность и кривая — те самые токены. Переход
+   запускается по интервалу, потому что переход — это переход, а не цикл. */
+.motion-row {
+  display: grid;
+  grid-template-columns: 14ch 16ch 1fr;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.motion-row .t { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-primary); }
+.motion-row .d {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.motion-track {
+  position: relative;
+  height: var(--space-5);
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+}
+.motion-dot {
+  position: absolute;
+  top: var(--space-1);
+  left: var(--space-1);
+  width: var(--space-4);
+  height: var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--text-accent);
+}
+/* Едут только переходы. motion.live никуда не едет: у него нет длительности,
+   и прогон по дорожке приписал бы ему ту, которой в источнике нет. */
+.motion-track.go .motion-dot:not(.live) { transform: translateX(calc(100cqw - var(--space-10))); }
+.motion-row .motion-track { container-type: inline-size; }
+.motion-dot.fast { transition: transform var(--motion-fast-duration) var(--motion-fast-easing); }
+.motion-dot.base { transition: transform var(--motion-base-duration) var(--motion-base-easing); }
+.motion-dot.slow { transition: transform var(--motion-slow-duration) var(--motion-slow-easing); }
+/* motion.live — состояние, а не переход: длительности в токенах нет,
+   и придумывать её здесь витрина не станет. Пульс честно подписан. */
+.motion-dot.live { background: var(--sem-info); animation: canvas-pulse 2s ease-in-out infinite; }
+@keyframes canvas-pulse { 50% { opacity: 0.25; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-dot { transition: none !important; animation: none !important; }
+  .toast { transition: none; }
+  .states .row { transition: none; }
+}
+
+/* ——— 01 · Свечение ———
+   Рецепт разобран на слои и собран обратно, на том, ради чего он есть. */
+/* Пять случаев — пять равных колонок: рецепт читается разбором, а разбор
+   сравнивается только тогда, когда шаги стоят на одной сетке и одного
+   размера (small multiples, 11 §1.5). */
+.glow-lab {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+@media (max-width: 1000px) { .glow-lab { grid-template-columns: repeat(2, 1fr); } }
+.glow-case { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+.glow-btn {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-h-default);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-m);
+  background: var(--brand-ultramarine);
+  color: var(--text-on-accent);
+  font-weight: var(--type-body-em-weight);
+  transition: box-shadow var(--motion-fast-duration) var(--motion-fast-easing);
+}
+.glow-btn.hoverable:hover { box-shadow: var(--glow-accent); }
+.glow-btn.both { box-shadow: var(--glow-accent); }
+
+/* ——— Части ———
+   Часть на доске — это её образец. Имя, слаг и статус — подпись под
+   образцом, а не карточка прозы вокруг него. */
+.part {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-l);
+  background: var(--bg-surface);
+  overflow: hidden;
+  scroll-margin-top: var(--space-10);
+}
+.part-stage { background: var(--bg-base); }
+.part-stage iframe { display: block; width: 100%; border: 0; }
+.part-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+.part-meta h4 {
+  margin: 0;
+  font-size: var(--type-body-em-size);
+  line-height: var(--type-body-em-leading);
+  font-weight: var(--type-body-em-weight);
+}
+.part-meta .slug { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-tertiary); }
+.part-meta .spacer { flex: 1; }
+.part-meta .refs {
+  font-size: var(--type-caption2-size);
+  line-height: var(--type-caption2-leading);
+  color: var(--text-disabled);
+}
+.part-meta .refs a { color: var(--text-disabled); }
+
+.part-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: 0 var(--space-4) var(--space-3);
+}
+.part-tokens span {
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-s);
+  background: var(--bg-hover);
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-tertiary);
+}
+
+.chip {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-s);
+  font-size: var(--type-caption2-size);
+  line-height: calc(var(--type-caption-leading));
+  white-space: nowrap;
+}
+.chip-accepted { background: var(--sem-success-fill); color: var(--sem-success); }
+.chip-candidate { background: var(--sem-warning-fill); color: var(--sem-warning); }
+.chip-rejected { background: var(--sem-error-fill); color: var(--sem-error); }
+
+.part details, .grave details { border-top: 1px solid var(--border-subtle); }
+.part summary, .grave summary {
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-disabled);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-leading);
+  font-weight: var(--type-label-weight);
+  text-transform: var(--type-label-caps);
+  letter-spacing: var(--type-label-tracking);
+  cursor: pointer;
+}
+.part summary:hover, .grave summary:hover { color: var(--text-secondary); }
+/* Долг — единственное раскрытие, которое зовёт себя цветом: его прячут
+   не потому, что он неважен, а потому, что он длинный. */
+.part details.debt summary { color: var(--sem-warning); }
+.part details p, .grave details p {
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-4);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+}
+
+.stage-note {
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+  color: var(--sem-warning);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+}
+
+/* ——— Можно / Нельзя ———
+   Суждение закрывает секцию. «Никогда» — самое дорогое поле контракта,
+   и оно обязано быть видно; но если дать ему говорить внутри каждой
+   карточки, оно съест доску. Поэтому — сюда, по строке на часть. */
+.verdict {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  margin-top: var(--space-8);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-default);
+}
+@media (max-width: 1000px) { .verdict { grid-template-columns: 1fr; } }
+.verdict h3 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-leading);
+  font-weight: var(--type-label-weight);
+  text-transform: var(--type-label-caps);
+  letter-spacing: var(--type-label-tracking);
+}
+.verdict .can h3 { color: var(--sem-success); }
+.verdict .cant h3 { color: var(--sem-error); }
+.verdict ul { margin: 0; padding: 0; list-style: none; }
+.verdict li {
+  display: grid;
+  grid-template-columns: var(--space-3) 1fr;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+  color: var(--text-secondary);
+}
+/* Цвет дублируется формой — знак есть у обеих колонок (sem._role). */
+.verdict li::before { color: var(--text-disabled); }
+.verdict .can li::before { content: "+"; color: var(--sem-success); }
+.verdict .cant li::before { content: "×"; color: var(--sem-error); }
+.verdict li a { color: var(--text-primary); font-weight: var(--type-body-em-weight); }
+
+/* Хвост — за раскрытием, но в потоке строки, а не под ней: «+8» — это
+   продолжение фразы, и вставать отдельным блоком ему незачем. Один приём
+   сжатия на всю доску: суждение о части, причина отказа. */
+/* Гасим хром раскрытий-карточек: .grave details выше рисует линейку сверху
+   и поля, а это раскрытие живёт внутри фразы, а не отдельным этажом. */
+details.more { display: inline; border-top: 0; }
+details.more > summary {
+  display: inline;
+  cursor: pointer;
+  color: var(--text-accent);
+  font-size: var(--type-caption-size);
+  list-style: none;
+  padding: 0 0 0 var(--space-1);
+}
+details.more > summary::-webkit-details-marker { display: none; }
+details.more > summary::marker { content: ""; }
+details.more > summary:hover { text-decoration: underline; }
+details.more > p { margin: var(--space-2) 0 0; padding: 0; color: var(--text-tertiary); }
+
+/* Кандидат в своей категории — строка-ссылка в приёмную, а не второй образец:
+   два образца одной вещи — два якоря вместо одного (02 §2.2) и вдвое больше
+   чернил на то же (11 §1.1). Но и промолчать нельзя: без этой строки секция
+   врёт, что принятым исчерпывается вся категория. */
+.reference {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-m);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+}
+
+/* ——— 06 · Экраны ——— */
+.screens {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--bg-base);
+}
+.screens iframe { display: block; width: 100%; border: 0; }
+
+/* ——— Кладбище ———
+   16 мёртвых идей с причинами — это содержание, а не сноска. */
+.grave { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+@media (max-width: 1000px) { .grave { grid-template-columns: 1fr; } }
+.grave-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--bg-surface);
+}
+.grave-item h4 {
+  margin: 0;
+  font-size: var(--type-body-em-size);
+  line-height: var(--type-body-em-leading);
+  font-weight: var(--type-body-em-weight);
+  color: var(--text-secondary);
+  text-decoration: line-through;
+  text-decoration-color: var(--sem-error);
+}
+.grave-item p { margin: 0; color: var(--text-tertiary); font-size: var(--type-caption-size); line-height: var(--type-caption-leading); }
+.grave-item a { font-family: var(--font-mono); font-size: var(--type-mono-s-size); }
+
+.empty {
+  padding: var(--space-6);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-l);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.foot {
+  padding: var(--space-8) 0 var(--space-10);
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+}

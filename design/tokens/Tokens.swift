@@ -235,6 +235,8 @@ enum Token {
 
     /// SF Pro Text + SF Mono; шкала ≈1.2, привязана к macOS text styles. Цифры в таблицах, счётчиках, логе и аналитике — всегда tabular. Веса Light/Thin на тёмном ЗАПРЕЩЕНЫ. Таблицы в 04-typography.md и здесь обязаны совпадать буквально.
     enum Typography {
+        /// знак продукта «Foundry AI» и hero-заголовок первого запуска; базовый кегль знака — внутренние меры знака считаются em-ами от него
+        static let hero = TypeToken(size: 34, leading: 40, weight: .bold, family: .text, tracking: -0.02)
         /// число-KPI в аналитике
         static let display = TypeToken(size: 26, leading: 32, weight: .bold, family: .text)
         /// заголовок экрана/окна
@@ -257,9 +259,10 @@ enum Token {
         static let monoSmall = TypeToken(size: 10, leading: 14, weight: .regular, family: .mono)
     }
 
+    /// «-apple-system» стоит первым не для красоты: он отдаёт системный SF с живой оптической осью, и macOS сама переключает Text → Display на пороге ~20 pt. Имя семейства первым («SF Pro Text») эту ось выключает — на машине, где SF Pro установлен, оно перехватывает стек и прибивает Text ко всем кеглям, включая type.display и type.hero. Канон 04 §2.1 требует ровно обратного: «система переключает оптический размер сама — не мешать, не форсировать». Порядок здесь и есть исполнение этого правила.
     enum FontStack {
         /// весь интерфейсный текст
-        static let text: [String] = ["SF Pro Text", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"]
+        static let text: [String] = ["-apple-system", "BlinkMacSystemFont", "SF Pro Text", "system-ui", "sans-serif"]
         /// код, дифф, лог
         static let mono: [String] = ["SF Mono", "ui-monospace", "Menlo", "monospace"]
     }

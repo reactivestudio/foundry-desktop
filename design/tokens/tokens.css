@@ -83,6 +83,12 @@
   --radius-full: 999px;  /* точки-статусы, счётчики-пилюли, орб */
 
   /* type — SF Pro Text + SF Mono; шкала ≈1.2, привязана к macOS text styles. Цифры в таблицах, счётчиках, логе и аналитике — всегда tabular. Веса Light/Thin на тёмном ЗАПРЕЩЕНЫ. Таблицы в 04-typography.md и здесь обязаны совпадать буквально. */
+  /* type.hero — знак продукта «Foundry AI» и hero-заголовок первого запуска; базовый кегль знака — внутренние меры знака считаются em-ами от него */
+  --type-hero-size: 34px;
+  --type-hero-leading: 40px;
+  --type-hero-weight: 700;
+  --type-hero-family: var(--font-text);
+  --type-hero-tracking: -0.02em;
   /* type.display — число-KPI в аналитике */
   --type-display-size: 26px;
   --type-display-leading: 32px;
@@ -136,8 +142,8 @@
   --type-mono-s-weight: 400;
   --type-mono-s-family: var(--font-mono);
 
-  /* font */
-  --font-text: "SF Pro Text", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;  /* весь интерфейсный текст */
+  /* font — «-apple-system» стоит первым не для красоты: он отдаёт системный SF с живой оптической осью, и macOS сама переключает Text → Display на пороге ~20 pt. Имя семейства первым («SF Pro Text») эту ось выключает — на машине, где SF Pro установлен, оно перехватывает стек и прибивает Text ко всем кеглям, включая type.display и type.hero. Канон 04 §2.1 требует ровно обратного: «система переключает оптический размер сама — не мешать, не форсировать». Порядок здесь и есть исполнение этого правила. */
+  --font-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;  /* весь интерфейсный текст */
   --font-mono: "SF Mono", ui-monospace, Menlo, monospace;  /* код, дифф, лог */
 
   /* control — Размеры контролов и целей. Минимальная кликабельная цель — Фиттс, 07-interaction.md. */
