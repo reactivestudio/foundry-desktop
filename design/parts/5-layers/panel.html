@@ -1,0 +1,139 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Панель — foundry-desktop</title>
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../specimen.css">
+
+<script type="application/json" id="card">
+{
+  "name": "Панель",
+  "slug": "panel",
+  "status": "кандидат",
+  "height": 617,
+  "why": "Контейнер контента, который отделяется от фона одной светлотой и воздухом: в покое держит его заливка + радиус, а не линейка — так граница считывается без единой нарисованной черты.",
+  "never": "Не обводить панель в покое: обводка панели — не оформление, а состояние (rejected/panel-borders.md). В покое объект держат заливка (elevation светлотой: surface на base, raised на surface) и воздух; линейка вокруг всего подряд запрещена — гештальт-близость группирует бесплатно (09 §10, Бирман). Обводка появляется, только когда кодирует состояние: выбран · пишется · требует внимания · тащат. Не ставить линейку и увеличенный отступ одновременно — двойное средство для одной границы (09 §10). Не перепрыгивать слои: панель не бывает светлее поповера; вложенной плашке внутри — +2–3% к светлоте, а не следующий слой (09 §1.1). Слоёв ровно четыре; пятый — сигнал переусложнённой композиции, сначала упростить (09 §1.1, 02). Не скроллить контент внутри панели, вложенной в скроллящийся контент: вертикальный скролл в вертикальном перехватывает колесо (09 §9). Не звать панелью то, что прерывает работу и требует ответа: это модалка/алерт, у неё свой слой overlay и свой обряд (09 §2).",
+  "tokens": ["space.2", "space.3", "space.4", "space.5", "radius.l", "bg.surface", "bg.raised", "bg.selected", "border.focus", "sem.warning-border", "sem.warning-fill", "text.primary", "text.secondary", "text.tertiary", "type.heading", "type.body", "type.caption", "font.text"],
+  "canon": ["09-surfaces.md", "02-composition.md", "06-color.md"],
+  "swift": null,
+  "lineage": "КАНДИДАТ — не проходил приёмку как часть. Выделена из foundry-mockups.html §12 (аналитические панели .apanel «Где сейчас change'и» и «Здоровье лупов», разметка 1863–1892, CSS 928–930) и §3/§8 (панели инспектора и спеки .risk-panel / .skill-panel / .pane.inspector, CSS 162–163, 421, 647) — контейнер контента встретился во многих местах в одной анатомии: заливка surface + радиус + паддинг, заголовок сверху опционален. Значения переложены на токены с правкой по канону: (1) .apanel в макете имел border 1px b-subtle — СНЯТ: обводка панели в покое отвергнута (rejected/panel-borders.md, «20 панелей, обводок 0»), границу держат светлота и воздух; (2) padding s5 (24) → space.4 (16): роль space.4 в tokens.json прямо названа «паддинг панелей»; (3) radius r-l (10) сохранён; (4) заголовок h3 14/600 → type.heading (16/600, роль — «заголовки секций, карточек»): токена 14px для текста нет; подзаголовок .sub 12px → type.caption (11). Состояния-с-обводкой взяты из принятого набора panel-borders «выбран · пишется · требует внимания · тащат»: selected = заливка ультрамарин 14% (bg.selected) + бордер (09 §7.3) — бордер нарисован border.focus, потому что токена ультрамарин-с-альфой @50% в системе НЕТ (тот же долг, что у tabs/button; лечится токеном border.selected); attention = sem.warning-border (реальный токен @30%) + лёгкая заливка sem.warning-fill. Показаны оба уровня elevation (surface и raised) — светлота, а не тень (09 §1.1)."
+}
+</script>
+
+<style>
+  .p-panel {
+    display: flex; flex-direction: column; gap: var(--space-5);
+    font-family: var(--font-text);
+    --panel-w: calc(var(--space-10) * 3);   /* 64×3 — ширина колонки образца из токена, не сырьё */
+  }
+  .p-panel .group { display: flex; flex-direction: column; gap: var(--space-3); }
+  .p-panel .multiples { display: flex; flex-wrap: wrap; gap: var(--space-5); align-items: flex-start; }
+  .p-panel .cell { display: flex; flex-direction: column; gap: var(--space-2); align-items: flex-start; }
+
+  /* ——— тело панели: §12 макета (.apanel, CSS 928–930), обводка снята ———
+     заливка surface (на base) + радиус l + паддинг space.4 («паддинг панелей») ·
+     БЕЗ линейки в покое — границу держат светлота и воздух (rejected/panel-borders.md) */
+  .p-panel .panel {
+    box-sizing: border-box; width: var(--panel-w);
+    background: var(--bg-surface);
+    border-radius: var(--radius-l);
+    padding: var(--space-4);
+    border: 1px solid transparent;   /* прозрачна в покое; место под бордер-состояние, чтобы размер не прыгал */
+    display: flex; flex-direction: column; gap: var(--space-3);
+  }
+  .p-panel .panel .h {
+    font-size: var(--type-heading-size); line-height: var(--type-heading-leading);
+    font-weight: var(--type-heading-weight); color: var(--text-primary);
+  }
+  .p-panel .panel .sub {
+    font-size: var(--type-caption-size); line-height: var(--type-caption-leading);
+    color: var(--text-tertiary);
+  }
+  .p-panel .panel .body {
+    font-size: var(--type-body-size); line-height: var(--type-body-leading);
+    color: var(--text-secondary);
+  }
+
+  /* уровень raised — на ступень светлее (поповер/меню/тултип), тоже без линейки */
+  .p-panel .panel.raised { background: var(--bg-raised); }
+
+  /* состояние «выбран» — заливка 14% + бордер (09 §7.3); бордер = border.focus (стенд-ин, долг) */
+  .p-panel .panel.is-selected { background: var(--bg-selected); border-color: var(--border-focus); }
+
+  /* состояние «требует внимания» — бордер + заливка sem.warning (реальные токены) */
+  .p-panel .panel.is-attention { background: var(--sem-warning-fill); border-color: var(--sem-warning-border); }
+</style>
+
+<div class="specimen p-panel">
+
+  <!-- elevation: светлота, не тень — surface на base, raised на surface -->
+  <div class="group">
+    <span class="state-label">уровни · граница светлотой, без линейки (09 §1.1)</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">bg.surface — карточки, инспектор, панель кода</span>
+        <div class="panel">
+          <div class="h">Где сейчас change'и</div>
+          <div class="sub">18 открытых по стадиям</div>
+          <div class="body">Скопление в Implement — узкое место.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <span class="state-label">bg.raised — поповер, меню, тултип</span>
+        <div class="panel raised">
+          <div class="h">Здоровье лупов</div>
+          <div class="sub">исходы 48 прогонов за 7 дней</div>
+          <div class="body">Узкое место — фейлы CI на PR.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- заголовок опционален: панель живёт и без шапки -->
+  <div class="group">
+    <span class="state-label">с заголовком и без — шапка не обязательна</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">с заголовком</span>
+        <div class="panel">
+          <div class="h">Распределение</div>
+          <div class="body">Implement · PR · Design · Questions.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <span class="state-label">без заголовка</span>
+        <div class="panel">
+          <div class="body">Голый контейнер контента: границу держит светлота, воздух отделяет от соседа.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ключевое: покой без линейки против состояния с линейкой -->
+  <div class="group">
+    <span class="state-label">покой без линейки · против панели-в-состоянии-с-линейкой (обводка = состояние)</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">покой — без линейки</span>
+        <div class="panel">
+          <div class="h">Панель в покое</div>
+          <div class="body">Ни одной нарисованной черты — заливка и воздух.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <span class="state-label">выбран — бордер ультрамарин + заливка 14%</span>
+        <div class="panel is-selected">
+          <div class="h">Выбранная панель</div>
+          <div class="body">Обводка здесь — состояние «выбран», а не оформление.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <span class="state-label">требует внимания — бордер sem.warning</span>
+        <div class="panel is-attention">
+          <div class="h">Стадия упала</div>
+          <div class="body">Обводка кодирует «нужно вмешаться».</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

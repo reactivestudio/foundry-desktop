@@ -15,24 +15,30 @@
   <div class="cover-facts">
     <div class="cover-fact"><b>91</b><span>токенов в источнике</span></div>
     <div class="cover-fact"><b>6</b><span>частей — закон</span></div>
-    <div class="cover-fact"><b>5</b><span>в приёмной — не закон</span></div>
+    <div class="cover-fact"><b>5</b><span>частей — на утверждении</span></div>
+    <div class="cover-fact"><b>3</b><span>в приёмной — не закон</span></div>
     <div class="cover-fact"><b>16</b><span>отвергнуто, с причиной</span></div>
   </div>
 </section>
 <nav class="rail">
-  <a href="#1-foundation"><span class="n">01</span>Основа</a>
-  <a href="#2-marks"><span class="n">02</span>Знаки</a>
-  <a href="#3-elements"><span class="n">03</span>Элементы</a>
-  <a href="#4-blocks"><span class="n">04</span>Блоки</a>
-  <a href="#5-layers"><span class="n">05</span>Слои</a>
-  <a href="#6-views"><span class="n">06</span>Экраны</a>
-  <a href="#7-behaviour"><span class="n">07</span>Поведение</a>
+  <a href="#colors"><span class="n">01</span>Цвета</a>
+  <a href="#typography"><span class="n">02</span>Типографика</a>
+  <a href="#spacing"><span class="n">03</span>Отступы и сетка</a>
+  <a href="#buttons"><span class="n">04</span>Кнопки</a>
+  <a href="#tabs"><span class="n">05</span>Табы</a>
+  <a href="#labels"><span class="n">06</span>Лейблы</a>
+  <a href="#panels"><span class="n">07</span>Панели</a>
+  <a href="#blocks"><span class="n">08</span>Блоки</a>
+  <a href="#icons"><span class="n">09</span>Иконки</a>
+  <a href="#logo"><span class="n">10</span>Логотип</a>
+  <a href="#animation"><span class="n">11</span>Анимации</a>
+  <a href="#screens"><span class="n">12</span>Экраны</a>
   <a href="#candidates"><span class="n">—</span>Приёмная</a>
   <a href="#rejected"><span class="n">—</span>Отвергнуто</a>
 </nav>
-<section class="section" id="1-foundation">
-  <div class="section-head"><span class="num">01</span><h2>Основа</h2></div>
-  <p class="section-lede">Это значение, а не вещь. Всё ниже нарисовано из tokens.json — поменяется хекс в источнике, поменяется эта страница.</p>
+<section class="section" id="colors">
+  <div class="section-head"><span class="num">01</span><h2>Цвета</h2></div>
+  <p class="section-lede">Это значения, а не картинки: каждая ступень, состояние и контраст нарисованы из tokens.json — поменяется хекс в источнике, поменяется эта секция. Контраст доска считает при читателе.</p>
   <div class="block" id="ramp-bg">
     <div class="block-head"><h3>Поверхности — лестница светлоты</h3><span class="hint">четыре ступени, а не четыре цвета: у каждой своя работа, и шаг между ними обязан быть равным</span></div>
     <div class="ramp-band" style="grid-template-columns: repeat(4, 1fr)">
@@ -179,6 +185,35 @@
       </div>
     </div>
   </div>
+  <div class="verdict">
+    <div class="can">
+      <h3>Можно — правило группы</h3>
+      <ul>
+        <li><span><code>brand</code> — Фирменная гамма: аналоговый ход ультрамарин → пурпур → маджента (OKLCH hue 266 → 293 → 316) + циан как «точка света».</span></li>
+        <li><span><code>bg</code> — Elevation через светлоту, не через тень: равные шаги ΔL ≈ 0.03 в OKLCH, hue удержан в фиолетовой зоне 294±1, хрома растёт с высотой.</span></li>
+        <li><span><code>border</code> — Дефолт — вообще без линейки: сначала воздух и выравнивание, линейка — осознанное исключение.</span></li>
+        <li><span><code>text</code> — Альфа-белый, не серые хардкоды.</span></li>
+        <li><span><code>sem</code> — Осветлённые и слегка десатурированные под тёмный фон; заливки — тот же цвет с альфой, не отдельные тёмные оттенки.</span></li>
+      </ul>
+    </div>
+    <div class="cant">
+      <h3>Нельзя — запреты, которыми токены помечены сами</h3>
+      <ul>
+        <li><span><code>brand</code> — Оранжевый/ember отвергнут, не возвращать → rejected/ember-palette.md</span></li>
+        <li><span><code>brand.magenta</code> — третичный: только в градиентах и орбе, не как самостоятельный цвет UI</span></li>
+        <li><span><code>brand.amber</code> — НИКОГДА не статус и не состояние — для этого есть sem.warning.</span></li>
+        <li><span><code>bg</code> — Слой не перепрыгивает уровни; уровней на экране ≤3.</span></li>
+        <li><span><code>bg</code> — Сайдбар и тулбар — системный Liquid Glass, их фон не хардкодим.</span></li>
+        <li><span><code>text</code> — Ни один цвет палитры не используется как цвет текста: brand.ultramarine на тёмном даёт 4.0:1 и не проходит — текстом всегда text.accent.</span></li>
+        <li><span><code>text.on-accent</code> — текст на ультрамарине (5.1:1) и пурпуре (4.2:1); на циане, мадженте и янтаре белый ЗАПРЕЩЁН (1.9:1, 3.1:1, 1.8:1) — там тёмный bg.base</span></li>
+        <li><span><code>sem</code> — Цвет всегда дублируется формой/иконкой (дейтеранопия).</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="typography">
+  <div class="section-head"><span class="num">02</span><h2>Типографика</h2></div>
+  <p class="section-lede">Лестница кеглей в натуральную величину, на реальных строках продукта — на lorem не видно ни длины, ни кириллицы.</p>
   <div class="block" id="type">
     <div class="block-head"><h3>Типографика</h3><span class="hint">в натуральную величину, на реальных строках продукта — на lorem не видно ни длины, ни кириллицы</span></div>
     <div class="ladder">
@@ -285,6 +320,24 @@
     </div>
     <p class="section-lede" style="margin-top: var(--space-3)">Один кегль — два токена. Имя в шкале даёт работа, а не размер: <code>type.body</code> и <code>type.body-em</code> оба 13 pt, и это не дубль, а два разных решения.</p>
   </div>
+  <div class="verdict">
+    <div class="can">
+      <h3>Можно — правило группы</h3>
+      <ul>
+        <li><span><code>type</code> — SF Pro Text + SF Mono; шкала ≈1.2, привязана к macOS text styles.</span></li>
+      </ul>
+    </div>
+    <div class="cant">
+      <h3>Нельзя — запреты, которыми токены помечены сами</h3>
+      <ul>
+        <li><span><code>type</code> — Веса Light/Thin на тёмном ЗАПРЕЩЕНЫ.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="spacing">
+  <div class="section-head"><span class="num">03</span><h2>Отступы и сетка</h2></div>
+  <p class="section-lede">Шаг и радиус, измеряющие сами себя: столбик длиной ровно в свой токен, вложенный радиус = внешний − паддинг.</p>
   <div class="block" id="space">
     <div class="block-head"><h3>Отступы</h3><span class="hint">столбик длиной ровно в свой токен, 1:1 — линейка, а не таблица</span></div>
     <div class="grid">
@@ -381,6 +434,547 @@
       </div>
     </div>
   </div>
+  <div class="verdict">
+    <div class="can">
+      <h3>Можно — правило группы</h3>
+      <ul>
+        <li><span><code>space</code> — База 4pt, рабочая единица 8pt.</span></li>
+        <li><span><code>radius</code> — Система концентрическая: вложенный радиус = внешний − паддинг.</span></li>
+      </ul>
+    </div>
+    <div class="cant">
+      <h3>Нельзя — запреты, которыми токены помечены сами</h3>
+      <ul>
+        <li><span><code>space</code> — Соседние значения различаются минимум на шаг шкалы, промежуточных значений нет.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="buttons">
+  <div class="section-head"><span class="num">04</span><h2>Кнопки</h2></div>
+  <p class="section-lede">Первоэлемент действия: в одиночку смысла не имеет и про домен не знает.</p>
+  <div class="grid">
+    <div class="col-12">
+      <article class="part" id="part-button">
+        <div class="part-stage">
+          <iframe src="parts/3-elements/button.html" height="318" loading="lazy" title="Кнопка"></iframe>
+        </div>
+        <div class="part-meta">
+          <h4>Кнопка</h4>
+          <span class="slug">button</span>
+          <span class="chip chip-accepted">принят</span>
+          <span class="spacer"></span>
+          <span class="refs"><a href="../docs/design/08-controls.md">08-controls.md</a> · <a href="../docs/design/06-color.md">06-color.md</a> · <a href="../docs/design/07-interaction.md">07-interaction.md</a> · реализации нет</span>
+        </div>
+        <div class="part-tokens">
+          <span data-token="control.h-default">control.h-default</span>
+          <span data-token="space.1">space.1</span>
+          <span data-token="space.3">space.3</span>
+          <span data-token="radius.m">radius.m</span>
+          <span data-token="radius.full">radius.full</span>
+          <span data-token="type.body">type.body</span>
+          <span data-token="type.body-em">type.body-em</span>
+          <span data-token="type.caption">type.caption</span>
+          <span data-token="font.text">font.text</span>
+          <span data-token="font.mono">font.mono</span>
+          <span data-token="brand.ultramarine">brand.ultramarine</span>
+          <span data-token="text.on-accent">text.on-accent</span>
+          <span data-token="text.primary">text.primary</span>
+          <span data-token="text.secondary">text.secondary</span>
+          <span data-token="text.disabled">text.disabled</span>
+          <span data-token="sem.warning">sem.warning</span>
+          <span data-token="sem.warning-fill">sem.warning-fill</span>
+          <span data-token="sem.warning-border">sem.warning-border</span>
+          <span data-token="sem.error">sem.error</span>
+          <span data-token="sem.error-fill">sem.error-fill</span>
+          <span data-token="sem.error-border">sem.error-border</span>
+          <span data-token="border.strong">border.strong</span>
+          <span data-token="border.focus">border.focus</span>
+          <span data-token="bg.hover">bg.hover</span>
+          <span data-token="bg.pressed">bg.pressed</span>
+          <span data-token="glow.accent">glow.accent</span>
+          <span data-token="icon.s">icon.s</span>
+          <span data-token="motion.live">motion.live</span>
+        </div>
+        <details>
+          <summary>родословная</summary>
+          <p>Выделена из foundry-mockups.html §1 (строки 1586–1588, пара «Вернуть на доработку» + «Принять» в инспекторе) и §3 (строки 1740–1744, та же пара + «Отмена» под диффом) — встретилась дважды и далее ещё пятикратно: §4 (1928–1936), §5 (1974–1979 — галерея состояний), §7 (2226), §8 (2278–2279), §9 (2379–2380), §12 (2626). Имена вариантов взяты у макета без переименования: primary · secondary (янтарный «вернуть») · ghost · danger-out. Внимание: они НЕ совпадают с четырьмя уровнями канона 08 §1.1 — ghost макета = secondary канона (обводка border.strong), secondary макета = янтарный частный случай «вернуть на доработку», danger-out = destructive. Состояния rest/hover/pressed/loading/disabled — дословно из галереи §5. Фокус-ринг добавлен по 08 §4.1 («контрол без прорисованных состояний — недоделанный контрол») рецептом из того же §5 (.drow.focus, цвет — border.focus), но отрисован НЕ по канону: канон, макет и роль border.focus требуют 2px с offset 2px, а ширин линии в tokens.json нет ни одной, и назвать двойку системе нечем — ринг стоит 1px. Это видимый долг, а не решение; лечится токенами border.focus-width и border.focus-offset. Ghost-hover добавлен по 08 §1.3 (bg.hover). Pressed выражен brightness от brand.ultramarine, а не хексом #2749c9: канон 08 §4.2 объявляет нажатую заливку производным значением, а не токеном.</p>
+        </details>
+      </article>
+    </div>
+  </div>
+  <div class="verdict">
+    <div class="can">
+      <h3>Можно — зачем часть есть</h3>
+      <ul>
+        <li><span><a href="#part-button">Кнопка</a> — Единственный носитель действия в интерфейсе: заливкой, обводкой и цветом говорит, насколько сильно система рекомендует нажать.</span></li>
+      </ul>
+    </div>
+    <div class="cant">
+      <h3>Нельзя — где часть неуместна</h3>
+      <ul>
+        <li><span><a href="#part-button">Кнопка</a> — Не ставить две primary в одной замкнутой зоне: primary — это ответ на «что делать дальше», два ответа = отсутствие ответа (08 §1.1).<details class="more"><summary>+6</summary><p>Не выделять главное действие размером — размер даёт плотность контекста, иерархию даёт заливка (08 §1.2). Не красить danger-out ничем, кроме реальной потери данных: «Вернуть на доработку» — не опасность, а нормальная работа, и красный на ней сжигает единственный способ крикнуть настоящему «Удалить проект» (08 §1.4). Не применять как носитель статуса: у кнопки нет состояния «ok/warn» — цветная плашка это badge, а не кнопка. Не вешать glow ни на что, кроме hover primary: в поле зрения ровно одно свечение (13 §12, glow._role). Не заводить кнопку-иконку из этой части: там своя хит-зона ≥24pt и обязательный тултип (08 §5), и primary у иконок не бывает — главное действие заслуживает слова. Не прятать недоступное — выключать: спрятанное заставляет искать (08 §4.3).</p></details></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="tabs">
+  <div class="section-head"><span class="num">05</span><h2>Табы</h2></div>
+  <p class="section-lede">Переключение вида: один активный, остальные ждут.</p>
+  <div class="grid">
+    <div class="col-12">
+      <article class="part" id="part-tabs">
+        <div class="part-stage">
+          <iframe src="parts/3-elements/tabs.html" height="335" loading="lazy" title="Вкладки"></iframe>
+        </div>
+        <div class="part-meta">
+          <h4>Вкладки</h4>
+          <span class="slug">tabs</span>
+          <span class="chip chip-candidate">кандидат</span>
+          <span class="spacer"></span>
+          <span class="refs"><a href="../docs/design/08-controls.md">08-controls.md</a> · <a href="../docs/design/09-surfaces.md">09-surfaces.md</a> · <a href="../docs/design/02-composition.md">02-composition.md</a> · реализации нет</span>
+        </div>
+        <div class="part-tokens">
+          <span data-token="space.1">space.1</span>
+          <span data-token="space.2">space.2</span>
+          <span data-token="space.3">space.3</span>
+          <span data-token="space.4">space.4</span>
+          <span data-token="space.5">space.5</span>
+          <span data-token="radius.m">radius.m</span>
+          <span data-token="border.subtle">border.subtle</span>
+          <span data-token="border.strong">border.strong</span>
+          <span data-token="border.focus">border.focus</span>
+          <span data-token="border.focus-width">border.focus-width</span>
+          <span data-token="border.focus-offset">border.focus-offset</span>
+          <span data-token="bg.surface">bg.surface</span>
+          <span data-token="bg.selected">bg.selected</span>
+          <span data-token="brand.ultramarine">brand.ultramarine</span>
+          <span data-token="text.primary">text.primary</span>
+          <span data-token="text.secondary">text.secondary</span>
+          <span data-token="text.tertiary">text.tertiary</span>
+          <span data-token="text.disabled">text.disabled</span>
+          <span data-token="text.accent">text.accent</span>
+          <span data-token="type.body">type.body</span>
+          <span data-token="type.caption">type.caption</span>
+          <span data-token="type.caption2">type.caption2</span>
+          <span data-token="font.text">font.text</span>
+          <span data-token="motion.fast">motion.fast</span>
+        </div>
+        <details>
+          <summary>родословная</summary>
+          <p>КАНДИДАТ — не проходил приёмку как часть. Сведена из двух разошедшихся видов вкладок макета, и это сведение требует чьего-то решения. Выделена из foundry-mockups.html §7 (переключатель пайплайнов .pipe-tab, разметка строки 2101–2122, CSS 540–552) и §14 (вкладки аналитики .ins-tab, разметка 3324–3329, CSS 1178–1180) — встретилась дважды в разных местах и в двух разных обликах: сегмент-карточка (pipe) и подчёркивание (ins). Оба облика оставлены как варианты, потому что в макете они делают разное: pipe несёт у каждого вида свою сводку (пиктограмма типа + счётчик + длина пайплайна) — переключатель-виджет (Superpedestrian); ins — плоский выбор однородных аналитических видов. Значения переложены на токены с долгами: (1) padding pipe 7px 11px и ins 7px 13px → space.2 / space.3 (8/12) — шагов 7 и 11/13 в шкале нет; (2) кегль ярлыка 12px → type.body (13) как канонный дефолт UI-текста (04) — токена 12px для текста нет, ближайшие 11 и 13; pipe-meta 10px лёг на type.caption2 без остатка; (3) min-width 150px у pipe снят — это ширина полосы, а не суть вкладки, в изоляции ярлык сам задаёт ширину; (4) выбранный сегмент по 09 §7.3 = заливка ультрамарин 14% (bg.selected) + бордер ультрамарин @50% — но токена ультрамарин-с-альфой для бордера в системе НЕТ; бордер нарисован border.focus (сплошной ультрамарин, роль — фокус-ринг): видимый долг, лечится токеном border.selected; (5) подчёркивание выбранного ins — 2px; ширин линии в токенах нет ни одной (тот же долг, что у button.html), взят border.focus-width (2px, роль — фокус) как единственная двойка. Полоса вкладок оставлена БЕЗ заливки и обводки по rejected/panel-borders.md; у ins-ряда сохранён нижний волосок border.subtle как граница зон «вкладки | контент» (09 §10 — линейка на реальном стыке зон, а не рамка-оформление). Фокус-ринг добавлен по 08 §4.1 (контрол без прорисованных состояний — недоделанный).</p>
+        </details>
+      </article>
+    </div>
+  </div>
+  <div class="verdict">
+    <div class="can">
+      <h3>Можно — зачем часть есть</h3>
+      <ul>
+        <li><span><a href="#part-tabs">Вкладки</a> — Переключают режим вида одного контента, держа все варианты на глазах: сегмент — когда у каждого вида своя сводка (счётчик, длина), подчёркивание — когда виды однородны и важен только выбранный.</span></li>
+      </ul>
+    </div>
+    <div class="cant">
+      <h3>Нельзя — где часть неуместна</h3>
+      <ul>
+        <li><span><a href="#part-tabs">Вкладки</a> — Не применять как переход между разными экранами: вкладки меняют вид одного контента, а не ведут в другое место — для навигации по разделам есть сайдбар (08 §9, «сегмент как вкладки разных экранов — нет»).<details class="more"><summary>+6</summary><p>Не прятать во вкладки то, что помещается рядом: вкладка скрывает невыбранное, а при 2–5 однородных видах прятать нечего — Хик не наказывает за короткий список. Не заливать полосу вкладок фоном и обводкой: полоса переключателя — строка контекста, а не панель, и в покое её держат воздух и выравнивание (rejected/panel-borders.md; сняты заливка и обводка с «вкладок Insights, переключателя пайплайнов»). Обводка у выбранной вкладки-сегмента — это состояние «выбран», а не оформление: у невыбранных её нет. Не выражать выбор одним цветом текста без второго канала: выбранная вкладка держится заливкой/подчёркиванием, а не только тем, что буква ярче — периферийным зрением разница «tertiary → primary» не читается (08 §7.3). Не ставить вкладку-сегмент и вкладку-подчёркивание в одном экране: два языка одного действия сбивают; выбор вида — один на приложение. Не делать вкладок больше пяти: шестая — это уже дропдаун или сайдбар (08 §9, §10).</p></details></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="labels">
+  <div class="section-head"><span class="num">06</span><h2>Лейблы</h2></div>
+  <p class="section-lede">Метки состояния и принадлежности: бейдж, точка статуса, чип, лейбл проекта.</p>
+  <div class="grid">
+    <div class="col-12">
+      <article class="part" id="part-project-label">
+        <div class="part-stage">
+          <iframe src="parts/4-blocks/project-label.html" height="297" loading="lazy" title="Лейбл проекта"></iframe>
+        </div>
+        <div class="part-meta">
+          <h4>Лейбл проекта</h4>
+          <span class="slug">project-label</span>
+          <span class="chip chip-accepted">принят</span>
+          <span class="spacer"></span>
+          <span class="refs"><a href="../docs/design/06-color.md">06-color.md</a> · <a href="../docs/design/12-icons.md">12-icons.md</a> · <a href="../docs/design/10-tables.md">10-tables.md</a> · реализации нет</span>
+        </div>
+        <div class="part-tokens">
+          <span data-token="space.1">space.1</span>
+          <span data-token="space.2">space.2</span>
+          <span data-token="radius.s">radius.s</span>
+          <span data-token="type.caption2">type.caption2</span>
+          <span data-token="font.text">font.text</span>
+          <span data-token="text.tertiary">text.tertiary</span>
+          <span data-token="text.disabled">text.disabled</span>
+          <span data-token="bg.hover">bg.hover</span>
+          <span data-token="border.subtle">border.subtle</span>
+        </div>
+        <details>
+          <summary>родословная</summary>
+          <p>Выделен из foundry-mockups.html §6 (строки 2136–2171, лейбл сервиса на карточках канбана) и §11 (строка 2514, якорь change&#x27;а при зуме в задачи) — встретился дважды и далее в §12 (2579), §13 (2654) и §14 (2725–2760, колонка сквозной таблицы задач): пять секций, самая переиспользуемая плашка макета. Класс макета — .plbl (CSS строки 585–588) с внутренностями .lcat (категория формой) и .lsvc (имя сервиса текстом); анатомия во всех пяти местах совпала. Алфавит категорий взят из комментария макета над правилом (строки 583–584): ▣ инфра · ◆ утилита · ● бизнес, и там же зафиксирована причина отказа от цвета. Значения переложены на токены: кегль 9px и 8px токена не имеют — взят type.caption2 (10pt, самый мелкий в шкале), паддинг 1px 5px → space.1 / space.2, фон @5% → bg.hover (@6%). 4-blocks, а не 3-elements: часть знает слова «проект» и «сервис» и несёт таксономию роутера (§18 макета) — в одиночку у неё есть смысл, и применить её больше не к чему.</p>
+        </details>
+      </article>
+    </div>
+    <div class="col-12">
+      <article class="part" id="part-badge">
+        <div class="part-stage">
+          <iframe src="parts/3-elements/badge.html" height="300" loading="lazy" title="Бейдж"></iframe>
+        </div>
+        <div class="part-meta">
+          <h4>Бейдж</h4>
+          <span class="slug">badge</span>
+          <span class="chip chip-candidate">кандидат</span>
+          <span class="spacer"></span>
+          <span class="refs"><a href="../docs/design/06-color.md">06-color.md</a> · <a href="../docs/design/12-icons.md">12-icons.md</a> · <a href="../docs/design/08-controls.md">08-controls.md</a> · реализации нет</span>
+        </div>
+        <div class="part-tokens">
+          <span data-token="space.1">space.1</span>
+          <span data-token="space.2">space.2</span>
+          <span data-token="radius.s">radius.s</span>
+          <span data-token="type.caption">type.caption</span>
+          <span data-token="font.text">font.text</span>
+          <span data-token="text.secondary">text.secondary</span>
+          <span data-token="bg.hover">bg.hover</span>
+          <span data-token="border.subtle">border.subtle</span>
+          <span data-token="sem.info">sem.info</span>
+          <span data-token="sem.info-fill">sem.info-fill</span>
+          <span data-token="sem.info-border">sem.info-border</span>
+          <span data-token="sem.success">sem.success</span>
+          <span data-token="sem.success-fill">sem.success-fill</span>
+          <span data-token="sem.success-border">sem.success-border</span>
+          <span data-token="sem.warning">sem.warning</span>
+          <span data-token="sem.warning-fill">sem.warning-fill</span>
+          <span data-token="sem.warning-border">sem.warning-border</span>
+          <span data-token="sem.error">sem.error</span>
+          <span data-token="sem.error-fill">sem.error-fill</span>
+          <span data-token="sem.error-border">sem.error-border</span>
+        </div>
+        <details>
+          <summary>родословная</summary>
+          <p>Выделен из foundry-mockups.html §5 (строки 2004–2009, галерея «Бейджи · семантика = цвет + форма») и §6 (строки 2166, 2171 — «⚠ завис 40 мин» и «✕ CI упал» на карточках канбана) — встретился дважды. Класс макета — .chip (CSS строки 235–245). Заливки и бордеры совпали с токенами буквально: warn/err/live у макета — это @14% + @30%, то есть sem.*-fill и sem.*-border без остатка. КАНДИДАТ по двум причинам. Первая: зелёный «✓ принято» существует в макете только инлайн-стилем (строка 2009), класса под него нет — модификатор ok здесь нормализация этого места. Вторая: модификатор .chip.stage макета побайтно совпадает с базовым правилом (цвет, фон и бордер те же) — пустой алиас, он выброшен, нейтральная категория осталась базовым вариантом; заодно этим бейдж перестал знать слово «стадия» и остался в 3-elements. Модификатор .chip.proj из CSS макета мёртв (в разметке не встречается ни разу) и не перенесён. Вертикальный паддинг вырос с 1px до space.1 = 4pt: подпиксельных значений в шкале нет, а роль space.1 в tokens.json прямо названа «внутренности бейджа (верт.)» — бейдж стал выше макета примерно на 6pt, это осознанная сверка с законом, а не дрейф.</p>
+        </details>
+      </article>
+    </div>
+    <div class="col-12">
+      <article class="part" id="part-chip">
+        <div class="part-stage">
+          <iframe src="parts/3-elements/chip.html" height="392" loading="lazy" title="Чип"></iframe>
+        </div>
+        <div class="part-meta">
+          <h4>Чип</h4>
+          <span class="slug">chip</span>
+          <span class="chip chip-candidate">кандидат</span>
+          <span class="spacer"></span>
+          <span class="refs"><a href="../docs/design/09-surfaces.md">09-surfaces.md</a> · <a href="../docs/design/10-tables.md">10-tables.md</a> · <a href="../docs/design/06-color.md">06-color.md</a> · реализации нет</span>
+        </div>
+        <div class="part-tokens">
+          <span data-token="space.1">space.1</span>
+          <span data-token="space.2">space.2</span>
+          <span data-token="radius.s">radius.s</span>
+          <span data-token="radius.full">radius.full</span>
+          <span data-token="bg.hover">bg.hover</span>
+          <span data-token="bg.pressed">bg.pressed</span>
+          <span data-token="border.subtle">border.subtle</span>
+          <span data-token="border.default">border.default</span>
+          <span data-token="border.strong">border.strong</span>
+          <span data-token="text.primary">text.primary</span>
+          <span data-token="text.secondary">text.secondary</span>
+          <span data-token="text.tertiary">text.tertiary</span>
+          <span data-token="text.disabled">text.disabled</span>
+          <span data-token="type.caption">type.caption</span>
+          <span data-token="type.caption2">type.caption2</span>
+          <span data-token="font.text">font.text</span>
+        </div>
+        <details>
+          <summary>родословная</summary>
+          <p>КАНДИДАТ — не проходил приёмку как часть, и как часть ОТДЕЛЬНАЯ от badge требует решения приёмки. Выделен из foundry-mockups.html §9 (теги-скиллы агента .atag «спеки · код · worktree · MCP», разметка 2843–2898, CSS 748–750) и §13 (атрибуты проекта .lbl-chip «сервис: foundry-desktop · стек: swift», разметка 3271–3274, CSS 1159–1161) — нейтральный признак-в-наборе встретился дважды в разных местах. Третье основание — канон: 10-tables §10 прямо называет «плашку (chip)» применённого фильтра с крестиком («Проект: orders-service ×»), и это единственный носитель роли «снимаемый ключ: значение». Почему НЕ дубликат badge: badge несёт семантический СТАТУС (цвет @14% + форма, один слот на строке, кликать нельзя — см. never бейджа); чип несёт НЕЙТРАЛЬНЫЙ признак, ходит НАБОРОМ и БЫВАЕТ интерактивным (× снимает фильтр) — роль, которой у badge нет. Почему НЕ project-label: тот — единоличная метка сервиса, категория формой; чип — произвольный признак/фильтр во множестве. Значения переложены на токены: .atag padding 2px 7px и .lbl-chip 3px 10px → space.1/space.2 (как у badge и project-label — общая мелкая-плашка-анатомия); кегль .atag 10px → type.caption2, .lbl-chip 11px → type.caption; фон @4–5% → bg.hover (@6%, ближайший нейтральный токен-заливка); ключ .lk 9px t-disabled → type.caption2 + text.disabled; вариант .cat (граница b-strong, текст t-primary) сохранён как усиленный чип. Крестик-снятие взят из канона 10 §10 (в CSS макета .atag неинтерактивен, но lbl-chip-фильтр по канону снимается — это нормализация роли, а не выдумка).</p>
+        </details>
+      </article>
+    </div>
+    <div class="col-12">
+      <article class="part" id="part-status-dot">
+        <div class="part-stage">
+          <iframe src="parts/3-elements/status-dot.html" height="208" loading="lazy" title="Точка статуса"></iframe>
+        </div>
+        <div class="part-meta">
+          <h4>Точка статуса</h4>
+          <span class="slug">status-dot</span>
+          <span class="chip chip-candidate">кандидат</span>
+          <span class="spacer"></span>
+          <span class="refs"><a href="../docs/design/12-icons.md">12-icons.md</a> · <a href="../docs/design/06-color.md">06-color.md</a> · реализации нет</span>
+        </div>
+        <div class="part-tokens">
+          <span data-token="space.2">space.2</span>
+          <span data-token="radius.full">radius.full</span>
+          <span data-token="brand.ultramarine">brand.ultramarine</span>
+          <span data-token="sem.info">sem.info</span>
+          <span data-token="sem.success">sem.success</span>
+          <span data-token="sem.warning">sem.warning</span>
+          <span data-token="sem.error">sem.error</span>
+          <span data-token="text.disabled">text.disabled</span>
+          <span data-token="text.secondary">text.secondary</span>
+          <span data-token="type.caption">type.caption</span>
+          <span data-token="font.text">font.text</span>
+          <span data-token="motion.live">motion.live</span>
+        </div>
+        <details>
+          <summary>родословная</summary>
+          <p>Выделена из foundry-mockups.html §1 (строки 1467–1540, рейл статусов в строках инбокса) и §5 (строки 1988–1991, галерея состояний строки) — встретилась дважды и далее в §4 (1887–1890, легенда распределения) и §7 (2203–2208, мини-список). Модификаторы wait · live · warn · err — дословно из CSS макета (строки 220–227). КАНДИДАТ, потому что пришлось сводить два разных варианта: §1 кодирует статус модификатором, §4 — инлайн-стилем (style=&quot;background:var(--sem-success)&quot;), а зелёный ok существует в макете только у соседней точки .rh-dot.ok (строка 958, тепловая карта §4). Модификатор ok здесь — нормализация этих трёх мест в один класс по таблице 12 §6. Базовое состояние (без модификатора) в макете цвета не имело вовсе — здесь это «не начата» = text.disabled по той же таблице канона; .rh-dot ставил на это место белый @20%, токена под который нет. Диаметр 8pt взят у макета через space.2 — размерного токена под точку в системе нет (icon.s = 12pt даёт +50%).</p>
+        </details>
+      </article>
+    </div>
+  </div>
+  <div class="verdict">
+    <div class="can">
+      <h3>Можно — зачем часть есть</h3>
+      <ul>
+        <li><span><a href="#part-project-label">Лейбл проекта</a> — Отвечает «чей это change» там, где на экране сразу несколько сервисов: категорию несёт форма, имя — текст, и на цвет не тратится ничего.</span></li>
+        <li><span><a href="#part-badge">Бейдж</a> — Плашка на строке или карточке, где статус надо сказать словом и цветом сразу: глиф даёт форму, заливка @14% — семантику, и оба канала читаются до чтения.</span></li>
+        <li><span><a href="#part-chip">Чип</a> — Мелкий нейтральный контейнер для одного признака объекта — ключевого слова, пары «поле: значение» или применённого фильтра; живёт в наборе и, в отличие от бейджа, бывает интерактивным (фильтр снимается крестиком).</span></li>
+        <li><span><a href="#part-status-dot">Точка статуса</a> — Держит рейл статусов в плотном списке: шесть состояний читаются периферией на ширине 8pt, где слово не помещается.</span></li>
+      </ul>
+    </div>
+    <div class="cant">
+      <h3>Нельзя — где часть неуместна</h3>
+      <ul>
+        <li><span><a href="#part-project-label">Лейбл проекта</a> — Не красить: отказ от цвета — суть этой части, а не её недоделка.<details class="more"><summary>+6</summary><p>Категорию несёт форма (▣ инфра · ◆ утилита · ● бизнес) именно потому, что цвет в системе дефицитен и занят значимым — статусом и действием; радуга лейблов гасит и то и другое (06, «цвет только на значимом»). Не применять там, где проект уже известен: внутри экрана одного проекта лейбл на каждой строке повторяет заголовок и превращается в шум (Бирман). Не носить лейблом статус, стадию или тип change&#x27;а: это badge и status-dot — здесь цвет и семантика, там форма и постоянная величина. Не ставить второй лейбл на одну карточку: change живёт в одном сервисе; если сервисов правда несколько — это не лейбл, а колонка таблицы (10-tables). Не заводить седьмую категорию под форму: алфавит из трёх фигур запоминается, из семи — читается по легенде, а легенда означает, что нотация не работает (12 §6, «одноразовое исключение не стоит нового элемента языка»). Не растягивать под длинное имя: лейбл усекает многоточием и остаётся узким — если имя обязано читаться целиком, ему нужна колонка, а не лейбл.</p></details></span></li>
+        <li><span><a href="#part-badge">Бейдж</a> — Не применять без глифа в цветных вариантах: цвет обязан дублироваться формой — бейдж без ✓ ⚠ ✕ ◉ при дейтеранопии пуст (06 §3.3).<details class="more"><summary>+6</summary><p>Не заливать бейдж сплошным цветом с белым текстом: рецепт канона — цвет текста на том же цвете @14% (06 §3.2); белый на циане и мадженте вообще запрещён (text.on-accent). Не красить бейдж ультрамарином: акцент зарезервирован за действием и выделением, и цветной бейдж рядом начинает спорить с кнопкой «Принять» за внимание (08 §1.3); нейтральная категория — базовый вариант, без цвета. Не вешать бейдж на каждый элемент списка: раскрашенная целиком колонка — экран-светофор, цвет перестаёт значить (06, «цвет только на значимом»). Не дублировать бейджем то, что уже сказано позицией: чип стадии на карточке канбана — ложь дважды, колонка и есть стадия (§6 макета). Не делать бейдж кликабельным: это ярлык, а не контрол; нужен клик — это кнопка или фильтр-токен со своей хит-зоной ≥24pt (08 §5). Не носить бейджем имя проекта или сервиса — для этого project-label, где цвет намеренно не расходуется.</p></details></span></li>
+        <li><span><a href="#part-chip">Чип</a> — Не носить чипом статус или состояние: у чипа нет семантического цвета — как только признак нужно сказать цветом и формой (✓ ⚠ ✕ ◉), это badge, а не чип (09 §6, 06 §3.2).<details class="more"><summary>+6</summary><p>Не красить чип в акцент или семантику: цвет в системе дефицитен и занят действием и статусом; набор разноцветных чипов гасит и то и другое (06, «цвет только на значимом»). Не носить чипом единоличную опознавательную метку сервиса — для «чей это change» есть project-label, где категория дана формой, а цвет намеренно не расходуется. Не ставить одиночный чип там, где смысл несёт набор: чип оправдан, когда признаков у объекта несколько (скиллы агента, стек проекта, применённые фильтры); один признак — это поле строки, а не чип. Не делать чип-ярлык кликабельным ради вида: крестик появляется только у того, что реально снимается (фильтр, 10 §10); неснимаемый признак — не контрол. Не усекать ключевое слово: чип короткий по определению; если значение обязано читаться целиком и не влезает — это колонка таблицы, а не чип (10-tables). Не заводить чип под то, что уже сказано позицией или заголовком экрана: повтор известного — шум (Бирман).</p></details></span></li>
+        <li><span><a href="#part-status-dot">Точка статуса</a> — Не применять без слова или тултипа рядом: точка на 8pt — акселератор чтения, а не носитель смысла; канон 12 §6 разрешает её только там, где значение раскрыто текстом поблизости.<details class="more"><summary>+5</summary><p>Не применять как единственный канал: цвет обязан дублироваться формой, иконкой или подписью — 8% мужчин не различат ok от err (06 §3.3); в диффе, в чеклисте и в статусе стадии это глиф ✓▲✕, а точка — только ускорение. Не заводить седьмой модификатор: шесть статусов — это ровно таблица 12 §6, и особый случай говорится словом, а не новым цветом точки (Бирман: одноразовое исключение не стоит нового элемента языка). Не вешать на точку glow: пульс live идёт только альфой, единственное свечение в окне держит орб (13 §12). Не использовать точку как кликабельную цель: 8pt против hit-min 24pt — промах гарантирован (07, Фиттс); кликается строка целиком. Не красить точкой то, что не является состоянием: категория, тип, проект — это форма и слово (project-label), цвет здесь дефицитен.</p></details></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="panels">
+  <div class="section-head"><span class="num">07</span><h2>Панели</h2></div>
+  <p class="section-lede">Контейнер для другого: панель как слой поверх фона.</p>
+  <div class="grid">
+    <div class="col-12">
+      <article class="part" id="part-panel">
+        <div class="part-stage">
+          <iframe src="parts/5-layers/panel.html" height="617" loading="lazy" title="Панель"></iframe>
+        </div>
+        <div class="part-meta">
+          <h4>Панель</h4>
+          <span class="slug">panel</span>
+          <span class="chip chip-candidate">кандидат</span>
+          <span class="spacer"></span>
+          <span class="refs"><a href="../docs/design/09-surfaces.md">09-surfaces.md</a> · <a href="../docs/design/02-composition.md">02-composition.md</a> · <a href="../docs/design/06-color.md">06-color.md</a> · реализации нет</span>
+        </div>
+        <div class="part-tokens">
+          <span data-token="space.2">space.2</span>
+          <span data-token="space.3">space.3</span>
+          <span data-token="space.4">space.4</span>
+          <span data-token="space.5">space.5</span>
+          <span data-token="radius.l">radius.l</span>
+          <span data-token="bg.surface">bg.surface</span>
+          <span data-token="bg.raised">bg.raised</span>
+          <span data-token="bg.selected">bg.selected</span>
+          <span data-token="border.focus">border.focus</span>
+          <span data-token="sem.warning-border">sem.warning-border</span>
+          <span data-token="sem.warning-fill">sem.warning-fill</span>
+          <span data-token="text.primary">text.primary</span>
+          <span data-token="text.secondary">text.secondary</span>
+          <span data-token="text.tertiary">text.tertiary</span>
+          <span data-token="type.heading">type.heading</span>
+          <span data-token="type.body">type.body</span>
+          <span data-token="type.caption">type.caption</span>
+          <span data-token="font.text">font.text</span>
+        </div>
+        <details>
+          <summary>родословная</summary>
+          <p>КАНДИДАТ — не проходил приёмку как часть. Выделена из foundry-mockups.html §12 (аналитические панели .apanel «Где сейчас change&#x27;и» и «Здоровье лупов», разметка 1863–1892, CSS 928–930) и §3/§8 (панели инспектора и спеки .risk-panel / .skill-panel / .pane.inspector, CSS 162–163, 421, 647) — контейнер контента встретился во многих местах в одной анатомии: заливка surface + радиус + паддинг, заголовок сверху опционален. Значения переложены на токены с правкой по канону: (1) .apanel в макете имел border 1px b-subtle — СНЯТ: обводка панели в покое отвергнута (rejected/panel-borders.md, «20 панелей, обводок 0»), границу держат светлота и воздух; (2) padding s5 (24) → space.4 (16): роль space.4 в tokens.json прямо названа «паддинг панелей»; (3) radius r-l (10) сохранён; (4) заголовок h3 14/600 → type.heading (16/600, роль — «заголовки секций, карточек»): токена 14px для текста нет; подзаголовок .sub 12px → type.caption (11). Состояния-с-обводкой взяты из принятого набора panel-borders «выбран · пишется · требует внимания · тащат»: selected = заливка ультрамарин 14% (bg.selected) + бордер (09 §7.3) — бордер нарисован border.focus, потому что токена ультрамарин-с-альфой @50% в системе НЕТ (тот же долг, что у tabs/button; лечится токеном border.selected); attention = sem.warning-border (реальный токен @30%) + лёгкая заливка sem.warning-fill. Показаны оба уровня elevation (surface и raised) — светлота, а не тень (09 §1.1).</p>
+        </details>
+      </article>
+    </div>
+  </div>
+  <div class="verdict">
+    <div class="can">
+      <h3>Можно — зачем часть есть</h3>
+      <ul>
+        <li><span><a href="#part-panel">Панель</a> — Контейнер контента, который отделяется от фона одной светлотой и воздухом: в покое держит его заливка + радиус, а не линейка — так граница считывается без единой нарисованной черты.</span></li>
+      </ul>
+    </div>
+    <div class="cant">
+      <h3>Нельзя — где часть неуместна</h3>
+      <ul>
+        <li><span><a href="#part-panel">Панель</a> — Не обводить панель в покое: обводка панели — не оформление, а состояние (rejected/panel-borders.md).<details class="more"><summary>+7</summary><p>В покое объект держат заливка (elevation светлотой: surface на base, raised на surface) и воздух; линейка вокруг всего подряд запрещена — гештальт-близость группирует бесплатно (09 §10, Бирман). Обводка появляется, только когда кодирует состояние: выбран · пишется · требует внимания · тащат. Не ставить линейку и увеличенный отступ одновременно — двойное средство для одной границы (09 §10). Не перепрыгивать слои: панель не бывает светлее поповера; вложенной плашке внутри — +2–3% к светлоте, а не следующий слой (09 §1.1). Слоёв ровно четыре; пятый — сигнал переусложнённой композиции, сначала упростить (09 §1.1, 02). Не скроллить контент внутри панели, вложенной в скроллящийся контент: вертикальный скролл в вертикальном перехватывает колесо (09 §9). Не звать панелью то, что прерывает работу и требует ответа: это модалка/алерт, у неё свой слой overlay и свой обряд (09 §2).</p></details></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="blocks">
+  <div class="section-head"><span class="num">08</span><h2>Блоки</h2></div>
+  <p class="section-lede">Компонент, который знает про домен: строка диффа, стадия, change.</p>
+  <div class="grid">
+    <div class="col-12">
+      <article class="part" id="part-diff-line">
+        <div class="part-stage">
+          <iframe src="parts/4-blocks/diff-line.html" height="434" loading="lazy" title="Строка диффа"></iframe>
+        </div>
+        <div class="part-meta">
+          <h4>Строка диффа</h4>
+          <span class="slug">diff-line</span>
+          <span class="chip chip-accepted">принят</span>
+          <span class="spacer"></span>
+          <span class="refs"><a href="../docs/design/06-color.md">06-color.md</a> · <a href="../docs/design/10-tables.md">10-tables.md</a> · <a href="../docs/design/04-typography.md">04-typography.md</a> · реализации нет</span>
+        </div>
+        <div class="part-tokens">
+          <span data-token="space.2">space.2</span>
+          <span data-token="space.3">space.3</span>
+          <span data-token="space.8">space.8</span>
+          <span data-token="radius.s">radius.s</span>
+          <span data-token="type.mono">type.mono</span>
+          <span data-token="type.mono-s">type.mono-s</span>
+          <span data-token="font.mono">font.mono</span>
+          <span data-token="code.bg">code.bg</span>
+          <span data-token="code.linenum">code.linenum</span>
+          <span data-token="text.secondary">text.secondary</span>
+          <span data-token="text.disabled">text.disabled</span>
+          <span data-token="diff.added-bg">diff.added-bg</span>
+          <span data-token="diff.added-text">diff.added-text</span>
+          <span data-token="diff.added-word">diff.added-word</span>
+          <span data-token="diff.removed-bg">diff.removed-bg</span>
+          <span data-token="diff.removed-text">diff.removed-text</span>
+          <span data-token="diff.removed-word">diff.removed-word</span>
+        </div>
+        <details>
+          <summary>родословная</summary>
+          <p>Выделена из foundry-mockups.html §3 (строки 1689–1706, дифф Swift-кода в панели ревью) и §7 (строки 2220–2223, тот же дифф markdown-таблицы токенов в отдельном окне) — встретилась дважды, анатомия в обоих местах совпала побайтно. Класс макета — .dline (CSS строки 380–389); модификаторы add · rem, внутренности .ln (номер), .code (тело), .gutter (контекст), .w (подсветка слова). Значения переложены на токены: 12px mono → type.mono, номера → type.mono-s + code.linenum, фон панели → code.bg, фоны и подсветки слов → diff.*-bg / diff.*-word (у макета совпали точно: @12% и @25%). Цвет текста изменённых строк макета (#b9f5cf и #f6c0c0) токена не имеет — взят diff.added-text / diff.removed-text, то есть sem.success и sem.error: tokens.json уже назначил этим строкам ровно эти цвета, макет от собственного закона отклонился. Гаттер 44+44px токена не имеет — взят space.8 (48pt) дважды: колонка стала шире макета на 4pt каждая. Подсветка синтаксиса (.tok-kw/.tok-ty/.tok-str/.tok-fn/.tok-num) в часть не перенесена: она живёт только в §3 и правило двух не прошла.</p>
+        </details>
+      </article>
+    </div>
+  </div>
+  <div class="verdict">
+    <div class="can">
+      <h3>Можно — зачем часть есть</h3>
+      <ul>
+        <li><span><a href="#part-diff-line">Строка диффа</a> — Атом ревью: два номера строк, знак ± и фон @12% дают «что изменилось» тремя независимыми каналами, а подсветка слова показывает, что именно, не заставляя сличать строки глазами.</span></li>
+      </ul>
+    </div>
+    <div class="cant">
+      <h3>Нельзя — где часть неуместна</h3>
+      <ul>
+        <li><span><a href="#part-diff-line">Строка диффа</a> — Не применять без знаков + и − в теле строки: фон обязан дублироваться знаком и позицией — при дейтеранопии зелёный и красный неразличимы, и цвет остаётся лишь ускорением (06 §3.3).<details class="more"><summary>+6</summary><p>Не применять для показа кода без изменений: две колонки номеров и рейл ± там — пустая нотация, это панель кода (code.bg), а не дифф. Не красить строку ничем, кроме diff.*: фон строки занят семантикой изменения — статус, стадия и выделение обязаны найти другой канал, иначе панель становится светофором (06). Не переносить строку по словам: строка диффа не переносится принципиально (white-space: pre) — номер обязан отвечать за одну экранную строку; проза и спека, которые надо читать целиком, требуют диффа словами, а не строками (§12 макета). Не путать со строкой таблицы: колонка номеров — это гаттер моноширинного кода, а не данные, и правила 10-tables (зебра, линейки, выравнивание) к ней не применяются. Не подсвечивать словами всю строку: word-level имеет смысл, только когда изменилось меньше половины строки, иначе подсветка съедает фон и перестаёт указывать. Не растить сюда подсветку синтаксиса: тема токенов кода — отдельная часть, она живёт в §3 макета одна и по правилу двух ещё не элемент.</p></details></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="icons">
+  <div class="section-head"><span class="num">09</span><h2>Иконки</h2></div>
+  <p class="section-lede">Опознавательный знак продукта в пикселях: иконка приложения «Восход» и орб.</p>
+  <div class="grid">
+    <div class="col-12">
+      <article class="part" id="part-app-icon">
+        <div class="part-stage">
+          <iframe src="parts/2-marks/app-icon.html" height="428" loading="lazy" title="Иконка приложения «Восход»"></iframe>
+        </div>
+        <div class="part-meta">
+          <h4>Иконка приложения «Восход»</h4>
+          <span class="slug">app-icon</span>
+          <span class="chip chip-accepted">принят</span>
+          <span class="spacer"></span>
+          <span class="refs"><a href="../docs/design/12-icons.md">12-icons.md</a> · реализации нет</span>
+        </div>
+        <div class="part-tokens">
+          <span data-token="space.1">space.1</span>
+          <span data-token="space.5">space.5</span>
+        </div>
+        <details>
+          <summary>родословная</summary>
+          <p>«Восход», вариант A — финал на master (memory/foundry-desktop-visual-direction.md: «Иконка «Восход» ФИНАЛ (вариант A)»), подтверждён ещё раз при отказе от иконки-роя 2026-07-17: «иконка остаётся одна». Конвейер и все числа — parts/2-marks/production.md; PR #5, #6 (пурпур в центре тела), #18 (единственный источник), #21 (суперэллипс с референса, маска формулой). Образец не рисует ничего сам: он показывает те самые файлы, которые шипятся, — App/Assets.xcassets/AppIcon.appiconset/*, и раскладывает их ровно так, как это делает Contents.json (srcset 1x/2x). Поэтому на Retina каждая ступень показывает свой 2×-ассет, и через четыре ступени видны все семь канвасов набора, кроме icon_1024 (он 2× пятисотого; отдельной ступени 512 в образце нет — её доля тела та же 0.8047, что у 256, и знание она не добавляет, а высоту карточки удваивает). Таблица полей снята с 95 системных иконок (icns → iconutil -c iconset, только симметричные squircle-плитки, согласие большинства по канвасу) — доля тела НЕ постоянна: на 16 и 32 Apple намеренно оставляет меньше полей (0.875 против 0.8047), иначе мелкая иконка теряет то, чем читается. Токенов система здесь ест только два, и оба — на раскладку образца: иконка — растр, у неё нет ни цвета, ни радиуса, которые можно было бы взять var(--…), а её палитра и геометрия угла — производственные значения конвейера, не решения дизайн-системы. Долг НЕ этой части, но названный честно: канон 12 §9 описывает иконку как «сферу с внутренним свечением ультрамарин→пурпур», а шипится сфера в webphone-ходе, освещённая источником ЗА верхне-правым лимбом — глава отстала от знака. DMG (второе место, где знак живёт крупно) в этом дереве отсутствует: он на ветке дистрибуции.</p>
+        </details>
+      </article>
+    </div>
+    <div class="col-12">
+      <article class="part" id="part-orb">
+        <div class="part-stage">
+          <iframe src="parts/2-marks/orb.html" height="264" loading="lazy" title="Орб «Восход»"></iframe>
+        </div>
+        <div class="part-meta">
+          <h4>Орб «Восход»</h4>
+          <span class="slug">orb</span>
+          <span class="chip chip-accepted">принят</span>
+          <span class="spacer"></span>
+          <span class="refs"><a href="../docs/design/12-icons.md">12-icons.md</a> · реализации нет</span>
+        </div>
+        <div class="part-tokens">
+          <span data-token="space.1">space.1</span>
+          <span data-token="space.5">space.5</span>
+          <span data-token="text.accent">text.accent</span>
+        </div>
+        <details>
+          <summary>родословная</summary>
+          <p>База роя одобрена 15.07.2026 («одобренная Дмитрием база лоадера», memory/loader-particles-baseline.md): 6000 частиц, цикл 54 с — выдержка семьи 9 с, перетекание 18 с, и перетекание является основным действием, а не перемычкой между состояниями. Два эталона зерна (a 0.504% / 44 701 частица, c 1.008% / 11 175) утверждены и вмёржены PR #22; масштаб на hero принят в разборе кадрирования (HERO_FIT 1.0, memory/swarm-hero-giant-scale.md). Встречается в разных местах и не дважды, а вчетверо: приветствие онбординга (candidates/onboarding.html, эталон принят целиком), рой-логотип в пустом состоянии (коммит 7273bb8), рейл главного экрана (candidates/main-screen-sketch.html, 28 и 48 — кандидат), плюс сами эталоны loader-particles.html и loader-logo.html. Лоадер отдельным знаком НЕ выделен намеренно: loader-particles.html и loader-logo.html — один и тот же рой, отличающийся только кадрированием (ZOOM 1.0 против 2.4) и помолом, а продукт везде берёт 2.4; отдельная часть «лоадер» была бы либо копией этой, либо частью для элемента, которого нет (экран загрузки не нарисован, а рой на нём отклонён доменной моделью). ОБРАЗЕЦ — ТРИ СТОП-КАДРА, а не живой рой, и это сказано честно: PNG сняты с самого эталона loader-logo.html (?size=128&amp;preset=c) его же ручкой __renderAt на фазах 4.5 / 18 / 31.5 с, в двух плотностях под srcset — 1x и 2x, потому что показ 2×-кадра на 1×-экране заставил бы браузер ресемплить и вернул бы розовый той самой дорогой. Шейдера здесь нет ни строчки: копия разъехалась бы с эталоном, как однажды разъехался конвейер иконки. Цена стоп-кадра названа прямо: перетекание — главное действие знака — в нём не видно, поэтому рядом стоит ссылка на живой файл. Каждый кадр проверен методом проекта: доля пикселей 290–330° = 0% на всех шести. Квадрат кадра на витрине слегка виден, и это не дефект образца, а честно показанное расхождение: фон роя в эталоне — #05060C, зашитый константой в шейдер, а лестница поверхностей стоит на bg.base #05030D. Лечится не здесь: в candidates/main-screen-sketch.html та же константа уже вынесена униформой («фон роя = фон панели»), эталону это ещё предстоит. Реализация на Metal (OrbSwarmView, OrbSwarmConfig) живёт на ветке feat/orb-logo-presets и в это дерево не вмёржена — отсюда честный swift: null. Долг НЕ этой части: канон 12 §9 запрещает орб «в пустых состояниях без связи с агентом», а master уже несёт рой-логотип в пустом состоянии — глава и код разошлись, и развести это должна приёмка, а не сессия. Чем становится рой при Reduce Motion, источники не говорят вовсе (12 §10 требует только, чтобы состояние осталось различимым статикой) — это дыра, а не решение.</p>
+        </details>
+      </article>
+    </div>
+  </div>
+  <div class="verdict">
+    <div class="can">
+      <h3>Можно — зачем часть есть</h3>
+      <ul>
+        <li><span><a href="#part-app-icon">Иконка приложения «Восход»</a> — Знак продукта там, где до продукта ещё не дошли: Dock, Finder, DMG.<details class="more"><summary>+1</summary><p>Показан лестницей натуральных размеров — иконка живёт или умирает на 16, и один крупный рендер это прячет.</p></details></span></li>
+        <li><span><a href="#part-orb">Орб «Восход»</a> — Живой знак продукта: рой непрозрачных частиц на сфере, перетекающий из холодной семьи в тёплую переключением частиц поодиночке.<details class="more"><summary>+1</summary><p>Тот же материал, стоп-кадром которого является иконка.</p></details></span></li>
+      </ul>
+    </div>
+    <div class="cant">
+      <h3>Нельзя — где часть неуместна</h3>
+      <ul>
+        <li><span><a href="#part-app-icon">Иконка приложения «Восход»</a> — Не перерисовывать знак плоской графикой — CSS-градиентами, SVG, чистыми заливками: отвергнуто дословно («второсортно, дёшево, будто ребёнок рисовал»), материал даёт только canvas2d-конвейер → rejected/flat-vector-graphics.md.<details class="more"><summary>+8</summary><p>Не предлагать иконку из роя частиц: отвергнута целиком, все три итерации, файлы удалены по просьбе пользователя → rejected/swarm-icon.md. Не возвращать отвергнутые трактовки: яркое центральное пятно-блик (источник света вынесен ЗА канвас, внутри сферы его нет), толстый/белый/навязчивый серп, направленный motion-blur с гостингом, любой блюр или свечение СПРАВА от центра (правая половина — единственная чёткая), 2× супер-семпл всего канваса (лечит бандинг ценой мягкой кромки — лечить его надо densify, 160 стопов Catmull-Rom) → rejected/sunrise-icon-treatments.md. Не переоткрывать выбор варианта: A — финал, B отброшен окончательно; paper-cut и огненный сквиркл закрыты → rejected/icon-variant-b.md, rejected/icon-alternatives-paper-cut-and-fire.md. Не ставить плитку в край: поля входят в саму картинку, macOS их НЕ добавляет — иконка без полей стоит в Dock крупнее соседей, и это уже ловили. Не скруглять угол дугой окружности и не подбирать радиус: угол — суперэллипс Ламе n=4, L = 0.4042 ТЕЛА (дуга промахивается на 4.97px против 0.49px у суперэллипса при плитке 204); заодно не путать CSS corner-shape: superellipse(4) — это n=16, squircle — это n=4. Не получать мелкий размер ресайзом крупного: маска считается формулой под каждый размер отдельно, пересемпл альфы и чёрная кайма от ресайза RGBA по прозрачному фону — измеренные потери кромки (до −85 по сумме RGB), а не теория. Не считать правку артворка законченной без прогона make-appiconset.py — на этом конвейер разъезжался ДВАЖДЫ, и приложение месяц шипило иконку без двух одобренных доработок. Не брать палитру иконки за палитру системы: Void/Navy/Violet/Indigo/Sky/Halo — отдельный webphone-ход, снятый пипеткой с референса; токенов у него нет и быть не должно.</p></details></span></li>
+        <li><span><a href="#part-orb">Орб «Восход»</a> — Семьи цветов не смешивать НИЧЕМ: ни аддитивным блендингом, ни mix() через границу, ни полупрозрачными частицами, ни ресемплом кадра.<details class="more"><summary>+15</summary><p>Холодная (231°–275°) и тёплая (348°–39°) почти дополнительны, и любая середина между ними — розовый ~300°, вычеркнутый при отборе палитры; это не стилистика, а единственная конструкция, при которой обе семьи существуют на одном экране легально → rejected/pink-hue-and-family-blending.md. Проверка механическая и обязательная: доля пикселей в 290–330°, норма 0%. Растушёвка оттенков допустима ТОЛЬКО внутри семьи (соседи по рампе ≤50°). Не прибивать CSS-размер канваса к дробному значению и не давать браузеру ресемплить кадр: буфер обязан совпадать с CSS пиксель в пиксель — иначе розовый придёт сам, без единой правки цвета. Не поджимать рой кадрированием на hero-экранах: гигантскость — часть образа («свет больше кадра»), срез верха кромкой и заезд под литеры — норма, а не дефект; uFit 0.695 и 0.80 отвергнуты оба, и просьбу об отступах подавал сам пользователь → rejected/swarm-crop-to-frame.md. Если рой мешает контенту — лечится завесой ПОД контентом, а не рамкой. Не ставить живой рой в мелкие места: пресет c годен от 64, a — от 128; ниже зерно физически не помещается в пиксель, и файл на это ругается вместо молчаливого клампа — молчаливый кламп и был причиной мельтешения. На 28px рой вырождается в цветную точку, которая медленно меняет тон: цикл 54 с, зерно и фронт волны схлопнулись — это уже не знак, а пятно. Спиннера 32×32 не существует: он значится запечённым спрайт-листом, а не живым WebGL, и упирается в некратные частоты (оборот 20.9 с, качание 33.1 с, волна 54 с, fbm-дрейф не повторяется вовсе) — то есть маленький живой рой это известная нерешённая задача, а не недосмотр. Не задавать размер частицы в пикселях — только зерном (доля тела): 2.6px на Retina превращаются в 1.3px на экране, и на этом уже дважды врали панели сравнения. Не назначать число частиц руками: N = COVERAGE / зерно², иначе «мельче зерно» означает просто «реже рой». Ниже 6000 частиц не опускаться (3000 = 18% заполненности, отклонено). Не ставить рой туда, где ждут секунду: цикл 54 с, и на загрузке всегда видно одно и то же начало — место роя там, где ждут долго. Не делать из роя иконку приложения → rejected/swarm-icon.md. Не держать на экране больше одной циклической анимации и не превращать орб в «AI-иконку» на каждой строке — это статус «агент работает», а не логотип-стикер (12 §9, §10).</p></details></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="logo">
+  <div class="section-head"><span class="num">10</span><h2>Логотип</h2></div>
+  <p class="section-lede">Вордмарк «Foundry AI» — знак неделим.</p>
+  <div class="grid">
+    <div class="col-12">
+      <article class="part" id="part-wordmark">
+        <div class="part-stage">
+          <iframe src="parts/2-marks/wordmark.html" height="228" loading="lazy" title="Вордмарк «Foundry AI»"></iframe>
+        </div>
+        <div class="part-meta">
+          <h4>Вордмарк «Foundry AI»</h4>
+          <span class="slug">wordmark</span>
+          <span class="chip chip-accepted">принят</span>
+          <span class="spacer"></span>
+          <span class="refs"><a href="../docs/design/04-typography.md">04-typography.md</a> · <a href="../docs/design/06-color.md">06-color.md</a> · <a href="../docs/design/13-tokens.md">13-tokens.md</a> · реализации нет</span>
+        </div>
+        <div class="part-tokens">
+          <span data-token="type.hero">type.hero</span>
+          <span data-token="font.text">font.text</span>
+          <span data-token="brand.amber">brand.amber</span>
+          <span data-token="bg.base">bg.base</span>
+          <span data-token="text.primary">text.primary</span>
+        </div>
+        <details>
+          <summary>родословная</summary>
+          <p>Знак принят целиком 2026-07-17 («отлично, логотип сформирован»); вордмарк похвалён отдельно 2026-07-16 («очень классный шрифт, запомни его») — memory/foundry-wordmark-sf-display.md. Встречается дважды и в разных местах: приветствие онбординга (candidates/onboarding.html §welcome, &lt;h2 class=&quot;ob-hero logo&quot;&gt;, экран принят целиком) и эталон candidates/logo.html, спасённый в git коммитом d58db46 из чужого воркtree. Правило двух знаку и не требуется по обычной причине: знак — не деталь экрана, он опознавательная метка продукта, и второе место у него всегда одно и то же — везде, где продукт называет себя. Построение переложено из эталона БУКВАЛЬНО (memory: «копировать оттуда, не пересобирать по памяти»); поменялись ровно три вещи, которых требует контракт части: снят свой :root, хексы заменены на токены tokens.css, селекторы уведены под .p-wordmark. Главный блокер снят коммитом 21701e9 — brand.amber #FFB020 заведён токеном с ролью «только знак», до этого часть не прошла бы линт по построению (candidates/logo.md, пункт 5 и оговорка под ним). Долг type.hero закрыт: токен 34/40 Bold, трекинг -2% заведён — базовый кегль знака теперь у системы есть имя, и --logo-size его лишь переопределяет. Остаток: кегль/вес лейбла (10/700) расходятся с type.label (11/13 Medium), и это разные роли, а не ошибка — лейбл сидит внутри вордмарка и обязан быть мельче и жирнее его; логотипа как компонента канон не знает вообще. Гарнитура стоит токеном font.text — и это стало возможно только после правки самого токена: он ставил «SF Pro Text» первой, то есть на машине с установленным SF Pro выбирал бы Text явно и отключал оптический переход на Display, ровно то, за что знак похвалили. Порядок исправлен на -apple-system первым — как в эталоне и как требует канон 04 §2.1 («не мешать, не форсировать»); ловушка была латентной: SF Pro на машине не установлен, и замер показывал совпадение стеков до сотых. Разбора знака на плашку и слово в образце нет намеренно.</p>
+        </details>
+      </article>
+    </div>
+  </div>
+  <div class="verdict">
+    <div class="can">
+      <h3>Можно — зачем часть есть</h3>
+      <ul>
+        <li><span><a href="#part-wordmark">Вордмарк «Foundry AI»</a> — Знак продукта: вордмарк «Foundry» и лейбл «AI» на янтарной плашке — одно тело, которое едет на любой кегль целиком, потому что все внутренние меры считаются в em от --logo-size.</span></li>
+      </ul>
+    </div>
+    <div class="cant">
+      <h3>Нельзя — где часть неуместна</h3>
+      <ul>
+        <li><span><a href="#part-wordmark">Вордмарк «Foundry AI»</a> — Знак неделим — вордмарк без лейбла и лейбл без вордмарка знаком не являются; разбирать нельзя (memory/foundry-wordmark-sf-display.md: «Знак неделим»).<details class="more"><summary>+8</summary><p>Осторожно: эскиз главного экрана ставит в рейл одно слово «Foundry» (14/600/−0.01em) рядом с рой-орбом и называет эту пару «полным логотипом» — это разбор знака, спор не решён, эскиз — кандидат. Не форсировать «SF Pro Display» явно и не подменять знак сторонним веб-шрифтом: гарнитура здесь не выбиралась вообще — на кегле ≥20pt macOS сам переключает оптический размер Text → Display, и похвалили именно этот переход. Не уменьшать знак ниже ~20pt: там macOS вернёт оптический Text, а трекинг −0.02em сожмёт то, что на мелком кегле нарочно разрежено — тянуть трекинг в минус можно только на крупных. Не пересобирать знак по памяти — только копировать (этот файл либо candidates/logo.html). Не трогать янтарь как цвет состояния: brand.amber — ТОЛЬКО знак, статусный жёлтый — sem.warning, и они отличаются на 9°, то есть глазом не различаются вовсе; в одном экране не встречаются (brand.amber._role). Обратное тоже запрещено: красить лейбл в sem.warning нельзя. Не писать по янтарю белым — 1.8:1 (text.on-accent._role): литеры «AI» тёмные, и это не стиль, а единственное читаемое решение. Не класть знак на подложку уровнем выше bg.base: литеры — вырез, сквозь который видно окно, и на bg.surface/bg.raised вырез покажет не тот фон (правило выведено из устройства знака — решения пользователя на этот счёт в источниках нет).</p></details></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="animation">
+  <div class="section-head"><span class="num">11</span><h2>Анимации</h2></div>
+  <p class="section-lede">Движение и свечение показываются собой — переход переходом, свет светом; при prefers-reduced-motion молчат.</p>
   <div class="block" id="motion">
     <div class="block-head"><h3>Движение</h3><span class="hint">живьём, теми самыми токенами; при <code>prefers-reduced-motion</code> — молчит</span></div>
     <div class="motion-row">
@@ -444,14 +1038,6 @@
     <div class="can">
       <h3>Можно — правило группы</h3>
       <ul>
-        <li><span><code>brand</code> — Фирменная гамма: аналоговый ход ультрамарин → пурпур → маджента (OKLCH hue 266 → 293 → 316) + циан как «точка света».</span></li>
-        <li><span><code>bg</code> — Elevation через светлоту, не через тень: равные шаги ΔL ≈ 0.03 в OKLCH, hue удержан в фиолетовой зоне 294±1, хрома растёт с высотой.</span></li>
-        <li><span><code>border</code> — Дефолт — вообще без линейки: сначала воздух и выравнивание, линейка — осознанное исключение.</span></li>
-        <li><span><code>text</code> — Альфа-белый, не серые хардкоды.</span></li>
-        <li><span><code>sem</code> — Осветлённые и слегка десатурированные под тёмный фон; заливки — тот же цвет с альфой, не отдельные тёмные оттенки.</span></li>
-        <li><span><code>space</code> — База 4pt, рабочая единица 8pt.</span></li>
-        <li><span><code>radius</code> — Система концентрическая: вложенный радиус = внешний − паддинг.</span></li>
-        <li><span><code>type</code> — SF Pro Text + SF Mono; шкала ≈1.2, привязана к macOS text styles.</span></li>
         <li><span><code>motion</code> — Анимация — только смысловая (появление, перемещение, live-состояние); декоративного движения нет.</span></li>
         <li><span><code>glow</code> — Фирменная замена тени для акцентов — «свет в темноте».</span></li>
       </ul>
@@ -459,281 +1045,15 @@
     <div class="cant">
       <h3>Нельзя — запреты, которыми токены помечены сами</h3>
       <ul>
-        <li><span><code>brand</code> — Оранжевый/ember отвергнут, не возвращать → rejected/ember-palette.md</span></li>
-        <li><span><code>brand.magenta</code> — третичный: только в градиентах и орбе, не как самостоятельный цвет UI</span></li>
-        <li><span><code>brand.amber</code> — НИКОГДА не статус и не состояние — для этого есть sem.warning.</span></li>
-        <li><span><code>bg</code> — Слой не перепрыгивает уровни; уровней на экране ≤3.</span></li>
-        <li><span><code>bg</code> — Сайдбар и тулбар — системный Liquid Glass, их фон не хардкодим.</span></li>
-        <li><span><code>text</code> — Ни один цвет палитры не используется как цвет текста: brand.ultramarine на тёмном даёт 4.0:1 и не проходит — текстом всегда text.accent.</span></li>
-        <li><span><code>text.on-accent</code> — текст на ультрамарине (5.1:1) и пурпуре (4.2:1); на циане, мадженте и янтаре белый ЗАПРЕЩЁН (1.9:1, 3.1:1, 1.8:1) — там тёмный bg.base</span></li>
-        <li><span><code>sem</code> — Цвет всегда дублируется формой/иконкой (дейтеранопия).</span></li>
-        <li><span><code>space</code> — Соседние значения различаются минимум на шаг шкалы, промежуточных значений нет.</span></li>
-        <li><span><code>type</code> — Веса Light/Thin на тёмном ЗАПРЕЩЕНЫ.</span></li>
         <li><span><code>glow</code> — ЖЁСТКОЕ ПРАВИЛО: не больше одного свечения в поле зрения.</span></li>
         <li><span><code>glow</code> — Glow не применяется к тексту, таблицам и данным.</span></li>
       </ul>
     </div>
   </div>
 </section>
-<section class="section" id="2-marks">
-  <div class="section-head"><span class="num">02</span><h2>Знаки</h2></div>
-  <p class="section-lede">Это опознавательный знак продукта: иконка, вордмарк, орб, лоадер, DMG.</p>
-  <div class="grid">
-    <div class="col-12">
-      <article class="part" id="part-app-icon">
-        <div class="part-stage">
-          <iframe src="parts/2-marks/app-icon.html" height="428" loading="lazy" title="Иконка приложения «Восход»"></iframe>
-        </div>
-        <div class="part-meta">
-          <h4>Иконка приложения «Восход»</h4>
-          <span class="slug">app-icon</span>
-          <span class="chip chip-accepted">принят</span>
-          <span class="spacer"></span>
-          <span class="refs"><a href="../docs/design/12-icons.md">12-icons.md</a> · реализации нет</span>
-        </div>
-        <div class="part-tokens">
-          <span data-token="space.1">space.1</span>
-          <span data-token="space.5">space.5</span>
-        </div>
-        <details>
-          <summary>родословная</summary>
-          <p>«Восход», вариант A — финал на master (memory/foundry-desktop-visual-direction.md: «Иконка «Восход» ФИНАЛ (вариант A)»), подтверждён ещё раз при отказе от иконки-роя 2026-07-17: «иконка остаётся одна». Конвейер и все числа — parts/2-marks/production.md; PR #5, #6 (пурпур в центре тела), #18 (единственный источник), #21 (суперэллипс с референса, маска формулой). Образец не рисует ничего сам: он показывает те самые файлы, которые шипятся, — App/Assets.xcassets/AppIcon.appiconset/*, и раскладывает их ровно так, как это делает Contents.json (srcset 1x/2x). Поэтому на Retina каждая ступень показывает свой 2×-ассет, и через четыре ступени видны все семь канвасов набора, кроме icon_1024 (он 2× пятисотого; отдельной ступени 512 в образце нет — её доля тела та же 0.8047, что у 256, и знание она не добавляет, а высоту карточки удваивает). Таблица полей снята с 95 системных иконок (icns → iconutil -c iconset, только симметричные squircle-плитки, согласие большинства по канвасу) — доля тела НЕ постоянна: на 16 и 32 Apple намеренно оставляет меньше полей (0.875 против 0.8047), иначе мелкая иконка теряет то, чем читается. Токенов система здесь ест только два, и оба — на раскладку образца: иконка — растр, у неё нет ни цвета, ни радиуса, которые можно было бы взять var(--…), а её палитра и геометрия угла — производственные значения конвейера, не решения дизайн-системы. Долг НЕ этой части, но названный честно: канон 12 §9 описывает иконку как «сферу с внутренним свечением ультрамарин→пурпур», а шипится сфера в webphone-ходе, освещённая источником ЗА верхне-правым лимбом — глава отстала от знака. DMG (второе место, где знак живёт крупно) в этом дереве отсутствует: он на ветке дистрибуции.</p>
-        </details>
-      </article>
-    </div>
-    <div class="col-12">
-      <article class="part" id="part-orb">
-        <div class="part-stage">
-          <iframe src="parts/2-marks/orb.html" height="264" loading="lazy" title="Орб «Восход»"></iframe>
-        </div>
-        <div class="part-meta">
-          <h4>Орб «Восход»</h4>
-          <span class="slug">orb</span>
-          <span class="chip chip-accepted">принят</span>
-          <span class="spacer"></span>
-          <span class="refs"><a href="../docs/design/12-icons.md">12-icons.md</a> · реализации нет</span>
-        </div>
-        <div class="part-tokens">
-          <span data-token="space.1">space.1</span>
-          <span data-token="space.5">space.5</span>
-          <span data-token="text.accent">text.accent</span>
-        </div>
-        <details>
-          <summary>родословная</summary>
-          <p>База роя одобрена 15.07.2026 («одобренная Дмитрием база лоадера», memory/loader-particles-baseline.md): 6000 частиц, цикл 54 с — выдержка семьи 9 с, перетекание 18 с, и перетекание является основным действием, а не перемычкой между состояниями. Два эталона зерна (a 0.504% / 44 701 частица, c 1.008% / 11 175) утверждены и вмёржены PR #22; масштаб на hero принят в разборе кадрирования (HERO_FIT 1.0, memory/swarm-hero-giant-scale.md). Встречается в разных местах и не дважды, а вчетверо: приветствие онбординга (candidates/onboarding.html, эталон принят целиком), рой-логотип в пустом состоянии (коммит 7273bb8), рейл главного экрана (candidates/main-screen-sketch.html, 28 и 48 — кандидат), плюс сами эталоны loader-particles.html и loader-logo.html. Лоадер отдельным знаком НЕ выделен намеренно: loader-particles.html и loader-logo.html — один и тот же рой, отличающийся только кадрированием (ZOOM 1.0 против 2.4) и помолом, а продукт везде берёт 2.4; отдельная часть «лоадер» была бы либо копией этой, либо частью для элемента, которого нет (экран загрузки не нарисован, а рой на нём отклонён доменной моделью). ОБРАЗЕЦ — ТРИ СТОП-КАДРА, а не живой рой, и это сказано честно: PNG сняты с самого эталона loader-logo.html (?size=128&amp;preset=c) его же ручкой __renderAt на фазах 4.5 / 18 / 31.5 с, в двух плотностях под srcset — 1x и 2x, потому что показ 2×-кадра на 1×-экране заставил бы браузер ресемплить и вернул бы розовый той самой дорогой. Шейдера здесь нет ни строчки: копия разъехалась бы с эталоном, как однажды разъехался конвейер иконки. Цена стоп-кадра названа прямо: перетекание — главное действие знака — в нём не видно, поэтому рядом стоит ссылка на живой файл. Каждый кадр проверен методом проекта: доля пикселей 290–330° = 0% на всех шести. Квадрат кадра на витрине слегка виден, и это не дефект образца, а честно показанное расхождение: фон роя в эталоне — #05060C, зашитый константой в шейдер, а лестница поверхностей стоит на bg.base #05030D. Лечится не здесь: в candidates/main-screen-sketch.html та же константа уже вынесена униформой («фон роя = фон панели»), эталону это ещё предстоит. Реализация на Metal (OrbSwarmView, OrbSwarmConfig) живёт на ветке feat/orb-logo-presets и в это дерево не вмёржена — отсюда честный swift: null. Долг НЕ этой части: канон 12 §9 запрещает орб «в пустых состояниях без связи с агентом», а master уже несёт рой-логотип в пустом состоянии — глава и код разошлись, и развести это должна приёмка, а не сессия. Чем становится рой при Reduce Motion, источники не говорят вовсе (12 §10 требует только, чтобы состояние осталось различимым статикой) — это дыра, а не решение.</p>
-        </details>
-      </article>
-    </div>
-    <div class="col-12">
-      <article class="part" id="part-wordmark">
-        <div class="part-stage">
-          <iframe src="parts/2-marks/wordmark.html" height="228" loading="lazy" title="Вордмарк «Foundry AI»"></iframe>
-        </div>
-        <div class="part-meta">
-          <h4>Вордмарк «Foundry AI»</h4>
-          <span class="slug">wordmark</span>
-          <span class="chip chip-accepted">принят</span>
-          <span class="spacer"></span>
-          <span class="refs"><a href="../docs/design/04-typography.md">04-typography.md</a> · <a href="../docs/design/06-color.md">06-color.md</a> · <a href="../docs/design/13-tokens.md">13-tokens.md</a> · реализации нет</span>
-        </div>
-        <div class="part-tokens">
-          <span data-token="type.hero">type.hero</span>
-          <span data-token="font.text">font.text</span>
-          <span data-token="brand.amber">brand.amber</span>
-          <span data-token="bg.base">bg.base</span>
-          <span data-token="text.primary">text.primary</span>
-        </div>
-        <details>
-          <summary>родословная</summary>
-          <p>Знак принят целиком 2026-07-17 («отлично, логотип сформирован»); вордмарк похвалён отдельно 2026-07-16 («очень классный шрифт, запомни его») — memory/foundry-wordmark-sf-display.md. Встречается дважды и в разных местах: приветствие онбординга (candidates/onboarding.html §welcome, &lt;h2 class=&quot;ob-hero logo&quot;&gt;, экран принят целиком) и эталон candidates/logo.html, спасённый в git коммитом d58db46 из чужого воркtree. Правило двух знаку и не требуется по обычной причине: знак — не деталь экрана, он опознавательная метка продукта, и второе место у него всегда одно и то же — везде, где продукт называет себя. Построение переложено из эталона БУКВАЛЬНО (memory: «копировать оттуда, не пересобирать по памяти»); поменялись ровно три вещи, которых требует контракт части: снят свой :root, хексы заменены на токены tokens.css, селекторы уведены под .p-wordmark. Главный блокер снят коммитом 21701e9 — brand.amber #FFB020 заведён токеном с ролью «только знак», до этого часть не прошла бы линт по построению (candidates/logo.md, пункт 5 и оговорка под ним). Долг type.hero закрыт: токен 34/40 Bold, трекинг -2% заведён — базовый кегль знака теперь у системы есть имя, и --logo-size его лишь переопределяет. Остаток: кегль/вес лейбла (10/700) расходятся с type.label (11/13 Medium), и это разные роли, а не ошибка — лейбл сидит внутри вордмарка и обязан быть мельче и жирнее его; логотипа как компонента канон не знает вообще. Гарнитура стоит токеном font.text — и это стало возможно только после правки самого токена: он ставил «SF Pro Text» первой, то есть на машине с установленным SF Pro выбирал бы Text явно и отключал оптический переход на Display, ровно то, за что знак похвалили. Порядок исправлен на -apple-system первым — как в эталоне и как требует канон 04 §2.1 («не мешать, не форсировать»); ловушка была латентной: SF Pro на машине не установлен, и замер показывал совпадение стеков до сотых. Разбора знака на плашку и слово в образце нет намеренно.</p>
-        </details>
-      </article>
-    </div>
-  </div>
-  <div class="verdict">
-    <div class="can">
-      <h3>Можно — зачем часть есть</h3>
-      <ul>
-        <li><span><a href="#part-app-icon">Иконка приложения «Восход»</a> — Знак продукта там, где до продукта ещё не дошли: Dock, Finder, DMG.<details class="more"><summary>+1</summary><p>Показан лестницей натуральных размеров — иконка живёт или умирает на 16, и один крупный рендер это прячет.</p></details></span></li>
-        <li><span><a href="#part-orb">Орб «Восход»</a> — Живой знак продукта: рой непрозрачных частиц на сфере, перетекающий из холодной семьи в тёплую переключением частиц поодиночке.<details class="more"><summary>+1</summary><p>Тот же материал, стоп-кадром которого является иконка.</p></details></span></li>
-        <li><span><a href="#part-wordmark">Вордмарк «Foundry AI»</a> — Знак продукта: вордмарк «Foundry» и лейбл «AI» на янтарной плашке — одно тело, которое едет на любой кегль целиком, потому что все внутренние меры считаются в em от --logo-size.</span></li>
-      </ul>
-    </div>
-    <div class="cant">
-      <h3>Нельзя — где часть неуместна</h3>
-      <ul>
-        <li><span><a href="#part-app-icon">Иконка приложения «Восход»</a> — Не перерисовывать знак плоской графикой — CSS-градиентами, SVG, чистыми заливками: отвергнуто дословно («второсортно, дёшево, будто ребёнок рисовал»), материал даёт только canvas2d-конвейер → rejected/flat-vector-graphics.md.<details class="more"><summary>+8</summary><p>Не предлагать иконку из роя частиц: отвергнута целиком, все три итерации, файлы удалены по просьбе пользователя → rejected/swarm-icon.md. Не возвращать отвергнутые трактовки: яркое центральное пятно-блик (источник света вынесен ЗА канвас, внутри сферы его нет), толстый/белый/навязчивый серп, направленный motion-blur с гостингом, любой блюр или свечение СПРАВА от центра (правая половина — единственная чёткая), 2× супер-семпл всего канваса (лечит бандинг ценой мягкой кромки — лечить его надо densify, 160 стопов Catmull-Rom) → rejected/sunrise-icon-treatments.md. Не переоткрывать выбор варианта: A — финал, B отброшен окончательно; paper-cut и огненный сквиркл закрыты → rejected/icon-variant-b.md, rejected/icon-alternatives-paper-cut-and-fire.md. Не ставить плитку в край: поля входят в саму картинку, macOS их НЕ добавляет — иконка без полей стоит в Dock крупнее соседей, и это уже ловили. Не скруглять угол дугой окружности и не подбирать радиус: угол — суперэллипс Ламе n=4, L = 0.4042 ТЕЛА (дуга промахивается на 4.97px против 0.49px у суперэллипса при плитке 204); заодно не путать CSS corner-shape: superellipse(4) — это n=16, squircle — это n=4. Не получать мелкий размер ресайзом крупного: маска считается формулой под каждый размер отдельно, пересемпл альфы и чёрная кайма от ресайза RGBA по прозрачному фону — измеренные потери кромки (до −85 по сумме RGB), а не теория. Не считать правку артворка законченной без прогона make-appiconset.py — на этом конвейер разъезжался ДВАЖДЫ, и приложение месяц шипило иконку без двух одобренных доработок. Не брать палитру иконки за палитру системы: Void/Navy/Violet/Indigo/Sky/Halo — отдельный webphone-ход, снятый пипеткой с референса; токенов у него нет и быть не должно.</p></details></span></li>
-        <li><span><a href="#part-orb">Орб «Восход»</a> — Семьи цветов не смешивать НИЧЕМ: ни аддитивным блендингом, ни mix() через границу, ни полупрозрачными частицами, ни ресемплом кадра.<details class="more"><summary>+15</summary><p>Холодная (231°–275°) и тёплая (348°–39°) почти дополнительны, и любая середина между ними — розовый ~300°, вычеркнутый при отборе палитры; это не стилистика, а единственная конструкция, при которой обе семьи существуют на одном экране легально → rejected/pink-hue-and-family-blending.md. Проверка механическая и обязательная: доля пикселей в 290–330°, норма 0%. Растушёвка оттенков допустима ТОЛЬКО внутри семьи (соседи по рампе ≤50°). Не прибивать CSS-размер канваса к дробному значению и не давать браузеру ресемплить кадр: буфер обязан совпадать с CSS пиксель в пиксель — иначе розовый придёт сам, без единой правки цвета. Не поджимать рой кадрированием на hero-экранах: гигантскость — часть образа («свет больше кадра»), срез верха кромкой и заезд под литеры — норма, а не дефект; uFit 0.695 и 0.80 отвергнуты оба, и просьбу об отступах подавал сам пользователь → rejected/swarm-crop-to-frame.md. Если рой мешает контенту — лечится завесой ПОД контентом, а не рамкой. Не ставить живой рой в мелкие места: пресет c годен от 64, a — от 128; ниже зерно физически не помещается в пиксель, и файл на это ругается вместо молчаливого клампа — молчаливый кламп и был причиной мельтешения. На 28px рой вырождается в цветную точку, которая медленно меняет тон: цикл 54 с, зерно и фронт волны схлопнулись — это уже не знак, а пятно. Спиннера 32×32 не существует: он значится запечённым спрайт-листом, а не живым WebGL, и упирается в некратные частоты (оборот 20.9 с, качание 33.1 с, волна 54 с, fbm-дрейф не повторяется вовсе) — то есть маленький живой рой это известная нерешённая задача, а не недосмотр. Не задавать размер частицы в пикселях — только зерном (доля тела): 2.6px на Retina превращаются в 1.3px на экране, и на этом уже дважды врали панели сравнения. Не назначать число частиц руками: N = COVERAGE / зерно², иначе «мельче зерно» означает просто «реже рой». Ниже 6000 частиц не опускаться (3000 = 18% заполненности, отклонено). Не ставить рой туда, где ждут секунду: цикл 54 с, и на загрузке всегда видно одно и то же начало — место роя там, где ждут долго. Не делать из роя иконку приложения → rejected/swarm-icon.md. Не держать на экране больше одной циклической анимации и не превращать орб в «AI-иконку» на каждой строке — это статус «агент работает», а не логотип-стикер (12 §9, §10).</p></details></span></li>
-        <li><span><a href="#part-wordmark">Вордмарк «Foundry AI»</a> — Знак неделим — вордмарк без лейбла и лейбл без вордмарка знаком не являются; разбирать нельзя (memory/foundry-wordmark-sf-display.md: «Знак неделим»).<details class="more"><summary>+8</summary><p>Осторожно: эскиз главного экрана ставит в рейл одно слово «Foundry» (14/600/−0.01em) рядом с рой-орбом и называет эту пару «полным логотипом» — это разбор знака, спор не решён, эскиз — кандидат. Не форсировать «SF Pro Display» явно и не подменять знак сторонним веб-шрифтом: гарнитура здесь не выбиралась вообще — на кегле ≥20pt macOS сам переключает оптический размер Text → Display, и похвалили именно этот переход. Не уменьшать знак ниже ~20pt: там macOS вернёт оптический Text, а трекинг −0.02em сожмёт то, что на мелком кегле нарочно разрежено — тянуть трекинг в минус можно только на крупных. Не пересобирать знак по памяти — только копировать (этот файл либо candidates/logo.html). Не трогать янтарь как цвет состояния: brand.amber — ТОЛЬКО знак, статусный жёлтый — sem.warning, и они отличаются на 9°, то есть глазом не различаются вовсе; в одном экране не встречаются (brand.amber._role). Обратное тоже запрещено: красить лейбл в sem.warning нельзя. Не писать по янтарю белым — 1.8:1 (text.on-accent._role): литеры «AI» тёмные, и это не стиль, а единственное читаемое решение. Не класть знак на подложку уровнем выше bg.base: литеры — вырез, сквозь который видно окно, и на bg.surface/bg.raised вырез покажет не тот фон (правило выведено из устройства знака — решения пользователя на этот счёт в источниках нет).</p></details></span></li>
-      </ul>
-    </div>
-  </div>
-</section>
-<section class="section" id="3-elements">
-  <div class="section-head"><span class="num">03</span><h2>Элементы</h2></div>
-  <p class="section-lede">В одиночку смысла не имеет и про домен не знает.</p>
-  <div class="grid">
-    <div class="col-12">
-      <article class="part" id="part-button">
-        <div class="part-stage">
-          <iframe src="parts/3-elements/button.html" height="318" loading="lazy" title="Кнопка"></iframe>
-        </div>
-        <div class="part-meta">
-          <h4>Кнопка</h4>
-          <span class="slug">button</span>
-          <span class="chip chip-accepted">принят</span>
-          <span class="spacer"></span>
-          <span class="refs"><a href="../docs/design/08-controls.md">08-controls.md</a> · <a href="../docs/design/06-color.md">06-color.md</a> · <a href="../docs/design/07-interaction.md">07-interaction.md</a> · реализации нет</span>
-        </div>
-        <div class="part-tokens">
-          <span data-token="control.h-default">control.h-default</span>
-          <span data-token="space.1">space.1</span>
-          <span data-token="space.3">space.3</span>
-          <span data-token="radius.m">radius.m</span>
-          <span data-token="radius.full">radius.full</span>
-          <span data-token="type.body">type.body</span>
-          <span data-token="type.body-em">type.body-em</span>
-          <span data-token="type.caption">type.caption</span>
-          <span data-token="font.text">font.text</span>
-          <span data-token="font.mono">font.mono</span>
-          <span data-token="brand.ultramarine">brand.ultramarine</span>
-          <span data-token="text.on-accent">text.on-accent</span>
-          <span data-token="text.primary">text.primary</span>
-          <span data-token="text.secondary">text.secondary</span>
-          <span data-token="text.disabled">text.disabled</span>
-          <span data-token="sem.warning">sem.warning</span>
-          <span data-token="sem.warning-fill">sem.warning-fill</span>
-          <span data-token="sem.warning-border">sem.warning-border</span>
-          <span data-token="sem.error">sem.error</span>
-          <span data-token="sem.error-fill">sem.error-fill</span>
-          <span data-token="sem.error-border">sem.error-border</span>
-          <span data-token="border.strong">border.strong</span>
-          <span data-token="border.focus">border.focus</span>
-          <span data-token="bg.hover">bg.hover</span>
-          <span data-token="bg.pressed">bg.pressed</span>
-          <span data-token="glow.accent">glow.accent</span>
-          <span data-token="icon.s">icon.s</span>
-          <span data-token="motion.live">motion.live</span>
-        </div>
-        <details>
-          <summary>родословная</summary>
-          <p>Выделена из foundry-mockups.html §1 (строки 1586–1588, пара «Вернуть на доработку» + «Принять» в инспекторе) и §3 (строки 1740–1744, та же пара + «Отмена» под диффом) — встретилась дважды и далее ещё пятикратно: §4 (1928–1936), §5 (1974–1979 — галерея состояний), §7 (2226), §8 (2278–2279), §9 (2379–2380), §12 (2626). Имена вариантов взяты у макета без переименования: primary · secondary (янтарный «вернуть») · ghost · danger-out. Внимание: они НЕ совпадают с четырьмя уровнями канона 08 §1.1 — ghost макета = secondary канона (обводка border.strong), secondary макета = янтарный частный случай «вернуть на доработку», danger-out = destructive. Состояния rest/hover/pressed/loading/disabled — дословно из галереи §5. Фокус-ринг добавлен по 08 §4.1 («контрол без прорисованных состояний — недоделанный контрол») рецептом из того же §5 (.drow.focus, цвет — border.focus), но отрисован НЕ по канону: канон, макет и роль border.focus требуют 2px с offset 2px, а ширин линии в tokens.json нет ни одной, и назвать двойку системе нечем — ринг стоит 1px. Это видимый долг, а не решение; лечится токенами border.focus-width и border.focus-offset. Ghost-hover добавлен по 08 §1.3 (bg.hover). Pressed выражен brightness от brand.ultramarine, а не хексом #2749c9: канон 08 §4.2 объявляет нажатую заливку производным значением, а не токеном.</p>
-        </details>
-      </article>
-    </div>
-  </div>
-  <p class="reference"><span class="chip chip-candidate">кандидат</span><span>в этой категории ждёт приёмки: <a href="#part-badge">Бейдж</a>, <a href="#part-status-dot">Точка статуса</a> — лежит в приёмной, законом не является</span></p>
-  <div class="verdict">
-    <div class="can">
-      <h3>Можно — зачем часть есть</h3>
-      <ul>
-        <li><span><a href="#part-button">Кнопка</a> — Единственный носитель действия в интерфейсе: заливкой, обводкой и цветом говорит, насколько сильно система рекомендует нажать.</span></li>
-      </ul>
-    </div>
-    <div class="cant">
-      <h3>Нельзя — где часть неуместна</h3>
-      <ul>
-        <li><span><a href="#part-button">Кнопка</a> — Не ставить две primary в одной замкнутой зоне: primary — это ответ на «что делать дальше», два ответа = отсутствие ответа (08 §1.1).<details class="more"><summary>+6</summary><p>Не выделять главное действие размером — размер даёт плотность контекста, иерархию даёт заливка (08 §1.2). Не красить danger-out ничем, кроме реальной потери данных: «Вернуть на доработку» — не опасность, а нормальная работа, и красный на ней сжигает единственный способ крикнуть настоящему «Удалить проект» (08 §1.4). Не применять как носитель статуса: у кнопки нет состояния «ok/warn» — цветная плашка это badge, а не кнопка. Не вешать glow ни на что, кроме hover primary: в поле зрения ровно одно свечение (13 §12, glow._role). Не заводить кнопку-иконку из этой части: там своя хит-зона ≥24pt и обязательный тултип (08 §5), и primary у иконок не бывает — главное действие заслуживает слова. Не прятать недоступное — выключать: спрятанное заставляет искать (08 §4.3).</p></details></span></li>
-      </ul>
-    </div>
-  </div>
-</section>
-<section class="section" id="4-blocks">
-  <div class="section-head"><span class="num">04</span><h2>Блоки</h2></div>
-  <p class="section-lede">Смысл имеет и про домен знает: change, стадия, CRISPY.</p>
-  <div class="grid">
-    <div class="col-12">
-      <article class="part" id="part-diff-line">
-        <div class="part-stage">
-          <iframe src="parts/4-blocks/diff-line.html" height="434" loading="lazy" title="Строка диффа"></iframe>
-        </div>
-        <div class="part-meta">
-          <h4>Строка диффа</h4>
-          <span class="slug">diff-line</span>
-          <span class="chip chip-accepted">принят</span>
-          <span class="spacer"></span>
-          <span class="refs"><a href="../docs/design/06-color.md">06-color.md</a> · <a href="../docs/design/10-tables.md">10-tables.md</a> · <a href="../docs/design/04-typography.md">04-typography.md</a> · реализации нет</span>
-        </div>
-        <div class="part-tokens">
-          <span data-token="space.2">space.2</span>
-          <span data-token="space.3">space.3</span>
-          <span data-token="space.8">space.8</span>
-          <span data-token="radius.s">radius.s</span>
-          <span data-token="type.mono">type.mono</span>
-          <span data-token="type.mono-s">type.mono-s</span>
-          <span data-token="font.mono">font.mono</span>
-          <span data-token="code.bg">code.bg</span>
-          <span data-token="code.linenum">code.linenum</span>
-          <span data-token="text.secondary">text.secondary</span>
-          <span data-token="text.disabled">text.disabled</span>
-          <span data-token="diff.added-bg">diff.added-bg</span>
-          <span data-token="diff.added-text">diff.added-text</span>
-          <span data-token="diff.added-word">diff.added-word</span>
-          <span data-token="diff.removed-bg">diff.removed-bg</span>
-          <span data-token="diff.removed-text">diff.removed-text</span>
-          <span data-token="diff.removed-word">diff.removed-word</span>
-        </div>
-        <details>
-          <summary>родословная</summary>
-          <p>Выделена из foundry-mockups.html §3 (строки 1689–1706, дифф Swift-кода в панели ревью) и §7 (строки 2220–2223, тот же дифф markdown-таблицы токенов в отдельном окне) — встретилась дважды, анатомия в обоих местах совпала побайтно. Класс макета — .dline (CSS строки 380–389); модификаторы add · rem, внутренности .ln (номер), .code (тело), .gutter (контекст), .w (подсветка слова). Значения переложены на токены: 12px mono → type.mono, номера → type.mono-s + code.linenum, фон панели → code.bg, фоны и подсветки слов → diff.*-bg / diff.*-word (у макета совпали точно: @12% и @25%). Цвет текста изменённых строк макета (#b9f5cf и #f6c0c0) токена не имеет — взят diff.added-text / diff.removed-text, то есть sem.success и sem.error: tokens.json уже назначил этим строкам ровно эти цвета, макет от собственного закона отклонился. Гаттер 44+44px токена не имеет — взят space.8 (48pt) дважды: колонка стала шире макета на 4pt каждая. Подсветка синтаксиса (.tok-kw/.tok-ty/.tok-str/.tok-fn/.tok-num) в часть не перенесена: она живёт только в §3 и правило двух не прошла.</p>
-        </details>
-      </article>
-    </div>
-    <div class="col-12">
-      <article class="part" id="part-project-label">
-        <div class="part-stage">
-          <iframe src="parts/4-blocks/project-label.html" height="297" loading="lazy" title="Лейбл проекта"></iframe>
-        </div>
-        <div class="part-meta">
-          <h4>Лейбл проекта</h4>
-          <span class="slug">project-label</span>
-          <span class="chip chip-accepted">принят</span>
-          <span class="spacer"></span>
-          <span class="refs"><a href="../docs/design/06-color.md">06-color.md</a> · <a href="../docs/design/12-icons.md">12-icons.md</a> · <a href="../docs/design/10-tables.md">10-tables.md</a> · реализации нет</span>
-        </div>
-        <div class="part-tokens">
-          <span data-token="space.1">space.1</span>
-          <span data-token="space.2">space.2</span>
-          <span data-token="radius.s">radius.s</span>
-          <span data-token="type.caption2">type.caption2</span>
-          <span data-token="font.text">font.text</span>
-          <span data-token="text.tertiary">text.tertiary</span>
-          <span data-token="text.disabled">text.disabled</span>
-          <span data-token="bg.hover">bg.hover</span>
-          <span data-token="border.subtle">border.subtle</span>
-        </div>
-        <details>
-          <summary>родословная</summary>
-          <p>Выделен из foundry-mockups.html §6 (строки 2136–2171, лейбл сервиса на карточках канбана) и §11 (строка 2514, якорь change&#x27;а при зуме в задачи) — встретился дважды и далее в §12 (2579), §13 (2654) и §14 (2725–2760, колонка сквозной таблицы задач): пять секций, самая переиспользуемая плашка макета. Класс макета — .plbl (CSS строки 585–588) с внутренностями .lcat (категория формой) и .lsvc (имя сервиса текстом); анатомия во всех пяти местах совпала. Алфавит категорий взят из комментария макета над правилом (строки 583–584): ▣ инфра · ◆ утилита · ● бизнес, и там же зафиксирована причина отказа от цвета. Значения переложены на токены: кегль 9px и 8px токена не имеют — взят type.caption2 (10pt, самый мелкий в шкале), паддинг 1px 5px → space.1 / space.2, фон @5% → bg.hover (@6%). 4-blocks, а не 3-elements: часть знает слова «проект» и «сервис» и несёт таксономию роутера (§18 макета) — в одиночку у неё есть смысл, и применить её больше не к чему.</p>
-        </details>
-      </article>
-    </div>
-  </div>
-  <div class="verdict">
-    <div class="can">
-      <h3>Можно — зачем часть есть</h3>
-      <ul>
-        <li><span><a href="#part-diff-line">Строка диффа</a> — Атом ревью: два номера строк, знак ± и фон @12% дают «что изменилось» тремя независимыми каналами, а подсветка слова показывает, что именно, не заставляя сличать строки глазами.</span></li>
-        <li><span><a href="#part-project-label">Лейбл проекта</a> — Отвечает «чей это change» там, где на экране сразу несколько сервисов: категорию несёт форма, имя — текст, и на цвет не тратится ничего.</span></li>
-      </ul>
-    </div>
-    <div class="cant">
-      <h3>Нельзя — где часть неуместна</h3>
-      <ul>
-        <li><span><a href="#part-diff-line">Строка диффа</a> — Не применять без знаков + и − в теле строки: фон обязан дублироваться знаком и позицией — при дейтеранопии зелёный и красный неразличимы, и цвет остаётся лишь ускорением (06 §3.3).<details class="more"><summary>+6</summary><p>Не применять для показа кода без изменений: две колонки номеров и рейл ± там — пустая нотация, это панель кода (code.bg), а не дифф. Не красить строку ничем, кроме diff.*: фон строки занят семантикой изменения — статус, стадия и выделение обязаны найти другой канал, иначе панель становится светофором (06). Не переносить строку по словам: строка диффа не переносится принципиально (white-space: pre) — номер обязан отвечать за одну экранную строку; проза и спека, которые надо читать целиком, требуют диффа словами, а не строками (§12 макета). Не путать со строкой таблицы: колонка номеров — это гаттер моноширинного кода, а не данные, и правила 10-tables (зебра, линейки, выравнивание) к ней не применяются. Не подсвечивать словами всю строку: word-level имеет смысл, только когда изменилось меньше половины строки, иначе подсветка съедает фон и перестаёт указывать. Не растить сюда подсветку синтаксиса: тема токенов кода — отдельная часть, она живёт в §3 макета одна и по правилу двух ещё не элемент.</p></details></span></li>
-        <li><span><a href="#part-project-label">Лейбл проекта</a> — Не красить: отказ от цвета — суть этой части, а не её недоделка.<details class="more"><summary>+6</summary><p>Категорию несёт форма (▣ инфра · ◆ утилита · ● бизнес) именно потому, что цвет в системе дефицитен и занят значимым — статусом и действием; радуга лейблов гасит и то и другое (06, «цвет только на значимом»). Не применять там, где проект уже известен: внутри экрана одного проекта лейбл на каждой строке повторяет заголовок и превращается в шум (Бирман). Не носить лейблом статус, стадию или тип change&#x27;а: это badge и status-dot — здесь цвет и семантика, там форма и постоянная величина. Не ставить второй лейбл на одну карточку: change живёт в одном сервисе; если сервисов правда несколько — это не лейбл, а колонка таблицы (10-tables). Не заводить седьмую категорию под форму: алфавит из трёх фигур запоминается, из семи — читается по легенде, а легенда означает, что нотация не работает (12 §6, «одноразовое исключение не стоит нового элемента языка»). Не растягивать под длинное имя: лейбл усекает многоточием и остаётся узким — если имя обязано читаться целиком, ему нужна колонка, а не лейбл.</p></details></span></li>
-      </ul>
-    </div>
-  </div>
-</section>
-<section class="section" id="5-layers">
-  <div class="section-head"><span class="num">05</span><h2>Слои</h2></div>
-  <p class="section-lede">Это контейнер для другого: окно, панель, поповер, модалка, тост.</p>
-  <div class="empty">Частей пока нет.</div>
-</section>
-<section class="section" id="6-views">
-  <div class="section-head"><span class="num">06</span><h2>Экраны</h2></div>
-  <p class="section-lede">Это целый экран — и вся система, работающая на нём разом.</p>
+<section class="section" id="screens">
+  <div class="section-head"><span class="num">12</span><h2>Экраны</h2></div>
+  <p class="section-lede">Вся система разом, собранная обратно в экраны — единственное место, где её видно в работе.</p>
   <div class="block" id="in-situ">
     <div class="block-head"><h3>Девятнадцать экранов, живьём</h3><span class="hint">не скриншоты — настоящий макет, вставленный сюда целиком</span></div>
     <div class="screens">
@@ -742,14 +1062,9 @@
     <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">Макет длинный — панель скроллится сама, и ⌘F доски по ней не пройдёт. Читать целиком — <a href="../docs/design/mockups/foundry-mockups.html">открыть в своей вкладке</a>.</p>
   </div>
 </section>
-<section class="section" id="7-behaviour">
-  <div class="section-head"><span class="num">07</span><h2>Поведение</h2></div>
-  <p class="section-lede">Это сквозное поведение, а не вещь на экране.</p>
-  <div class="empty">Частей пока нет.</div>
-</section>
 <section class="section" id="candidates">
   <div class="section-head"><span class="num">—</span><h2>Приёмная</h2></div>
-  <p class="section-lede">Приехало из сессий, приёмку не проходило: ссылаться на это как на решённое нельзя. Законный вход в систему — иначе находки оседают в воркtree и умирают вместе с ним.</p>
+  <p class="section-lede">Крупное неразобранное — целые экраны и эталоны, приехавшие из сессий и приёмку не проходившие: ссылаться как на решённое нельзя. Законный вход в систему — иначе находки оседают в воркtree и умирают вместе с ним. Оформится в часть — переедет в свою категорию кандидатом.</p>
   <div class="grid">
     <div class="col-12">
       <article class="part" id="part-logo">
@@ -817,78 +1132,6 @@
         </details>
       </article>
     </div>
-    <div class="col-12">
-      <article class="part" id="part-badge">
-        <div class="part-stage">
-          <iframe src="parts/3-elements/badge.html" height="300" loading="lazy" title="Бейдж"></iframe>
-        </div>
-        <div class="part-meta">
-          <h4>Бейдж</h4>
-          <span class="slug">badge</span>
-          <span class="chip chip-candidate">кандидат</span>
-          <span class="spacer"></span>
-          <span class="refs"><a href="../docs/design/06-color.md">06-color.md</a> · <a href="../docs/design/12-icons.md">12-icons.md</a> · <a href="../docs/design/08-controls.md">08-controls.md</a> · реализации нет</span>
-        </div>
-        <div class="part-tokens">
-          <span data-token="space.1">space.1</span>
-          <span data-token="space.2">space.2</span>
-          <span data-token="radius.s">radius.s</span>
-          <span data-token="type.caption">type.caption</span>
-          <span data-token="font.text">font.text</span>
-          <span data-token="text.secondary">text.secondary</span>
-          <span data-token="bg.hover">bg.hover</span>
-          <span data-token="border.subtle">border.subtle</span>
-          <span data-token="sem.info">sem.info</span>
-          <span data-token="sem.info-fill">sem.info-fill</span>
-          <span data-token="sem.info-border">sem.info-border</span>
-          <span data-token="sem.success">sem.success</span>
-          <span data-token="sem.success-fill">sem.success-fill</span>
-          <span data-token="sem.success-border">sem.success-border</span>
-          <span data-token="sem.warning">sem.warning</span>
-          <span data-token="sem.warning-fill">sem.warning-fill</span>
-          <span data-token="sem.warning-border">sem.warning-border</span>
-          <span data-token="sem.error">sem.error</span>
-          <span data-token="sem.error-fill">sem.error-fill</span>
-          <span data-token="sem.error-border">sem.error-border</span>
-        </div>
-        <details>
-          <summary>родословная</summary>
-          <p>Выделен из foundry-mockups.html §5 (строки 2004–2009, галерея «Бейджи · семантика = цвет + форма») и §6 (строки 2166, 2171 — «⚠ завис 40 мин» и «✕ CI упал» на карточках канбана) — встретился дважды. Класс макета — .chip (CSS строки 235–245). Заливки и бордеры совпали с токенами буквально: warn/err/live у макета — это @14% + @30%, то есть sem.*-fill и sem.*-border без остатка. КАНДИДАТ по двум причинам. Первая: зелёный «✓ принято» существует в макете только инлайн-стилем (строка 2009), класса под него нет — модификатор ok здесь нормализация этого места. Вторая: модификатор .chip.stage макета побайтно совпадает с базовым правилом (цвет, фон и бордер те же) — пустой алиас, он выброшен, нейтральная категория осталась базовым вариантом; заодно этим бейдж перестал знать слово «стадия» и остался в 3-elements. Модификатор .chip.proj из CSS макета мёртв (в разметке не встречается ни разу) и не перенесён. Вертикальный паддинг вырос с 1px до space.1 = 4pt: подпиксельных значений в шкале нет, а роль space.1 в tokens.json прямо названа «внутренности бейджа (верт.)» — бейдж стал выше макета примерно на 6pt, это осознанная сверка с законом, а не дрейф.</p>
-        </details>
-      </article>
-    </div>
-    <div class="col-12">
-      <article class="part" id="part-status-dot">
-        <div class="part-stage">
-          <iframe src="parts/3-elements/status-dot.html" height="208" loading="lazy" title="Точка статуса"></iframe>
-        </div>
-        <div class="part-meta">
-          <h4>Точка статуса</h4>
-          <span class="slug">status-dot</span>
-          <span class="chip chip-candidate">кандидат</span>
-          <span class="spacer"></span>
-          <span class="refs"><a href="../docs/design/12-icons.md">12-icons.md</a> · <a href="../docs/design/06-color.md">06-color.md</a> · реализации нет</span>
-        </div>
-        <div class="part-tokens">
-          <span data-token="space.2">space.2</span>
-          <span data-token="radius.full">radius.full</span>
-          <span data-token="brand.ultramarine">brand.ultramarine</span>
-          <span data-token="sem.info">sem.info</span>
-          <span data-token="sem.success">sem.success</span>
-          <span data-token="sem.warning">sem.warning</span>
-          <span data-token="sem.error">sem.error</span>
-          <span data-token="text.disabled">text.disabled</span>
-          <span data-token="text.secondary">text.secondary</span>
-          <span data-token="type.caption">type.caption</span>
-          <span data-token="font.text">font.text</span>
-          <span data-token="motion.live">motion.live</span>
-        </div>
-        <details>
-          <summary>родословная</summary>
-          <p>Выделена из foundry-mockups.html §1 (строки 1467–1540, рейл статусов в строках инбокса) и §5 (строки 1988–1991, галерея состояний строки) — встретилась дважды и далее в §4 (1887–1890, легенда распределения) и §7 (2203–2208, мини-список). Модификаторы wait · live · warn · err — дословно из CSS макета (строки 220–227). КАНДИДАТ, потому что пришлось сводить два разных варианта: §1 кодирует статус модификатором, §4 — инлайн-стилем (style=&quot;background:var(--sem-success)&quot;), а зелёный ok существует в макете только у соседней точки .rh-dot.ok (строка 958, тепловая карта §4). Модификатор ok здесь — нормализация этих трёх мест в один класс по таблице 12 §6. Базовое состояние (без модификатора) в макете цвета не имело вовсе — здесь это «не начата» = text.disabled по той же таблице канона; .rh-dot ставил на это место белый @20%, токена под который нет. Диаметр 8pt взят у макета через space.2 — размерного токена под точку в системе нет (icon.s = 12pt даёт +50%).</p>
-        </details>
-      </article>
-    </div>
   </div>
   <div class="verdict">
     <div class="can">
@@ -897,8 +1140,6 @@
         <li><span><a href="#part-logo">Логотип «Foundry AI»</a> — Эталон знака продукта — вордмарк «Foundry» + лейбл «AI» на янтарной плашке; при работе со знаком копировать отсюда, а не пересобирать по памяти.</span></li>
         <li><span><a href="#part-main-screen-sketch">Основной экран — эскиз (рейл, сайдбар и плавающие панели)</a> — Доводит §1 макета до того, что его собственная подпись уже обещает — «панели не примыкают, границу держит зазор, а не линейка»; плюс два стенда, решающих вопросы глазом — закон кривой угла панелей и минимальный размер, на котором рой ещё читается роем.</span></li>
         <li><span><a href="#part-onboarding">Онбординг — первый запуск</a> — Живой прототип первого запуска — шесть решений на рое и разлёт в главное окно; экран приветствия принят пользователем целиком как эталон и служит источником правды по кнопке, вордмарку, рою и завесе.</span></li>
-        <li><span><a href="#part-badge">Бейдж</a> — Плашка на строке или карточке, где статус надо сказать словом и цветом сразу: глиф даёт форму, заливка @14% — семантику, и оба канала читаются до чтения.</span></li>
-        <li><span><a href="#part-status-dot">Точка статуса</a> — Держит рейл статусов в плотном списке: шесть состояний читаются периферией на ширине 8pt, где слово не помещается.</span></li>
       </ul>
     </div>
     <div class="cant">
@@ -907,8 +1148,6 @@
         <li><span><a href="#part-logo">Логотип «Foundry AI»</a> — Знак неделим — вордмарк отдельно от лейбла не живёт, разбирать на части нельзя.<details class="more"><summary>+3</summary><p>Не форсировать SF Pro Display явно и не подменять сторонним веб-шрифтом — сломается ровно то, за что похвалили. Не тянуть трекинг в минус на мелких кеглях. Не пересобирать знак по памяти — только копировать из файла.</p></details></span></li>
         <li><span><a href="#part-main-screen-sketch">Основной экран — эскиз (рейл, сайдбар и плавающие панели)</a> — Не считать принятым — это эскиз НА утверждение, решения пользователя по нему в источниках нет.<details class="more"><summary>+2</summary><p>Не путать corner-shape squircle с superellipse(4) — это n=4 и n=16. Не ставить живой рой в мелкие места (28px — точка, не рой) и не ставить его туда, где ждут недолго.</p></details></span></li>
         <li><span><a href="#part-onboarding">Онбординг — первый запуск</a> — Не трогать экран data-step=&quot;0&quot; — он принят целиком и собирался десятками итераций с подбором глазом; любое «улучшение заодно» разрушает принятые балансы.<details class="more"><summary>+3</summary><p>Не поджимать рой рамками (uFit = 1.0). Не брать значения :root этого файла как токены — источник значений один, и это tokens.json. Не выделять из файла части, пока долг не закрыт.</p></details></span></li>
-        <li><span><a href="#part-badge">Бейдж</a> — Не применять без глифа в цветных вариантах: цвет обязан дублироваться формой — бейдж без ✓ ⚠ ✕ ◉ при дейтеранопии пуст (06 §3.3).<details class="more"><summary>+6</summary><p>Не заливать бейдж сплошным цветом с белым текстом: рецепт канона — цвет текста на том же цвете @14% (06 §3.2); белый на циане и мадженте вообще запрещён (text.on-accent). Не красить бейдж ультрамарином: акцент зарезервирован за действием и выделением, и цветной бейдж рядом начинает спорить с кнопкой «Принять» за внимание (08 §1.3); нейтральная категория — базовый вариант, без цвета. Не вешать бейдж на каждый элемент списка: раскрашенная целиком колонка — экран-светофор, цвет перестаёт значить (06, «цвет только на значимом»). Не дублировать бейджем то, что уже сказано позицией: чип стадии на карточке канбана — ложь дважды, колонка и есть стадия (§6 макета). Не делать бейдж кликабельным: это ярлык, а не контрол; нужен клик — это кнопка или фильтр-токен со своей хит-зоной ≥24pt (08 §5). Не носить бейджем имя проекта или сервиса — для этого project-label, где цвет намеренно не расходуется.</p></details></span></li>
-        <li><span><a href="#part-status-dot">Точка статуса</a> — Не применять без слова или тултипа рядом: точка на 8pt — акселератор чтения, а не носитель смысла; канон 12 §6 разрешает её только там, где значение раскрыто текстом поблизости.<details class="more"><summary>+5</summary><p>Не применять как единственный канал: цвет обязан дублироваться формой, иконкой или подписью — 8% мужчин не различат ok от err (06 §3.3); в диффе, в чеклисте и в статусе стадии это глиф ✓▲✕, а точка — только ускорение. Не заводить седьмой модификатор: шесть статусов — это ровно таблица 12 §6, и особый случай говорится словом, а не новым цветом точки (Бирман: одноразовое исключение не стоит нового элемента языка). Не вешать на точку glow: пульс live идёт только альфой, единственное свечение в окне держит орб (13 §12). Не использовать точку как кликабельную цель: 8pt против hit-min 24pt — промах гарантирован (07, Фиттс); кликается строка целиком. Не красить точкой то, что не является состоянием: категория, тип, проект — это форма и слово (project-label), цвет здесь дефицитен.</p></details></span></li>
       </ul>
     </div>
   </div>

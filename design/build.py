@@ -996,19 +996,6 @@ def collect_rejected():
     return found
 
 
-# Одна строка на категорию — обоснование, которым секция открывается.
-# Границы категорий описаны в design/parts/README.md; здесь только подписи.
-BOARD_LEDE = {
-    "1-foundation": "Это значение, а не вещь. Всё ниже нарисовано из tokens.json — "
-                    "поменяется хекс в источнике, поменяется эта страница.",
-    "2-marks": "Это опознавательный знак продукта: иконка, вордмарк, орб, лоадер, DMG.",
-    "3-elements": "В одиночку смысла не имеет и про домен не знает.",
-    "4-blocks": "Смысл имеет и про домен знает: change, стадия, CRISPY.",
-    "5-layers": "Это контейнер для другого: окно, панель, поповер, модалка, тост.",
-    "6-views": "Это целый экран — и вся система, работающая на нём разом.",
-    "7-behaviour": "Это сквозное поведение, а не вещь на экране.",
-}
-
 # Макет девятнадцати экранов: единственное место, где систему видно в работе.
 MOCKUPS = "../docs/design/mockups/foundry-mockups.html"
 
@@ -1071,15 +1058,6 @@ PROHIBITION = re.compile(
     r"промежуточных значений нет|дублируется формой"
 )
 
-# Группы, которые секция «Основа» рисует. «Можно» закрывает ровно то, что
-# читатель только что видел доказанным, — поэтому список тут, а не «все
-# группы источника»: у font, icon и row правило есть, но доска его не
-# показывала, и объявлять его в суждении было бы враньём про эту страницу.
-# «Нельзя» так не сужается: запрет остаётся запретом, где бы он ни лежал.
-FOUNDATION_GROUPS = ["brand", "bg", "border", "text", "sem", "space", "radius", "type",
-                     "motion", "glow"]
-
-
 def escape(value):
     return html.escape(str(value), quote=True)
 
@@ -1110,13 +1088,14 @@ def count_tokens(tokens):
     return sum(1 for _path, _token in iterate_tokens(tokens))
 
 
-def board_cover(tokens, law_parts, candidates, rejected):
+def board_cover(tokens, law_parts, candidate_parts, sidecars, rejected):
     """Единственная задача обложки — показать, что это спроектированная вещь.
     Цифры на ней не украшение: это состояние системы на момент сборки."""
     facts = [
         (count_tokens(tokens), "токенов в источнике"),
         (len(law_parts), "частей — закон"),
-        (len(candidates), "в приёмной — не закон"),
+        (len(candidate_parts), "частей — на утверждении"),
+        (len(sidecars), "в приёмной — не закон"),
         (len(rejected), "отвергнуто, с причиной"),
     ]
     lines = ['<section class="cover">']
@@ -1653,20 +1632,29 @@ def glow_block(tokens):
     return lines
 
 
-def foundation_verdict(tokens):
-    """«Можно / Нельзя» основы собирается из прозы самих токенов: первая фраза
-    роли — правило, фразы с метками запрета — запрет. Ни одной строки тут
-    не написано руками, и это принципиально: суждение, переписанное в доску
-    вручную, немедленно разъезжается с источником."""
+def foundation_verdict(tokens, groups):
+    """«Можно / Нельзя» токеновой секции собирается из прозы самих токенов:
+    первая фраза роли группы — правило, фразы с метками запрета — запрет. Ни
+    одной строки тут не написано руками, и это принципиально: суждение,
+    переписанное в доску вручную, немедленно разъезжается с источником.
+
+    Суждение сужено до групп, которые именно ЭТА секция показала: «Можно»
+    закрывает ровно то, что читатель только что видел доказанным. Прежде
+    основа была одной секцией и брала все группы разом; теперь цвет,
+    типографика, отступы и анимации — разные секции, и каждая отвечает за
+    свои группы. Запрет при этом не теряется: группы секций разбивают
+    источник без остатка (проверено — вся проза запретов лежит в этих
+    группах), так что каждый «Нельзя» появляется ровно один раз, там, где
+    показана его группа."""
     can = []
     cant = []
-    for group_name, group in tokens.items():
-        if is_documentation_key(group_name) or not isinstance(group, dict):
+    for group_name in groups:
+        group = tokens.get(group_name)
+        if not isinstance(group, dict):
             continue
         role = group.get("_role")
         if role:
-            if group_name in FOUNDATION_GROUPS:
-                can.append((group_name, first_sentence(role)))
+            can.append((group_name, first_sentence(role)))
             for phrase in prohibitions(" ".join(rest_sentences(role))):
                 cant.append((group_name, phrase))
         for token_name, token in group.items():
@@ -1695,7 +1683,11 @@ def render_verdict(can, cant, can_title, cant_title):
     return lines
 
 
-def board_foundation(tokens, parts):
+# Ленты токеновых секций. Блоки те же, что рисовали единую «Основу», —
+# просто разложены по концретным категориям доски. Значения по-прежнему
+# приезжают из tokens.json: секция «Цвета» собирается из тех же ramp_block
+# и contrast_block, а не из нового кода.
+def colors_blocks(tokens):
     lines = []
     lines.extend(ramp_block(
         tokens, "bg", ["base", "surface", "raised", "overlay"],
@@ -1713,16 +1705,25 @@ def board_foundation(tokens, parts):
         "Семантика",
         "смысл, а не украшение: цвет всегда дублируется формой", False))
     lines.extend(contrast_block(tokens))
-    lines.extend(typography_block(tokens))
-    lines.extend(spacing_block(tokens))
-    lines.extend(radius_block(tokens))
-    lines.extend(motion_block(tokens))
-    lines.extend(glow_block(tokens))
+    return lines
 
-    for record in parts:
-        lines.extend(render_part(record))
 
-    can, cant = foundation_verdict(tokens)
+def typography_blocks(tokens):
+    return typography_block(tokens)
+
+
+def spacing_blocks(tokens):
+    return spacing_block(tokens) + radius_block(tokens)
+
+
+def animation_blocks(tokens):
+    return motion_block(tokens) + glow_block(tokens)
+
+
+def board_foundation(tokens, section):
+    """Токеновая секция: её блоки, затем «Можно / Нельзя» по её же группам."""
+    lines = list(section["blocks"](tokens))
+    can, cant = foundation_verdict(tokens, section["groups"])
     can_items = ["<code>%s</code> — %s" % (escape(path), escape(text)) for path, text in can]
     cant_items = ["<code>%s</code> — %s" % (escape(path), escape(text)) for path, text in cant]
     lines.extend(render_verdict(can_items, cant_items,
@@ -1821,24 +1822,6 @@ def part_verdict_line(record, field):
     return '<a href="#part-%s">%s</a> — %s' % (escape(record["slug"]),
                                                escape(card.get("name", record["slug"])),
                                                compress(card.get(field) or "—"))
-
-
-def render_waiting(candidate_parts, folder):
-    """Кандидаты этой категории — одной строкой со ссылкой в приёмную.
-
-    Образец у кандидата один, и он стоит в приёмной. Но смолчать нельзя:
-    секция, показавшая три принятых элемента и ни словом не обмолвившаяся
-    о двух ждущих, врёт составом — читатель уносит, что элементов три.
-    """
-    waiting = [record for record in candidate_parts if record["category"] == folder]
-    if not waiting:
-        return []
-    links = ", ".join('<a href="#part-%s">%s</a>' % (escape(record["slug"]),
-                                                     escape(record["card"].get("name", record["slug"])))
-                      for record in waiting)
-    return ['<p class="reference"><span class="chip chip-candidate">кандидат</span>'
-            "<span>в этой категории ждёт приёмки: %s — лежит в приёмной, законом "
-            "не является</span></p>" % links]
 
 
 def board_parts(records):
@@ -2090,65 +2073,207 @@ CANVAS_SCRIPT = """
 
 
 # --------------------------------------------------------------------------
+# Таксономия доски — единственный источник её разделов
+#
+# Части физически лежат в атомарных папках (1-foundation…7-behaviour): папка
+# кодирует настоящее правило (элемент или блок — знает ли про домен?) и даёт
+# новой части дом. А доска показывается КОНКРЕТНЫМИ категориями — теми, что
+# узнаёт любой дизайнер: цвета, типографика, кнопки, табы, лейблы… Мост между
+# папкой и доской — вот этот список. Он один, из него доска и собирается,
+# поэтому разойтись доске с составом системы нечем: часть без секции валит
+# сборку (check_sections_cover_parts), а секция без части честно пустует.
+#
+# Тип раздела говорит, чем он наполнен:
+#   «foundation» — блоки, нарисованные из tokens.json (blocks), и «Можно /
+#                  Нельзя» по его группам (groups);
+#   «parts»      — образцы частей по слагам (slugs);
+#   «screens»    — макет девятнадцати экранов (плюс части, если появятся).
+BOARD_SECTIONS = [
+    {
+        "kind": "foundation", "anchor": "colors", "title": "Цвета",
+        "lede": "Это значения, а не картинки: каждая ступень, состояние и "
+                "контраст нарисованы из tokens.json — поменяется хекс в источнике, "
+                "поменяется эта секция. Контраст доска считает при читателе.",
+        "blocks": colors_blocks,
+        "groups": ["brand", "bg", "border", "text", "sem"],
+    },
+    {
+        "kind": "foundation", "anchor": "typography", "title": "Типографика",
+        "lede": "Лестница кеглей в натуральную величину, на реальных строках "
+                "продукта — на lorem не видно ни длины, ни кириллицы.",
+        "blocks": typography_blocks,
+        "groups": ["type"],
+    },
+    {
+        "kind": "foundation", "anchor": "spacing", "title": "Отступы и сетка",
+        "lede": "Шаг и радиус, измеряющие сами себя: столбик длиной ровно в свой "
+                "токен, вложенный радиус = внешний − паддинг.",
+        "blocks": spacing_blocks,
+        "groups": ["space", "radius"],
+    },
+    {
+        "kind": "parts", "anchor": "buttons", "title": "Кнопки",
+        "lede": "Первоэлемент действия: в одиночку смысла не имеет и про домен "
+                "не знает.",
+        "slugs": ["button"],
+    },
+    {
+        "kind": "parts", "anchor": "tabs", "title": "Табы",
+        "lede": "Переключение вида: один активный, остальные ждут.",
+        "slugs": ["tabs"],
+    },
+    {
+        "kind": "parts", "anchor": "labels", "title": "Лейблы",
+        "lede": "Метки состояния и принадлежности: бейдж, точка статуса, чип, "
+                "лейбл проекта.",
+        "slugs": ["badge", "status-dot", "chip", "project-label"],
+    },
+    {
+        "kind": "parts", "anchor": "panels", "title": "Панели",
+        "lede": "Контейнер для другого: панель как слой поверх фона.",
+        "slugs": ["panel"],
+    },
+    {
+        "kind": "parts", "anchor": "blocks", "title": "Блоки",
+        "lede": "Компонент, который знает про домен: строка диффа, стадия, change.",
+        "slugs": ["diff-line"],
+    },
+    {
+        "kind": "parts", "anchor": "icons", "title": "Иконки",
+        "lede": "Опознавательный знак продукта в пикселях: иконка приложения "
+                "«Восход» и орб.",
+        "slugs": ["app-icon", "orb"],
+    },
+    {
+        "kind": "parts", "anchor": "logo", "title": "Логотип",
+        "lede": "Вордмарк «Foundry AI» — знак неделим.",
+        "slugs": ["wordmark"],
+    },
+    {
+        "kind": "foundation", "anchor": "animation", "title": "Анимации",
+        "lede": "Движение и свечение показываются собой — переход переходом, свет "
+                "светом; при prefers-reduced-motion молчат.",
+        "blocks": animation_blocks,
+        "groups": ["motion", "glow"],
+    },
+    {
+        "kind": "screens", "anchor": "screens", "title": "Экраны",
+        "lede": "Вся система разом, собранная обратно в экраны — единственное "
+                "место, где её видно в работе.",
+        "slugs": [],
+    },
+]
+
+
+def check_sections_cover_parts(parts):
+    """Каждая часть привязана ровно к одной секции доски — иначе доска врёт
+    составом. Часть без секции немо пропала бы с доски, оставшись в счётчике
+    обложки; две секции на один слаг — уже не одна таксономия. И то и другое
+    валит сборку с адресом правки, ровно как лестница кеглей валит сборку без
+    образца: правило, которое не проверяется, не существует."""
+    wired = {}
+    for section in BOARD_SECTIONS:
+        for slug in section.get("slugs", []):
+            if slug in wired:
+                raise ValueError(
+                    "слаг «%s» привязан к двум секциям доски («%s» и «%s») — "
+                    "таксономия доски одна, поправь BOARD_SECTIONS в design/build.py"
+                    % (slug, wired[slug], section["anchor"]))
+            wired[slug] = section["anchor"]
+    for record in parts:
+        if record["slug"] not in wired:
+            raise ValueError(
+                "часть «%s» (%s) не привязана ни к одной секции доски: добавь её "
+                "слаг в BOARD_SECTIONS (design/build.py) — иначе доска молчит о "
+                "части, которую обложка уже посчитала"
+                % (record["slug"], record["category"]))
+
+
+def board_section_parts(section, law_parts, candidate_parts):
+    """Секция категории — её части образцами, принятые раньше кандидатов.
+
+    Зрелость несёт статус-чип под образцом, а не пряталка. Часть, оформленная
+    по контракту, стоит в своей категории независимо от статуса — «статус это
+    зрелость, папка это категория, файл при смене статуса не переезжает»
+    (parts/README.md). Прятать оформленного кандидата в приёмную значило бы
+    показывать пустую категорию там, где часть есть, оформлена и проходит линт;
+    честность за это отвечает чип «кандидат», а не отсутствие образца. Приёмная —
+    для неоформленного (сайдкары: целые экраны и эталоны), не для частей-кандидатов.
+
+    Ни одной части — секция честно пустует: слаг привязан, а файла-образца ещё
+    нет (tabs/panel/chip могли не собраться), и выдумывать содержимое нельзя."""
+    slugs = section["slugs"]
+    accepted = [record for record in law_parts if record["slug"] in slugs]
+    candidates = [record for record in candidate_parts if record["slug"] in slugs]
+    shown = accepted + candidates
+    if not shown:
+        return ['<div class="empty">Часть пока не оформлена — файла с образцом '
+                "ещё нет.</div>"]
+    lines = board_parts(shown)
+    can = [part_verdict_line(record, "why") for record in shown]
+    cant = [part_verdict_line(record, "never") for record in shown]
+    lines.extend(render_verdict(can, cant, "Можно — зачем часть есть",
+                                "Нельзя — где часть неуместна"))
+    return lines
+
+
+# --------------------------------------------------------------------------
 # Сборка доски
 # --------------------------------------------------------------------------
 
 def generate_showcase(tokens):
     """Доска, а не вики.
 
-    Порядок разделов — от значения к вещи и от вещи к экрану: основа →
-    знаки → элементы → блоки → слои → экраны → поведение. Прокрутка одна
-    и непрерывная: якоря, адреса и ⌘F обязаны работать — это документ,
-    которым пользуются, а не витраж, на который смотрят.
+    Разделы — конкретные категории, которые узнаёт любой дизайнер: цвета,
+    типографика, кнопки, табы, лейблы, панели, блоки, иконки, логотип,
+    анимации, экраны. Их порядок и состав — в BOARD_SECTIONS, и доска
+    собирается только оттуда: части остаются в атомарных папках, а секции
+    показываются поверх них. Прокрутка одна и непрерывная: якоря, адреса и
+    ⌘F обязаны работать — это документ, которым пользуются, а не витраж,
+    на который смотрят.
     """
     parts = collect_parts()
     rejected = collect_rejected()
+    check_sections_cover_parts(parts)
 
     # Раскладка по зрелости — по статусу карточки, а не по папке: статус —
     # единственная истина о зрелости, папка говорит только о категории
     # (README, «Три статуса»). Файл при смене статуса никуда не едет.
     candidate_parts = [record for record in parts if record["card"].get("status") == CANDIDATE_STATUS]
     law_parts = [record for record in parts if record["card"].get("status") != CANDIDATE_STATUS]
-    # Сайдкары идут первыми: это крупное неразобранное, ради чего приёмная и есть.
-    candidates = collect_sidecars() + candidate_parts
+    # Приёмная — только сайдкары: крупное неразобранное (целые экраны, эталоны),
+    # ради чего приёмная и есть. Оформленные части-кандидаты приёмной не касаются
+    # — они стоят в своих категориях с чипом «кандидат» (board_section_parts).
+    sidecars = collect_sidecars()
 
     sections = []
-    for index, (folder, title) in enumerate(CATEGORIES, start=1):
-        in_category = [record for record in law_parts if record["category"] == folder]
-        if folder == "1-foundation":
-            body = board_foundation(tokens, in_category)
-        elif folder == "6-views":
-            body = board_screens(in_category)
-        elif in_category:
-            body = board_parts(in_category)
-            body.extend(render_waiting(candidate_parts, folder))
-            can = [part_verdict_line(record, "why") for record in in_category]
-            cant = [part_verdict_line(record, "never") for record in in_category]
-            body.extend(render_verdict(can, cant, "Можно — зачем часть есть",
-                                       "Нельзя — где часть неуместна"))
+    for index, section in enumerate(BOARD_SECTIONS, start=1):
+        if section["kind"] == "foundation":
+            body = board_foundation(tokens, section)
+        elif section["kind"] == "screens":
+            wired = [record for record in law_parts if record["slug"] in section["slugs"]]
+            body = board_screens(wired)
         else:
-            waiting = [record for record in candidate_parts if record["category"] == folder]
-            note = ("Принятых частей нет — только кандидаты в приёмной."
-                    if waiting else "Частей пока нет.")
-            body = ['<div class="empty">%s</div>' % note]
-            body.extend(render_waiting(candidate_parts, folder))
+            body = board_section_parts(section, law_parts, candidate_parts)
         sections.append({
             "num": "%02d" % index,
-            "anchor": folder,
-            "title": title,
-            "lede": BOARD_LEDE.get(folder, ""),
+            "anchor": section["anchor"],
+            "title": section["title"],
+            "lede": section["lede"],
             "body": body,
         })
 
-    if candidates:
+    if sidecars:
         sections.append({
             "num": "—",
             "anchor": "candidates",
             "title": "Приёмная",
-            "lede": "Приехало из сессий, приёмку не проходило: ссылаться на это "
-                    "как на решённое нельзя. Законный вход в систему — иначе находки "
-                    "оседают в воркtree и умирают вместе с ним.",
-            "body": board_intake(candidates),
+            "lede": "Крупное неразобранное — целые экраны и эталоны, приехавшие из "
+                    "сессий и приёмку не проходившие: ссылаться как на решённое нельзя. "
+                    "Законный вход в систему — иначе находки оседают в воркtree и "
+                    "умирают вместе с ним. Оформится в часть — переедет в свою "
+                    "категорию кандидатом.",
+            "body": board_intake(sidecars),
         })
 
     if rejected:
@@ -2169,7 +2294,7 @@ def generate_showcase(tokens):
              '<link rel="stylesheet" href="canvas.css">',
              "</head>", "<body>", '<div class="canvas">']
 
-    lines.extend(board_cover(tokens, law_parts, candidates, rejected))
+    lines.extend(board_cover(tokens, law_parts, candidate_parts, sidecars, rejected))
 
     lines.append('<nav class="rail">')
     for section in sections:

@@ -1,0 +1,155 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Чип — foundry-desktop</title>
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../specimen.css">
+
+<script type="application/json" id="card">
+{
+  "name": "Чип",
+  "slug": "chip",
+  "status": "кандидат",
+  "height": 392,
+  "why": "Мелкий нейтральный контейнер для одного признака объекта — ключевого слова, пары «поле: значение» или применённого фильтра; живёт в наборе и, в отличие от бейджа, бывает интерактивным (фильтр снимается крестиком).",
+  "never": "Не носить чипом статус или состояние: у чипа нет семантического цвета — как только признак нужно сказать цветом и формой (✓ ⚠ ✕ ◉), это badge, а не чип (09 §6, 06 §3.2). Не красить чип в акцент или семантику: цвет в системе дефицитен и занят действием и статусом; набор разноцветных чипов гасит и то и другое (06, «цвет только на значимом»). Не носить чипом единоличную опознавательную метку сервиса — для «чей это change» есть project-label, где категория дана формой, а цвет намеренно не расходуется. Не ставить одиночный чип там, где смысл несёт набор: чип оправдан, когда признаков у объекта несколько (скиллы агента, стек проекта, применённые фильтры); один признак — это поле строки, а не чип. Не делать чип-ярлык кликабельным ради вида: крестик появляется только у того, что реально снимается (фильтр, 10 §10); неснимаемый признак — не контрол. Не усекать ключевое слово: чип короткий по определению; если значение обязано читаться целиком и не влезает — это колонка таблицы, а не чип (10-tables). Не заводить чип под то, что уже сказано позицией или заголовком экрана: повтор известного — шум (Бирман).",
+  "tokens": ["space.1", "space.2", "radius.s", "radius.full", "bg.hover", "bg.pressed", "border.subtle", "border.default", "border.strong", "text.primary", "text.secondary", "text.tertiary", "text.disabled", "type.caption", "type.caption2", "font.text"],
+  "canon": ["09-surfaces.md", "10-tables.md", "06-color.md"],
+  "swift": null,
+  "lineage": "КАНДИДАТ — не проходил приёмку как часть, и как часть ОТДЕЛЬНАЯ от badge требует решения приёмки. Выделен из foundry-mockups.html §9 (теги-скиллы агента .atag «спеки · код · worktree · MCP», разметка 2843–2898, CSS 748–750) и §13 (атрибуты проекта .lbl-chip «сервис: foundry-desktop · стек: swift», разметка 3271–3274, CSS 1159–1161) — нейтральный признак-в-наборе встретился дважды в разных местах. Третье основание — канон: 10-tables §10 прямо называет «плашку (chip)» применённого фильтра с крестиком («Проект: orders-service ×»), и это единственный носитель роли «снимаемый ключ: значение». Почему НЕ дубликат badge: badge несёт семантический СТАТУС (цвет @14% + форма, один слот на строке, кликать нельзя — см. never бейджа); чип несёт НЕЙТРАЛЬНЫЙ признак, ходит НАБОРОМ и БЫВАЕТ интерактивным (× снимает фильтр) — роль, которой у badge нет. Почему НЕ project-label: тот — единоличная метка сервиса, категория формой; чип — произвольный признак/фильтр во множестве. Значения переложены на токены: .atag padding 2px 7px и .lbl-chip 3px 10px → space.1/space.2 (как у badge и project-label — общая мелкая-плашка-анатомия); кегль .atag 10px → type.caption2, .lbl-chip 11px → type.caption; фон @4–5% → bg.hover (@6%, ближайший нейтральный токен-заливка); ключ .lk 9px t-disabled → type.caption2 + text.disabled; вариант .cat (граница b-strong, текст t-primary) сохранён как усиленный чип. Крестик-снятие взят из канона 10 §10 (в CSS макета .atag неинтерактивен, но lbl-chip-фильтр по канону снимается — это нормализация роли, а не выдумка)."
+}
+</script>
+
+<style>
+  .p-chip {
+    display: flex; flex-direction: column; gap: var(--space-5);
+    font-family: var(--font-text);
+  }
+  .p-chip .group { display: flex; flex-direction: column; gap: var(--space-3); }
+  .p-chip .multiples { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; }
+  .p-chip .set { display: flex; flex-wrap: wrap; gap: var(--space-1); align-items: center; }
+  .p-chip .cell { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; }
+
+  /* ——— ключевое слово (тег): §9 макета (.atag, CSS 748–750) ———
+     нейтральный, без цвета; ходит набором. padding 2/7 → space.1/space.2 · кегль 10 → caption2 */
+  .p-chip .chip {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-s);
+    font-size: var(--type-caption2-size); line-height: var(--type-caption2-leading);
+    color: var(--text-tertiary);
+    background: var(--bg-hover);
+    border: 1px solid var(--border-subtle);   /* 1px разрешён линтом */
+    white-space: nowrap;
+  }
+
+  /* ——— ключ: значение (атрибут): §13 макета (.lbl-chip, CSS 1159–1161) ———
+     пилюля radius.full, кегль 11 → caption; ключ приглушён */
+  .p-chip .kv {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: var(--type-caption-size); line-height: var(--type-caption-leading);
+    color: var(--text-secondary);
+    background: var(--bg-hover);
+    border: 1px solid var(--border-default);
+    white-space: nowrap;
+  }
+  .p-chip .kv .k { color: var(--text-disabled); font-size: var(--type-caption2-size); }
+
+  /* усиленный чип (.cat макета): категория крупнее — граница strong, текст primary */
+  .p-chip .kv.strong { border-color: var(--border-strong); color: var(--text-primary); }
+
+  /* ——— снимаемый фильтр: канон 10 §10 «плашка (chip) с крестиком» ———
+     единственный интерактивный чип: крестик реально снимает фильтр */
+  .p-chip .filter .x {
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-left: var(--space-1); color: var(--text-tertiary); cursor: default;
+    border-radius: var(--radius-full);
+  }
+  .p-chip .filter .x.is-hover { color: var(--text-primary); background: var(--bg-pressed); }
+
+  /* самотест: нейтральный по замыслу — обесцвеченный ряд не меняется (цвета в нём нет) */
+  .p-chip .desat { filter: grayscale(1); }
+</style>
+
+<div class="specimen p-chip">
+
+  <!-- варианты рядом -->
+  <div class="group">
+    <span class="state-label">варианты · нейтральный признак, без семантического цвета</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">ключевое слово (тег)</span>
+        <span class="chip">код</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">ключ: значение (атрибут)</span>
+        <span class="kv"><span class="k">стек</span>swift</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">усиленный (категория)</span>
+        <span class="kv strong"><span class="k">●</span>бизнес</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">снимаемый фильтр (10 §10)</span>
+        <span class="kv filter"><span class="k">проект</span>orders-service<span class="x">✕</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- суть чипа — набор: признаки одного объекта во множестве -->
+  <div class="group">
+    <span class="state-label">набор · скиллы агента (§9) и стек проекта (§13) — признаки одного объекта</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">скиллы агента — теги</span>
+        <div class="set">
+          <span class="chip">спеки</span>
+          <span class="chip">код</span>
+          <span class="chip">worktree</span>
+          <span class="chip">MCP</span>
+        </div>
+      </div>
+      <div class="cell">
+        <span class="state-label">атрибуты проекта — ключ: значение</span>
+        <div class="set">
+          <span class="kv strong"><span class="k">●</span>бизнес</span>
+          <span class="kv"><span class="k">сервис</span>foundry-desktop</span>
+          <span class="kv"><span class="k">стек</span>swift</span>
+          <span class="kv"><span class="k">стек</span>macos</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- крестик снятия: единственный интерактивный элемент чипа -->
+  <div class="group">
+    <span class="state-label">снятие фильтра · крестик — единственный интерактивный элемент (badge кликать нельзя)</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">rest</span>
+        <span class="kv filter"><span class="k">стадия</span>Implement<span class="x">✕</span></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">крестик · hover</span>
+        <span class="kv filter"><span class="k">стадия</span>Implement<span class="x is-hover">✕</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- самотест: цвета в чипе нет, обесцвечивание ничего не отнимает -->
+  <div class="group">
+    <span class="state-label">без цвета · ряд не изменился — семантического цвета в чипе нет по замыслу</span>
+    <div class="multiples desat">
+      <div class="cell">
+        <span class="state-label">теги</span>
+        <div class="set"><span class="chip">спеки</span><span class="chip">код</span><span class="chip">MCP</span></div>
+      </div>
+      <div class="cell">
+        <span class="state-label">ключ: значение</span>
+        <span class="kv"><span class="k">стек</span>swift</span>
+      </div>
+    </div>
+  </div>
+
+</div>
