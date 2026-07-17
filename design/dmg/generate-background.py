@@ -134,29 +134,35 @@ def shadow_alpha(s, icons):
     return np.clip(total, 0, 1)
 
 
-def _path(x0, x1, y0, rx, ry, u_a, u_b, n=1400, bow=4.0):
-    """Движение вправо с едва заметным прогибом (bow); петля — эллиптическое
-    смещение в середине, выше чем шире — как каллиграфический росчерк."""
+def _path(x0, x1, y0, R, drift, n=1400, bow=4.0, u_a=0.27, u_b=0.73):
+    """Три фазы: прямая — петля — прямая, с едва заметным прогибом (bow).
+    В петле горизонтальный ход почти останавливается (drift мал), поэтому
+    след — правильная окружность радиуса R, а не растянутый движением
+    завиток; небольшой drift оставляет внизу чистое перекрестие."""
+    xA = (x0 + x1) / 2 - drift / 2      # петля по центру пролёта
     pts = []
     for i in range(n + 1):
         u = i / n
-        x = x0 + (x1 - x0) * u
         y = y0 - bow * math.sin(math.pi * u)
-        if u_a <= u <= u_b:
+        if u < u_a:
+            x = x0 + (xA - x0) * (u / u_a)
+        elif u <= u_b:
             t = (u - u_a) / (u_b - u_a)
-            x += rx * math.sin(2 * math.pi * t)
-            y -= ry * (1.0 - math.cos(2 * math.pi * t))
+            x = xA + drift * t + R * math.sin(2 * math.pi * t)
+            y -= R * (1.0 - math.cos(2 * math.pi * t))
+        else:
+            x = xA + drift + (x1 - xA - drift) * ((u - u_b) / (1 - u_b))
         pts.append((x, y))
     return pts
 
 
-def arrow_alpha(s, rx=23.0, ry=26.0, u_a=0.30, u_b=0.66, dot=2.1, spacing=6.5):
+def arrow_alpha(s, R=26.0, drift=10.0, dot=2.1, spacing=6.5):
     """Бусины и наконечник, 4x суперсэмпл; гало к ним считается отдельно."""
     K = 4
     ws, hs = W * s, H * s
     y0 = ICONY + ICON // 2
     x0, x1 = APPX + ICON // 2 + 16, DSTX - ICON // 2 - 16
-    pts = _path(x0, x1, y0, rx, ry, u_a, u_b)
+    pts = _path(x0, x1, y0, R, drift)
     lay = Image.new('L', (ws * K, hs * K), 0)
     d = ImageDraw.Draw(lay)
     M = s * K
