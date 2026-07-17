@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>foundry-desktop — логотип «Восход» (рой частиц)</title>
+<style>
+  html,body{ margin:0; height:100%; background:#05060c; }
+  body{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; }
+  /* Размер канваса НЕ задаётся здесь: его ставит скрипт в целых пикселях под
+     ?size=. Дробный CSS-размер заставил бы браузер ресемплить кадр и усреднять
+     соседние частицы, а фиолет с малиновым в среднем дают розовый. */
+  canvas{ display:block; }
+  #info{ font:11.5px/1.5 ui-monospace,Menlo,monospace; color:#6f76a0; text-align:center; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<p id="info"></p>
+
+<script id="vs" type="x-shader">#version 300 es
+precision highp float;
+uniform float uTime;
+uniform float uCount;
+uniform vec2  uRes;
+uniform int   uPal;
+uniform float uZoom;    // кадрирование: 1.0 — как в большом лоадере
+uniform float uPt;      // размер точки в пикселях БУФЕРА (не экрана и не CSS)
+uniform float uTaper;   // во сколько раз дальняя частица мельче ближней
+out vec3  vCol;
+out float vAlpha;       // семья частицы: 0 — холодная, 1 — тёплая
+
+const float PI = 3.14159265;
+
+mat2 rot(float a){ float c=cos(a), s=sin(a); return mat2(c,-s,s,c); }
+
+float hash11(float p){
+  p = fract(p*0.1031);
+  p *= p + 33.33;
+  p *= p + p;
+  return fract(p);
+}
+float hash31(vec3 p){
+  p = fract(p*0.3183099 + vec3(0.71,0.113,0.419));
+  p *= 17.0;
+  return fract(p.x*p.y*p.z*(p.x+p.y+p.z));
+}
+float vnoise(vec3 x){
+  vec3 i = floor(x), f = fract(x);
+  f = f*f*(3.0-2.0*f);
+  return mix(mix(mix(hash31(i+vec3(0,0,0)), hash31(i+vec3(1,0,0)), f.x),
+                 mix(hash31(i+vec3(0,1,0)), hash31(i+vec3(1,1,0)), f.x), f.y),
+             mix(mix(hash31(i+vec3(0,0,1)), hash31(i+vec3(1,0,1)), f.x),
+                 mix(hash31(i+vec3(0,1,1)), hash31(i+vec3(1,1,1)), f.x), f.y), f.z);
+}
+float fbm(vec3 x){
+  float s=0.0, a=0.5;
+  for (int i=0;i<3;i++){ s += a*vnoise(x); x *= 2.03; a *= 0.5; }
+  return s;
+}
+
+// Восемь цветов, отобранных вручную, двумя семьями: холодная 231°–275° и
+// тёплая 348°–39°. Семьи почти дополнительны, и смешивать их нельзя ничем —
+// ни аддитивным блендингом, ни mix() в шейдере: любая середина между ними
+// проходит через розовый, вычеркнутый из палитры. Отсюда весь дизайн ниже:
+// частица несёт ОДИН цвет из набора, а рой переходит из семьи в семью тем,
+// что частицы переключаются поодиночке. Внутри семьи соседние тона расходятся
+// максимум на 50°, так что там переход безопасен.
+vec3 cool(int i){                              // холодная масса — палитра иконки
+  if (i==0) return vec3(0.60, 0.20, 1.00);     // 9933FF фиолет      275°
+  if (i==1) return vec3(0.36, 0.17, 1.00);     // 5B2BFF индиго      255°
+  if (i==2) return vec3(0.29, 0.39, 0.97);     // 4A63F7 blue        231°
+  return vec3(0.27, 0.13, 0.81);               // 4522CE royal       254°
+}
+vec3 warm(int i){                              // тёплые острова
+  if (i==0) return vec3(1.00, 0.09, 0.27);     // FF1744 малиновый   348°
+  if (i==1) return vec3(1.00, 0.23, 0.19);     // FF3B30 алый          4°
+  if (i==2) return vec3(1.00, 0.36, 0.24);     // FF5C3D коралл       11°
+  return vec3(1.00, 0.69, 0.13);               // FFB020 янтарь       39°
+}
+
+void main(){
+  float i = float(gl_VertexID);
+  float N = uCount;
+
+  // Решётка Фибоначчи — равномерное распределение по сфере без полюсных сгустков
+  float k   = (i + 0.5) / N;
+  float phi = acos(1.0 - 2.0*k);
+  float th  = PI * (1.0 + sqrt(5.0)) * (i + 0.5);
+  vec3 dir = vec3(sin(phi)*cos(th), cos(phi), sin(phi)*sin(th));
+  // Решётка слишком регулярна и даёт муар — сбиваем её лёгким разбросом
+  dir = normalize(dir + (vec3(hash11(i*3.11), hash11(i*5.27), hash11(i*7.43)) - 0.5) * 0.035);
+
+  // Те самые «волны, обликом похожие на сферу»
+  float t = uTime;
+  float r = 1.0
+    + 0.230*sin(1.8*dir.x + t*0.62)*sin(2.0*dir.y - t*0.47)
+    + 0.130*sin(2.5*dir.z + t*0.55)
+    + 0.070*sin(3.3*dir.y + 1.6*dir.x - t*0.80)
+    + 0.040*sin(4.6*dir.z - 2.1*dir.x + t*0.65);
+
+  // Толщина роя: частицы стоят слоем, а не идеально на поверхности
+  float jitter = (hash11(i*1.37) - 0.5) * 0.05;
+  vec3 pos = dir * (r + jitter);
+
+  // Дрейф вдоль тела — рой течёт, но не расплывается в пар
+  vec3 flow = vec3(fbm(pos*1.3 + vec3(0.0, t*0.20, 0.0)),
+                   fbm(pos*1.3 + vec3(11.0, -t*0.16, 3.0)),
+                   fbm(pos*1.3 + vec3(27.0, t*0.12, 7.0))) - 0.5;
+  pos += flow * 0.07;
+
+  vec3 obj = pos;
+  pos.xz *= rot(t*0.30);
+  pos.xy *= rot(sin(t*0.19)*0.42);
+
+  vec3 ro = vec3(0.0, 0.0, 3.6);
+  vec3 rel = pos - ro;
+  float dist = -rel.z;
+  vec2 proj = rel.xy / (dist * 1.175) * uZoom;
+  // Глубина пишется в z: без неё тест глубины нечем сравнивать, а он теперь
+  // несущий — именно он не даёт цветам складываться.
+  float zn = clamp((dist - 2.2) / 2.9, 0.0, 1.0);
+  gl_Position = vec4(proj, zn*2.0 - 1.0, 1.0);
+
+  // Рой перетекает из синего в красное и обратно. Перетекает ЧАСТИЦАМИ:
+  // каждая в любой момент несёт чистый цвет своей семьи, а меняется только то,
+  // какие частицы уже переключились. Интерполяции цвета тут нет намеренно —
+  // mix(синий, красный) идёт ровно через розовый, вычеркнутый из палитры.
+  // Поэтому «меньше цветов» выходит само: в каждый момент рой почти весь
+  // одной семьи, а все восемь тонов разнесены во времени.
+  // Волна с ВЫДЕРЖКАМИ. Чистый косинус разворачивал рой обратно сразу, едва
+  // тот докрасился: пик держался мгновение. Теперь семья стоит 9 с, а
+  // перетекание занимает 18 с — оно и есть основное действие лоадера.
+  // Переход удлинён втрое (6.2 → 18 с). Период растянут следом, до 54 с:
+  // поднять tr, не трогая период, значит съесть выдержку — а она нужна.
+  float per  = 54.0;                     // полный цикл: синее → красное → синее
+  float u    = fract(t/per);
+  float tr   = 0.333;                    // доля цикла на один переход = 18 с
+  float hold = 0.5 - tr;                 // выдержка одной семьи = 9 с
+  float wave;
+  if      (u < hold)       wave = 0.0;                                    // держим синее
+  else if (u < 0.5)        wave = smoothstep(0.0, 1.0, (u - hold)/tr);    // синее → красное
+  else if (u < 0.5 + hold) wave = 1.0;                                    // держим красное
+  else                     wave = 1.0 - smoothstep(0.0, 1.0, (u - 0.5 - hold)/tr);
+
+  // Порядок переключения — поле по телу: фронт ползёт волной, а не
+  // перекрашивает всё разом.
+  float ord  = fbm(dir*0.90 + vec3(5.0, 0.0, 0.0));
+  float ordN = clamp((ord - 0.20)/0.40, 0.0, 1.0);
+  // Зерно: у каждой частицы свой сдвиг порога, поэтому фронт не линия, а
+  // полоса крупы, где синие и красные вперемешку. Это и читается «частицами».
+  ordN += (hash11(i*4.77) - 0.5) * 0.30;
+  // Порог гуляет шире [0,1] — иначе на краях волны хвост частиц не дойдёт
+  // до конца и рой никогда не станет чисто синим или чисто красным.
+  bool isWarm = ordN < wave*1.60 - 0.30;
+
+  // Оттенок ВНУТРИ семьи. Зоны крупные: разброс цвета по отдельным частицам
+  // давал «грязь», соседи должны нести близкий тон.
+  // Частота понижена с 1.15 до 0.55: на 1.15 оттенки сыпались мелкой рябью,
+  // теперь пятна крупные. Ниже 0.55 не уходим — на 0.42 распределение
+  // перекашивается (33/34/14/19 по корзинам) и два цвета семьи почти выпадают.
+  float sh = fbm(obj*0.55 + vec3(19.0, -t*0.17, 5.0));
+  // Нормализация — по перцентилям ЭТОГО поля на ЭТОЙ частоте (p10 0.369,
+  // p90 0.616). С поля другой частоты не переносится: распределение не то.
+  // Кайма между оттенками. Пятно держит свой цвет на ~78% ширины, а у границы
+  // плавно уходит в соседний — резкие стыки читались аппликацией.
+  // Растушёвка допустима ТОЛЬКО внутри семьи: соседи по рампе расходятся
+  // максимум на 50°, их середина остаётся в семье. Через границу семей mix
+  // прошёл бы ровно через розовый 300°, вычеркнутый из палитры, — поэтому
+  // семья выбирается до растушёвки и остаётся жёсткой.
+  float pick = clamp((sh - 0.369)/0.246, 0.0, 0.999);
+  float fidx = pick*3.0;                 // 0..3 — позиция между четырьмя цветами
+  int  i0 = int(floor(fidx));
+  int  i1 = min(i0 + 1, 3);
+  float fr = fract(fidx);
+  float edge = 0.22;                     // доля пятна, отданная под кайму
+  float kEdge = smoothstep(1.0 - edge, 1.0, fr);   // k занята решёткой Фибоначчи
+  vec3 col = isWarm ? mix(warm(i0), warm(i1), kEdge)
+                    : mix(cool(i0), cool(i1), kEdge);
+
+  // Глубина: дальние частицы тусклее — это и лепит объём вместо плоского пятна
+  float depth = clamp((dist - 2.4) / 2.2, 0.0, 1.0);
+  float shade = mix(1.0, 0.28, depth) * (0.78 + 0.22*hash11(i*2.13));
+  // В буфер — ЛИНЕЙНЫЙ цвет. Палитра задана в sRGB, гамма в пост-пассе вернёт
+  // ровно выбранный hex. Без этого перевода цвета выходили светлее выбранных.
+  vCol = pow(col, vec3(2.2)) * shade;
+  // Семья — в альфу. Она нужна не для прозрачности (частицы непрозрачны), а
+  // сведению: усреднять цвет можно только внутри семьи, между семьями середина
+  // равна розовому, вычеркнутому из палитры.
+  vAlpha = isWarm ? 1.0 : 0.0;
+
+  // Мелкие и чёткие. Крупный мягкий спрайт — это и есть «пар».
+  // Размер приходит юниформом в пикселях буфера. При uPt = 2.6*(uRes.y/900) и
+  // uTaper = 0.5 это ровно прежняя строка mix(2.6, 1.3, depth)*(uRes.y/900).
+  gl_PointSize = uPt * mix(1.0, uTaper, depth);
+}
+</script>
+
+<script id="fs" type="x-shader">#version 300 es
+precision highp float;
+in vec3  vCol;
+in float vAlpha;
+out vec4 frag;
+
+void main(){
+  // Круглая частица с жёстким краем: размытый край читается паром.
+  // Частица непрозрачная — маска только режет квадрат спрайта в круг,
+  // умножать на неё цвет нельзя: край уехал бы в чёрный вместо прозрачного.
+  vec2 d = gl_PointCoord - 0.5;
+  if (length(d) > 0.46) discard;
+  frag = vec4(vCol, vAlpha);
+}
+</script>
+
+<script id="post-vs" type="x-shader">#version 300 es
+void main(){
+  vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+  gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
+}
+</script>
+
+<script id="post-fs" type="x-shader">#version 300 es
+precision highp float;
+uniform sampler2D uSrc;
+uniform float uTime;
+uniform int   uSS;      // во сколько раз буфер крупнее выхода
+out vec4 frag;
+
+// Фон в линейном виде — тот же, что уходит в clearColor.
+const vec3 BG = vec3(0.00021, 0.00033, 0.00160);
+
+// Сведение сверхвыборки — СЕМЕЙНОЕ, а не обычное среднее.
+// Обычное среднее тут запрещено: рядом лежат частицы двух семей, а середина
+// между 231-275° и 348-39° — розовый ~300°, вычеркнутый из палитры. Поэтому
+// в пикселе побеждает семья большинства, меньшинство поглощается, а фон
+// участвует только как площадь (иначе рой на кромке выцветал бы в фон).
+vec3 resolve(){
+  ivec2 base = ivec2(gl_FragCoord.xy) * uSS;
+  vec3 sumC = vec3(0.0), sumW = vec3(0.0);
+  int nC = 0, nW = 0, nB = 0;
+  for (int j = 0; j < uSS; j++){
+    for (int i = 0; i < uSS; i++){
+      vec4 t = texelFetch(uSrc, base + ivec2(i, j), 0);
+      if      (t.a > 0.75) { sumW += t.rgb; nW++; }   // тёплая
+      else if (t.a < 0.25) { sumC += t.rgb; nC++; }   // холодная
+      else                 { nB++; }                  // фон: альфа 0.5
+    }
+  }
+  int lit = nC + nW;
+  if (lit == 0) return BG;
+  bool warmWins = nW >= nC;
+  vec3 avg = warmWins ? sumW / float(nW) : sumC / float(nC);
+  return (avg * float(lit) + BG * float(nB)) / float(uSS * uSS);
+}
+
+void main(){
+  vec3 c = resolve();
+
+  // Тонмаппинга здесь больше нет, и это следствие непрозрачных частиц:
+  // складывать нечего, значит нечего и сжимать. Раньше аддитив уходил далеко
+  // за единицу и требовал тонмапа, а тот платил насыщенностью — теперь в
+  // буфере ровно один цвет частицы, приведённый к линейному.
+  // Гамма возвращает его в sRGB, то есть в выбранный hex буква в букву.
+  // Бустер насыщенности тоже снят: поднимать нечего, цвета уже свои.
+  c = pow(max(c, 0.0), vec3(0.4545));
+
+  // TPDF-дизеринг против лесенок на градиентах
+  vec2 fc = gl_FragCoord.xy;
+  float n1 = fract(sin(dot(fc, vec2(12.9898,78.233)) + uTime*0.017)*43758.5453);
+  float n2 = fract(sin(dot(fc, vec2(93.9898,67.345)) - uTime*0.023)*24634.6345);
+  frag = vec4(c + (n1 + n2 - 1.0)*(2.0/255.0), 1.0);
+}
+</script>
+
+<script>
+(function(){
+  'use strict';
+  const Q = new URLSearchParams(location.search);
+
+  // ── Геометрия ───────────────────────────────────────────────────────────
+  // Тело орба занимает 0.21 кадра на единицу зума. Через него задаётся ЗЕРНО —
+  // размер частицы как доля тела. Зерно безразмерно, поэтому одно и то же
+  // число значит одну и ту же крупность на любом размере и при любом DPR.
+  // Задавать точку в пикселях нельзя: 2.6 px при 512 и при 32 — разная
+  // крупность, а на Retina «2.6 px» превращается в 1.3 px на экране.
+  const ORB  = 0.21;
+  const ZOOM = 2.4;    // логотип кадрируется теснее лоадера: орб на весь квадрат
+  const TAPER = 0.5;   // дальняя частица вдвое мельче ближней — как в лоадере
+
+  // Зерно утверждённого лоадера: точка 2.6 px в кадре 900 против тела кадра.
+  const GRAIN_LOADER = (2.6 * 2.4 / 900) / (ORB * 2.4);      // 1.376%
+  // Заполненность утверждённого роя = N * зерно². Держим её постоянной, поэтому
+  // N = COVERAGE / зерно². Без пересчёта «мельче зерно» означало бы «реже рой».
+  // Держится не идеально: замер при 512 даёт 11.9% залитой площади на зерне
+  // 1.376% против 14.6% на 0.7% — крупные частицы сильнее перекрывают друг
+  // друга и режутся тестом глубины, у мелких этих потерь меньше.
+  const COVERAGE = 6000 * GRAIN_LOADER * GRAIN_LOADER;
+
+  // ── Эталоны ─────────────────────────────────────────────────────────────
+  // Оба утверждены. Отличаются только помолом; выбор — за местом применения.
+  const PRESETS = {
+    // Тонкий помол: зерно вдвое мельче лоадерного. Рой читается пылью, а не
+    // крупой. Цена — 44 739 частиц, поэтому для мелких размеров он не нужен:
+    // там такое зерно всё равно не поместится в пиксель.
+    a: { grain: 0.00504 },
+    // Зерно ближе к утверждённому лоадеру, точка 2.6 px на экране при 512.
+    // Дешевле в четыре раза по числу частиц.
+    c: { grain: 0.01008 }
+  };
+
+  const preset = PRESETS[(Q.get('preset') || 'c').toLowerCase()] || PRESETS.c;
+  const GRAIN  = parseFloat(Q.get('grain')) || preset.grain;
+  const SIZE   = parseInt(Q.get('size') || '512', 10);
+  const COUNT  = Math.round(COVERAGE / (GRAIN * GRAIN));
+
+  const cv = document.getElementById('c');
+  const gl = cv.getContext('webgl2', { antialias:false, alpha:false });
+  if(!gl){ document.body.innerHTML = '<p style="color:#889">WebGL2 недоступен</p>'; return; }
+  if(!gl.getExtension('EXT_color_buffer_float')){
+    document.body.innerHTML = '<p style="color:#889">Нет float-буфера (EXT_color_buffer_float)</p>'; return;
+  }
+
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const OUT = Math.round(SIZE * DPR);
+
+  // Сведение включается там, где точка иначе стала бы мельче ~1.8 px в буфере.
+  // Ниже этого частица занимает считанные пиксели и на движении перепрыгивает
+  // всю свою ширину — рой начинает мельтешить. Драйвер меньше 1 px всё равно
+  // не рисует: ALIASED_POINT_SIZE_RANGE начинается с единицы, — то есть без
+  // сведения мелкое зерно не «мельчает», а просто клампится и врёт.
+  const MIN_PT = 1.8;
+  const SS_MAX = 8;
+  let SS = 1;
+  while (SS < SS_MAX && GRAIN * ORB * ZOOM * OUT * SS < MIN_PT) SS *= 2;
+  const BUF = OUT * SS;
+  const PT  = GRAIN * ORB * ZOOM * BUF;      // размер точки в пикселях буфера
+  // Сведение упёрлось в потолок, а точка так и не дотянула до порога: зерно
+  // слишком мелкое для этого размера. Рой будет мельтешить. Молча клампить
+  // нельзя — это и была причина мельтешения на 64 в прежних попытках.
+  const TOO_FINE = PT < MIN_PT;
+
+  cv.width = OUT; cv.height = OUT;
+  // CSS-размер прибит к целым пикселям буфера: дробь заставила бы браузер
+  // ресемплить кадр и усреднять соседние частицы, а фиолет с малиновым в
+  // среднем дают розовый — вычеркнутый тон.
+  cv.style.width = (OUT/DPR) + 'px'; cv.style.height = (OUT/DPR) + 'px';
+
+  function sh(type, src){
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src.trim()); gl.compileShader(s);
+    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  }
+  function link(vsId, fsId){
+    const p = gl.createProgram();
+    gl.attachShader(p, sh(gl.VERTEX_SHADER,   document.getElementById(vsId).textContent));
+    gl.attachShader(p, sh(gl.FRAGMENT_SHADER, document.getElementById(fsId).textContent));
+    gl.linkProgram(p);
+    if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    return p;
+  }
+  const prog = link('vs','fs');
+  const post = link('post-vs','post-fs');
+
+  gl.useProgram(prog);
+  const uTime = gl.getUniformLocation(prog, 'uTime');
+  gl.uniform1f(gl.getUniformLocation(prog, 'uCount'), COUNT);
+  gl.uniform2f(gl.getUniformLocation(prog, 'uRes'),   BUF, BUF);
+  gl.uniform1f(gl.getUniformLocation(prog, 'uZoom'),  ZOOM);
+  gl.uniform1f(gl.getUniformLocation(prog, 'uPt'),    PT);
+  gl.uniform1f(gl.getUniformLocation(prog, 'uTaper'), TAPER);
+  const palId = parseInt(Q.get('pal') || '0', 10) || 0;
+  gl.uniform1i(gl.getUniformLocation(prog, 'uPal'), palId);
+
+  gl.useProgram(post);
+  const pTime = gl.getUniformLocation(post, 'uTime');
+  gl.uniform1i(gl.getUniformLocation(post, 'uSrc'), 0);
+  gl.uniform1i(gl.getUniformLocation(post, 'uSS'),  SS);
+
+  // Линейная цель рендера. Частицы непрозрачные, так что копится тут не
+  // яркость, а просто линейный цвет — гамма ждёт в пост-пассе.
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, BUF, BUF, 0, gl.RGBA, gl.HALF_FLOAT, null);
+  const fbo = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+
+  // Буфер глубины — он тут несущий, а не для порядка: без него частицы
+  // складывались бы, и две семьи давали розовый на кромке.
+  const dbuf = gl.createRenderbuffer();
+  gl.bindRenderbuffer(gl.RENDERBUFFER, dbuf);
+  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, BUF, BUF);
+  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, dbuf);
+
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
+
+  function draw(sec){
+    // 1. частицы — непрозрачными, с тестом глубины, в линейный буфер
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.viewport(0,0,BUF,BUF);
+    // Альфа 0.5 метит фон: сведение отличает по ней «пусто» от семьи частицы.
+    gl.clearColor(0.00021, 0.00033, 0.00160, 0.5);   // = #05060C после гаммы
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.disable(gl.BLEND);          // аддитив снят: он и делал розовое
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LESS);
+    gl.useProgram(prog);
+    gl.uniform1f(uTime, sec);
+    gl.drawArrays(gl.POINTS, 0, COUNT);
+
+    // 2. семейное сведение + гамма на экран
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0,0,OUT,OUT);
+    gl.disable(gl.DEPTH_TEST);     // иначе полноэкранный треугольник отсекается
+    gl.useProgram(post);
+    gl.uniform1f(pTime, sec);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  window.__renderAt = draw;
+  window.__cfg = { grain:GRAIN, count:COUNT, ss:SS, buf:BUF, pt:PT, size:SIZE, dpr:DPR };
+
+  const info = document.getElementById('info');
+  if (info) info.textContent =
+    SIZE + ' · зерно ' + (GRAIN*100).toFixed(3) + '% · ' + COUNT.toLocaleString('ru-RU') +
+    ' частиц · точка ' + (PT/(DPR*SS)).toFixed(2) + ' px на экране · сведение ×' + SS +
+    ' · буфер ' + BUF +
+    (TOO_FINE ? '\n⚠ точка ' + PT.toFixed(2) + ' px в буфере при пороге ' + MIN_PT +
+                ': сведение упёрлось в ×' + SS_MAX + ', зерно для этого размера слишком мелкое —\n' +
+                'рой будет мельтешить. Возьмите пресет с более крупным зерном.' : '');
+
+  const fp = Q.get('frame');
+  if (fp !== null){
+    const tf = parseFloat(fp) || 0;
+    draw(tf); requestAnimationFrame(()=>draw(tf));
+  } else {
+    // Стартуем ИЗ rAF, а не вызовом с ts=0: тот фиксировал t0=0, и следующий
+    // кадр приходил с реальным ts — рой прыгал на тысячи секунд вперёд.
+    let t0 = null;
+    requestAnimationFrame(function loop(ts){
+      if (t0 === null) t0 = ts;
+      draw((ts - t0)/1000);
+      requestAnimationFrame(loop);
+    });
+  }
+})();
+</script>
+</body>
+</html>
