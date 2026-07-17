@@ -1,0 +1,1491 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>foundry-desktop · первый запуск (живой прототип)</title>
+<style>
+  /* Значения — только из docs/design/13-tokens.md. Сырых чисел мимо токенов
+     здесь нет; исключения названы вслух в подписи под прототипом. */
+  :root {
+    --brand-ultramarine: #2F5CFF;
+    --brand-purple: #8B5CF6;
+    --brand-magenta: #D65CFF;
+    --brand-cyan: #58C7FF;
+    --brand-amber: #FFB020;   /* лейбл вордмарка; нового токена в 13 пока нет — долг назван в подписи */
+
+    --bg-base: #05030D;
+    --bg-base-rgb: 5, 3, 13;   /* тот же bg.base для завесы: rgba() нужен канал альфы */
+    --bg-surface: #0B0717;
+    --bg-raised: #120B23;
+    --bg-overlay: #1A1030;
+
+    --t-primary: rgba(255,255,255,0.96);
+    --t-secondary: rgba(255,255,255,0.70);
+    --t-tertiary: rgba(255,255,255,0.50);
+    --t-disabled: rgba(255,255,255,0.38);
+    --t-accent: #7C9AFF;
+    --t-accent-muted: #6B8CFF;
+
+    --b-subtle: rgba(255,255,255,0.08);
+    --b-default: rgba(255,255,255,0.12);
+    --b-strong: rgba(255,255,255,0.20);
+
+    --sem-success: #4ADE80;
+    --sem-warning: #FBBF24;
+    --sem-error: #F87171;
+
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+    --s5: 24px; --s6: 32px; --s8: 48px; --s10: 64px;
+
+    --r-s: 4px; --r-m: 6px; --r-l: 10px; --r-xl: 14px; --r-full: 999px;
+
+    --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, monospace;
+
+    --glow-accent: 0 0 10px rgba(47,92,255,0.40), 0 0 36px rgba(47,92,255,0.15);
+
+    /* Тень под кнопкой — мягкая многослойная чёрная: четыре слоя, радиус ~удваивается,
+       альфа спадает — спад гладкий, без ступеньки одного слоя. Про громкость иллюзий
+       нет: канон 09 § прав, на #05030D тёмная тень почти невидима (проверено стендом),
+       поэтому она здесь ОТДЕЛЯЕТ кромку от фона, а объём не изображает — кнопка
+       плоская, форму держит сама заливка. Пройденные и отвергнутые варианты объёма:
+       блик-линия, градиент по телу с кромками, синий световой пролив. */
+    --shadow-soft: 0 1px 2px rgba(0,0,0,0.48), 0 2px 5px rgba(0,0,0,0.40),
+                   0 6px 12px rgba(0,0,0,0.32), 0 12px 24px rgba(0,0,0,0.24);
+
+    /* motion (13 §11) */
+    --m-fast: 150ms; --m-base: 220ms; --m-slow: 320ms;
+    /* Кривая отклика (новый токен motion.ease — долг): почти вертикальный старт
+       и длинный мягкий доезд — так гаснут переходные процессы в природе
+       (экспоненциальный спад), линейного света не бывает. */
+    --ease-real: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+
+  .page {
+    font-family: var(--font-ui);
+    font-size: 13px; line-height: 1.45; color: var(--t-primary);
+    background:
+      radial-gradient(90% 70% at 12% -8%, rgba(47,92,255,0.16), transparent 55%),
+      radial-gradient(70% 60% at 88% 4%, rgba(139,92,246,0.14), transparent 52%),
+      radial-gradient(60% 60% at 65% 108%, rgba(214,92,255,0.10), transparent 55%),
+      #050409;
+    min-height: 100vh;
+    padding: clamp(20px, 4vw, 56px) clamp(16px, 4vw, 56px) 96px;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--t-tertiary); display: flex; align-items: center; gap: var(--s2); margin-bottom: var(--s4);
+  }
+  .eyebrow .dot { width: 7px; height: 7px; border-radius: var(--r-full); background: var(--brand-cyan); }
+  h1.page-title {
+    font-size: clamp(28px, 4vw, 40px); line-height: 1.06; font-weight: 700;
+    letter-spacing: -0.02em; margin: 0 0 var(--s3); max-width: 24ch; text-wrap: balance;
+  }
+  h1.page-title em {
+    font-style: normal;
+    background: linear-gradient(100deg, var(--brand-ultramarine), var(--brand-purple) 55%, var(--brand-magenta));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lede { font-size: 15px; line-height: 1.55; color: var(--t-secondary); max-width: 66ch; margin: 0 0 var(--s6); }
+  .lede b { color: var(--t-primary); font-weight: 600; }
+
+  section.block { margin-bottom: var(--s10); }
+  .sec-head { margin-bottom: var(--s5); }
+  .sec-num { font-family: var(--font-mono); font-size: 11px; color: var(--t-accent); letter-spacing: 0.04em; }
+  .sec-head h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin: 6px 0 6px; }
+  .sec-head p { margin: 0; color: var(--t-secondary); max-width: 68ch; font-size: 13.5px; }
+
+  .caption { font-size: 12px; line-height: 1.65; color: var(--t-tertiary); margin-top: var(--s4); max-width: 92ch; }
+  .caption b { color: var(--t-secondary); font-weight: 600; }
+  .caption code { font-family: var(--font-mono); }
+
+  .caption + .caption { margin-top: var(--s3); }
+
+  /* ——————— сцена: в ней живут оба окна ——————— */
+  .stage {
+    position: relative; height: 940px; display: flex; align-items: center; justify-content: center;
+    margin-bottom: var(--s4);
+  }
+
+  /* окно macOS */
+  .win {
+    border-radius: var(--r-xl); background: var(--bg-base); border: 1px solid var(--b-default);
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
+  .titlebar {
+    height: 44px; display: flex; align-items: center; gap: var(--s3); padding: 0 var(--s4);
+    background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+    border-bottom: 1px solid var(--b-subtle); position: relative; z-index: 3; flex: none;
+  }
+  .lights { display: flex; gap: 8px; }
+  .lights i { width: 12px; height: 12px; border-radius: var(--r-full); display: inline-block; }
+  .lights .r { background: #FF5F57; } .lights .y { background: #FEBC2E; } .lights .g { background: #28C840; }
+  .win-title { font-size: 12px; color: var(--t-tertiary); font-weight: 500; }
+
+  /* окно настройки: портретное, как у референса — в нём одна мысль, а не рабочая плоскость */
+  .ob-win {
+    position: absolute; width: 720px; height: 880px; display: flex; flex-direction: column;
+    transition: opacity var(--m-base) ease-out, transform var(--m-base) ease-out;
+  }
+  .ob-win.gone { opacity: 0; transform: scale(0.985); pointer-events: none; }
+
+  /* рой лежит НА ФОНЕ окна: канвас во всю рабочую зону, интерфейс — поверх */
+  .ob-canvas-wrap { position: absolute; inset: 44px 0 0 0; overflow: hidden; z-index: 0; }
+  #swarm { display: block; }
+  /* Рой тонет в подложке вуалью из самого bg.base: у роя нет кромки, которую
+     пришлось бы объяснять линией или стеклом. Анимация на всех экранах одна —
+     эталон приветствия, без переездов и смены масштаба; рабочий шаг отличается
+     только завесой: она гасит рой к 22% высоты, и контент ложится на чистый
+     фон. Разница экранов — в слое ПОВЕРХ роя, а не в самом рое. */
+  .ob-veil {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: linear-gradient(180deg, rgba(var(--bg-base-rgb),0) 0%, rgba(var(--bg-base-rgb),0) 7%, rgba(var(--bg-base-rgb),0.80) 16%, var(--bg-base) 22%);
+  }
+  /* На приветствии и «Готово» завесы нет совсем. Она тут решала задачу, которой
+     не было: завеса клала поперёк кадра мягкую границу — объясняла линией то, что
+     не требовало объяснения. Рой на тёплой фазе подныривает под литеры, и это
+     часть образа: свет и текст живут в одном пространстве, а не в двух слоях.
+     Контраст замерен (veilprobe.py): покрытие и среднее, а не худший пиксель. */
+  .ob-win.hero-full .ob-veil { background: none; }
+  /* На «Agent» контент прижат к низу — завеса утащена под карточки: сплошное
+     затемнение начинается только у их верхней кромки (~67% высоты), полоса
+     перехода короткая (54→67%). Заголовок и лид живут прямо на рое — там его
+     нижняя разреженная кайма, контраст держится и без подложки; тёмная
+     поверхность нужна карточкам, а не словам. Остальным рабочим экранам
+     (контент сверху) — стандартная завеса. */
+  .ob-win.veil-low .ob-veil {
+    background: linear-gradient(180deg, rgba(var(--bg-base-rgb),0) 0%, rgba(var(--bg-base-rgb),0) 54%, rgba(var(--bg-base-rgb),0.80) 63%, var(--bg-base) 67%);
+  }
+
+  /* Полоса роя сверху — та же зона, что зарево у референса. Контент начинается
+     под ней: одно решение экрана читается на подложке, а не на частицах. */
+  .ob-stage {
+    position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column;
+    padding: 130px var(--s5) var(--s5); min-height: 0;
+  }
+  .ob-win.hero-full .ob-stage { padding-top: var(--s5); }
+  .ob-screen { display: none; flex-direction: column; flex: 1; min-height: 0; }
+  /* блоки не ужимаются под нехватку места: лучше увидеть переполнение в макете,
+     чем получить раздавленную панель в приложении */
+  .ob-screen > * { flex: none; }
+  /* Переход между шагами — двухтактный (решение 2026-07-17): уходящий экран
+     гаснет на месте, без сдвига (240ms — первая версия в 150 глотала затухание,
+     глаз не успевал его увидеть), и только потом входит новый — снизу, 22px
+     доезда по --ease-real: почти вся дорога проходится в первой трети, дальше
+     мягкая посадка. Такты не наложены: два текста в одном кадре — каша,
+     а честная пауза читается как вдох. */
+  .ob-screen.on { display: flex; animation: obin 480ms var(--ease-real); }
+  @keyframes obin { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+  .ob-screen.on.leaving { animation: obout 240ms var(--ease-real) forwards; pointer-events: none; }
+  @keyframes obout { to { opacity: 0; } }
+  .ob-win.finishing .ob-stage { opacity: 0; transition: opacity var(--m-fast) ease-out; }
+
+  /* заголовок первого запуска — единственное место кегля 34 (новый токен type.hero) */
+  .ob-hero { font-size: 34px; line-height: 40px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 var(--s3); }
+  .ob-lead { font-size: 13px; line-height: 18px; color: var(--t-secondary); margin: 0; max-width: 46ch; }
+  .ob-h { font-size: 34px; line-height: 40px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 var(--s2); }
+  .ob-sub { font-size: 13px; line-height: 18px; color: var(--t-secondary); margin: 0 0 var(--s5); max-width: 52ch; }
+  /* Колонка чтения — канон 04 §6: ~68ch «независимо от ширины окна».
+     Окно стало шире, и без этой границы строки поехали за ним до ~90 знаков —
+     ровно та ошибка, которую глава называет вслух. Ширина уходит в раскладку, не в строку. */
+  .ob-note { font-size: 11px; line-height: 1.5; color: var(--t-tertiary); margin-top: var(--s3); max-width: 68ch; }
+  .ob-note b { color: var(--t-secondary); font-weight: 600; }
+  code.m { font-family: var(--font-mono); }
+
+  /* приветствие центрируем: канон разрешает центр коротким изолированным объектам */
+  /* Воздух под кнопкой: единственная CTA не должна упираться в пагинацию — между
+     решением и служебной навигацией нужен зазор больше, чем между строками текста,
+     иначе точки читаются частью кнопочной группы. */
+  .ob-screen.welcome { align-items: center; text-align: center; justify-content: flex-end; padding-bottom: var(--s6); }
+  /* Перелом лида задан <br>, а не шириной: первая фраза — «что это» — целиком
+     одной строкой (решение), вторая — роли. balance при явном переломе не нужен,
+     а ширинная граница лишь мешала бы первой строке дожить до конца. */
+  .ob-screen.welcome .ob-lead { max-width: none; }
+  .ob-screen.welcome .ob-hero { margin-bottom: var(--s2); }
+
+  /* ——— Логотип: вордмарк + лейбл AI, единый знак ———
+     Компонент на вырост: все внутренние меры — в em от --logo-size, на базовом
+     кегле 34px они попиксельно совпадают с настроенными значениями, на любом другом
+     знак масштабируется целиком, без перенастройки полей. Другие экраны берут
+     <span class="logo">Foundry<span class="mark-ai">AI</span></span> и задают
+     --logo-size — больше ничего. */
+  .logo {
+    display: inline-flex; align-items: flex-start; gap: calc(9em / 34);
+    font-size: var(--logo-size, 34px); font-weight: 700; letter-spacing: -0.02em;
+    line-height: calc(40 / 34);
+  }
+  /* Лейбл вордмарка.
+     Цвет — новый brand.amber #FFB020 (L 0.81 · C 0.16 · H 75° · 10.8:1 на фоне).
+     Он соседствует с sem.warning #FBBF24 (H 84°) — это осознанная цена: янтарь уведён
+     на 9° в оранжевое, и лейбл живёт только на приветствии, где предупреждений нет,
+     а предупреждения — на «Компонентах», где нет лейбла. Пересечься им негде.
+     Плашка залита янтарём, литеры — цветом bg.base: не «чёрный текст», а окно,
+     просвечивающее сквозь вырез в пластине. Своего числа для черноты не заводим —
+     чернота здесь ровно та же, что у фона, и обязана ездить вместе с ним.
+
+     Поля не назначены, а посчитаны из замера краски (aiprobe.py): CSS отмеряет от
+     бокса глифа, а глаз — от литер, и между ними полусапожки, разрядка после
+     последней литеры, полулиддинг. Ровнялись СРЕДНИЕ расстояния до краски, а не
+     минимумы: «A» — клин, «I» — стойка, при равном минимуме пустоты у клина больше.
+     Поверх расчёта бока раздвинуты на +2px решением: знак дышит.
+     Все меры в em: базовый кегль 34px → лейбл 10px (в px: поля 2 сверху / 2.75 снизу,
+     слева 2.5→4.5, справа 3→5; радиус 6 = r-m; сдвиг к верхней линии литер 5). */
+  .mark-ai {
+    font-size: calc(10em / 34); line-height: 1; font-weight: 700; letter-spacing: 0.06em;
+    color: var(--bg-base); border-radius: 0.6em;
+    padding: 0.2em calc(0.5em - 0.06em) 0.275em 0.45em;
+    margin-top: 0.5em; flex: none;   /* к верхней линии литер вордмарка, а не к строке */
+    /* Тело — градиент по нему, а не блик поверх плоского: макушка ближе к свету,
+       низ уходит в тень и заодно чуть в оранжевый — тот же янтарь, только глубже.
+       Сверху внутри — еле заметный блик в полпикселя (плашка 15px, целый пиксель
+       на ней — уже полоса). ЛИТЕРЫ ВДАВЛЕНЫ В ПЛАШКУ: под ними 1px света без
+       размытия (text-shadow) — освещённая нижняя губка выреза. Свет принадлежит
+       буквам, а не боксу: линия повторяет контур литер, «AI» выбито в янтаре. */
+    background: linear-gradient(180deg,
+      oklch(from var(--brand-amber) calc(l + 0.035) c h) 0%,
+      var(--brand-amber) 55%,
+      oklch(from var(--brand-amber) calc(l - 0.03) c calc(h - 6)) 100%);
+    box-shadow: inset 0 0.05em 0 rgba(255,255,255,0.45);
+    text-shadow: 0 0.1em 0 rgba(255,255,255,0.35);
+  }
+
+  .ob-screen > .grow { flex: 1; min-height: 0; }
+  .ob-cta { margin-top: var(--s5); display: flex; align-items: center; gap: var(--s3); }
+  /* Зазор над кнопкой шире межблочного s5: решение (кнопка) отделено от описания
+     сильнее, чем строки описания друг от друга, — кнопка сидит ниже текста. */
+  .ob-screen.welcome .ob-cta { justify-content: center; margin-top: var(--s6); }
+
+  .btn {
+    height: 28px; padding: 0 12px; border-radius: var(--r-m); font-size: 13px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px; border: 1px solid transparent; cursor: default;
+    white-space: nowrap; flex: none; background: none; color: var(--t-primary); font-family: inherit;
+    transition: background var(--m-base) var(--ease-real), box-shadow var(--m-fast) var(--ease-real),
+                transform var(--m-fast) var(--ease-real);
+  }
+  /* Ринг — канон 08 §7.3: 2px ультрамарин, offset 2px, не заменять свечением. */
+  .btn:focus-visible { outline: 2px solid var(--brand-ultramarine); outline-offset: 2px; }
+  /* ⌘⏎ — это клавиша, значит и выглядит клавишей: своя кромка, свой свет. */
+  .btn kbd {
+    font-family: var(--font-mono); font-size: 10px; line-height: 1; padding: 3px 5px 2px;
+    border-radius: var(--r-s); background: rgba(0,0,0,0.22); color: rgba(255,255,255,0.70);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
+  }
+  /* Плоская заливка акцентом — канон 08 §5 как написан, и к нему пришли по спирали:
+     блик-линия → градиентное тело с кромками → снова плоскость. Поверх плоскости —
+     микрорельеф (решение 2026-07-17): 1px почти прозрачного блика сверху и 1px
+     тени снизу, оба inset. Это не возврат объёма — гранью тело не становится,
+     на расстоянии вытянутой руки рельеф не читается вовсе; это кромки, освещённые
+     по закону «свет сверху», как у клавиши ⌘⏎ рядом. Форму держат цвет, размер
+     и мягкая тень-отделение (--shadow-soft, см. токены). */
+  .btn.primary {
+    color: #fff; cursor: pointer; position: relative;
+    background: var(--brand-ultramarine);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -1px 0 rgba(0,0,0,0.44),
+                var(--shadow-soft);
+  }
+  /* Hover — вглубь, а не к свету: −3.5% светлоты и +10° тона к пурпуру
+     (подбор глазом: 14° — событие, 6° — не видно, 10° — намёк). Светлеющий
+     hover на почти чёрном кричал; затемнение с тоном читается как «кнопка
+     отозвалась», не меняя её громкости. Тело не двигается и тень не дышит:
+     она отделяет кромку, а не изображает высоту. Тайминг асимметричный:
+     вход в hover быстрый (рука уже на кнопке — отклик должен успеть за ней),
+     выход назад к ультрамарину долгий, 450ms — внимание уже ушло, цвет
+     остывает, а не выключается. Токена такой длительности в 13 §11 нет — долг. */
+  .btn.primary { transition: background 450ms var(--ease-real); }
+  .btn.primary:hover {
+    background: oklch(from var(--brand-ultramarine) calc(l - 0.035) c calc(h + 10));
+    transition: background var(--m-fast) var(--ease-real);
+  }
+  /* Pressed — глубже по той же дороге: −8.5% светлоты, тот же сдвиг тона. */
+  .btn.primary:active {
+    background: oklch(from var(--brand-ultramarine) calc(l - 0.085) c calc(h + 10));
+  }
+  .btn.ghost { color: var(--t-secondary); border-color: var(--b-strong); cursor: pointer; }
+  .btn.ghost:hover { background: rgba(255,255,255,0.06); }
+  /* Канон 08 § знает large 36/20/r-l — для онбординга. Здесь тело крупнее: 44/32.
+     Это новый размер контрола, а не вольность в макете — долг назван в подписи.
+     Угол — по гиперэллипсу, тем же законом, что угол иконки: |x|ⁿ+|y|ⁿ=1 при n=4.
+     Это замер, а не подбор: corner-shape: superellipse(k) даёт n = 2^k, значит
+     squircle == superellipse(2) == n 4 — ровно кривая иконки. Радиус — та же доля
+     короткой стороны, что там: L = 0.4042 × 44 ≈ 18px. */
+  .btn.large { height: 44px; padding: 0 var(--s6); font-size: 14px;
+    border-radius: 18px; corner-shape: squircle; }
+  .btn.mini { height: 24px; padding: 0 10px; font-size: 12px; border: 1px solid var(--b-strong); color: var(--t-secondary); cursor: pointer; }
+  .btn.mini:hover { background: rgba(255,255,255,0.06); }
+  .btn.mini.pri { border-color: rgba(47,92,255,0.5); color: var(--t-accent); }
+
+  /* Подвал — шесть точек и выход, больше ничего. Пластина под точками была третьей
+     подряд попыткой объяснить пагинацию поверхностью: сперва полоса во всю ширину,
+     потом пластина по содержимому — а точкам не нужна поверхность вообще, они сами
+     себе форма. Подпись «1 из 6 · приветствие» ушла следом: она пересказывала словами
+     то, что точки уже показали, и вдобавок называла экран, на котором пользователь
+     стоит и так (05 §: не говорить очевидное). */
+  .ob-foot {
+    position: relative; z-index: 2; flex: none; display: flex; align-items: center;
+    justify-content: center; margin: 0 var(--s5) var(--s5);
+  }
+  /* Точки кликабельны — им положено hit.min = 24×24 (13 §10, Фиттс): рисунок
+     6px — это рисунок, а не мишень. Зона 22×24 — минус 2px от буквы по ширине
+     (решение 2026-07-17: ряд был рыхлым), долг назван в подписи. Зазоры ровные
+     не при равных слотах, а при равных ПРОСВЕТАХ: капля шире точки на 12px,
+     потому слот активной шире соседних ровно на 12 (22→34) — просвет между
+     рисунками всюду 16px; раньше вокруг капли было 12 против 18. Слоты дышат
+     той же кривой, что капля: соседи расступаются под неё. Активную рисует не
+     сама точка, а полоска-индикатор (.ind), которая при переходе перетекает
+     каплей — растягивается мостиком до цели, потом собирается в ней (moveInd).
+     Hover — плавный рост и ультрамарин: точка обещает ровно то, чем станет
+     после клика. */
+  .dots { display: flex; align-items: center; position: relative; }
+  .dots i {
+    width: 22px; height: 24px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: width 460ms var(--ease-real);
+  }
+  .dots i.now { width: 34px; }
+  .dots i::before {
+    content: ''; width: 6px; height: 6px; border-radius: var(--r-full);
+    background: rgba(255,255,255,0.20);
+    transition: background var(--m-base) var(--ease-real), transform var(--m-base) var(--ease-real),
+                opacity var(--m-fast) var(--ease-real);
+  }
+  .dots i.done::before { background: rgba(255,255,255,0.38); }
+  /* hover после done: пройденная точка на наведении тоже наливается синим */
+  .dots i:hover::before { background: var(--brand-ultramarine); transform: scale(1.5); }
+  /* под индикатором собственная точка гаснет: у капли нет дублёра,
+     и наведение на активную ничего не обещает */
+  .dots i.now::before { opacity: 0; transform: none; background: transparent; }
+  .dots .ind {
+    position: absolute; top: 50%; height: 6px; margin-top: -3px;
+    border-radius: var(--r-full); background: var(--brand-ultramarine);
+    pointer-events: none;
+  }
+  .ob-skip {
+    position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: var(--t-tertiary); cursor: pointer; background: none; border: 0; font-family: inherit;
+  }
+  .ob-skip:hover { color: var(--t-secondary); }
+
+  /* ——— карточки агентов: три вендора в ряд (формула референса) ———
+     Три вендора CLI-агентов — достаточно (решение 2026-07-17); Cursor и Copilot
+     сняты вместе с группой «soon». Кнопка Install стоит только там, где агента
+     нет: установленному кнопка не рисуется — его ответ уже в факте
+     «✓ v2.1.4 · signed in» (референс incident.io). Continue на экране нет:
+     решение экрана — сам выбор агента, «дальше» — это клик по установленной
+     карточке. Конструкция прижата к низу: верх окна отдан рою целиком,
+     заголовок больше не сидит на анимации. Квадрат карточки — место под факты:
+     лого сверху, паспорт агента у нижней кромки. */
+  .ob-screen.agent { justify-content: flex-end; align-items: center; }
+  /* лид — две строки по формуле приветствия: факт, затем короткое действие */
+  .ob-screen.agent .ob-sub { text-align: center; }
+  .rows { display: flex; flex-direction: column; gap: var(--s2); }
+  /* Грид не тянется во всю ширину окна: квадрат при колонке в треть окна
+     вырастал в 310px и съедал рой. 660 — три квадрата по ~212: конструкция
+     компактнее, композиция центральная — как у приветствия. */
+  /* Зазор = паддингу карточки (Бирман: внутренние отступы ≤ внешних) */
+  .acards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4); width: min(100%, 660px); }
+  /* Плашка — нейтральный подъём над фоном (референс Attio), а не bg.surface:
+     фиолетовая подложка на почти чёрном читалась грязью, нейтральная —
+     поверхностью. Свет сверху — тот же приём, что на янтарной плашке лейбла.
+     Бордера у невыбранных нет (решение 2026-07-17): контуру оставлена одна
+     работа — говорить «выбрано». Форму держат заливка и тень-отделение —
+     та же --shadow-soft, что под кнопкой: отделяет кромку, объёма не изображает
+     (более тёмная тень на #05030D всё равно не видна — канон 09 подтверждён
+     на кнопке стендом). Угол — гиперэллипс: 18px squircle, один закон
+     на все крупные тела. */
+  .acard {
+    position: relative;
+    display: flex; flex-direction: column; align-items: stretch; text-align: left;
+    aspect-ratio: 1; padding: var(--s4); border-radius: 18px; corner-shape: squircle;
+    border: 1px solid transparent;
+    background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.022));
+    box-shadow: var(--shadow-soft);
+  }
+  /* Ховер — скромный: плёнка белого 3% поверх плашки, на всех карточках.
+     Градиенты CSS не интерполирует (свап фона скакал бы), поэтому свет живёт
+     на ::after и дышит прозрачностью: вход 150, остывание 450 — тот же
+     асимметричный закон, что у primary. */
+  .acard::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    border-radius: 18px; corner-shape: squircle;
+    background: rgba(255,255,255,0.03); opacity: 0;
+    transition: opacity 450ms var(--ease-real);
+  }
+  .acard:hover::after { opacity: 1; transition-duration: var(--m-fast); }
+  /* Карточка — два этажа, и оба одной высоты на всех трёх (бюро: ряды сетки
+     выровнены СКВОЗЬ карточки, а не внутри каждой). Паспорт (.apass) — блок
+     фиксированной высоты 96 по самому полному варианту (вендор + имя + факт +
+     кнопка): вендоры стоят на одной линии, имена на одной, факты на одной —
+     раньше паспорта прижимались к низу каждый своей высотой, и ряды плясали.
+     Иллюстрация — оставшийся этаж, лого центрируется в нём (формула Attio:
+     картинка в центре, паспорт внизу слева); этаж у всех равный, значит и лого
+     на одной высоте. */
+  .acard .alogo { align-self: center; margin: auto 0; }
+  .apass { display: flex; flex-direction: column; align-items: flex-start; flex: none; height: 96px; }
+  /* Ритм паспорта — группами, а не ровным частоколом: лейбл вендора прижат
+     к имени (2), факты отделены от имени сильнее (6), внутри группы плотно (2) —
+     промежуточные ступени 2/6 живут внутри компонентов (03 §1) */
+  .apass .avendor { margin-bottom: 2px; }
+  .apass .aname { margin-bottom: 6px; }
+  .apass .afact + .afact { margin-top: 2px; }
+  /* выбранное — синяя рамка на той же нейтральной плашке (референс «Services 003»):
+     выбор говорит контур, тело почти не подкрашивается */
+  .acard.sel { border-color: rgba(47,92,255,0.85); cursor: pointer;
+    background:
+    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.022)),
+    linear-gradient(rgba(47,92,255,0.07), rgba(47,92,255,0.07)); }
+  /* Install — во всю ширину паспорта, у нижней кромки: кнопка стоит в сетке
+     карточки (кромки кнопки = кромки текста), а не плавает в углу; auto-зазор
+     15 ≥ паддинга кнопки (Бирман 2.1). Ультрамарин как у primary, тот же ховер
+     и тот же микрорельеф кромок. */
+  .acard .btn.mini {
+    margin-top: auto; align-self: stretch; justify-content: center; height: 28px;
+    border: 0; background: var(--brand-ultramarine); color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.09), inset 0 -1px 0 rgba(0,0,0,0.38);
+    transition: background 450ms var(--ease-real);
+  }
+  .acard .btn.mini:hover {
+    background: oklch(from var(--brand-ultramarine) calc(l - 0.035) c calc(h + 10));
+    transition: background var(--m-fast) var(--ease-real);
+  }
+  /* Тайл — 56, знак 30: иллюстрация, а не пиктограмма. Угол 14 — тем же
+     гиперэллипсом, что у карточки: вложенный радиус меньше внешнего (14 < 18).
+     Бордера у тайла нет (снят вместе с карточным): коробка в коробке в коробке —
+     это три рамки на 200px; форму тайла держит вендорская подкраска. */
+  .alogo { width: 56px; height: 56px; border-radius: 14px; corner-shape: squircle;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--vtint, rgba(255,255,255,0.07)); }
+  .aname { font-size: 13px; line-height: 18px; font-weight: 600; color: var(--t-primary); }
+  /* вендор — type.label: 11/13 Medium, капс +6%, третичный. disabled (38%) —
+     цвет недоступности, НЕ информации; вендор — информация */
+  .avendor { font-size: 11px; line-height: 13px; font-weight: 500;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-tertiary); }
+  /* факты — caption 11/14, не моно: версия и план — не код и не хэш,
+     а 10px — кегль для наименее важного; состояние карточки таким не бывает */
+  .afact { font-size: 11px; line-height: 14px; color: var(--t-tertiary); }
+  .afact .ok { color: var(--sem-success); }
+
+  /* ——— компоненты ——— */
+  .crow {
+    display: grid; grid-template-columns: 1fr auto; gap: 2px var(--s3); align-items: center;
+    padding: 10px var(--s3); border-radius: var(--r-l); border: 1px solid var(--b-subtle); background: var(--bg-surface);
+  }
+  .crow.here { border-color: rgba(74,222,128,0.32); background: rgba(74,222,128,0.05); }
+  .crow.install { border-color: rgba(47,92,255,0.45); background: rgba(47,92,255,0.07); }
+  .crow.merge { border-color: rgba(251,191,36,0.38); background: rgba(251,191,36,0.05); }
+  .cname { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--t-primary); }
+  .crole { grid-column: 1; font-size: 11px; color: var(--t-secondary); line-height: 1.45; max-width: 68ch; }
+  .cwhere { grid-column: 1; font-family: var(--font-mono); font-size: 9px; color: var(--t-disabled); }
+  .cstate { grid-row: 1 / span 3; grid-column: 2; font-size: 10px; font-family: var(--font-mono); text-align: right; align-self: center; }
+  .cstate.ok { color: var(--sem-success); } .cstate.new { color: var(--t-accent); } .cstate.warn { color: var(--sem-warning); }
+
+  .plan {
+    font-family: var(--font-mono); font-size: 10px; line-height: 1.75; white-space: pre; overflow-x: auto;
+    background: var(--bg-base); border: 1px solid var(--b-subtle); border-radius: var(--r-m);
+    padding: var(--s2) var(--s3); color: var(--t-tertiary); margin-top: var(--s2);
+  }
+  .plan .pa { color: var(--sem-success); } .plan .pm { color: var(--sem-warning); }
+  .plan .pf { color: var(--t-secondary); } .plan .pk { color: var(--t-disabled); }
+  .plan .pw { color: var(--sem-warning); } .plan .pwk { color: var(--sem-warning); opacity: 0.85; }
+
+  /* ——— стор и доступ ——— */
+  .store-row {
+    display: grid; grid-template-columns: auto 1fr; gap: 2px var(--s3); padding: var(--s3) 0;
+    border-bottom: 1px solid var(--b-subtle);
+  }
+  .store-path { font-family: var(--font-mono); font-size: 12px; color: var(--t-accent); grid-row: 1 / span 2; align-self: center; min-width: 92px; }
+  .store-what { font-size: 12px; font-weight: 600; color: var(--t-primary); }
+  .store-why { font-size: 11px; color: var(--t-tertiary); line-height: 1.5; max-width: 68ch; }
+  .perm { display: grid; grid-template-columns: 16px 1fr; gap: 2px var(--s2); padding: var(--s2) 0; }
+  .perm-ic { color: var(--t-tertiary); font-size: 12px; }
+  .perm.granted .perm-ic { color: var(--sem-success); }
+  .perm-what { font-size: 12px; color: var(--t-primary); }
+  .perm-why { grid-column: 2; font-size: 11px; color: var(--t-tertiary); line-height: 1.5; max-width: 68ch; }
+
+  /* ——— первый проект ——— */
+  .field { display: flex; align-items: center; gap: var(--s2); }
+  .field .in {
+    flex: 1; height: 28px; display: flex; align-items: center; padding: 0 10px; border-radius: var(--r-m);
+    border: 1px solid var(--b-default); background: var(--bg-base); font-family: var(--font-mono);
+    font-size: 11px; color: var(--t-primary);
+  }
+  .flabel { font-size: 11px; color: var(--t-tertiary); margin-bottom: var(--s1); display: block; }
+  .found { display: flex; gap: var(--s3); flex-wrap: wrap; font-family: var(--font-mono); font-size: 10px; color: var(--t-tertiary); margin-top: var(--s2); }
+  .found .ok { color: var(--sem-success); }
+  .seg { display: inline-flex; background: rgba(255,255,255,0.05); border-radius: var(--r-m); padding: 2px; gap: 2px; }
+  .seg span { font-size: 11px; padding: 4px 10px; border-radius: var(--r-s); color: var(--t-tertiary); cursor: pointer; }
+  .seg span.on { background: rgba(47,92,255,0.20); color: var(--t-primary); }
+  .prev-box { margin-top: var(--s4); padding: var(--s3); border-radius: var(--r-l); border: 1px solid var(--b-subtle); background: var(--bg-surface); }
+  .prev-h { font-size: 11px; color: var(--t-tertiary); margin-bottom: var(--s2); }
+  .pipe { display: flex; align-items: center; gap: 6px; padding: 5px 0; font-size: 11px; }
+  .pipe .pn { color: var(--t-primary); font-weight: 600; min-width: 152px; }
+  .pipe .ps { color: var(--t-tertiary); font-family: var(--font-mono); font-size: 10px; }
+  .pipe .bar { display: flex; gap: 2px; }
+  .pipe .bar i { width: 10px; height: 4px; border-radius: 1px; background: rgba(255,255,255,0.18); display: block; }
+  .pipe.main .bar i { background: var(--brand-ultramarine); }
+  .pipe.main .pn { color: var(--t-primary); }
+
+  /* ——— готово ——— */
+  .facts { display: flex; flex-direction: column; gap: var(--s2); }
+  .fact { display: grid; grid-template-columns: 14px 96px 1fr; gap: var(--s2); align-items: baseline; font-size: 11px; }
+  .fact .fi { color: var(--sem-success); font-size: 10px; }
+  .fact .fk { color: var(--t-tertiary); }
+  .fact .fv { font-family: var(--font-mono); color: var(--t-secondary); font-size: 10px; }
+
+  /* ——————— главное окно, в которое всё переходит ——————— */
+  .main-win {
+    position: absolute; width: 980px; height: 620px; display: flex; flex-direction: column;
+    opacity: 0; transform: scale(0.99); pointer-events: none;
+    transition: opacity var(--m-slow) ease-out, transform var(--m-slow) ease-out;
+  }
+  .main-win.in { opacity: 1; transform: none; }
+  @media (max-width: 1040px){ .main-win { width: 100%; } }
+  .three { display: grid; grid-template-columns: 44px 214px minmax(0,1fr) 300px; flex: 1; min-height: 0; }
+  .rail { background: rgba(255,255,255,0.03); border-right: 1px solid var(--b-subtle); padding: var(--s2) 0; display: flex; flex-direction: column; align-items: center; gap: var(--s1); }
+  .rail i { width: 28px; height: 28px; border-radius: var(--r-m); display: flex; align-items: center; justify-content: center; color: var(--t-tertiary); font-size: 13px; font-style: normal; }
+  .rail i.on { background: rgba(47,92,255,0.14); color: var(--t-accent); }
+  .sidebar { background: rgba(255,255,255,0.022); border-right: 1px solid var(--b-subtle); padding: var(--s4) var(--s3); display: flex; flex-direction: column; gap: var(--s3); }
+  .side-head { font-size: 14px; font-weight: 600; padding: 0 var(--s2) var(--s2); }
+  .side-label { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-tertiary); padding: 0 var(--s2) var(--s1); }
+  .side-item { display: flex; align-items: center; gap: var(--s2); height: 28px; padding: 0 var(--s2); border-radius: var(--r-m); color: var(--t-secondary); font-size: 13px; }
+  .side-item.sel { background: rgba(47,92,255,0.14); color: var(--t-primary); }
+  .side-item .grow2 { flex: 1; }
+  .side-item .n { font-size: 11px; color: var(--t-tertiary); }
+  .side-foot { margin-top: auto; display: flex; align-items: center; gap: var(--s2); padding: var(--s2); border-top: 1px solid var(--b-subtle); color: var(--t-tertiary); font-size: 11px; }
+  .orb-mini { width: 16px; height: 16px; border-radius: var(--r-full); flex: none;
+    background: radial-gradient(circle at 35% 30%, var(--brand-cyan), var(--brand-ultramarine) 45%, var(--brand-purple) 78%, var(--brand-magenta)); }
+  .list { background: var(--bg-base); display: flex; flex-direction: column; }
+  .list-head { height: 44px; display: flex; align-items: center; padding: 0 var(--s4); border-bottom: 1px solid var(--b-subtle); }
+  .list-head h3 { font-size: 13px; font-weight: 600; margin: 0; }
+  .inspector { background: var(--bg-surface); }
+  /* пустота начала: одна строка «что это и почему пусто» + одно действие */
+  .empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s3); text-align: center; padding: var(--s5); }
+  .empty .glyph { width: 40px; height: 40px; border-radius: var(--r-m); display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: var(--t-disabled); border: 1.5px solid var(--b-default); }
+  .empty .et { font-size: 13px; color: var(--t-secondary); max-width: 34ch; }
+  .empty .ek { font-size: 11px; color: var(--t-tertiary); }
+
+  /* пульт прототипа — это стенд, а не часть макета */
+  .bench { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; padding-top: var(--s3); }
+  .bench .hint { font-size: 11px; color: var(--t-tertiary); }
+  .bench .hint b { color: var(--t-secondary); font-weight: 600; }
+  .bench .cfg { font-family: var(--font-mono); font-size: 10px; color: var(--t-disabled); margin-left: auto; }
+
+  footer.note { margin-top: var(--s10); padding-top: var(--s5); border-top: 1px solid var(--b-subtle); color: var(--t-tertiary); font-size: 12px; line-height: 1.65; max-width: 82ch; }
+  footer.note code { font-family: var(--font-mono); color: var(--t-accent); }
+  footer.note b { color: var(--t-secondary); }
+  footer.note h3 { font-size: 13px; color: var(--t-secondary); margin: var(--s5) 0 var(--s2); }
+  footer.note ul { margin: 0; padding-left: 18px; }
+  footer.note li { margin-bottom: var(--s2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ob-screen.on { animation: none; }
+    .dots i { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page"><div class="wrap">
+
+  <div class="eyebrow"><span class="dot"></span>foundry-desktop · первый запуск · живой прототип</div>
+  <h1 class="page-title">Первый запуск: <em>рой, шесть решений и разлёт</em></h1>
+  <p class="lede">Прототип живой: рой — тот же WebGL-шейдер, что в <b>design/loader-particles.html</b>, эталон зерна <b>a</b>.
+  Кнопки работают, точки внизу кликаются, «Открыть Foundry» запускает разлёт и передаёт сцену главному окну.
+  Экранов шесть, и каждый спрашивает <b>ровно одно</b>: кто пишет · из чего состоит · где лежит · что за проект · и всё.</p>
+
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">01 — прототип</span>
+      <h2>Окно настройки: рой на фоне, одна мысль на экран</h2>
+      <p>Портретное окно 720×880 — это окно установки, а не рабочая плоскость: в нём нечего раскладывать по колонкам. Ширина выросла, но <b>в строку не ушла</b>: колонка чтения ограничена ~68ch — канон 04 §6 требует держать её «независимо от ширины окна», иначе строки поехали бы за окном до ~90 знаков. Прирост ширины забрала раскладка. Рой лежит в подложке и тонет в <code style="font-family:var(--font-mono)">bg.base</code> вуалью, поэтому кромку роя нигде не приходится называть линией.</p>
+    </div>
+
+    <div class="stage" id="stage">
+      <!-- ——— окно настройки ——— -->
+      <div class="win ob-win step-0" id="obwin">
+        <div class="titlebar">
+          <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+          <span class="win-title">Foundry — Setup</span>
+        </div>
+        <div class="ob-canvas-wrap"><canvas id="swarm"></canvas></div>
+        <div class="ob-veil"></div>
+
+        <div class="ob-stage" id="obstage">
+
+          <!-- 1 · приветствие -->
+          <div class="ob-screen welcome on" data-step="0">
+            <h2 class="ob-hero logo">Foundry<span class="mark-ai">AI</span></h2>
+            <p class="ob-lead">A delivery layer for changes: from task to&nbsp;production<br>Agents do routines, you review</p>
+            <div class="ob-cta">
+              <button class="btn primary large" data-go="1">Start setup</button>
+            </div>
+          </div>
+
+          <!-- 2 · агент -->
+          <div class="ob-screen agent" data-step="1">
+            <h2 class="ob-h">Agent</h2>
+            <p class="ob-sub">Foundry runs the stages, it writes no code<br>Choose who does</p>
+            <div class="acards">
+              <div class="acard sel" style="--vtint:rgba(217,119,87,0.14)" data-go="2">
+                <span class="alogo"><svg width="30" height="30" viewBox="0 0 64 64" aria-label="Claude">
+                  <g stroke="#D97757" stroke-width="5.4" stroke-linecap="round">
+                    <line x1="55" y1="32" x2="9" y2="32"/><line x1="51.9" y1="20.5" x2="12.1" y2="43.5"/>
+                    <line x1="43.5" y1="12.1" x2="20.5" y2="51.9"/><line x1="32" y1="9" x2="32" y2="55"/>
+                    <line x1="20.5" y1="12.1" x2="43.5" y2="51.9"/><line x1="12.1" y1="20.5" x2="51.9" y2="43.5"/>
+                  </g></svg></span>
+                <div class="apass">
+                  <div class="avendor">Anthropic</div>
+                  <div class="aname">Claude Code</div>
+                  <div class="afact"><span class="ok">✓ v2.1.4 · signed in</span></div>
+                  <div class="afact">Max plan · Opus 4.8</div>
+                </div>
+              </div>
+
+              <div class="acard">
+                <span class="alogo"><svg width="30" height="30" viewBox="0 0 64 64" aria-label="OpenAI">
+                  <g fill="none" stroke="#FFFFFF" stroke-width="4.2">
+                    <ellipse cx="32" cy="32" rx="10.5" ry="24"/>
+                    <ellipse cx="32" cy="32" rx="10.5" ry="24" transform="rotate(60 32 32)"/>
+                    <ellipse cx="32" cy="32" rx="10.5" ry="24" transform="rotate(120 32 32)"/>
+                  </g></svg></span>
+                <div class="apass">
+                  <div class="avendor">OpenAI</div>
+                  <div class="aname">Codex CLI</div>
+                  <div class="afact">not installed</div>
+                  <button class="btn mini">Install</button>
+                </div>
+              </div>
+
+              <div class="acard">
+                <span class="alogo" style="--vtint:rgba(66,133,244,0.14)"><svg width="30" height="30" viewBox="0 0 64 64" aria-label="Gemini">
+                  <defs><linearGradient id="gemg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#4285F4"/><stop offset="0.55" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/>
+                  </linearGradient></defs>
+                  <path d="M32 5 C33.6 19 45 30.4 59 32 C45 33.6 33.6 45 32 59 C30.4 45 19 33.6 5 32 C19 30.4 30.4 19 32 5 Z" fill="url(#gemg)"/></svg></span>
+                <div class="apass">
+                  <div class="avendor">Google</div>
+                  <div class="aname">Gemini CLI</div>
+                  <div class="afact">not installed</div>
+                  <button class="btn mini">Install</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3 · компоненты -->
+          <div class="ob-screen" data-step="2">
+            <h2 class="ob-h">Components</h2>
+            <p class="ob-sub">Three parts with different roles — the window is already here.</p>
+            <div class="rows">
+              <div class="crow here">
+                <span class="cname">foundry-desktop</span>
+                <span class="cstate ok">✓ running<br>v0.4.1</span>
+                <span class="crole">This window. Boards, review, queue. Writes no code itself.</span>
+                <span class="cwhere">/Applications/Foundry.app</span>
+              </div>
+              <div class="crow install">
+                <span class="cname">foundry-cli</span>
+                <span class="cstate new">→ we’ll install<br>v0.4.1 · 8 MB</span>
+                <span class="crole">Worktrees, file layout, git. No agent involved — that’s what makes it reproducible.</span>
+                <span class="cwhere">/usr/local/bin/foundry · already in PATH</span>
+              </div>
+              <div class="crow merge">
+                <span class="cname">foundry-claude</span>
+                <span class="cstate warn">▲ your folder<br>we’ll append</span>
+                <span class="crole">Agent knowledge: skills, agents, rules, commands. The agent reads stages from here.</span>
+                <span class="cwhere">~/.claude/</span>
+              </div>
+            </div>
+
+            <div class="ob-note" style="margin-top:var(--s3)"><b>What lands in ~/.claude.</b> Not installing — appending: ours is prefixed, yours is untouched.</div>
+            <div class="plan"><span class="pa">+</span> <span class="pf">skills/foundry-*</span>       <span class="pk">7 new · pipeline stages</span>
+<span class="pa">+</span> <span class="pf">agents/foundry-*</span>       <span class="pk">4 new · stage roles</span>
+<span class="pa">+</span> <span class="pf">commands/foundry-*</span>     <span class="pk">5 new · /change, /route…</span>
+<span class="pw">▲</span> <span class="pw">foundry-run</span>            <span class="pwk">name taken — we’ll land as foundry-run-2</span>
+<span class="pm">~</span> <span class="pf">CLAUDE.md</span>              <span class="pk">block appended, your text above untouched</span>
+<span class="pk">·</span> <span class="pk">skills/my-notes</span>        <span class="pk">yours — untouched</span>
+<span class="pk">·</span> <span class="pk">settings.json</span>          <span class="pk">yours — untouched</span></div>
+            <div class="grow"></div>
+            <div class="ob-cta"><button class="btn primary large" data-go="3">Install and link <kbd>⌘⏎</kbd></button></div>
+          </div>
+
+          <!-- 4 · стор и доступ -->
+          <div class="ob-screen" data-step="3">
+            <h2 class="ob-h">State</h2>
+            <p class="ob-sub">The truth lives in files, not in the app. Close the window — the work goes on from the terminal.</p>
+
+            <div class="store-row">
+              <span class="store-path">~/.foundry/</span>
+              <span class="store-what">Shared store</span>
+              <span class="store-why">Projects, stages, artifacts, worktrees, metrics. We read the files directly and write only through <code class="m">foundry</code> — one writer, so no locks.</span>
+            </div>
+            <div class="store-row">
+              <span class="store-path">~/.claude/</span>
+              <span class="store-what">Stage rules</span>
+              <span class="store-why">Skills live here and nowhere else: the agent reads them from here, the store keeps no copy.</span>
+            </div>
+            <div class="store-row" style="border-bottom:0">
+              <span class="store-path">.foundry/</span>
+              <span class="store-what">In the project, under git</span>
+              <span class="store-why">Stage artifacts ride into the repo with the code — they belong to the project’s history, not the app’s.</span>
+            </div>
+
+            <div class="ob-note" style="margin-top:var(--s4)"><b>Access.</b> The reason first, the system dialog second — it won’t appear out of nowhere.</div>
+            <div class="perm granted">
+              <span class="perm-ic">✓</span><span class="perm-what">Project folders</span>
+              <span class="perm-why">The system asks on its own once a project turns out to live in ~/Documents or ~/Desktop. We don’t ask for Full Disk Access.</span>
+            </div>
+            <div class="perm">
+              <span class="perm-ic">○</span><span class="perm-what">Notifications</span>
+              <span class="perm-why">To tell you an artifact is waiting for review, or CI went red. Skippable — then it’s the menu bar icon only.</span>
+            </div>
+            <div class="perm">
+              <span class="perm-ic">○</span><span class="perm-what">Keychain</span>
+              <span class="perm-why">Keep the agent token in Keychain, not in a file next to the code.</span>
+            </div>
+            <div class="grow"></div>
+            <div class="ob-cta"><button class="btn primary large" data-go="4">Create the store <kbd>⌘⏎</kbd></button></div>
+          </div>
+
+          <!-- 5 · первый проект -->
+          <div class="ob-screen" data-step="4">
+            <h2 class="ob-h">Project</h2>
+            <p class="ob-sub">Labels aren’t decoration: they decide which pipelines a change gets to choose from.</p>
+
+            <span class="flabel">Repository folder</span>
+            <div class="field">
+              <span class="in">~/work/webphone</span>
+              <button class="btn ghost">Choose…</button>
+            </div>
+            <div class="found"><span class="ok">✓ git repository</span><span>branch master</span><span>1,284 commits</span><span class="ok">✓ .foundry/ will be created</span></div>
+
+            <div style="margin-top:var(--s4)">
+              <span class="flabel">Service name</span>
+              <div class="field"><span class="in" style="font-family:var(--font-ui);font-size:12px">webphone</span></div>
+            </div>
+
+            <div style="margin-top:var(--s4)">
+              <span class="flabel">Category</span>
+              <div class="seg"><span>infra</span><span>utility</span><span class="on">business</span></div>
+            </div>
+
+            <div class="prev-box">
+              <div class="prev-h">These decide the pipelines — the change type picks one of them:</div>
+              <div class="pipe main"><span class="pn">Feature · one service</span><span class="bar"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="ps">8 stages · from questions to PR</span></div>
+              <div class="pipe"><span class="pn">Feature · many services</span><span class="bar"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="ps">10 · + contracts, integration</span></div>
+              <div class="pipe"><span class="pn">Bug</span><span class="bar"><i></i><i></i><i></i><i></i><i></i></span><span class="ps">5 · repro → diagnose → fix</span></div>
+              <div class="pipe"><span class="pn">Hotfix</span><span class="bar"><i></i><i></i><i></i></span><span class="ps">3 · repro → fix → ship</span></div>
+              <div class="pipe"><span class="pn">Incident</span><span class="bar"><i></i><i></i><i></i><i></i></span><span class="ps">4 · triage → mitigate → RCA</span></div>
+            </div>
+            <div class="grow"></div>
+            <div class="ob-cta"><button class="btn primary large" data-go="5">Connect the project <kbd>⌘⏎</kbd></button></div>
+          </div>
+
+          <!-- 6 · готово -->
+          <div class="ob-screen welcome" data-step="5">
+            <h2 class="ob-hero">Done</h2>
+            <p class="ob-lead" style="margin-bottom:var(--s5)">Next is the real window. Everything named here was checked as a fact, not promised.</p>
+            <div class="facts" style="text-align:left">
+              <div class="fact"><span class="fi">✓</span><span class="fk">agent</span><span class="fv">Claude Code v2.1.4 · Opus 4.8</span></div>
+              <div class="fact"><span class="fi">✓</span><span class="fk">cli</span><span class="fv">/usr/local/bin/foundry v0.4.1</span></div>
+              <div class="fact"><span class="fi">✓</span><span class="fk">rules</span><span class="fv">7 skills · 4 agents · 5 commands in ~/.claude</span></div>
+              <div class="fact"><span class="fi">✓</span><span class="fk">store</span><span class="fv">~/.foundry · empty</span></div>
+              <div class="fact"><span class="fi">✓</span><span class="fk">project</span><span class="fv">webphone · business · master</span></div>
+            </div>
+            <div class="ob-cta">
+              <button class="btn primary large" id="finish">Open Foundry <kbd>⌘⏎</kbd></button>
+            </div>
+          </div>
+
+        </div><!-- /ob-stage -->
+
+        <div class="ob-foot" id="obfoot">
+          <div class="dots" id="dots"></div>
+          <button class="ob-skip" id="skip">Skip for now</button>
+        </div>
+      </div><!-- /ob-win -->
+
+      <!-- ——— главное окно: сюда переходим после разлёта ——— -->
+      <div class="win main-win" id="mainwin">
+        <div class="titlebar">
+          <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+          <span class="win-title">webphone</span>
+        </div>
+        <div class="three">
+          <div class="rail">
+            <i class="on">◱</i><i>▦</i><i>◨</i><i>☰</i><i>◇</i><i>◔</i><i>✦</i><i>⚙</i>
+          </div>
+          <div class="sidebar">
+            <div>
+              <div class="side-head">Инбокс</div>
+              <div class="side-label">Проекты</div>
+              <div class="side-item sel"><span class="grow2">webphone</span><span class="n">0</span></div>
+            </div>
+            <div>
+              <div class="side-label">Требует решения</div>
+              <div class="side-item"><span class="grow2">Ждёт ревью</span><span class="n">—</span></div>
+              <div class="side-item"><span class="grow2">Вернули</span><span class="n">—</span></div>
+            </div>
+            <div class="side-foot"><span class="orb-mini"></span><span>Claude · Opus 4.8 · 0 из 3 слотов</span></div>
+          </div>
+          <div class="list">
+            <div class="list-head"><h3>Инбокс</h3></div>
+            <div class="empty">
+              <div class="glyph">◇</div>
+              <div class="et">В проекте нет активной работы.</div>
+              <button class="btn ghost">Создать change…</button>
+              <div class="ek">⌘N</div>
+            </div>
+          </div>
+          <div class="inspector"></div>
+        </div>
+      </div>
+    </div><!-- /stage -->
+
+    <div class="bench">
+      <button class="btn ghost" id="prev">← Назад</button>
+      <button class="btn ghost" id="next">Дальше →</button>
+      <button class="btn ghost" id="again">Заново</button>
+      <span class="hint">Кликается всё: точки внизу окна, «Пропустить», <b>«Открыть Foundry»</b> — разлёт.</span>
+      <span class="cfg" id="cfg"></span>
+    </div>
+
+    <div class="caption"><b>Что взято у incident.io и что заменено.</b> Взято <b>одно решение на экран</b>, <b>точки-пагинация</b> внизу, <b>строка установки</b> (логотип · имя · факт · действие) вместо карточек-плиток и <b>видимый выход</b> («Skip for now» → «Пропустить настройку»). Заменено: их заголовок обещает («All the power of the incident.io platform»), наш <b>называет</b> — «A delivery layer for changes: from task to production / Agents do routines, you review» (две строки, без точек — 04 §6 верен и на границе строк): слой доставки изменений, границы (задача → продакшен) и разделение ролей — агенты делают рутину, человек ревьюит («ревью» уже в словаре 05 §16); первая фраза стоит одной строкой целиком — «что это» не переносится; маркетинга в текстах нет по канону (05 §: без обещаний, без восклицательных знаков). <b>Кодовое имя пайплайна с приветствия снято.</b> Здесь было «Пульт над пайплайном CRISPY», и это нарушало канон 05:240 — «первая строка обязана читаться без знания кодовой базы»: CRISPY ничего не сообщает тому, кто открыл приложение впервые, а обещание понимания создаёт. Внутрь онбординга имя тоже не вернулось: на «Компонентах» оно было украшением («стадии CRISPY» → «стадии пайплайна»), а на «Проекте» скрывало ответ — соседние строки честно называют стадии («repro → diagnose → fix»), и главная строка теперь тоже («8 стадий · от вопросов до PR»). Слово «стадия» на рабочих экранах сохранено: это термин домена, и правило одного имени (05 §16) запрещает подменять его «шагом»; приветствие стадий больше не называет — оно теперь про слой и роли, первая встреча со «стадиями» происходит там, где их видно. Их сериф — их фирменная гарнитура; у нас гарнитура одна, SF Pro, и <b>вордмарк набран ей же</b>. Их оранжевое зарево — статичный градиент; у нас <b>на его месте живой рой</b> — тот же материал, что в иконке и лоадере.</div>
+
+    <div class="caption"><b>Почему рой, а не иконка.</b> В <code>reference/ui/domain-model.md</code> записано, что рою не место на экране загрузки: цикл 54 секунды, а загрузка длится секунду — видно всегда одно и то же начало. <b>Онбординг снимает именно это возражение</b>: здесь человек проводит минуты, и рой успевает сделать полный ход из холодной семьи в тёплую и обратно. Возражение было про короткое ожидание, а не про рой. Иконка — стоп-кадр орба, приветствие — тот же орб в масштабе окна.</div>
+
+    <div class="caption"><b>Композиция.</b> Рой стоит <b>выше геометрического центра</b> (02 §: оптическая середина выше на ~5%). На рабочих шагах он <b>тонет в подложке вуалью</b> из самого <code>bg.base</code>: там текст плотный и обязан лечь на чистый фон. <b>На приветствии и «Готово» завесы нет совсем</b> — и это снятие, а не добавление: завеса решала там задачу, которой не было. Рой на тёплой фазе подныривает под литеры — свет и текст живут в одном пространстве, а завеса всё равно клала поперёк кадра мягкую границу: объясняла то, что не требовало объяснения. Стекла в контенте нет намеренно (practices 05: «стеклянная карточка канбана — ошибка»); панель здесь не всплывает над роем, а рой уходит в фон. На приветствии и «Готово» орб <b>по центру и целиком</b>, на рабочих шагах <b>сдвинут вверх за кромку</b> — тот же приём, что в иконке: свет встаёт из-за края. <b>Гигантский масштаб орба — решение, проверенное от противного.</b> Кадрирование пробовали дважды: 0.695 («ни одна частица не ближе 20px к кромке в худшем кадре цикла») ужало орб на треть; 0.80 («выход за рамки минимален») спрятало срез, но орб перестал быть <i>гигантским</i> — а гигантскость и есть образ: <b>свет больше кадра</b>. Поэтому масштаб исходный: на пике холодной фазы (t≈1–2.5) верх режется кромкой до ~90px, на тёплой рой подныривает под вордмарк — и то и другое намеренно (замеры — <code>fitprobe.py</code>). В шейдере остался <code>uFit</code> — ручка кадрирования, равномерная линза вокруг центра орба, не трогающая траектории: сейчас 1.0; если образ пересмотрят — крутить одно число. Заголовок первого запуска — <b>новый токен <code>type.hero</code></b> (34/40 Bold): в шкале 13 §9 крупнее <code>type.display</code> ничего нет, а <code>display</code> означает «число-KPI в аналитике» — занимать чужой токен нельзя, поэтому токен заведён (13 §: нет токена — сначала завести, потом использовать).</div>
+
+    <div class="caption"><b>Фон: глубже и подкрашен.</b> <code>bg.base</code> ушёл с #07060B на <b>#05030D</b> — темнее исходного (L 0.111 против 0.127) и при этом заметно подкрашен (C 0.028 против 0.013, тот же hue 295°). Две ручки, а не одна: <b>темнота и подкрас независимы</b>, и «не совсем чёрный» достигается не осветлением, а тоном. Канон в 06 §1.2 уже утверждал, что «чернота foundry-desktop подкрашена гаммой» — но при C 0.013 это была декларация, которую глаз не подтверждал; теперь подтверждает. Двигается <b>вся лестница целиком</b> (#0B0717 · #120B23 · #1A1030): шаг +0.031 L между уровнями неприкосновенен, иначе <code>base</code> слипнется с <code>surface</code>. Контраст от углубления только вырос: 20.5 / 9.8 / 5.3 / 3.4, акцент 7.7:1, семантика 7.4–12.3:1. Рой на таком фоне звучит громче всего — ради него углубление и затевалось.</div>
+
+    <div class="caption"><b>Лейбл вордмарка.</b> Плашка <b>залита янтарём, литеры — цветом <code>bg.base</code></b>: это не «чёрный текст», а окно, просвечивающее сквозь вырез в пластине, — поэтому своего числа для черноты нет, она обязана ездить вместе с фоном. Цвет — <b>новый <code>brand.amber</code> #FFB020</b> (L 0.81 · C 0.16 · H 75°), контраст литер на плашке 11.2:1. Тело плашки — <b>градиент по янтарю</b>, как у кнопки: макушка светлее, низ уходит в тень и на 6° в оранжевое. Сверху внутри — еле заметный блик в полпикселя (плашка 15px высотой, целый пиксель читался бы полосой). Литеры <b>вдавлены в плашку</b>: под ними <b>1px света без размытия</b> (text-shadow) — освещённая нижняя губка выреза, и линия повторяет <b>контур букв</b>, а не бокс плашки: «AI» выбито в янтаре. <i>(Первая попытка клала эту линию под плашку целиком — вдавленной выходила плашка в фон, а не литеры в плашку; свет возвращён буквам.)</i> Кегль — <b>10/700</b>: канонный <code>type.label</code> (04 §12) описывает 11/13 <b>Medium</b>, и это <b>долг</b> — лейбл внутри вордмарка мельче и жирнее строчного лейбла-подписи, роль другая, токен нужен свой.</div>
+
+    <div class="caption"><b>«Foundry AI» — это компонент-логотип, а не вёрстка приветствия.</b> Вордмарк и лейбл собраны в <code>.logo</code>: все внутренние меры — в em от <code>--logo-size</code>, на базовом кегле 34px они попиксельно равны настроенным значениям, на любом другом знак масштабируется <b>целиком</b> — поля, радиус, блик и сдвиг лейбла едут вместе с кеглем, перенастройка не нужна. Другие экраны берут знак одной строкой разметки и задают свой <code>--logo-size</code>. Единственная деталь, которая на малых кеглях сойдёт на нет сама, — полупиксельный блик плашки, и это правильно: на мелком знаке блик и не нужен.</div>
+
+    <div class="caption"><b>Поле лейбла ровное не по зазору, а по площади.</b> Глаз видит литеры, CSS отмеряет от бокса глифа, и между ними лежит то, что в бокс входит, но не красится: боковые полусапожки, разрядка после последней литеры, полулиддинг. Но и ровный <b>зазор</b> ещё не ровное <b>поле</b>: зазор — это минимум пустоты, а глаз считает площадь. «I» — прямая стойка, её поле справа читается ровной полосой, минимум равен среднему; «A» — треугольник, её поле слева и сверху это клин, и при том же минимуме пустоты там в полтора раза больше. Поэтому <code>aiprobe.py</code> меряет <b>и min, и mean</b>, а поля подобраны по <b>среднему</b>: «I» справа держит опору, слева и сверху поджато под клин «A», чтобы средние сошлись. Поверх этого расчёта <b>бока раздвинуты на +2px решением</b> — знаку нужен воздух, и это правка глазом поверх замера, а не вместо него: вертикаль осталась на расчётных полях, сдвинулись только бока, симметрично. Ровняется то, что судит глаз, а не то, что легче померить.</div>
+
+    <div class="caption"><b>Соседство с <code>sem.warning</code> #FBBF24 (H 84°) — осознанная цена.</b> Смягчает её то, что янтарь уведён на 9° в оранжевое, и то, что пересечься им негде: лейбл живёт только на приветствии, где предупреждений нет, а жёлтые предупреждения — на «Компонентах», где нет лейбла. Но правило «семантический цвет не берут под украшение» здесь <b>надломлено, и это надо признать вслух</b>, а не спрятать в токен.</div>
+
+    <div class="caption"><b>Кнопка — плоская, и это возвращение к канону по спирали.</b> 08 §5 с самого начала задаёт primary плоской заливкой акцента. По дороге сюда перепробован весь арсенал объёма: блик-линия (отвергнута — «дешёвая»), градиент по телу с кромками (работал, но на почти чёрном объём стоит дорого и несёт мало), синий световой пролив (отвергнут — «как в 2000»). Итог: <b>плоская заливка, форму держат цвет и размер</b>. Тело крупнее канонного large (44/32 против 36/20) — единственная CTA экрана; было 52, дважды ужато по 2px сверху и снизу — до 44. Поверх плоскости — <b>микрорельеф</b> (решение 2026-07-17): 1px почти прозрачного блика сверху (белый 9%) и 1px тени снизу (чёрный 26%), оба inset. Это не откат решения «объём снят»: отвергались блик-<i>линия</i> как приём формы и градиент по <i>телу</i> — то, что изображало высоту. Здесь тело остаётся плоским, рельеф живёт на кромках и на расстоянии вытянутой руки не читается вовсе — тот же закон «свет сверху», что у клавиши ⌘⏎ на соседней кнопке. В состояниях рельеф не дышит, как и тень.</div>
+
+    <div class="caption"><b>Угол кнопки — тот же гиперэллипс, что у иконки, и это замер, а не подбор.</b> У CSS есть <code>corner-shape</code>, и его параметр — не кривизна, а показатель степени: <code>superellipse(k)</code> строит |x|ⁿ+|y|ⁿ=1 при <b>n = 2ⁿ⁾ᵏ</b>, то есть <code>round</code> = n 2, а <code>squircle</code> = <code>superellipse(2)</code> = <b>ровно n 4</b>. Угол иконки в этом репозитории уже был <b>замерен по референсу incident.io и оказался n 4</b> при L = 0.4042 короткой стороны — значит кнопке ничего не надо подгонять, у неё и у иконки один и тот же угол по построению: <code>border-radius: 18px; corner-shape: squircle</code>, где 18 ≈ 0.4042 × 44. <i>(Закон n = 2ᵏ выводился дважды и первый раз соврал — k 1.2 дал то n 3.70, то n 2.90. Виновато было не CSS, а <b>схлопывание вертикальных марджинов</b> в самом стенде: соседние боксы с <code>margin: 20px</code> расходятся на 20, а не на 40, и все замеры после первого читали не ту область. Стенд перестроен на flex+gap, ошибка упала до 1e-5, закон проступил сразу.)</i></div>
+
+    <div class="caption"><b>Тень под кнопкой — мягкая многослойная, без иллюзий о её громкости.</b> Канон 09 § («на почти чёрном фоне тень невидима; границу задаёт свет») подтверждён стендом: я спорил с ним трижды — цитата вместо замера, WCAG-контраст 1.002:1 (чужая метрика), «7–9 ступеней из 13» (наличие вместо видимости) — и все три раза неверно; синий световой пролив как обход тоже отвергнут глазом. Возврат тени сюда — <b>не реванш объёма</b>: четыре чёрных слоя (1/2/6/12px, радиус ~удваивается, альфа спадает 0.48→0.24) складываются в гладкий спад без ступеньки одного слоя. На #05030D это читается как <b>едва заметное отделение кромки от фона</b> — и ровно на эту роль тень и нанята; объём она не изображает, кнопка плоская.</div>
+
+    <div class="caption"><b>Состояния.</b> На hover тело <b>не двигается</b> и тень <b>не дышит</b>: сдвиг дёргает глаз, а тень здесь отделяет кромку, не изображает высоту. Отвечает только заливка, и она отвечает <b>вглубь, а не к свету</b>: hover — −3.5% светлоты и <b>+10° тона в пурпур</b> (подбор глазом по вилке: 14° — событие, 6° — не видно, 10° — намёк), pressed — −8.5% той же дорогой. Светлеющий hover (канонные +7%) на почти чёрном кричал: единственная CTA и так самое яркое пятно интерфейса, прибавлять ей света некуда. Затемнение с уходом тона читается как отклик, не меняя громкости кнопки, — это <b>отступление от буквы 08 § (±6–8% светлоты)</b>, названное в долге. Цвет ездит по кривой <code>cubic-bezier(0.2,0,0,1)</code> — почти вертикальный старт и длинный мягкий доезд, как гаснут переходные процессы в природе, — и <b>асимметрично</b>: вход в hover за 150ms, рука уже на кнопке и отклик обязан успеть за ней; выход назад к ультрамарину — за 450ms: внимание уже ушло, и цвет остывает, а не выключается. <code>⌘⏎</code> нарисован клавишей, со своей кромкой и своим бликом, потому что это и есть клавиша.</div>
+
+    <div class="caption"><b>Подвал: три попытки и снятие.</b> Сначала полоса во всю ширину — она врала масштабом: пагинация из шести точек это мелкий факт, а полоса объявляла его равным сцене. Потом пластина по содержимому — уже честнее по размеру, но всё ещё <b>объяснение точек поверхностью</b>. Точкам поверхность не нужна: они сами себе форма. Осталось шесть точек и выход. Подпись «1 из 6 · приветствие» ушла следом — она пересказывала словами то, что точки уже показали, и вдобавок называла экран, на котором пользователь стоит и так. Под кнопкой прибавлен воздух: между единственным решением экрана и служебной навигацией зазор обязан быть больше, чем между строками текста, иначе точки читаются частью кнопочной группы. Точки кликабельны — из этого следует два обязательства. <b>Hover</b>: точка плавно подрастает и наливается ультрамарином — обещает ровно то, чем станет после клика; активная не откликается, наведение на неё ничего не обещает. <b>Мишень шире рисунка</b>: канон это уже требовал — <code>hit.min</code> = 24×24 (13 §10, закон Фитса: время прицеливания растёт с уменьшением цели), и точки 6×6 его <b>нарушали</b>. Рисунок остаётся 6px, хит-зона каждой — <b>22×24</b>: ряд при 24 стоял рыхло (просвет 18px), точки прижаты на 2px против буквы hit.min по ширине — отступление названо в долге. <b>Зазоры выровнены по просветам, а не по слотам</b>: капля шире точки на 12px, и раньше просвет вокруг неё был 12 против 18 у соседей — глаз это читал как неровный ряд; теперь слот активной шире остальных ровно на эти 12 (22→34), просвет между рисунками всюду 16px, а слоты дышат той же кривой, что капля, — соседи расступаются под неё. Активную рисует не сама точка, а <b>полоска-индикатор, и при переходе она перетекает каплей</b>: сперва тянется мостиком до цели, на середине мост во всю длину, дальше хвост отпускает и масса собирается в новой точке (460ms; первая половина резче, сбор мягче — у капли инерция, а не равномерный ход). <b>Сами экраны сменяются двухтактно</b> (решение 2026-07-17): уходящий текст гаснет на месте — быстро и без сдвига (150ms, затухание — не событие), и только после паузы входит новый — снизу, 14px доезда по той же кривой, что всё движение макета: почти вся дорога в первой трети, дальше мягкая посадка. Такты не наложены: два текста в одном кадре — каша, а полтора кадра честной паузы читаются как вдох. Точки и рой отвечают мгновенно, дышит только текст.</div>
+
+    <div class="caption"><b>Онбординг — на английском, приложение — нет.</b> Стык языков не спрятан, а <b>поставлен на границу «мастер кончился»</b>: она же граница окна. Внутри мастера смена языка была бы видна на первом же клике — мастер читается как одно движение. Альтернатива честнее (весь интерфейс на английском), но дороже канона: <code>05-text.md</code> целиком построен на русских решениях — словарь §16 («Принять», «ревью», «change не склонять»), правила кавычек, тире и склонения заимствований. Половина главы при переходе теряет предмет, и переписывать её надо целиком, а не по строке. До тех пор стык живёт и назван.</div>
+
+    <div class="caption"><b>Завеса снята — контраст замерен, а не понадеян.</b> Рой дышит: <b>бо́льшую часть 54-секундного цикла он до текста не достаёт вовсе</b> — 0.00% подложки. На тёплой фазе (≈16–20 с и ≈38 с) разрастается и подныривает под вордмарк: в худшем кадре <b>11.08%</b> подложки не держит 4.5:1. Читаемость это не ломает, и вот почему метрика тут важнее числа: «худший пиксель» дал бы 2.4:1 и приговор, но рой — <b>редкие точки</b>, и одна яркая точка за штрихом литеры чтение не рушит; глаз интегрирует поле. По среднему фону худшего кадра белый держит <b>16.7:1</b> при пороге 4.5. Замер — <code>veilprobe.py</code>, отдельным кадром со скрытым текстом: первая попытка мерила сглаживание собственных литер и выдавала ровные 3.0:1 — враньё.</div>
+
+    <div class="caption"><b>Экран «Agent»: сначала причёсан по бюро и Бирману, потом срезан до формулы референса.</b> Стартовое состояние — пять строк, и одно и то же состояние сказано восемь раз: «not installed · adapter in progress» ×4 плюс четыре бейджа «soon». Первый проход снял повторы: <b>«◉ selected»</b> (выбор уже показан рамкой и заливкой — состояние показывают формой, а не подписью к форме), <b>цифры-хоткеи</b> (клавиша на недоступной строке — обещание действия, которого нет; обработчиков и не было), <b>«CLI agent» ×3</b> из вордовок (колонка с одинаковым значением не различает), рамки невыбранных (группировку держит заливка). Второй проход — по референсу incident.io: <b>вендоров три</b> (Anthropic · OpenAI · Google — Cursor и Copilot ушли вместе с группой «soon»), у неустановленных в строке стоит <b>Install</b>, а установленный <b>кнопки не несёт</b> — его ответ уже в факте «✓ v2.1.4 · signed in». Приписки «Your own adapter…» и «You can switch agents later…» сняты обе: экран отвечает на один вопрос — кто пишет код, — и не рассказывает про запасные выходы, о которых никто ещё не спросил. Лид — одна мысль, без хвостовой точки. <b>Третий проход: конструкция уехала вниз, Continue снят.</b> Заголовок сидел на анимации при пустой нижней половине окна — теперь верх отдан рою целиком: завеса на этом экране отпускает его до 52% высоты вместо 22%, и гигантский орб виден почти весь. Выбор — <b>три квадратные карточки в ряд</b> у нижней кромки: лого сверху, паспорт агента у нижнего края карточки (квадрат и есть место под факты — у Claude их две строки), у неустановленных — Install. Continue этому экрану не нужен: решение экрана — сам выбор агента, «дальше» — это клик по установленной карточке. <b>Четвёртый проход — по референсам (Attio, «Services 003», крипто-карточки).</b> Плашка сменила цвет: было тело на bg.surface — фиолетовая подложка на почти чёрном читалась грязью; стало — нейтральный подъём над фоном (белый 5.5→2.2% сверху вниз, свет сверху — тот же приём, что на янтарной плашке лейбла) с кромкой 7%. Выбор теперь говорит <b>контур, а не заливка</b>: синяя рамка на той же нейтральной плашке (формула «Services 003»), тело подкрашено на 7% — прежняя синяя заливка 16% делала выбранную карточку телом другого цвета, а не выбранным телом. Внутри — формула Attio: <b>лого-иллюстрация по центру</b> (тайл 48, знак 26 — крупнее прежних 34/20), паспорт прижат к низу; высота лого фиксирована, к низу тянется паспорт — иначе лого плавало бы от числа строк. <b>Install стал ультрамариновым</b>: это действие экрана, а не опция — тот же ховер-закон, что у primary (−3.5% L / +10° H, вход 150, выход 450). Грид не тянется во всю ширину: 660px по центру — квадрат при колонке в треть окна вырастал в ~310px и съедал рой; заодно композиция стала центральной, как у приветствия. Завеса утащена под карточки: сплошное затемнение начинается у их верхней кромки (солид с 67% высоты, переход 54→63→67 вместо прежних 30→52), заголовок и лид живут прямо на рое — тёмная поверхность нужна карточкам, а не словам. Проверено по трём фазам дыхания роя: под литерами его нижняя разреженная кайма, белый по ней держит контраст — тот же прецедент, что на приветствии, где текст лежит на частицах без всякой завесы. Угол карточки — 18px squircle, тот же гиперэллипс, что у кнопки и иконки: один закон на все крупные тела. Лид переписан по формуле приветствия — две строки, факт и короткое действие: «Foundry runs the stages, it writes no code / Choose who does»; вторая строка и есть инструкция к экрану, отдельной подсказки не нужно. <b>Пятый проход — сверка карточки по всему канону (01–14), найдено и исправлено семь отступлений.</b> <b>Бирман, внутреннее ≤ внешнего (03 §2)</b>: паддинг карточки 16 был больше зазора сетки 12 — карточки слипались в массу; зазор поднят до 16, отступ до кнопки Install — с 8 до 12 (внутренний паддинг кнопки 10 обязан быть меньше расстояния до соседей). <b>Цвет недоступности — не цвет информации (06 §5.5)</b>: имя вендора стояло в <code>text.disabled</code> 38% — так пишут «нельзя», а не «Anthropic»; теперь это честный <code>type.label</code> — 11/13 Medium, капс +6%, третичный 50% (заодно и контраст: 38% на плашке не держал 4.5:1). <b>Факты сняты с моно</b>: моно — коду, путям и хэшам, а «Max plan» и «not installed» — слова; и не 10px — десятка отдана наименее важному, состояние карточки таким не бывает; теперь caption 11/14. <b>Кромка — токеном</b>: рукописные 7% заменены на <code>border.subtle</code> 8% (09 §7.3: карточка = заливка + бордер 8%). <b>Микросетка</b>: зазоры паспорта 3px и отступ лого 18px стояли мимо 4pt-шкалы — теперь 4 и 16. <b>Кнопка — по спеке Compact (08 §3)</b>: паддинг 9→10, кегль 11→12. <b>Ховер выбранной карточки</b> отвечал мгновенно — получил тот же закон, что у primary: вход 150, остывание 450. Три отступления оставлены сознательно и записаны в долг: выделение контуром вместо канонной заливки 14% (референс победил рецепт 09 §7.3), два ультрамариновых Install в одной зоне против «одной primary» (08 §1.1 — решение: Install и есть действие карточки, primary-кнопки у экрана нет), нейтральная плашка вместо <code>bg.surface</code>. <b>Шестой проход — ряды сквозь карточки.</b> Токены сошлись, а сетка внутри тройки — нет: паспорта прижимались к низу каждый своей высотой, и «ANTHROPIC» стоял на 40px ниже «OPENAI» — три карточки, три собственных раскладки (бюро: ряды выровнены СКВОЗЬ модули, а не внутри каждого). Паспорт стал блоком фиксированной высоты 92 по самому полному варианту: вендоры на одной линии, имена на одной, факты на одной, Install у нижней кромки, у Claude на месте кнопки — вторая строка фактов. Иллюстрация — оставшийся этаж, равный у всех, лого центрируется в нём: тайл вырос до 56 (знак 30), угол 14 — тем же гиперэллипсом, вложенный радиус меньше внешнего. Ритм паспорта — группами, а не частоколом в 4px: лейбл прижат к имени (2), факты отделены сильнее (6), внутри группы плотно (2) — промежуточные ступени 2/6 живут внутри компонентов (03 §1).</div>
+
+    <div class="caption"><b>Мастер — не тюрьма.</b> Канон требует на каждом шаге видимый выход (07 §), и «Пропустить настройку» здесь <b>не отменяет канон, а исполняет его</b>: выход отдаёт то самое приложение, которое канон и предписывал — настоящее окно, где каждое пустое состояние честно называет недостающее («foundry не найден. Укажите путь к бинарю — без него приложение не может запускать стадии»). Мастер — <b>мощёная дорога</b>, цепочка пустых состояний — <b>обочина</b>, и она проходима. Поэтому пятый шаг §16 («Прогон») <b>не дорисован, а вычеркнут</b>: запуск стадии — это уже настоящее приложение, и мастеру там делать нечего. Последний шаг заканчивается ровно там, где начинается работа: окно открывается на пустом состоянии «В проекте нет активной работы» с ⌘N.</div>
+
+    <div class="caption"><b>Что здесь исправлено против §16.</b> Дерево <code>~/foundry/</code> с <code>artifacts/</code>, <code>skills/</code>, <code>pipelines/</code> и <code>foundry.db</code> <b>снято</b>: стор скрытый (<code>~/.foundry</code>), базы нет, скиллы живут только в <code>~/.claude</code> — раскладку стора мы не перерисовываем вовсе, её канон в репозитории ядра, и копия здесь разошлась бы с ним (ровно то, чем уже обожглись на иконке). <b>MCP убран</b> отовсюду: ядро выбрало другой контракт — <code>foundry --plain</code> и чтение файлов. Вместо дерева — <b>три пути и роль каждого</b>, включая <code>.foundry/</code> в самом репозитории под git: артефакты — часть истории проекта, а не приложения.</div>
+  </section>
+
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">02 — обочина</span>
+      <h2>Что видит тот, кто нажал «Пропустить»</h2>
+      <p>Тот же экран, что был бы вместо мастера, если бы канон исполнялся буквально. Он существует всегда — как выход с любого шага и как состояние после сноса CLI.</p>
+    </div>
+
+    <div class="win" style="max-width:980px">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">Foundry</span>
+      </div>
+      <div class="three" style="height:420px">
+        <div class="rail"><i class="on">◱</i><i>▦</i><i>◨</i><i>☰</i><i>◇</i><i>◔</i><i>✦</i><i>⚙</i></div>
+        <div class="sidebar">
+          <div>
+            <div class="side-head">Инбокс</div>
+            <div class="side-label">Проекты</div>
+            <div class="side-item"><span class="grow2" style="color:var(--t-tertiary)">Ни один не подключён</span></div>
+          </div>
+          <div class="side-foot"><span class="orb-mini" style="background:rgba(255,255,255,0.12)"></span><span>Агент не выбран</span></div>
+        </div>
+        <div class="list">
+          <div class="list-head"><h3>Инбокс</h3></div>
+          <div class="empty">
+            <div class="glyph">⌘</div>
+            <div class="et">foundry не найден. Укажите путь к бинарю — без него приложение не может запускать стадии.</div>
+            <div style="display:flex;gap:var(--s2)">
+              <button class="btn primary">Установить foundry…</button>
+              <button class="btn ghost">Указать путь…</button>
+            </div>
+          </div>
+        </div>
+        <div class="inspector"></div>
+      </div>
+    </div>
+
+    <div class="caption"><b>Одна кнопка, одно недостающее.</b> Состояние не перечисляет всё, чего нет (агент, cli, правила, проект) — оно называет <b>первое блокирующее</b> и уступает место следующему, когда это закрыто. Текст — дословно из канона (05 §12), включая «Установить…» с многоточием: откроется окно, требующее ввода. Приложение при этом настоящее: рейл, сайдбар и инбокс на месте и пустые — видно, куда всё встанет.</div>
+  </section>
+
+  <footer class="note">
+    <b>Прототип живой, и это не украшение стенда.</b> Рой — тот же шейдер, что <code>design/loader-particles.html</code>: решётка Фибоначчи из <code>gl_VertexID</code>, непрозрачные частицы с тестом глубины, семейное сведение сверхвыборки, TPDF-дизеринг. Значения оттуда не трогались.
+
+    <h3>Что в шейдере добавлено (и почему это безопасно)</h3>
+    <ul>
+      <li><b>Аспект.</b> Канвас окна не квадратный, а в лоадере коррекции нет — она не была нужна: <code>proj.x /= uAspect</code>, иначе орб растянуло бы в эллипс.</li>
+      <li><b>Позиция.</b> <code>uCenter</code> в NDC. Раньше орб переезжал между шагами за верхнюю кромку; теперь анимация на всех экранах одна — эталон приветствия, и рабочие шаги отличаются <b>только завесой поверх</b> (рой гаснет в bg.base к 22% высоты). Ручка позиции оставлена в шейдере, но стоит на месте.</li>
+      <li><b>Разлёт.</b> <code>uBurst</code> толкает частицу наружу по её же радиусу, скорость у каждой своя (<code>hash11</code>), разгон квадратичный. Частица, ушедшая за камеру, выбрасывается за пределы clip-объёма — иначе проекция вывернулась бы.</li>
+      <li><b>Семьи по-прежнему не смешиваются:</b> блендинг выключен, тест глубины на месте, цвет частицы — из своей семьи. Разлёт только разносит частицы; ни одного пикселя в 290–330° он породить не может.</li>
+      <li><b>Фон роя — <code>bg.base</code></b> (#05030D), а не #05060C лоадера: это фон окна приложения, и он обязан быть токеном. Пересчитан в линейный для клира и для сведения.</li>
+    </ul>
+
+    <h3>Зерно</h3>
+    Эталон <b>a</b> (0.504% тела, 44 701 частица): тело орба — 353 px в окне 700, точка ≈1.8 px на экране. Эталон <b>c</b> дал бы 3.6 px — крупу вместо помола. Число частиц не задано руками, оно считается из заполненности утверждённого лоадера: <code>N = COVERAGE / зерно²</code>.
+
+    <h3>Reduce Motion</h3>
+    Уважается: рой замирает на кадре, разлёта нет, переход в главное окно — срезом. Проверяется системной настройкой, отдельного тумблера в приложении нет.
+
+    <h3>Долг перед каноном (после утверждения макета)</h3>
+    <ul>
+      <li><code>01-principles.md:294</code> — «ни welcome-экранов» больше не соответствует принятому решению: снять запрет и назвать границу (мастер только там, где приложение неработоспособно без установки).</li>
+      <li><code>05-text.md:269</code> — «Первый запуск» предписывает цепочку пустых состояний вместо wizard'а: переписать в «мастер + пустые состояния как выход», тексты состояний оставить.</li>
+      <li><code>02-composition.md:68</code> — оговорить hero первого запуска: якорь-украшение по-прежнему запрещён на рабочих экранах.</li>
+      <li><b><code>13-tokens.md §2</code> + <code>06-color.md §1.2, §3.2, §4.2</code> — сдвинуть всю шкалу поверхностей.</b> Самая дорогая правка: <code>bg.base</code> #07060B → <b>#05030D</b>, следом <code>surface</code> #0B0717, <code>raised</code> #120B23, <code>overlay</code> #1A1030 — шаг +0.031 L между уровнями сохранён, иначе base слипается с surface. Все контрасты в обеих главах пересчитаны (они считались «на #07060B»): ни один не упал, большинство выросло — 20.5 / 9.8 / 5.3 / 3.4, акцент 7.7:1, семантика 7.4–12.3:1. В 06 §1.2 заодно правится строка «фон L 0.127 C 0.013» и утверждение про подкрас: оно было верно по букве и не подтверждалось глазом, теперь C 0.028.</li>
+      <li><b><code>13-tokens.md §1</code> + <code>06-color.md §3.2</code> — завести <code>brand.amber</code> #FFB020 и развести его с <code>sem.warning</code>.</b> Два тёплых цвета в 9° друг от друга обязаны быть разграничены по ролям текстом главы, иначе следующий человек возьмёт янтарь под «ожидание» или warning — под лейбл. Формулировка: янтарь — только знак продукта, семантики не несёт; warning — только состояние. Если развести не выйдет — честнее отказаться от янтаря, чем держать два жёлтых без правила.</li>
+      <li><code>13-tokens.md §9</code> — завести <code>type.hero</code> 34/40 Bold с ролью «заголовок экрана первого запуска».</li>
+      <li><code>13-tokens.md §9</code> + <code>04-typography.md §12</code> — лейбл вордмарка набран <b>10/700</b>, а <code>type.label</code> — 11/13 <b>Medium</b>. Это разные роли: строчный лейбл-подпись живёт в потоке текста, а знак «AI» сидит внутри крупного вордмарка и обязан быть мельче и жирнее, иначе спорит с ним по весу. Либо новый токен «лейбл-знак», либо явная оговорка в §12, что внутри вордмарка кегль и вес считаются от вордмарка.</li>
+      <li><b><code>05-text.md</code> целиком — язык интерфейса.</b> Онбординг теперь английский, глава — русская, и она не «про русский текст», а <i>построена</i> на нём: словарь §16 («Принять», «ревью», «change не склонять через апостроф»), кавычки-ёлочки, тире, склонение заимствований. Решить вилку: либо глава получает английский слой и словарь на два языка, либо интерфейс возвращается к русскому. Промежуточное состояние — стык на границе окна — названо в подписи и живёт до этого решения. Заодно внести <b>delivery</b>: слово появилось на экране раньше словаря, а глава требует обратного порядка. И записать правило, которого в словаре нет: <b>CRISPY — имя внутреннее</b>, в текстах первого знакомства не появляется (05:240), а глубже — только там, где называет конкретную вещь, а не украшает строку.</li>
+      <li><code>09-surfaces.md §</code> + <code>06-color.md §</code> — записать <b>приём «текст поверх живого фона»</b>. Канон знает поверхности и завесы, но не знает случая, когда подложка — редкое поле точек. Там ломаются обе привычные метрики: контраст по фону меряет не тот фон, а «худший пиксель» даёт приговор там, где глаз читает без труда (2.4:1 против фактических 16.7:1 по среднему). Нужное правило: мерить <b>покрытие и среднее</b>, порог — доля подложки, не держащая 4.5:1.</li>
+      <li><code>13-tokens.md §11</code> — рядом с длительностями движения завести <b>кривую</b>: <code>motion.ease = cubic-bezier(0.2, 0, 0, 1)</code> — почти вертикальный старт, мягкий доезд. Сейчас всё в макете ездит по ней (<code>--ease-real</code>), а канон знает только длительности и безымянный <code>ease-out</code>. Заодно: отклик цвета у primary <b>асимметричен</b> — вход в hover за fast 150 (по букве §11), выход назад за 450ms; ни асимметрии вход/выход, ни ступени длиннее slow 320 §11 не знает — дописать обе (например, <code>motion.cool</code> для «остывания»).</li>
+      <li><code>13-tokens.md §12</code> — завести <code>shadow.soft</code>: четырёхслойная чёрная тень контрола (1/2/6/12px, альфа 0.48→0.24) с ролью, записанной в само определение: <b>отделение кромки от фона, не объём</b>. Токены <code>edge.*</code> заводить больше не нужно — кромки ушли вместе с объёмом кнопки.</li>
+      <li><b><code>09-surfaces.md §</code> — «на почти чёрном фоне тень невидима; границу задаёт свет» переписывать НЕ надо: глава верна как есть.</b> Это признание, а не правка: я спорил с ней трижды (процитировал вместо замера → померил WCAG-контрастом, чужой метрикой → померил в ступенях и принял наличие за видимость), потом искал обход — <b>собственный свет тела, пролитый вниз</b> с отрицательным spread. Обход тоже отвергнут глазом: синий пролив читается ореолом, тем самым свечением, которое 13 §12 отдало орбу. Дописать в главу два пункта: <i>почему</i> обходы не работают (тень видна там, где тело загораживает свет, а под кнопкой на base света нет) — и что мягкая многослойная тень при этом <b>допустима как отделение кромки</b>: она не изображает объём и не обязана его изображать.</li>
+      <li><code>08-controls.md §5</code> — глава задаёт плоскую заливку акцентом и ±6–8% светлоты; primary вернулся к плоской заливке, но состояния ушли от буквы: <b>hover — −3.5% светлоты и +10° тона в пурпур, pressed — −8.5%</b>. На почти чёрном светлеющий hover кричит — единственной CTA прибавлять света некуда, отклик читается затемнением с тоном. Дописать: правило «на тёмных темах hover вглубь», <b>hover без сдвига</b> (отвечает заливка, а не позиция), <b>тень не дышит в состояниях</b>, и <b>ни объёма, ни <code>glow.accent</code> под кнопкой</b> — свет в поле зрения принадлежит орбу. Туда же — <b>микрорельеф кромок primary</b> (2026-07-17): inset-блик 1px сверху (белый 9%) + inset-тень 1px снизу (чёрный 26%), в состояниях не дышит; это кромки, не объём — тело остаётся плоским.</li>
+      <li><code>13-tokens.md §10</code> — <b>хит-зона точек пагинации 22×24</b> против буквы <code>hit.min</code> 24×24: ряд из шести точек при слотах 24 стоял рыхло, точки прижаты на 2px по ширине (2026-07-17). Либо оговорка «в плотных рядах однородных мишеней допустимо 22 по оси ряда», либо вернуть 24 и признать рыхлость ценой буквы.</li>
+      <li><code>13-tokens.md §11</code> — <b>двухтактная смена экранов</b>: уходящий гаснет на месте (150ms), новый входит снизу с доездом 14px (380ms, <code>motion.ease</code>), такты не наложены. Ни паттерна «выход→пауза→вход», ни длительности 380 в §11 нет — записать вместе с кривой и «остыванием» из пункта выше.</li>
+      <li><code>08-controls.md §</code> + <code>13-tokens.md</code> — размер контрола 44/32 и <b>угол по гиперэллипсу</b>. Сейчас потолок — large 36/20/r-l, а угол везде задан одним радиусом. Нужны: ступень «единственная CTA первого запуска» (либо отказ) и правило скругления через <code>corner-shape: superellipse(k)</code> с показателем n = 2ᵏ — <code>squircle</code> (n 4) роднит угол кнопки с углом иконки по построению, а не на глаз.</li>
+      <li><code>13-tokens.md §9</code> + новый раздел — <b>логотип «Foundry AI» как компонент</b>: вордмарк <code>type.hero</code> + лейбл-знак на плашке <code>brand.amber</code>, все внутренние меры в em от кегля знака. Записать канонную структуру и запрет разбирать знак на части (вордмарк отдельно от лейбла не живёт).</li>
+      <li><code>09-surfaces.md §7.3</code> — <b>выделенная карточка на hero-экране говорит контуром, а не заливкой</b>: рецепт главы (ультрамарин 14% + бордер 0.5) на почти чёрном делает выбранную карточку телом другого цвета; принятая формула — бордер 0.85 + тело 7% («Services 003»). Дописать вариант «выбор контуром» с условием применения (тёмный фон, крупные карточки-иллюстрации).</li>
+      <li><code>09-surfaces.md §7.3</code> + <code>13-tokens.md §2</code> — <b>плашка карточки на hero — нейтральный альфа-подъём</b> (белый 5.5→2.2% сверху вниз), не <code>bg.surface</code>: фиолетовая подложка на почти чёрном читается грязью. Либо узаконить «нейтральную поверхность поверх живого фона», либо пересчитать surface так, чтобы он не грязнил (связано с пунктом о сдвиге всей шкалы).</li>
+      <li><code>08-controls.md §1.1</code> — оговорка к «одной primary на экран»: <b>Install внутри карточки — действие карточки, а не экрана</b>; когда primary-кнопки у экрана нет, повторяющееся карточное действие в акценте допустимо (прецедент — Agent: два ультрамариновых Install при выборе-контуре).</li>
+      <li><code>reference/ui/domain-model.md</code> — снять пометку «§16 рисует устаревшее дерево» и вычеркнуть «Прогон» из недорисованного.</li>
+      <li><code>docs/design/mockups/foundry-mockups.html</code> — §16 заменить ссылкой сюда: двух онбордингов не держим.</li>
+    </ul>
+  </footer>
+
+</div></div>
+
+<script id="vs" type="x-shader">#version 300 es
+precision highp float;
+uniform float uTime;
+uniform float uCount;
+uniform vec2  uRes;
+uniform float uZoom;    // кадрирование: 2.4 — как у логотипа, орб на весь квадрат
+uniform float uPt;      // размер точки в пикселях БУФЕРА (не экрана и не CSS)
+uniform float uTaper;   // во сколько раз дальняя частица мельче ближней
+uniform float uAspect;  // W/H канваса: окно не квадратное, орб обязан остаться круглым
+uniform vec2  uCenter;  // где стоит орб, в NDC
+uniform float uFit;     // вписывание в кадр: равномерное сжатие проекции вокруг центра
+uniform float uBurst;   // 0 — рой, 1 — разлетелся
+out vec3  vCol;
+out float vAlpha;       // семья частицы: 0 — холодная, 1 — тёплая
+
+const float PI = 3.14159265;
+
+mat2 rot(float a){ float c=cos(a), s=sin(a); return mat2(c,-s,s,c); }
+
+float hash11(float p){
+  p = fract(p*0.1031);
+  p *= p + 33.33;
+  p *= p + p;
+  return fract(p);
+}
+float hash31(vec3 p){
+  p = fract(p*0.3183099 + vec3(0.71,0.113,0.419));
+  p *= 17.0;
+  return fract(p.x*p.y*p.z*(p.x+p.y+p.z));
+}
+float vnoise(vec3 x){
+  vec3 i = floor(x), f = fract(x);
+  f = f*f*(3.0-2.0*f);
+  return mix(mix(mix(hash31(i+vec3(0,0,0)), hash31(i+vec3(1,0,0)), f.x),
+                 mix(hash31(i+vec3(0,1,0)), hash31(i+vec3(1,1,0)), f.x), f.y),
+             mix(mix(hash31(i+vec3(0,0,1)), hash31(i+vec3(1,0,1)), f.x),
+                 mix(hash31(i+vec3(0,1,1)), hash31(i+vec3(1,1,1)), f.x), f.y), f.z);
+}
+float fbm(vec3 x){
+  float s=0.0, a=0.5;
+  for (int i=0;i<3;i++){ s += a*vnoise(x); x *= 2.03; a *= 0.5; }
+  return s;
+}
+
+// Восемь цветов двумя семьями: холодная 231°–275° и тёплая 348°–39°. Семьи
+// почти дополнительны, и смешивать их нельзя ничем — любая середина между ними
+// проходит через розовый, вычеркнутый из палитры.
+vec3 cool(int i){
+  if (i==0) return vec3(0.60, 0.20, 1.00);     // 9933FF фиолет      275°
+  if (i==1) return vec3(0.36, 0.17, 1.00);     // 5B2BFF индиго      255°
+  if (i==2) return vec3(0.29, 0.39, 0.97);     // 4A63F7 blue        231°
+  return vec3(0.27, 0.13, 0.81);               // 4522CE royal       254°
+}
+vec3 warm(int i){
+  if (i==0) return vec3(1.00, 0.09, 0.27);     // FF1744 малиновый   348°
+  if (i==1) return vec3(1.00, 0.23, 0.19);     // FF3B30 алый          4°
+  if (i==2) return vec3(1.00, 0.36, 0.24);     // FF5C3D коралл       11°
+  return vec3(1.00, 0.69, 0.13);               // FFB020 янтарь       39°
+}
+
+void main(){
+  float i = float(gl_VertexID);
+  float N = uCount;
+
+  // Решётка Фибоначчи — равномерное распределение по сфере без полюсных сгустков
+  float k   = (i + 0.5) / N;
+  float phi = acos(1.0 - 2.0*k);
+  float th  = PI * (1.0 + sqrt(5.0)) * (i + 0.5);
+  vec3 dir = vec3(sin(phi)*cos(th), cos(phi), sin(phi)*sin(th));
+  dir = normalize(dir + (vec3(hash11(i*3.11), hash11(i*5.27), hash11(i*7.43)) - 0.5) * 0.035);
+
+  float t = uTime;
+  float r = 1.0
+    + 0.230*sin(1.8*dir.x + t*0.62)*sin(2.0*dir.y - t*0.47)
+    + 0.130*sin(2.5*dir.z + t*0.55)
+    + 0.070*sin(3.3*dir.y + 1.6*dir.x - t*0.80)
+    + 0.040*sin(4.6*dir.z - 2.1*dir.x + t*0.65);
+
+  float jitter = (hash11(i*1.37) - 0.5) * 0.05;
+  vec3 pos = dir * (r + jitter);
+
+  vec3 flow = vec3(fbm(pos*1.3 + vec3(0.0, t*0.20, 0.0)),
+                   fbm(pos*1.3 + vec3(11.0, -t*0.16, 3.0)),
+                   fbm(pos*1.3 + vec3(27.0, t*0.12, 7.0))) - 0.5;
+  pos += flow * 0.07;
+
+  vec3 obj = pos;
+  pos.xz *= rot(t*0.30);
+  pos.xy *= rot(sin(t*0.19)*0.42);
+
+  // Разлёт: частица уходит наружу по своему же радиусу, у каждой своя скорость,
+  // разгон квадратичный — рой не «уезжает», а отпускается.
+  if (uBurst > 0.0){
+    float sp = 2.2 + hash11(i*9.13)*8.0;
+    pos += normalize(pos) * (uBurst*uBurst*sp);
+  }
+
+  vec3 ro = vec3(0.0, 0.0, 3.6);
+  vec3 rel = pos - ro;
+  float dist = -rel.z;
+  // Частица, вылетевшая за камеру, вывернула бы проекцию наизнанку: выбрасываем
+  // её за пределы clip-объёма (z > w), а не рисуем гигантским пятном.
+  if (dist < 0.30){ gl_Position = vec4(0.0, 0.0, 2.0, 1.0); return; }
+
+  vec2 proj = rel.xy / (dist * 1.175) * uZoom;
+  proj.x /= uAspect;
+  // Вписывание в кадр — ПОСЛЕ проекции и ДО переноса: равномерный масштаб вокруг
+  // центра орба. Ни одна траектория не меняется — меняется только линза.
+  proj *= uFit;
+  proj += uCenter;
+  float zn = clamp((dist - 2.2) / 2.9, 0.0, 1.0);
+  gl_Position = vec4(proj, zn*2.0 - 1.0, 1.0);
+
+  // Волна с выдержками: семья стоит 9 с, перетекание занимает 18 с и является
+  // основным действием. Перетекает ЧАСТИЦАМИ — интерполяции цвета тут нет
+  // намеренно: mix(синий, красный) идёт ровно через розовый.
+  float per  = 54.0;
+  float u    = fract(t/per);
+  float tr   = 0.333;
+  float hold = 0.5 - tr;
+  float wave;
+  if      (u < hold)       wave = 0.0;
+  else if (u < 0.5)        wave = smoothstep(0.0, 1.0, (u - hold)/tr);
+  else if (u < 0.5 + hold) wave = 1.0;
+  else                     wave = 1.0 - smoothstep(0.0, 1.0, (u - 0.5 - hold)/tr);
+
+  float ord  = fbm(dir*0.90 + vec3(5.0, 0.0, 0.0));
+  float ordN = clamp((ord - 0.20)/0.40, 0.0, 1.0);
+  ordN += (hash11(i*4.77) - 0.5) * 0.30;
+  bool isWarm = ordN < wave*1.60 - 0.30;
+
+  float sh = fbm(obj*0.55 + vec3(19.0, -t*0.17, 5.0));
+  float pick = clamp((sh - 0.369)/0.246, 0.0, 0.999);
+  float fidx = pick*3.0;
+  int  i0 = int(floor(fidx));
+  int  i1 = min(i0 + 1, 3);
+  float fr = fract(fidx);
+  float edge = 0.22;
+  float kEdge = smoothstep(1.0 - edge, 1.0, fr);
+  vec3 col = isWarm ? mix(warm(i0), warm(i1), kEdge)
+                    : mix(cool(i0), cool(i1), kEdge);
+
+  float depth = clamp((dist - 2.4) / 2.2, 0.0, 1.0);
+  float shade = mix(1.0, 0.28, depth) * (0.78 + 0.22*hash11(i*2.13));
+  vCol = pow(col, vec3(2.2)) * shade;
+  vAlpha = isWarm ? 1.0 : 0.0;
+
+  gl_PointSize = uPt * mix(1.0, uTaper, depth);
+}
+</script>
+
+<script id="fs" type="x-shader">#version 300 es
+precision highp float;
+in vec3  vCol;
+in float vAlpha;
+out vec4 frag;
+void main(){
+  vec2 d = gl_PointCoord - 0.5;
+  if (length(d) > 0.46) discard;
+  frag = vec4(vCol, vAlpha);
+}
+</script>
+
+<script id="post-vs" type="x-shader">#version 300 es
+void main(){
+  vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+  gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
+}
+</script>
+
+<script id="post-fs" type="x-shader">#version 300 es
+precision highp float;
+uniform sampler2D uSrc;
+uniform float uTime;
+uniform int   uSS;
+out vec4 frag;
+
+// Фон роя — bg.base #05030D в линейном виде: это фон окна приложения, и он
+// обязан быть токеном, а не #05060C стенда лоадера.
+const vec3 BG = vec3(0.001518, 0.000911, 0.004025);
+
+// Сведение сверхвыборки — СЕМЕЙНОЕ. Обычное среднее запрещено: середина между
+// 231–275° и 348–39° — розовый ~300°, вычеркнутый из палитры.
+vec3 resolve(){
+  ivec2 base = ivec2(gl_FragCoord.xy) * uSS;
+  vec3 sumC = vec3(0.0), sumW = vec3(0.0);
+  int nC = 0, nW = 0, nB = 0;
+  for (int j = 0; j < uSS; j++){
+    for (int i = 0; i < uSS; i++){
+      vec4 t = texelFetch(uSrc, base + ivec2(i, j), 0);
+      if      (t.a > 0.75) { sumW += t.rgb; nW++; }
+      else if (t.a < 0.25) { sumC += t.rgb; nC++; }
+      else                 { nB++; }
+    }
+  }
+  int lit = nC + nW;
+  if (lit == 0) return BG;
+  bool warmWins = nW >= nC;
+  vec3 avg = warmWins ? sumW / float(nW) : sumC / float(nC);
+  return (avg * float(lit) + BG * float(nB)) / float(uSS * uSS);
+}
+
+void main(){
+  vec3 c = resolve();
+  c = pow(max(c, 0.0), vec3(0.4545));
+  vec2 fc = gl_FragCoord.xy;
+  float n1 = fract(sin(dot(fc, vec2(12.9898,78.233)) + uTime*0.017)*43758.5453);
+  float n2 = fract(sin(dot(fc, vec2(93.9898,67.345)) - uTime*0.023)*24634.6345);
+  frag = vec4(c + (n1 + n2 - 1.0)*(2.0/255.0), 1.0);
+}
+</script>
+
+<script>
+(function(){
+  'use strict';
+
+  // ── Геометрия роя (та же, что в design/loader-logo.html) ────────────────
+  const ORB   = 0.21;    // тело орба — доля кадра на единицу зума
+  const ZOOM  = 2.4;     // кадрирование логотипа: орб на весь квадрат
+  const TAPER = 0.5;
+  const GRAIN_LOADER = (2.6 * 2.4 / 900) / (ORB * 2.4);   // 1.376% — зерно утверждённого лоадера
+  const COVERAGE = 6000 * GRAIN_LOADER * GRAIN_LOADER;    // заполненность, которую держим
+  const GRAIN = 0.00504;                                  // эталон «a» — тонкий помол
+  const COUNT = Math.round(COVERAGE / (GRAIN * GRAIN));   // 44 701
+
+  const MIN_PT = 1.8, SS_MAX = 8;
+
+  const cv = document.getElementById('swarm');
+  const gl = cv.getContext('webgl2', { antialias:false, alpha:false });
+  if(!gl || !gl.getExtension('EXT_color_buffer_float')){
+    cv.parentNode.innerHTML = '<p style="color:#889;font:12px/1.5 monospace;padding:24px">Нет WebGL2 или float-буфера — рой не покажется.</p>';
+  }
+
+  function sh(type, src){
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src.trim()); gl.compileShader(s);
+    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  }
+  function link(vsId, fsId){
+    const p = gl.createProgram();
+    gl.attachShader(p, sh(gl.VERTEX_SHADER,   document.getElementById(vsId).textContent));
+    gl.attachShader(p, sh(gl.FRAGMENT_SHADER, document.getElementById(fsId).textContent));
+    gl.linkProgram(p);
+    if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    return p;
+  }
+  const prog = link('vs','fs');
+  const post = link('post-vs','post-fs');
+
+  gl.useProgram(prog);
+  const uTime   = gl.getUniformLocation(prog, 'uTime');
+  const uAspect = gl.getUniformLocation(prog, 'uAspect');
+  const uCenter = gl.getUniformLocation(prog, 'uCenter');
+  const uFit    = gl.getUniformLocation(prog, 'uFit');
+  const uBurst  = gl.getUniformLocation(prog, 'uBurst');
+  const uPtL    = gl.getUniformLocation(prog, 'uPt');
+  const uResL   = gl.getUniformLocation(prog, 'uRes');
+  gl.uniform1f(gl.getUniformLocation(prog, 'uCount'), COUNT);
+  gl.uniform1f(gl.getUniformLocation(prog, 'uZoom'),  ZOOM);
+  gl.uniform1f(gl.getUniformLocation(prog, 'uTaper'), TAPER);
+
+  gl.useProgram(post);
+  const pTime = gl.getUniformLocation(post, 'uTime');
+  const pSS   = gl.getUniformLocation(post, 'uSS');
+  gl.uniform1i(gl.getUniformLocation(post, 'uSrc'), 0);
+
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  const fbo = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  const dbuf = gl.createRenderbuffer();
+  gl.bindRenderbuffer(gl.RENDERBUFFER, dbuf);
+  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, dbuf);
+
+  // Размер меряем каждый кадр: разовый замер берёт раскладку до вёрстки.
+  // Буфер обязан совпадать с CSS пиксель в пиксель — иначе браузер ресемплит
+  // кадр и усредняет соседние частицы, а фиолет с малиновым дают розовый.
+  let W = 0, H = 0, SS = 1, BUFW = 0, BUFH = 0, PT = 0;
+  function resize(){
+    const r = cv.parentNode.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.max(1, Math.round((r.width  || 640) * dpr));
+    const h = Math.max(1, Math.round((r.height || 836) * dpr));
+    if (w === W && h === H) return;
+    W = w; H = h;
+    cv.width = w; cv.height = h;
+    cv.style.width  = (w/dpr) + 'px';
+    cv.style.height = (h/dpr) + 'px';
+
+    // Сведение включается там, где точка иначе стала бы мельче 1.8 px в буфере:
+    // ниже этого частица на движении перепрыгивает свою ширину и рой мельтешит.
+    SS = 1;
+    while (SS < SS_MAX && GRAIN * ORB * ZOOM * h * SS < MIN_PT) SS *= 2;
+    BUFW = w * SS; BUFH = h * SS;
+    PT = GRAIN * ORB * ZOOM * BUFH;   // зерно — доля ТЕЛА, а тело меряется по высоте кадра
+
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, BUFW, BUFH, 0, gl.RGBA, gl.HALF_FLOAT, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, dbuf);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, BUFW, BUFH);
+    gl.useProgram(prog);
+    gl.uniform2f(uResL, BUFW, BUFH);
+    gl.uniform1f(uPtL, PT);
+    gl.uniform1f(uAspect, w/h);
+    gl.useProgram(post);
+    gl.uniform1i(pSS, SS);
+
+    const cfg = document.getElementById('cfg');
+    if (cfg) cfg.textContent = 'зерно a · ' + COUNT.toLocaleString('ru-RU') + ' частиц · точка ' +
+      (PT/(dpr*SS)).toFixed(2) + ' px · сведение ×' + SS + ' · буфер ' + BUFW + '×' + BUFH;
+  }
+
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
+
+  let center = { x: 0, y: 0.30 };     // где орб сейчас
+  let target = { x: 0, y: 0.30 };     // куда едет
+  let fit = 1, fitTarget = 1;         // вписывание в кадр: см. FITS у шагов
+  let burst = 0;
+
+  function draw(sec){
+    resize();
+    // орб доезжает до цели по экспоненте — motion.base по ощущению, без пружины
+    center.x += (target.x - center.x) * 0.08;
+    center.y += (target.y - center.y) * 0.08;
+    fit += (fitTarget - fit) * 0.08;
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.viewport(0,0,BUFW,BUFH);
+    // Альфа 0.5 метит фон: сведение отличает по ней «пусто» от семьи частицы.
+    gl.clearColor(0.001518, 0.000911, 0.004025, 0.5);   // = bg.base #05030D после гаммы
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.disable(gl.BLEND);          // аддитив снят: он и делал розовое
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LESS);
+    gl.useProgram(prog);
+    gl.uniform1f(uTime, sec);
+    gl.uniform2f(uCenter, center.x, center.y);
+    gl.uniform1f(uFit, fit);
+    gl.uniform1f(uBurst, burst);
+    gl.drawArrays(gl.POINTS, 0, COUNT);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0,0,W,H);
+    gl.disable(gl.DEPTH_TEST);
+    gl.useProgram(post);
+    gl.uniform1f(pTime, sec);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Воспроизводимый кадр для само-ревью и замеров: ?step=N&t=сек&burst=0..1 —
+  // тот же приём, что ?frame= в лоадере. Без параметров прототип живой.
+  const Q = new URLSearchParams(location.search);
+  const FROZEN = Q.has('t');
+  const TF = parseFloat(Q.get('t')) || 0;
+
+  let t0 = null, raf = null;
+  function loop(ts){
+    if (t0 === null) t0 = ts;
+    draw((ts - t0)/1000);
+    raf = requestAnimationFrame(loop);
+  }
+  function frozen(){ requestAnimationFrame(()=>{ draw(TF); requestAnimationFrame(()=>draw(TF)); }); }
+  if (FROZEN || reduce.matches) frozen();
+  else raf = requestAnimationFrame(loop);
+
+  // ── Шаги ────────────────────────────────────────────────────────────────
+  // Приветствие и «Готово» — орб целиком, чуть выше геометрической середины
+  // (оптическая середина, 02 §). Рабочие шаги — орб уходит за верхнюю кромку и
+  // виден нижним лимбом: тот же приём, что в иконке, где свет встаёт из-за края.
+  // Рой на всех экранах ОДИН — эталонная анимация приветствия, без переездов
+  // и смены масштаба (решение 2026-07-17): на рабочих шагах его не сдвигают,
+  // а гасят завесой из bg.base; контент живёт поверх неё.
+  const HERO = { x: 0, y: 0.32 };
+  const CENTERS = [HERO, HERO, HERO, HERO, HERO, HERO];
+  // Кадрирование роя на hero-экранах — 1.0, и это решение, а не отсутствие решения.
+  // Пробовали дважды: 0.695 («ни одна частица не ближе 20px к кромке») ужал орб на
+  // треть; 0.80 («выход за рамки минимален») спрятал срез, но орб потерял гигантский
+  // масштаб — а он и есть образ: свет больше кадра, на пике холодной фазы верх
+  // режется кромкой (~90px по замеру fitprobe.py), на тёплой рой подныривает под
+  // вордмарк. uFit оставлен ручкой кадрирования: равномерный масштаб проекции
+  // вокруг центра орба, линза, а не траектории — если образ пересмотрят, крутить
+  // одно число, а не шейдер.
+  const HERO_FIT = 1.0;
+  const FITS = [HERO_FIT, 1, 1, 1, 1, HERO_FIT];
+
+  const win  = document.getElementById('obwin');
+  const dots = document.getElementById('dots');
+  const screens = [...document.querySelectorAll('.ob-screen')];
+  let step = 0;
+
+  screens.forEach((_, i) => {
+    const d = document.createElement('i');
+    d.addEventListener('click', () => go(i));
+    dots.appendChild(d);
+  });
+  const ind = document.createElement('div');
+  ind.className = 'ind';
+  dots.appendChild(ind);
+
+  // Капля. Слоты теперь дышат (активный шире на 12px), поэтому позиция цели
+  // считается формулой, а не offsetLeft: во время переезда слотов offsetLeft
+  // отдал бы промежуточную раскладку. Слева от активного слота n стоят только
+  // обычные (n × 22), капля 18 центрована в слоте 34 → сдвиг 8. Сама капля:
+  // полоска сперва растягивается мостиком от старой точки до новой (тянется),
+  // на середине мост во всю длину, дальше хвост отпускает и масса собирается в цели.
+  const SLOT = 22, SLOT_NOW = 34, PILL = 18;
+  let indAt = -1;
+  function moveInd(n){
+    const L = n * SLOT + (SLOT_NOW - PILL) / 2;
+    const from = indAt < 0 ? L : parseFloat(ind.style.left);
+    ind.style.left = L + 'px'; ind.style.width = '18px';
+    if (indAt >= 0 && indAt !== n && !reduce.matches && !FROZEN && ind.animate) {
+      const a = Math.min(from, L), b = Math.max(from, L) + 18;
+      ind.animate([
+        { left: from + 'px', width: '18px', easing: 'cubic-bezier(0.4, 0, 1, 1)' },
+        { left: a + 'px', width: (b - a) + 'px', offset: 0.45, easing: 'cubic-bezier(0.2, 0, 0, 1)' },
+        { left: L + 'px', width: '18px' }
+      ], { duration: 460 });
+    }
+    indAt = n;
+  }
+
+  // Смена экрана двухтактная: старый гаснет (150ms), новый входит после паузы.
+  // Точки и рой едут сразу — навигация ответила мгновенно, дышит только текст.
+  let swapT = null;
+  function go(n){
+    const from = step;
+    step = Math.max(0, Math.min(screens.length - 1, n));
+    [...dots.querySelectorAll('i')].forEach((d, i) => {
+      d.className = i === step ? 'now' : (i < step ? 'done' : '');
+    });
+    moveInd(step);
+    target = { ...CENTERS[step] };
+    fitTarget = FITS[step];
+    if (FROZEN || reduce.matches) { center = { ...target }; fit = fitTarget; frozen(); }
+    const show = () => {
+      screens.forEach((s, i) => { s.classList.remove('leaving'); s.classList.toggle('on', i === step); });
+      // орб целиком — только там, где экран сам почти пуст: приветствие и «Готово»
+      win.classList.toggle('hero-full', step === 0 || step === screens.length - 1);
+      win.classList.toggle('veil-low', step === 1);
+    };
+    clearTimeout(swapT);
+    const out = screens[from];
+    if (from !== step && !FROZEN && !reduce.matches && out.classList.contains('on')) {
+      out.classList.add('leaving');
+      swapT = setTimeout(show, 260);
+    } else show();
+  }
+  go(FROZEN ? (parseInt(Q.get('step'), 10) || 0) : 0);
+  fit = fitTarget;   // старт без доезда: иначе рой съёживался бы в первую секунду
+  if (Q.has('burst')) { burst = parseFloat(Q.get('burst')) || 0; frozen(); }
+
+  document.querySelectorAll('[data-go]').forEach(b =>
+    b.addEventListener('click', () => go(+b.dataset.go)));
+  document.getElementById('next').addEventListener('click', () => go(step + 1));
+  document.getElementById('prev').addEventListener('click', () => go(step - 1));
+
+  // ── Финал: рой отпускают, окно уступает место главному ──────────────────
+  const mainwin = document.getElementById('mainwin');
+  let burstRaf = null;
+
+  function finish(){
+    win.classList.add('finishing');
+    if (reduce.matches){
+      win.classList.add('gone');
+      mainwin.classList.add('in');
+      return;
+    }
+    const T = 950;                      // весь разлёт
+    const start = performance.now() + 120;
+    cancelAnimationFrame(burstRaf);
+    (function tick(now){
+      const p = Math.max(0, (now - start) / T);
+      burst = Math.min(1, p);
+      if (p > 0.42 && !mainwin.classList.contains('in')){
+        win.classList.add('gone');
+        mainwin.classList.add('in');
+      }
+      if (p < 1) burstRaf = requestAnimationFrame(tick);
+    })(performance.now());
+  }
+  document.getElementById('finish').addEventListener('click', finish);
+
+  function again(){
+    burst = 0;
+    win.classList.remove('finishing','gone');
+    mainwin.classList.remove('in');
+    go(0);
+  }
+  document.getElementById('again').addEventListener('click', again);
+  document.getElementById('skip').addEventListener('click', () => {
+    // «Пропустить» — не тупик: настоящее окно, где пустое состояние назовёт
+    // первое недостающее. В прототипе просто показываем его.
+    document.querySelector('.block:nth-of-type(2)').scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth', block: 'center' });
+  });
+})();
+</script>
+</body>
+</html>

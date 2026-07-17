@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>foundry-desktop — эскиз основного экрана (плавающие панели)</title>
+<style>
+  :root {
+    /* — палитра (13-tokens.md, единственный источник) — */
+    --brand-ultramarine: #2F5CFF;
+    --brand-purple: #8B5CF6;
+    --brand-magenta: #D65CFF;
+    --brand-cyan: #58C7FF;
+
+    /* поверхности: elevation светлотой */
+    --bg-base: #07060B;
+    --bg-surface: #0D0C14;
+    --bg-raised: #14121E;
+
+    /* текст: альфа-белый */
+    --t-primary: rgba(255,255,255,0.96);
+    --t-secondary: rgba(255,255,255,0.70);
+    --t-tertiary: rgba(255,255,255,0.50);
+    --t-disabled: rgba(255,255,255,0.38);
+    --t-accent: #7C9AFF;
+
+    /* бордеры */
+    --b-subtle: rgba(255,255,255,0.08);
+    --b-default: rgba(255,255,255,0.12);
+    --b-strong: rgba(255,255,255,0.20);
+
+    /* семантика */
+    --sem-success: #4ADE80;
+    --sem-warning: #FBBF24;
+    --sem-error: #F87171;
+
+    /* шкала отступов */
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+    --s5: 24px; --s6: 32px; --s8: 48px; --s10: 64px;
+
+    /* радиусы */
+    --r-s: 4px; --r-m: 6px; --r-l: 10px; --r-xl: 14px; --r-full: 999px;
+
+    /* типографика */
+    --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, monospace;
+
+    --glow-live: 0 0 10px rgba(88,199,255,0.45), 0 0 30px rgba(88,199,255,0.15);
+
+    /* — параметры эскиза, ими и крутим на утверждении — */
+    --gap: 12px;      /* зазор между панелями = внешнее */
+    --pad: 12px;      /* паддинг панели = внутреннее; внутреннее ≤ внешнее */
+    --pane-border: transparent;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+
+  .page {
+    font-family: var(--font-ui);
+    font-size: 13px; line-height: 1.45;
+    color: var(--t-primary);
+    background:
+      radial-gradient(90% 70% at 12% -8%, rgba(47,92,255,0.16), transparent 55%),
+      radial-gradient(70% 60% at 88% 4%, rgba(139,92,246,0.14), transparent 52%),
+      radial-gradient(60% 60% at 65% 108%, rgba(214,92,255,0.10), transparent 55%),
+      #050409;
+    min-height: 100vh;
+    padding: clamp(20px, 4vw, 56px) clamp(16px, 4vw, 56px) 96px;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--t-tertiary);
+    display: flex; align-items: center; gap: var(--s2); margin-bottom: var(--s4);
+  }
+  .eyebrow .dot { width: 7px; height: 7px; border-radius: var(--r-full); background: var(--brand-cyan); box-shadow: var(--glow-live); }
+  h1.page-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 40px); line-height: 1.06; font-weight: 700;
+    letter-spacing: -0.02em; margin: 0 0 var(--s3); max-width: 24ch;
+  }
+  h1.page-title em {
+    font-style: normal;
+    background: linear-gradient(100deg, var(--brand-ultramarine), var(--brand-purple) 55%, var(--brand-magenta));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lede { font-size: 15px; line-height: 1.55; color: var(--t-secondary); max-width: 66ch; margin: 0 0 var(--s5); }
+
+  section.block { margin-bottom: var(--s10); }
+  .sec-head { margin-bottom: var(--s4); }
+  .sec-num { font-family: var(--font-mono); font-size: 11px; color: var(--t-accent); letter-spacing: 0.04em; }
+  .sec-head h2 { font-family: var(--font-display); font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin: 6px 0 6px; }
+  .sec-head p { margin: 0; color: var(--t-secondary); max-width: 70ch; font-size: 13.5px; }
+
+  /* ——— пульт эскиза: решения принимаются глазом, а не спором ——— */
+  .controls {
+    display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); align-items: center;
+    margin-bottom: var(--s4); padding: var(--s3) var(--s4);
+    background: rgba(255,255,255,0.03); border-radius: var(--r-l);
+  }
+  .ctl { display: flex; align-items: center; gap: var(--s2); font-size: 12px; color: var(--t-secondary); }
+  .ctl .cap { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-tertiary); }
+  .seg { display: inline-flex; background: rgba(255,255,255,0.05); border-radius: var(--r-m); padding: 2px; gap: 2px; }
+  .seg button {
+    font-family: inherit; font-size: 11px; padding: 4px 10px; border-radius: var(--r-s);
+    color: var(--t-tertiary); background: transparent; border: 0; cursor: pointer;
+  }
+  .seg button.on { background: rgba(255,255,255,0.10); color: var(--t-primary); }
+
+  /* ——— окно macOS ——— */
+  .win {
+    border-radius: var(--r-xl);
+    background: var(--bg-base);
+    border: 1px solid var(--b-default);
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
+  /* Титлбар — не панель: он лежит прямо на подложке окна, без заливки и
+     линейки. Полоса под ним отделена воздухом, а не бордером. */
+  .titlebar {
+    height: 44px; display: flex; align-items: center; gap: var(--s3);
+    padding: 0 var(--s4);
+  }
+  .lights { display: flex; gap: 8px; }
+  .lights i { width: 12px; height: 12px; border-radius: var(--r-full); display: inline-block; }
+  .lights .r { background: #FF5F57; } .lights .y { background: #FEBC2E; } .lights .g { background: #28C840; }
+  /* Заголовок окна — КОНТЕКСТ, не имя приложения: имя живёт в рейле,
+     и «foundry — ревью» превратилось бы во второе упоминание. */
+  .win-title { font-size: 12px; color: var(--t-tertiary); font-weight: 500; }
+  .titlebar .spacer { flex: 1; }
+  .tb-btn {
+    height: 26px; width: 28px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: var(--r-m); color: var(--t-secondary); font-size: 13px; cursor: default;
+  }
+  .tb-btn:hover { background: rgba(255,255,255,0.06); }
+
+  /* ——— четыре плавающие панели ——— */
+  .four {
+    display: grid;
+    grid-template-columns: 44px 214px minmax(0,1fr) 332px;
+    gap: var(--gap);
+    padding: 0 var(--gap) var(--gap);
+    min-height: 660px;
+  }
+  @media (max-width: 1080px){ .four { grid-template-columns: 44px 214px minmax(0,1fr); } .pane.inspector { display:none; } }
+
+  /* Панель: заливка на ступень светлее окна + зазор. Ни линейки, ни обводки —
+     границу держит воздух. Обводка включается тумблером только чтобы увидеть,
+     что она лишняя.
+
+     УГОЛ — суперэллипс Ламе x⁴ + y⁴, тот же закон, что у иконки (design/README).
+     border-radius сам по себе даёт дугу окружности (n=2), а она так не умеет:
+     радиус постоянный, кривизна включается изломом в точке касания. Закон угла
+     задаёт corner-shape.
+
+     corner-shape: squircle — это n=4. Проверено замером кромки против формулы:
+     параметр superellipse(k) — НЕ показатель Ламе, отображение n = 2^k
+     (k=1 → n=2 круг, k=2 → n=4, k=3 → n=8). Поэтому superellipse(4) дал бы
+     n=16 — почти квадрат. Писать надо squircle (= superellipse(2)).
+
+     Радиус один на все панели, включая рейл: суперэллипс жмётся к углу вдвое
+     сильнее круга (по диагонали срезает 0.159R против 0.293R), поэтому 14 на
+     44-пиксельном рейле углы уже не съедают — прежний раскол 10/14 отпал сам. */
+  .pane {
+    min-width: 0;
+    background: var(--bg-surface);
+    border-radius: var(--r-xl);
+    corner-shape: squircle;
+    border: 1px solid var(--pane-border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  /* overflow видимый и слой выше соседей — иначе панель обрезает ровно то, чем
+     рейл из одних иконок оправдан: альты. Бейджи она резала заодно. */
+  .pane.rail {
+    padding: var(--s2) 0; align-items: center; gap: 2px;
+    overflow: visible; position: relative; z-index: 2;
+  }
+
+  /* ——— рейл разделов: только иконки и альты ——— */
+  .rl {
+    position: relative; width: 28px; height: 28px; border-radius: var(--r-m);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--t-tertiary); font-size: 14px; cursor: default; flex: none;
+  }
+  .rl:hover { background: rgba(255,255,255,0.06); color: var(--t-secondary); }
+  .rl.sel { background: rgba(47,92,255,0.14); color: var(--t-accent); }
+  .rl-b {
+    position: absolute; top: -1px; right: -1px; min-width: 13px; height: 13px; padding: 0 3px;
+    border-radius: var(--r-full); background: rgba(255,255,255,0.16); color: var(--t-secondary);
+    font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--bg-surface);
+  }
+  /* Янтарный бейдж — только там, где требуется решение. Остальные нейтральны. */
+  .rl-b.warn { background: var(--sem-warning); color: #07060B; }
+  .rl-sp { flex: 1; }
+  .rl-tip {
+    position: absolute; left: 36px; top: 2px; z-index: 5;
+    background: var(--bg-raised); color: var(--t-primary);
+    font-size: 11px; white-space: nowrap; padding: 4px 8px; border-radius: var(--r-s);
+    box-shadow: 0 8px 20px -6px rgba(0,0,0,0.8);
+    display: none; align-items: center; gap: 6px;
+  }
+  .rl:hover .rl-tip { display: flex; }
+  .rl-tip kbd {
+    font-family: var(--font-mono); font-size: 10px; color: var(--t-tertiary);
+    background: rgba(255,255,255,0.08); border-radius: 3px; padding: 0 3px;
+  }
+
+  /* ——— сайдбар ——— */
+  .pane.sidebar { padding: var(--pad); gap: var(--s4); }
+
+  /* ——— логотип в рейле ———
+     Живой в ОБОИХ состояниях — решение владельца (2026-07-17), при
+     задокументированном риске: на 28 px зерно пресета c не помещается в
+     пиксель (README: годен от 64), на Retina вытягивается сведением ×8,
+     на внешнем не-Retina мониторе замельтешит. Если замельтешит в проде —
+     откат на стоп-кадр в свёрнутом, спрайт-лист остаётся TODO README.
+     Раскрытый рейл (190) — орб 48 + слово: полный логотип, у пунктов
+     появляются подписи.
+     Фон роя = фон панели (bg.surface), не чёрный круг: фоновая константа
+     шейдера задаётся униформой. Surface — оттенок 247°, холодная семья,
+     розовый диапазон 290–330° не задевается.
+     Отступ до первой иконки держит padding-bottom = s4. */
+  .rlogo { display: flex; align-items: center; justify-content: center; padding: var(--s1) 0 var(--s4); }
+  .four.rail-open .rlogo { justify-content: flex-start; gap: var(--s2); padding: var(--s1) var(--s1) var(--s4); }
+  .rlogo canvas { display: block; flex: none; }
+  .rlogo .c48 { display: none; }
+  .four.rail-open .rlogo .c48 { display: block; }
+  .four.rail-open .rlogo .c28 { display: none; }
+  /* Гарнитура — SF Pro Display. Третьей гарнитуры нет: 04-typography §2.2
+     разрешает акцидентную только для сплэша/about, и то советует решать
+     характер цветом и композицией. Здесь характер даёт трекинг и рой рядом. */
+  /* Кегль скромный, 14 — как заголовок секции сайдбара: бренд не кричит,
+     характер несут орб и трекинг */
+  .rlogo .word {
+    font-family: var(--font-display); font-size: 14px; font-weight: 600;
+    letter-spacing: -0.01em; color: var(--t-primary); display: none;
+  }
+  .four.rail-open .rlogo .word { display: block; }
+
+  /* Раскрытое состояние рейла: временное (тоггл/наведение), не постоянное —
+     две широкие колонки рядом спорят за ширину. */
+  .four.rail-open { grid-template-columns: 190px 214px minmax(0,1fr) 332px; }
+  .four.rail-open .pane.rail { align-items: stretch; padding: var(--s2); }
+  .four.rail-open .rl { width: auto; justify-content: flex-start; gap: var(--s2); padding: 0 var(--s2); height: 30px; }
+  /* Подпись не переносится — усечение хвостом, как в списке (дизайн от данных) */
+  .rl .lab { display: none; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; text-align: left; }
+  .four.rail-open .rl .lab { display: block; }
+  .four.rail-open .rl .rl-b { position: static; margin-left: auto; border: 0; }
+  .four.rail-open .rl .rl-tip { display: none !important; }
+
+  .side-head { font-size: 14px; font-weight: 600; color: var(--t-primary); padding: 0 var(--s2) var(--s2); }
+  .side-sec { display: flex; flex-direction: column; gap: 2px; }
+  .side-label { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-tertiary); padding: 0 var(--s2) var(--s1); }
+  .side-item {
+    display: flex; align-items: center; gap: var(--s2); height: 28px; padding: 0 var(--s2);
+    border-radius: var(--r-m); color: var(--t-secondary); font-size: 13px; cursor: default;
+  }
+  .side-item:hover { background: rgba(255,255,255,0.06); }
+  .side-item.sel { background: rgba(47,92,255,0.14); color: var(--t-primary); }
+  .side-item .ico { width: 16px; text-align: center; color: var(--t-tertiary); font-size: 13px; }
+  .side-item.sel .ico { color: var(--t-accent); }
+  .side-item .grow { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .count { font-size: 11px; color: var(--t-tertiary); }
+  .count.pill { background: rgba(255,255,255,0.10); color: var(--t-secondary); border-radius: var(--r-full); padding: 1px 7px; font-weight: 600; font-size: 10px; }
+  .side-hint { font-size: 11px; color: var(--t-disabled); line-height: 1.35; padding: var(--s2) var(--s2) 0; }
+
+  /* Карточка на панели-surface → raised. Орба у неё больше нет: он наверху.
+     Угол — тот же закон. Точечному (пилюли, бейджи, точки-статусы) суперэллипс
+     не даём: на радиусе 4 он неотличим, а на radius.full превратил бы круг
+     в кляксу. Закон угла — для прямоугольников, не для точек. */
+  .agent-card {
+    margin-top: auto; background: var(--bg-raised); border-radius: var(--r-l);
+    corner-shape: squircle; padding: var(--s3);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .ac-h { display: flex; align-items: baseline; gap: 6px; }
+  .ac-n { font-size: 12px; font-weight: 600; color: var(--t-secondary); }
+  .ac-m { font-size: 10px; color: var(--t-disabled); margin-left: auto; font-family: var(--font-mono); }
+  .ac-slots { display: flex; gap: 3px; }
+  .ac-slots i { flex: 1; height: 3px; border-radius: var(--r-full); background: rgba(255,255,255,0.10); }
+  .ac-slots i.on { background: var(--brand-cyan); }
+  .ac-l { display: flex; justify-content: space-between; font-size: 11px; color: var(--t-tertiary); }
+  .ac-bar { height: 3px; border-radius: var(--r-full); background: rgba(255,255,255,0.10); overflow: hidden; }
+  .ac-bar i { display: block; height: 100%; width: 62%; border-radius: var(--r-full); background: var(--brand-ultramarine); }
+
+  /* ——— список ревью ——— */
+  .list-head {
+    height: 40px; display: flex; align-items: center; gap: var(--s3);
+    padding: 0 var(--pad); flex: none;
+  }
+  .filter-token {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--t-accent);
+    background: rgba(47,92,255,0.12); border-radius: var(--r-full); padding: 2px 4px 2px 9px;
+  }
+  .filter-token .x {
+    width: 14px; height: 14px; border-radius: var(--r-full); background: rgba(255,255,255,0.1);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 9px; color: var(--t-secondary);
+  }
+  .filter-ghost { font-size: 11px; color: var(--t-disabled); display: flex; align-items: center; gap: 6px; }
+  .filter-ghost .fkey { font-family: var(--font-mono); font-size: 10px; border: 1px solid var(--b-subtle); border-radius: var(--r-s); padding: 0 4px; color: var(--t-tertiary); }
+
+  .list-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+  .group-cap {
+    font-size: 11px; color: var(--t-tertiary); padding: var(--s3) var(--pad) var(--s1);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .group-cap.attn { color: var(--sem-warning); }
+  .group-cap .n { color: var(--t-disabled); }
+  .group-cap .norm { color: var(--t-disabled); }
+
+  .row2 {
+    display: grid; grid-template-columns: 18px minmax(0,1fr) auto;
+    gap: 2px var(--s2); align-items: center;
+    padding: 7px var(--pad); cursor: default;
+    grid-template-areas: "dot name right" "dot sub right";
+  }
+  .row2:hover { background: rgba(255,255,255,0.04); }
+  .row2.sel { background: rgba(47,92,255,0.14); }
+  .r2-dot { grid-area: dot; display: flex; justify-content: center; }
+  .sdot { width: 8px; height: 8px; border-radius: var(--r-full); flex: none; }
+  .sdot.err { background: var(--sem-error); }
+  .sdot.warn { background: var(--sem-warning); }
+  .sdot.wait { background: rgba(255,255,255,0.28); }
+  .sdot.live { background: var(--brand-cyan); box-shadow: var(--glow-live); animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+  .r2-name { grid-area: name; display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .r2-pict { color: var(--t-disabled); font-size: 11px; flex: none; }
+  .r2-title { font-size: 13px; font-weight: 500; color: var(--t-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .r2-tag { font-size: 10px; color: var(--sem-warning); border: 1px solid rgba(251,191,36,0.35); border-radius: var(--r-full); padding: 0 6px; flex: none; }
+  .r2-sub { grid-area: sub; display: flex; gap: 5px; min-width: 0; font-size: 11px; color: var(--t-tertiary); }
+  .r2-branch { font-family: var(--font-mono); font-size: 10.5px; color: var(--t-disabled); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: none; max-width: 46%; }
+  .r2-stage { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .r2-right { grid-area: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex: none; }
+  .r2-time { font-size: 11px; color: var(--t-tertiary); }
+  .r2-stat { font-size: 10.5px; font-family: var(--font-mono); }
+  .r2-stat .add { color: var(--sem-success); } .r2-stat .rem { color: var(--sem-error); }
+  .r2-stat.dim { color: var(--t-disabled); }
+  .anch { color: var(--t-accent); }
+
+  .live-band { margin-top: auto; padding-bottom: var(--s2); }
+  .lb-cap { font-size: 11px; color: var(--brand-cyan); padding: var(--s3) var(--pad) var(--s1); display: flex; gap: 6px; }
+
+  /* ——— инспектор ——— */
+  .pane.inspector { padding: var(--pad); gap: var(--s4); }
+  .insp-head .branch { font-family: var(--font-mono); font-size: 11px; color: var(--t-accent); }
+  .insp-head .h { font-family: var(--font-display); font-size: 16px; font-weight: 600; margin: 3px 0 4px; letter-spacing: -0.01em; }
+  .insp-head .sub { display: flex; gap: 5px; font-size: 11px; color: var(--t-tertiary); }
+
+  .stepper { display: flex; align-items: center; gap: 3px; }
+  .step { flex: 1; display: flex; align-items: center; gap: 3px; }
+  .step .node {
+    width: 20px; height: 20px; border-radius: var(--r-full); flex: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 600;
+    background: rgba(255,255,255,0.08); color: var(--t-disabled);
+  }
+  .step.done .node { background: rgba(74,222,128,0.16); color: var(--sem-success); }
+  /* Единственное свечение в поле зрения спорило бы с роем-логотипом, поэтому
+     текущая стадия взята заливкой, а не glow. */
+  .step.now .node { background: var(--brand-ultramarine); color: #fff; }
+  .step-cap { font-size: 11px; color: var(--t-tertiary); margin-top: -6px; }
+  .step-cap b { color: var(--t-secondary); }
+  .step-cap .nxt { color: var(--t-disabled); }
+
+  .artifact { flex: 1; overflow: hidden; }
+  .artifact h4 { font-size: 13px; font-weight: 600; margin: 0 0 4px; }
+  .artifact .kv { font-family: var(--font-mono); font-size: 10px; color: var(--t-disabled); margin-bottom: var(--s3); }
+  .artifact p { margin: 0 0 var(--s2); font-size: 12px; line-height: 1.5; color: var(--t-secondary); }
+  .artifact code { font-family: var(--font-mono); font-size: 11px; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: var(--r-s); color: var(--t-accent); }
+
+  .actionbar { display: flex; flex-direction: column; gap: var(--s2); }
+  .comment-field {
+    background: var(--bg-base); border: 1px solid var(--b-default); border-radius: var(--r-m);
+    padding: 8px 10px; font-size: 12px; color: var(--t-disabled);
+  }
+  .btns { display: flex; gap: var(--s2); }
+  .btn {
+    flex: 1; height: 28px; border-radius: var(--r-m); font-size: 12px; font-weight: 500;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: default;
+  }
+  .btn.primary { background: var(--brand-ultramarine); color: #fff; }
+  .btn.secondary { border: 1px solid var(--b-strong); color: var(--t-secondary); }
+  .btn kbd { font-family: var(--font-mono); font-size: 9px; opacity: 0.7; }
+
+  /* ——— ряд углов ——— */
+  .corner-row { display: flex; gap: var(--s5); padding: var(--s5); background: rgba(255,255,255,0.03); border-radius: var(--r-l); corner-shape: squircle; flex-wrap: wrap; }
+  .cn { display: flex; flex-direction: column; gap: var(--s2); flex: 1; min-width: 130px; }
+  .cn .box { height: 92px; border-radius: var(--r-xl); background: linear-gradient(135deg, var(--brand-ultramarine), var(--brand-purple)); }
+  .cn .lbl { font-family: var(--font-mono); font-size: 11px; color: var(--t-secondary); }
+  .cn .vd { font-size: 11px; color: var(--t-disabled); line-height: 1.35; }
+  .cn .vd b { color: var(--t-secondary); }
+
+  /* ——— ряд крупностей роя ——— */
+  .scale-row { display: flex; align-items: flex-end; gap: var(--s6); padding: var(--s5); background: rgba(255,255,255,0.03); border-radius: var(--r-l); flex-wrap: wrap; }
+  .scale-item { display: flex; flex-direction: column; align-items: center; gap: var(--s2); }
+  .scale-item canvas { display: block; border-radius: var(--r-full); }
+  .scale-item .lbl { font-size: 11px; color: var(--t-tertiary); font-family: var(--font-mono); text-align: center; }
+  .scale-item .verdict { font-size: 11px; max-width: 20ch; text-align: center; color: var(--t-disabled); line-height: 1.35; }
+
+  .caption { margin-top: var(--s4); font-size: 12.5px; line-height: 1.6; color: var(--t-secondary); }
+  .caption b { color: var(--t-primary); }
+  .caption code { font-family: var(--font-mono); font-size: 11px; color: var(--t-accent); }
+
+  .note { border-left: 2px solid var(--sem-warning); padding-left: var(--s3); margin-top: var(--s4); }
+  .note .t { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sem-warning); margin-bottom: 4px; }
+  .note p { margin: 0 0 var(--s2); font-size: 12.5px; line-height: 1.55; color: var(--t-secondary); }
+</style>
+</head>
+<body>
+<div class="page">
+<div class="wrap">
+
+  <div class="eyebrow"><span class="dot"></span>foundry-desktop · эскиз на утверждение · 2026-07-16</div>
+  <h1 class="page-title">Основной экран: <em>рейл, сайдбар и плавающие панели</em></h1>
+  <p class="lede">
+    Это не новый экран, а §1 существующего макета, доведённый до того, что его подпись уже обещает:
+    «панели не примыкают, границу держит зазор, а не линейка» и «обводки у панелей нет». В §1 подпись это
+    говорит, а CSS делает обратное — панели стоят вплотную сеткой без зазоров, и у сайдбара есть
+    <code>border-right</code>. Здесь обещание оплачено. Плюс два новых жильца: рой-логотип и слово Foundry.
+    Значения — только из <code>13-tokens.md</code>.
+  </p>
+
+  <!-- ——————————————————— пульт ——————————————————— -->
+  <div class="controls">
+    <div class="ctl">
+      <span class="cap">Бордер панелей</span>
+      <div class="seg" id="seg-border">
+        <button data-v="transparent" class="on">нет</button>
+        <button data-v="rgba(255,255,255,0.05)">5 %</button>
+        <button data-v="rgba(255,255,255,0.08)">8 % (subtle)</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="cap">Зазор</span>
+      <div class="seg" id="seg-gap">
+        <button data-v="8px">8</button>
+        <button data-v="12px" class="on">12</button>
+        <button data-v="16px">16</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="cap">Рой</span>
+      <div class="seg" id="seg-swarm">
+        <button data-v="live" class="on">живой</button>
+        <button data-v="still">стоп-кадр</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="cap">Рейл</span>
+      <div class="seg" id="seg-rail">
+        <button data-v="closed" class="on">свёрнут · 28</button>
+        <button data-v="open">раскрыт · 48</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ——————————————————— окно ——————————————————— -->
+  <section class="block">
+    <div class="win">
+      <div class="titlebar">
+        <div class="lights"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="win-title">Ревью</span>
+        <div class="spacer"></div>
+        <span class="tb-btn" title="Поиск ⌘K">⌕</span>
+        <span class="tb-btn" title="Новый change">＋</span>
+        <span class="tb-btn" title="Инспектор ⌘⌥I">◫</span>
+      </div>
+
+      <div class="four" id="four">
+        <!-- рейл: сверху логотип (свёрнут — стоп-кадр 28, раскрыт — живой
+             48 + слово), ниже иконки с альтами -->
+        <nav class="pane rail">
+          <div class="rlogo">
+            <canvas class="swarm c28" data-size="28" data-bg="surface"></canvas>
+            <canvas class="swarm c48" data-size="48" data-bg="surface"></canvas>
+            <span class="word">Foundry</span>
+          </div>
+          <span class="rl sel" title="Инбокс"><span>▤</span><span class="lab">Инбокс</span><span class="rl-b warn">2</span>
+            <span class="rl-tip">Инбокс<kbd>⌘1</kbd></span></span>
+          <span class="rl" title="Канбан"><span>▦</span><span class="lab">Канбан</span>
+            <span class="rl-tip">Канбан<kbd>⌘2</kbd></span></span>
+          <span class="rl" title="Ревью артефактов"><span>✓</span><span class="lab">Ревью артефактов</span><span class="rl-b">5</span>
+            <span class="rl-tip">Ревью артефактов<kbd>⌘3</kbd></span></span>
+          <span class="rl" title="Задачи"><span>≡</span><span class="lab">Задачи</span>
+            <span class="rl-tip">Задачи<kbd>⌘4</kbd></span></span>
+          <span class="rl" title="Проекты"><span>◇</span><span class="lab">Проекты</span>
+            <span class="rl-tip">Проекты<kbd>⌘5</kbd></span></span>
+          <span class="rl" title="Insights"><span>◔</span><span class="lab">Insights</span>
+            <span class="rl-tip">Insights<kbd>⌘6</kbd></span></span>
+          <span class="rl" title="Скиллы"><span>✎</span><span class="lab">Скиллы</span>
+            <span class="rl-tip">Скиллы<kbd>⌘7</kbd></span></span>
+          <span class="rl-sp"></span>
+          <span class="rl" title="Настройки"><span>⚙</span><span class="lab">Настройки</span>
+            <span class="rl-tip">Настройки<kbd>⌘,</kbd></span></span>
+        </nav>
+
+        <!-- сайдбар: бренда тут больше нет — имя и орб уехали в шапку -->
+        <aside class="pane sidebar">
+          <div class="side-sec">
+            <div class="side-head">Инбокс</div>
+            <div class="side-label">Фильтр по проекту</div>
+            <div class="side-item sel"><span class="ico">◆</span><span class="grow">foundry-desktop</span><span class="count pill">3</span></div>
+            <div class="side-item"><span class="ico">◆</span><span class="grow">crispy-core</span><span class="count pill">2</span></div>
+            <div class="side-item"><span class="ico">◇</span><span class="grow">memory-vault</span><span class="count">1</span></div>
+            <div class="side-item"><span class="ico">◇</span><span class="grow">books</span></div>
+          </div>
+
+          <div class="side-sec">
+            <div class="side-label">Фильтр очереди</div>
+            <div class="side-item sel"><span class="ico">▾</span><span class="grow">Все на ревью</span><span class="count pill">5</span></div>
+            <div class="side-item"><span class="ico">⚑</span><span class="grow">Требуют решения</span><span class="count" style="color:var(--sem-warning)">2</span></div>
+            <div class="side-item"><span class="ico">◷</span><span class="grow">Ждут твоего ревью</span><span class="count">3</span></div>
+            <div class="side-item"><span class="ico">◉</span><span class="grow">Пишутся сейчас</span><span class="count">2</span></div>
+            <div class="side-item"><span class="ico">✓</span><span class="grow">Готово сегодня</span><span class="count">9</span></div>
+            <div class="side-hint">Клик по счётчику — фильтр списка. Виджет-сводка и есть пульт.</div>
+          </div>
+
+          <div class="agent-card">
+            <div class="ac-h"><span class="ac-n">Claude</span><span class="ac-m">Opus 4.8</span></div>
+            <div class="ac-slots"><i class="on"></i><i class="on"></i><i></i></div>
+            <div class="ac-l"><span>2 из 3 слотов заняты</span></div>
+            <div class="ac-l" style="margin-top:4px"><span>Лимит недели</span><span>≈ 62 %</span></div>
+            <div class="ac-bar"><i></i></div>
+          </div>
+        </aside>
+
+        <!-- список -->
+        <div class="pane list">
+          <div class="list-head">
+            <span class="filter-token">Все на ревью <span class="x">✕</span></span>
+            <div style="flex:1"></div>
+            <span class="filter-ghost"><span class="fkey">A–Z</span> печатай — фильтр</span>
+          </div>
+
+          <div class="list-body">
+            <div class="group-cap attn">⚑ Требуют решения <span class="n">· 2</span></div>
+
+            <div class="row2">
+              <div class="r2-dot"><span class="sdot err"></span></div>
+              <div class="r2-name"><span class="r2-pict">⚑</span><span class="r2-title">Контраст по APCA</span></div>
+              <div class="r2-sub"><span class="r2-branch">feat/apc-contrast</span><span class="r2-stage">· PR · CI упал</span></div>
+              <div class="r2-right">
+                <span class="r2-time">4 мин</span>
+                <span class="r2-stat"><span class="add">+96</span> <span class="rem">−12</span></span>
+              </div>
+            </div>
+
+            <div class="row2">
+              <div class="r2-dot"><span class="sdot warn"></span></div>
+              <div class="r2-name"><span class="r2-pict">⚑</span><span class="r2-title">Детектор зависших лупов</span></div>
+              <div class="r2-sub"><span class="r2-branch">fix/loop-stall-detector</span><span class="r2-stage">· Implement · crispy-core</span></div>
+              <div class="r2-right">
+                <span class="r2-time">40 мин</span>
+                <span class="r2-stat"><span class="add">+41</span> <span class="rem">−8</span></span>
+              </div>
+            </div>
+
+            <div class="group-cap">◷ Ждут твоего ревью <span class="n">· 3</span> <span class="norm">· норма 2</span></div>
+
+            <div class="row2 sel">
+              <div class="r2-dot"><span class="sdot wait"></span></div>
+              <div class="r2-name"><span class="r2-pict">✦</span><span class="r2-title">Токены тёмной темы</span></div>
+              <div class="r2-sub"><span class="r2-branch">feat/dark-theme-tokens</span><span class="r2-stage">· Design · стадия 3 из 8</span></div>
+              <div class="r2-right">
+                <span class="r2-time">12 мин</span>
+                <span class="r2-stat"><span class="add">+214</span> <span class="rem">−38</span></span>
+              </div>
+            </div>
+
+            <!-- дизайн от данных: длиннейшее реальное имя — усечение хвостом, не перенос -->
+            <div class="row2">
+              <div class="r2-dot"><span class="sdot wait"></span></div>
+              <div class="r2-name"><span class="r2-pict">⟳</span><span class="r2-title">Переезд хранилища инбокса на проекцию GRDB с ретраями</span><span class="r2-tag">крупный дифф</span></div>
+              <div class="r2-sub"><span class="r2-branch">refactor/inbox-store-grdb-projection</span><span class="r2-stage">· Structure · стадия 4 из 8</span></div>
+              <div class="r2-right">
+                <span class="r2-time">31 мин</span>
+                <span class="r2-stat"><span class="add">+120</span> <span class="rem">−204</span></span>
+              </div>
+            </div>
+
+            <div class="row2">
+              <div class="r2-dot"><span class="sdot wait"></span></div>
+              <div class="r2-name"><span class="r2-pict">¶</span><span class="r2-title">Стадии CRISPY</span></div>
+              <div class="r2-sub"><span class="r2-branch">docs/crispy-stages</span><span class="r2-stage">· Plan · стадия 5 из 8 · memory-vault</span></div>
+              <div class="r2-right">
+                <span class="r2-time"><span class="anch">★ дольше всех</span> · 1 ч</span>
+                <span class="r2-stat"><span class="add">+58</span></span>
+              </div>
+            </div>
+
+            <div class="live-band">
+              <div class="lb-cap">◉ Claude пишет сейчас <span style="color:var(--t-disabled)">· 2 из 3 слотов</span></div>
+              <div class="row2">
+                <div class="r2-dot"><span class="sdot live"></span></div>
+                <div class="r2-name"><span class="r2-pict">✦</span><span class="r2-title">Орб-лоадер</span></div>
+                <div class="r2-sub"><span class="r2-branch">feat/orb-loader</span><span class="r2-stage">· Implement</span></div>
+                <div class="r2-right">
+                  <span class="r2-time" style="color:var(--brand-cyan)">пишет…</span>
+                  <span class="r2-stat dim">+310 …</span>
+                </div>
+              </div>
+              <div class="row2">
+                <div class="r2-dot"><span class="sdot live"></span></div>
+                <div class="r2-name"><span class="r2-pict">⌕</span><span class="r2-title">Liquid Glass</span></div>
+                <div class="r2-sub"><span class="r2-branch">research/liquid-glass</span><span class="r2-stage">· Research · crispy-core</span></div>
+                <div class="r2-right">
+                  <span class="r2-time" style="color:var(--brand-cyan)">ищет…</span>
+                  <span class="r2-stat dim">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- инспектор -->
+        <aside class="pane inspector">
+          <div class="insp-head">
+            <div class="branch">feat/dark-theme-tokens</div>
+            <div class="h">Токены тёмной темы</div>
+            <div class="sub"><span>foundry-desktop</span><span>·</span><span>ждёт ревью</span><span>·</span><span>12 мин</span></div>
+          </div>
+
+          <div>
+            <div class="stepper">
+              <div class="step done" title="Questions — пройдена"><span class="node">✓</span></div>
+              <div class="step done" title="Research — пройдена"><span class="node">✓</span></div>
+              <div class="step now" title="Design — текущая"><span class="node">3</span></div>
+              <div class="step" title="Structure"><span class="node">4</span></div>
+              <div class="step" title="Plan"><span class="node">5</span></div>
+              <div class="step" title="Worktree"><span class="node">6</span></div>
+              <div class="step" title="Implement"><span class="node">7</span></div>
+              <div class="step" title="PR"><span class="node">8</span></div>
+            </div>
+            <div class="step-cap" style="margin-top:8px"><span>Стадия 3 из 8</span> · <b>Design</b> <span class="nxt">→ Structure</span></div>
+          </div>
+
+          <div class="artifact">
+            <h4>Design · токены тёмной темы</h4>
+            <div class="kv">artifact.md · стадия Design · 214 строк</div>
+            <p>Тема одна — тёмная. Elevation кодируется <b>светлотой</b>, не тенью: четыре поверхности <code>base → surface → raised → overlay</code> с шагом ΔL ≈ 0.03 в OKLCH.</p>
+            <p>Текст — альфа-белый (<code>96 / 70 / 50 / 38 %</code>); ни один цвет палитры не идёт текстом — ссылки <code>#7C9AFF</code>.</p>
+          </div>
+
+          <div class="actionbar">
+            <div class="comment-field">Комментарий к ревью…</div>
+            <div class="btns">
+              <span class="btn secondary">Вернуть <kbd>⇧⌘R</kbd></span>
+              <span class="btn primary">Принять <kbd>⌘⏎</kbd></span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div class="caption">
+      <b>Что изменилось против §1 и почему.</b>
+      <b>Панели поплыли.</b> Зазор 12 и радиус 14 (<code>radius.xl</code> — токен так и назван: «крупные панели»);
+      рейл узкий, ему <code>radius.l</code> 10, иначе углы съедят 44 px ширины. Обводки нет: зазор и ступень
+      светлоты уже говорят «это разные панели», третий способ сказать то же — лишний (УВЛ). Тумблер бордера
+      сверху — чтобы это увидеть, а не обсуждать.
+      <b>Внутреннее ≤ внешнего:</b> паддинг панели 12 = зазор 12 (03-spacing §2). При зазоре 8 правило ломается —
+      тумблер это показывает честно.
+      <b>Титлбар перестал быть панелью:</b> заливка и нижняя линейка убраны, он лежит на подложке окна.
+      И он не тронут по высоте: в полноэкранном режиме macOS прячет титлбар вместе со всем содержимым,
+      поэтому логотип туда сажать нельзя — пропал бы вместе с ним.
+      <b>Логотип живёт в шапке рейла, живой в обоих состояниях</b> — решение владельца при
+      задокументированном риске: на 28 px зерно в пиксель не помещается (README: пресет c годен от 64),
+      Retina вытягивает сведением ×8, внешний не-Retina монитор замельтешит — тогда откат на стоп-кадр
+      в свёрнутом. Раскрытый рейл — орб 48 и слово Foundry: полный логотип. Раскрытие — временное
+      состояние (тоггл/наведение): постоянные две широкие колонки спорили бы за ширину с сайдбаром.
+      <b>Рой лежит на панели, а не в чёрном круге:</b> фоновая константа резолва вынесена в униформу и
+      равна bg.surface. Фон участвует только там, где частиц нет; surface — оттенок 247°, холодная семья,
+      розовый диапазон 290–330° не задевается. До первой иконки — отступ s4.
+      <b>Заголовок окна — контекст, не имя:</b> было «foundry — ревью», стало «Ревью». Имя приложения теперь
+      живёт в рейле, и в титлбаре оно было бы вторым упоминанием того же слова.
+      <b>Карточка агента осталась при слотах и лимите,</b> без орба: живой рой в раскрытом рейле и есть
+      индикатор «агент работает». Иначе два орба говорили бы одно и то же на одном экране.
+      <b>Свечение осталось одно:</b> текущая стадия в степпере взята заливкой ультрамарина, а не glow, — glow
+      забронирован за живым (циан у стримящихся строк).
+      <b>Гарнитура — SF Pro Display,</b> без третьего шрифта: 04-typography §2.2 разрешает акцидентную только
+      для сплэша/about и советует решать характер цветом и композицией. Здесь его дают трекинг −0.01em и рой рядом.
+      <b>Дизайн от данных:</b> в списке стоит длиннейшее реальное имя — усекается хвостом, не переносом.
+    </div>
+  </section>
+
+  <!-- ——————————————————— угол ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">угол — закон, а не радиус</span>
+      <h2>Один радиус на все панели, кривая — от иконки</h2>
+      <p>
+        Все четыре образца — радиус 14, отличается только закон кривой. Слева то, что даёт обычный
+        <code>border-radius</code>: дуга окружности, n=2. Второй — суперэллипс x⁴+y⁴, угол иконки.
+        Третий — ловушка: <code>superellipse(4)</code> читается как «показатель 4», а даёт n=16.
+      </p>
+    </div>
+
+    <div class="corner-row">
+      <div class="cn"><div class="box" style="corner-shape:round"></div>
+        <div class="lbl">round</div><div class="vd">n = 2 · дуга окружности · то, что даёт border-radius сам по себе</div></div>
+      <div class="cn"><div class="box" style="corner-shape:squircle"></div>
+        <div class="lbl">squircle</div><div class="vd">n = 4 · x⁴+y⁴ · <b>угол иконки</b> · = superellipse(2)</div></div>
+      <div class="cn"><div class="box" style="corner-shape:superellipse(3)"></div>
+        <div class="lbl">superellipse(3)</div><div class="vd">n = 8 · уже почти квадрат</div></div>
+      <div class="cn"><div class="box" style="corner-shape:superellipse(4)"></div>
+        <div class="lbl">superellipse(4)</div><div class="vd">n = 16 · ловушка: «4» здесь не показатель</div></div>
+    </div>
+
+    <div class="note">
+      <div class="t">Замер, а не доверие к названию</div>
+      <p>
+        Кромка отрендерена и подогнана к <code>((R−x)/R)ⁿ + ((R−y)/R)ⁿ = 1</code> перебором n —
+        тем же способом, каким в <code>design/README.md</code> подгонялся контур референса incident.io.
+        Результат: <b>n = 2^k</b>, отклонение 0.12–0.30 px. Поэтому в коде стоит <code>squircle</code>,
+        а не <code>superellipse(4)</code>: последнее дало бы n=16.
+      </p>
+      <p>
+        <b>Радиус один на всё, включая рейл.</b> Раньше рейл имел 10, а панели 14 — потому что круглый
+        угол 14 съедал 44-пиксельную ширину. Суперэллипс жмётся к углу вдвое сильнее (по диагонали
+        срезает 0.159R против 0.293R круга), и раскол отпал сам: 14 годится всем.
+      </p>
+      <p>
+        <b>Цена в SwiftUI.</b> <code>RoundedRectangle(style: .continuous)</code> — не эта кривая:
+        в README она подогнана с отклонением 2.34 px против 0.49 px у суперэллипса. Значит на прототипе
+        нужен свой <code>Shape</code> по формуле Ламе. Математика уже есть в <code>make-appiconset.py</code>.
+      </p>
+      <p>
+        <b>Токена нет.</b> В <code>13-tokens.md</code> §8 радиусы есть, а закона угла нет. По правилу серии
+        сначала добавляется токен, потом используется — то есть §8 нужно дописать: угол прямоугольных
+        поверхностей — суперэллипс n=4, точечные элементы (пилюли, точки) остаются круглыми.
+      </p>
+    </div>
+  </section>
+
+  <!-- ——————————————————— крупность роя ——————————————————— -->
+  <section class="block">
+    <div class="sec-head">
+      <span class="sec-num">крупность — не вкусовщина</span>
+      <h2>Почему рой-логотип 28 px — это точка, а не рой</h2>
+      <p>
+        Один и тот же рой, три размера, живые. Смотреть надо не на цвет, а на то, читается ли зерно и волна.
+        Слева материал не виден вовсе: 6 000 частиц, цикл 54 с и полоса-фронт схлопнулись в цветную точку,
+        которая медленно меняет тон. Справа виден рой.
+      </p>
+    </div>
+    <div class="scale-row">
+      <div class="scale-item">
+        <canvas class="swarm" data-size="28"></canvas>
+        <div class="lbl">28 px</div>
+        <div class="verdict">то, чем был бы логотип в сайдбаре: точка</div>
+      </div>
+      <div class="scale-item">
+        <canvas class="swarm" data-size="48"></canvas>
+        <div class="lbl">48 px — шапка</div>
+        <div class="verdict">зерно есть, волна угадывается — минимум, на котором рой живёт</div>
+      </div>
+      <div class="scale-item">
+        <canvas class="swarm" data-size="64"></canvas>
+        <div class="lbl">64 px</div>
+        <div class="verdict">зерно проступает уверенно, волна ещё не читается</div>
+      </div>
+      <div class="scale-item">
+        <canvas class="swarm" data-size="128"></canvas>
+        <div class="lbl">128 px</div>
+        <div class="verdict">материал работает: и зерно, и фронт волны</div>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="t">Это ограничение записано в design/README.md, а не выдумано здесь</div>
+      <p>
+        Пресеты логотипа: <code>a</code> — годен от 128, <code>c</code> — годен от 64. Ниже зерно пресета
+        физически не помещается в пиксель, рой начинает мельтешить, и файл на это ругается вместо молчаливого
+        клампа. На Retina (DPR 2) 28 px вытягивает сведением ×8 — то есть ради 28-пиксельной точки постоянно
+        считается буфер 512×512. На внешнем не-Retina мониторе тот же логотип уйдёт под порог и замельтешит.
+      </p>
+      <p>
+        TODO там же: «Спиннер 32×32 из лоадера — <b>запечённый спрайт-лист, не живой WebGL</b>. Требует свести
+        частоты к общему периоду — сейчас оборот (20.9 с), качание (33.1 с) и волна (54 с) не кратны, а
+        fbm-дрейф не повторяется вовсе». То есть маленький живой рой — известная нерешённая задача.
+      </p>
+      <p>
+        И <code>reference/ui/domain-model.md</code> уже решил, где рою место: «Рой на запуске покажет только
+        первую секунду… Его настоящее место там, где ждут долго: прогон стадии». Логотип — не «ждут долго».
+      </p>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<!-- ——————————————————— рой: шейдеры из design/loader-logo.html, дословно ——————————————————— -->
+<script id="vs" type="x-shader">#version 300 es
+precision highp float;
+uniform float uTime;
+uniform float uCount;
+uniform vec2  uRes;
+uniform float uZoom;
+uniform float uPt;
+uniform float uTaper;
+out vec3  vCol;
+out float vAlpha;
+
+const float PI = 3.14159265;
+
+mat2 rot(float a){ float c=cos(a), s=sin(a); return mat2(c,-s,s,c); }
+
+float hash11(float p){
+  p = fract(p*0.1031);
+  p *= p + 33.33;
+  p *= p + p;
+  return fract(p);
+}
+float hash31(vec3 p){
+  p = fract(p*0.3183099 + vec3(0.71,0.113,0.419));
+  p *= 17.0;
+  return fract(p.x*p.y*p.z*(p.x+p.y+p.z));
+}
+float vnoise(vec3 x){
+  vec3 i = floor(x), f = fract(x);
+  f = f*f*(3.0-2.0*f);
+  return mix(mix(mix(hash31(i+vec3(0,0,0)), hash31(i+vec3(1,0,0)), f.x),
+                 mix(hash31(i+vec3(0,1,0)), hash31(i+vec3(1,1,0)), f.x), f.y),
+             mix(mix(hash31(i+vec3(0,0,1)), hash31(i+vec3(1,0,1)), f.x),
+                 mix(hash31(i+vec3(0,1,1)), hash31(i+vec3(1,1,1)), f.x), f.y), f.z);
+}
+float fbm(vec3 x){
+  float s=0.0, a=0.5;
+  for (int i=0;i<3;i++){ s += a*vnoise(x); x *= 2.03; a *= 0.5; }
+  return s;
+}
+
+vec3 cool(int i){
+  if (i==0) return vec3(0.60, 0.20, 1.00);
+  if (i==1) return vec3(0.36, 0.17, 1.00);
+  if (i==2) return vec3(0.29, 0.39, 0.97);
+  return vec3(0.27, 0.13, 0.81);
+}
+vec3 warm(int i){
+  if (i==0) return vec3(1.00, 0.09, 0.27);
+  if (i==1) return vec3(1.00, 0.23, 0.19);
+  if (i==2) return vec3(1.00, 0.36, 0.24);
+  return vec3(1.00, 0.69, 0.13);
+}
+
+void main(){
+  float i = float(gl_VertexID);
+  float N = uCount;
+
+  float k   = (i + 0.5) / N;
+  float phi = acos(1.0 - 2.0*k);
+  float th  = PI * (1.0 + sqrt(5.0)) * (i + 0.5);
+  vec3 dir = vec3(sin(phi)*cos(th), cos(phi), sin(phi)*sin(th));
+  dir = normalize(dir + (vec3(hash11(i*3.11), hash11(i*5.27), hash11(i*7.43)) - 0.5) * 0.035);
+
+  float t = uTime;
+  float r = 1.0
+    + 0.230*sin(1.8*dir.x + t*0.62)*sin(2.0*dir.y - t*0.47)
+    + 0.130*sin(2.5*dir.z + t*0.55)
+    + 0.070*sin(3.3*dir.y + 1.6*dir.x - t*0.80)
+    + 0.040*sin(4.6*dir.z - 2.1*dir.x + t*0.65);
+
+  float jitter = (hash11(i*1.37) - 0.5) * 0.05;
+  vec3 pos = dir * (r + jitter);
+
+  vec3 flow = vec3(fbm(pos*1.3 + vec3(0.0, t*0.20, 0.0)),
+                   fbm(pos*1.3 + vec3(11.0, -t*0.16, 3.0)),
+                   fbm(pos*1.3 + vec3(27.0, t*0.12, 7.0))) - 0.5;
+  pos += flow * 0.07;
+
+  vec3 obj = pos;
+  pos.xz *= rot(t*0.30);
+  pos.xy *= rot(sin(t*0.19)*0.42);
+
+  vec3 ro = vec3(0.0, 0.0, 3.6);
+  vec3 rel = pos - ro;
+  float dist = -rel.z;
+  vec2 proj = rel.xy / (dist * 1.175) * uZoom;
+  float zn = clamp((dist - 2.2) / 2.9, 0.0, 1.0);
+  gl_Position = vec4(proj, zn*2.0 - 1.0, 1.0);
+
+  float per  = 54.0;
+  float u    = fract(t/per);
+  float tr   = 0.333;
+  float hold = 0.5 - tr;
+  float wave;
+  if      (u < hold)       wave = 0.0;
+  else if (u < 0.5)        wave = smoothstep(0.0, 1.0, (u - hold)/tr);
+  else if (u < 0.5 + hold) wave = 1.0;
+  else                     wave = 1.0 - smoothstep(0.0, 1.0, (u - 0.5 - hold)/tr);
+
+  float ord  = fbm(dir*0.90 + vec3(5.0, 0.0, 0.0));
+  float ordN = clamp((ord - 0.20)/0.40, 0.0, 1.0);
+  ordN += (hash11(i*4.77) - 0.5) * 0.30;
+  bool isWarm = ordN < wave*1.60 - 0.30;
+
+  float sh = fbm(obj*0.55 + vec3(19.0, -t*0.17, 5.0));
+  float pick = clamp((sh - 0.369)/0.246, 0.0, 0.999);
+  float fidx = pick*3.0;
+  int  i0 = int(floor(fidx));
+  int  i1 = min(i0 + 1, 3);
+  float fr = fract(fidx);
+  float edge = 0.22;
+  float kEdge = smoothstep(1.0 - edge, 1.0, fr);
+  vec3 col = isWarm ? mix(warm(i0), warm(i1), kEdge)
+                    : mix(cool(i0), cool(i1), kEdge);
+
+  float depth = clamp((dist - 2.4) / 2.2, 0.0, 1.0);
+  float shade = mix(1.0, 0.28, depth) * (0.78 + 0.22*hash11(i*2.13));
+  vCol = pow(col, vec3(2.2)) * shade;
+  vAlpha = isWarm ? 1.0 : 0.0;
+
+  gl_PointSize = uPt * mix(1.0, uTaper, depth);
+}
+</script>
+
+<script id="fs" type="x-shader">#version 300 es
+precision highp float;
+in vec3  vCol;
+in float vAlpha;
+out vec4 frag;
+
+void main(){
+  vec2 d = gl_PointCoord - 0.5;
+  if (length(d) > 0.46) discard;
+  frag = vec4(vCol, vAlpha);
+}
+</script>
+
+<script id="post-vs" type="x-shader">#version 300 es
+void main(){
+  vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+  gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
+}
+</script>
+
+<script id="post-fs" type="x-shader">#version 300 es
+precision highp float;
+uniform sampler2D uSrc;
+uniform float uTime;
+uniform int   uSS;
+uniform vec3  uBG;   /* фон подложки в линейном свете: рой лежит на панели,
+                        а не в чёрном круге; семьи это не задевает — фон
+                        участвует только там, где частиц нет */
+out vec4 frag;
+
+#define BG uBG
+
+vec3 resolve(){
+  ivec2 base = ivec2(gl_FragCoord.xy) * uSS;
+  vec3 sumC = vec3(0.0), sumW = vec3(0.0);
+  int nC = 0, nW = 0, nB = 0;
+  for (int j = 0; j < uSS; j++){
+    for (int i = 0; i < uSS; i++){
+      vec4 t = texelFetch(uSrc, base + ivec2(i, j), 0);
+      if      (t.a > 0.75) { sumW += t.rgb; nW++; }
+      else if (t.a < 0.25) { sumC += t.rgb; nC++; }
+      else                 { nB++; }
+    }
+  }
+  int lit = nC + nW;
+  if (lit == 0) return BG;
+  bool warmWins = nW >= nC;
+  vec3 avg = warmWins ? sumW / float(nW) : sumC / float(nC);
+  return (avg * float(lit) + BG * float(nB)) / float(uSS * uSS);
+}
+
+void main(){
+  vec3 c = resolve();
+  c = pow(max(c, 0.0), vec3(0.4545));
+  vec2 fc = gl_FragCoord.xy;
+  float n1 = fract(sin(dot(fc, vec2(12.9898,78.233)) + uTime*0.017)*43758.5453);
+  float n2 = fract(sin(dot(fc, vec2(93.9898,67.345)) - uTime*0.023)*24634.6345);
+  frag = vec4(c + (n1 + n2 - 1.0)*(2.0/255.0), 1.0);
+}
+</script>
+
+<script>
+(function(){
+  'use strict';
+
+  // Геометрия и пресеты — из design/loader-logo.html. Не «примерно как там»:
+  // числа те же, иначе эскиз показывал бы не утверждённый рой.
+  const ORB = 0.21, ZOOM = 2.4, TAPER = 0.5;
+  const GRAIN_LOADER = (2.6 * 2.4 / 900) / (ORB * 2.4);
+  const COVERAGE = 6000 * GRAIN_LOADER * GRAIN_LOADER;
+  const GRAIN = 0.01008;                       // пресет c
+  const COUNT = Math.round(COVERAGE / (GRAIN * GRAIN));
+  const MIN_PT = 1.8, SS_MAX = 8;
+
+  // Фон резолва в линейном свете (шейдерная гамма 2.2).
+  // deep — прежний глубокий фон страницы; surface — bg.surface #0D0C14:
+  // на нём рой сливается с панелью, чёрного круга нет.
+  const BG_DEEP    = [0.00021, 0.00033, 0.00160];
+  const BG_SURFACE = [0.001434, 0.001202, 0.003693];
+
+  function makeSwarm(cv, sizeCSS, bg){
+    const gl = cv.getContext('webgl2', { antialias:false, alpha:false });
+    if(!gl || !gl.getExtension('EXT_color_buffer_float')) return null;
+
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const OUT = Math.round(sizeCSS * DPR);
+    let SS = 1;
+    while (SS < SS_MAX && GRAIN * ORB * ZOOM * OUT * SS < MIN_PT) SS *= 2;
+    const BUF = OUT * SS;
+    const PT  = GRAIN * ORB * ZOOM * BUF;
+
+    // Буфер прибит к CSS-размеру пиксель в пиксель: дробь заставила бы браузер
+    // ресемплить кадр и усреднять соседние синюю и красную частицы — в розовый.
+    cv.width = OUT; cv.height = OUT;
+    cv.style.width = (OUT/DPR) + 'px'; cv.style.height = (OUT/DPR) + 'px';
+
+    function sh(type, src){
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src.trim()); gl.compileShader(s);
+      if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+      return s;
+    }
+    function link(vsId, fsId){
+      const p = gl.createProgram();
+      gl.attachShader(p, sh(gl.VERTEX_SHADER,   document.getElementById(vsId).textContent));
+      gl.attachShader(p, sh(gl.FRAGMENT_SHADER, document.getElementById(fsId).textContent));
+      gl.linkProgram(p);
+      if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+      return p;
+    }
+    const prog = link('vs','fs');
+    const post = link('post-vs','post-fs');
+
+    gl.useProgram(prog);
+    const uTime = gl.getUniformLocation(prog, 'uTime');
+    gl.uniform1f(gl.getUniformLocation(prog, 'uCount'), COUNT);
+    gl.uniform2f(gl.getUniformLocation(prog, 'uRes'),   BUF, BUF);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uZoom'),  ZOOM);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uPt'),    PT);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uTaper'), TAPER);
+
+    gl.useProgram(post);
+    const pTime = gl.getUniformLocation(post, 'uTime');
+    gl.uniform1i(gl.getUniformLocation(post, 'uSrc'), 0);
+    gl.uniform1i(gl.getUniformLocation(post, 'uSS'),  SS);
+    gl.uniform3f(gl.getUniformLocation(post, 'uBG'), bg[0], bg[1], bg[2]);
+
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, BUF, BUF, 0, gl.RGBA, gl.HALF_FLOAT, null);
+    const fbo = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+
+    const dbuf = gl.createRenderbuffer();
+    gl.bindRenderbuffer(gl.RENDERBUFFER, dbuf);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, BUF, BUF);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, dbuf);
+
+    gl.bindVertexArray(gl.createVertexArray());
+
+    function draw(sec){
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+      gl.viewport(0,0,BUF,BUF);
+      gl.clearColor(0.00021, 0.00033, 0.00160, 0.5);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.disable(gl.BLEND);
+      gl.enable(gl.DEPTH_TEST);
+      gl.depthFunc(gl.LESS);
+      gl.useProgram(prog);
+      gl.uniform1f(uTime, sec);
+      gl.drawArrays(gl.POINTS, 0, COUNT);
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0,0,OUT,OUT);
+      gl.disable(gl.DEPTH_TEST);
+      gl.useProgram(post);
+      gl.uniform1f(pTime, sec);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    return { draw, tooFine: PT < MIN_PT, ss: SS, buf: BUF };
+  }
+
+  const swarms = [];
+  document.querySelectorAll('canvas.swarm').forEach(cv => {
+    const bg = cv.dataset.bg === 'surface' ? BG_SURFACE : BG_DEEP;
+    const s = makeSwarm(cv, parseInt(cv.dataset.size, 10), bg);
+    if (s) { s.frozen = cv.dataset.frozen === '1'; swarms.push(s); }
+  });
+
+  // Reduce Motion уважается всегда (13-tokens §11): рой замирает на кадре,
+  // а не «крутится потише».
+  const RM = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let live = true;
+  let t0 = null;
+  let frozenAt = 12.0;   // кадр, на котором стоит стоп-кадр
+
+  requestAnimationFrame(function loop(ts){
+    if (t0 === null) t0 = ts;
+    const sec = (live && !RM.matches) ? (ts - t0)/1000 : frozenAt;
+    swarms.forEach(s => s.draw(s.frozen ? frozenAt : sec));
+    requestAnimationFrame(loop);
+  });
+
+  // ── пульт ──────────────────────────────────────────────────────────────
+  function wire(id, fn){
+    const seg = document.getElementById(id);
+    seg.addEventListener('click', e => {
+      const b = e.target.closest('button'); if(!b) return;
+      seg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+      fn(b.dataset.v);
+    });
+  }
+  const root = document.documentElement;
+  wire('seg-border', v => root.style.setProperty('--pane-border', v));
+  wire('seg-gap',    v => root.style.setProperty('--gap', v));
+  wire('seg-swarm',  v => { live = (v === 'live'); if (live) t0 = null; });
+  wire('seg-rail',   v => document.getElementById('four').classList.toggle('rail-open', v === 'open'));
+})();
+</script>
+</body>
+</html>
