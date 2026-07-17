@@ -12,9 +12,9 @@
     --brand-cyan: #58C7FF;
 
     /* поверхности: elevation светлотой */
-    --bg-base: #07060B;
-    --bg-surface: #0D0C14;
-    --bg-raised: #14121E;
+    --bg-base: #05030D;
+    --bg-surface: #0B0717;
+    --bg-raised: #120B23;
 
     /* текст: альфа-белый */
     --t-primary: rgba(255,255,255,0.96);
@@ -196,7 +196,7 @@
     border: 1.5px solid var(--bg-surface);
   }
   /* Янтарный бейдж — только там, где требуется решение. Остальные нейтральны. */
-  .rl-b.warn { background: var(--sem-warning); color: #07060B; }
+  .rl-b.warn { background: var(--sem-warning); color: #05030D; }
   .rl-sp { flex: 1; }
   .rl-tip {
     position: absolute; left: 36px; top: 2px; z-index: 5;
@@ -996,7 +996,7 @@ void main(){
   const MIN_PT = 1.8, SS_MAX = 8;
 
   // Фон резолва в линейном свете (шейдерная гамма 2.2).
-  // deep — прежний глубокий фон страницы; surface — bg.surface #0D0C14:
+  // deep — прежний глубокий фон страницы; surface — bg.surface #0B0717:
   // на нём рой сливается с панелью, чёрного круга нет.
   const BG_DEEP    = [0.00021, 0.00033, 0.00160];
   const BG_SURFACE = [0.001434, 0.001202, 0.003693];

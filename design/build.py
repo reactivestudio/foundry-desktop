@@ -776,6 +776,12 @@ def generate_canon(tokens, current_text):
 
 CARD_PATTERN = re.compile(r'<script[^>]*id="card"[^>]*>(.*?)</script>', re.DOTALL)
 
+CANDIDATE_STATUS = "кандидат"
+
+# Сайдкар высоту образца не обязан знать: он описывает чужой крупный файл,
+# а не свой. Показываем столько и честно говорим в карточке, что это догадка.
+DEFAULT_SIDECAR_HEIGHT = 720
+
 
 def read_card(path):
     """Достаёт карточку части. None — карточки нет или она не разбирается:
@@ -790,44 +796,93 @@ def read_card(path):
         return None
 
 
+def make_record(card, specimen, category):
+    """Единая запись витрины: карточка + чем показывать образец. Часть и
+    сайдкар приёмной различаются только этим, поэтому дальше — один код."""
+    height = card.get("height")
+    guessed = not isinstance(height, int)
+    return {
+        "card": card,
+        "specimen": specimen.relative_to(ROOT / "design").as_posix() if specimen else None,
+        "height": DEFAULT_SIDECAR_HEIGHT if guessed else height,
+        "height_guessed": guessed,
+        "category": category,
+        "slug": card.get("slug") or (specimen.stem if specimen else "?"),
+    }
+
+
 def collect_parts():
-    """Части по категориям: {категория: [(карточка, путь), ...]}."""
-    collected = {}
+    """Части категорий записями. Раскладку по зрелости делает не эта функция:
+    папка говорит только о категории (README, «Три статуса»)."""
+    records = []
     for folder, _title in CATEGORIES:
         directory = PARTS_DIR / folder
-        found = []
-        if directory.is_dir():
-            for path in sorted(directory.glob("*.html")):
-                card = read_card(path)
-                if card:
-                    found.append((card, path))
-        collected[folder] = found
-    return collected
-
-
-def collect_candidates():
-    found = []
-    if CANDIDATES_DIR.is_dir():
-        for path in sorted(CANDIDATES_DIR.glob("*.html")):
+        if not directory.is_dir():
+            continue
+        for path in sorted(directory.glob("*.html")):
             card = read_card(path)
             if card:
-                found.append((card, path))
-    return found
+                records.append(make_record(card, path, folder))
+    return records
+
+
+def collect_sidecars():
+    """Приёмная: сайдкар .md описывает крупный неразобранный кусок, образец —
+    соседний .html. Карточки #card внутри таких файлов нет и не будет — они
+    приехали до контракта, и требовать от них порядка значило бы не пускать
+    находки в систему вообще."""
+    records = []
+    if not CANDIDATES_DIR.is_dir():
+        return records
+    for path in sorted(CANDIDATES_DIR.glob("*.md")):
+        fields, _body = parse_front_matter(path.read_text(encoding="utf-8"))
+        if not fields:
+            continue
+        specimen = path.with_suffix(".html")
+        records.append(make_record(fields, specimen if specimen.exists() else None, None))
+    return records
+
+
+def unquote(value):
+    """Снимает парные кавычки и приводит голое целое к числу — как это делает
+    настоящий YAML: «height: 240» там число, а не строка. Без этого карточка
+    с честной высотой читалась как «высоты нет», и витрина показывала образец
+    в 720px, уверяя, что высота не указана.
+    YAML-библиотеки в проекте нет и не будет."""
+    value = value.strip()
+    for quote in ('"', "'"):
+        if len(value) >= 2 and value.startswith(quote) and value.endswith(quote):
+            return value[1:-1].replace(quote * 2, quote)
+    if re.fullmatch(r"-?\d+", value):
+        return int(value)
+    return value
 
 
 def parse_front_matter(text):
-    """Простой front-matter «ключ: значение» между строками «---».
-    Своего парсера YAML в проекте нет и не будет — зависимостей ноль."""
+    """Front-matter между строками «---»: «ключ: значение» и списки «- пункт».
+    Это не YAML целиком, а ровно та его подмножественная форма, которой
+    пользуются сайдкары приёмной — зависимостей у проекта ноль."""
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
         return {}, text
     fields = {}
+    key = None
     for index in range(1, len(lines)):
-        if lines[index].strip() == "---":
+        line = lines[index]
+        if line.strip() == "---":
             return fields, "\n".join(lines[index + 1:])
-        if ":" in lines[index]:
-            key, value = lines[index].split(":", 1)
-            fields[key.strip()] = value.strip().strip('"').strip("'")
+        stripped = line.strip()
+        if not stripped:
+            continue
+        # Пункт списка: продолжает ключ, объявленный выше пустым значением.
+        if stripped.startswith("- ") and key is not None and isinstance(fields.get(key), list):
+            fields[key].append(unquote(stripped[2:]))
+            continue
+        if ":" in stripped:
+            name, value = stripped.split(":", 1)
+            key = name.strip()
+            # Пустое значение — дальше либо список, либо ничего.
+            fields[key] = unquote(value) if value.strip() else []
     return fields, text
 
 
@@ -962,7 +1017,7 @@ SHOWCASE_STYLE = """
     display: flex;
     align-items: baseline;
     gap: var(--space-2);
-    padding: var(--space-4);
+    padding: var(--space-4) var(--space-4) 0;
   }
   .card-head h3 {
     margin: 0;
@@ -983,10 +1038,18 @@ SHOWCASE_STYLE = """
   .chip-candidate { background: var(--sem-warning-fill); color: var(--sem-warning); }
   .chip-rejected { background: var(--sem-error-fill); color: var(--sem-error); }
 
-  .stage { background: var(--bg-base); border-top: 1px solid var(--border-subtle); }
+  /* Образец — якорь карточки: идёт первым и держит её размером (02 §2.3). */
+  .stage { background: var(--bg-base); border-bottom: 1px solid var(--border-subtle); }
   .stage iframe { display: block; width: 100%; border: 0; }
+  .stage-note {
+    margin: 0;
+    padding: var(--space-2) var(--space-4);
+    color: var(--text-tertiary);
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-leading);
+  }
 
-  dl { margin: 0; padding: var(--space-4); border-top: 1px solid var(--border-subtle); }
+  dl { margin: 0; padding: var(--space-4); }
   dt {
     margin-bottom: var(--space-1);
     color: var(--text-tertiary);
@@ -1009,6 +1072,38 @@ SHOWCASE_STYLE = """
     font-family: var(--font-mono);
     font-size: var(--type-mono-s-size);
     color: var(--text-secondary);
+  }
+
+  /* Родословную читают раз в жизни — она лежит за раскрытием (02 §1.1). */
+  details { border-top: 1px solid var(--border-subtle); }
+  details summary {
+    padding: var(--space-2) var(--space-4);
+    color: var(--text-tertiary);
+    font-size: var(--type-label-size);
+    line-height: var(--type-label-leading);
+    font-weight: var(--type-label-weight);
+    text-transform: var(--type-label-caps);
+    letter-spacing: var(--type-label-tracking);
+    cursor: pointer;
+    list-style-position: inside;
+  }
+  details summary:hover { color: var(--text-secondary); }
+  details p {
+    margin: 0;
+    padding: 0 var(--space-4) var(--space-4);
+    color: var(--text-tertiary);
+  }
+
+  /* Кандидат в своей категории: строка-ссылка в приёмную, не второй образец. */
+  .reference {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-3) 0 0;
+    padding: var(--space-2) var(--space-3);
+    border: 1px dashed var(--border-default);
+    border-radius: var(--radius-m);
+    color: var(--text-tertiary);
   }
 
   .empty {
@@ -1041,55 +1136,97 @@ def escape(value):
     return html.escape(str(value), quote=True)
 
 
-def render_card(card, path):
-    """Одна часть: карточка + образец в iframe. iframe — чтобы части
-    не передрались стилями (README, «Файл части»)."""
-    source = path.relative_to(ROOT / "design").as_posix()
+def render_card(record):
+    """Одна часть. Порядок сверху вниз — образец, имя, зачем, никогда, чипы,
+    родословная за раскрытием.
+
+    Образец идёт первым и держит карточку размером: на витрину приходят
+    с вопросом «как это выглядит», а якорь обязан совпадать с вопросом,
+    с которым пришли (02-composition.md §2.3). Проза о части — подпорка
+    к образцу, и чернил ей положено меньше, чем данным (11-dataviz.md §1.1).
+    Родословная — происхождение, а не закон: её читают раз в жизни, когда
+    спорят, откуда взялось, поэтому она уходит за раскрытие (02 §1.1, третий
+    вопрос маршрута). «Никогда» так свернуть нельзя: это главное поле
+    контракта, оно обязано читаться без клика.
+
+    iframe — чтобы части не передрались стилями (README, «Файл части»).
+    """
+    card = record["card"]
     status = card.get("status", "?")
     chip_class = STATUS_CHIP.get(status, "chip-candidate")
-    height = card.get("height", 200)
 
-    lines = ['<article class="card">']
-    lines.append('  <div class="card-head">')
-    lines.append("    <h3>%s</h3>" % escape(card.get("name", path.stem)))
-    lines.append('    <span class="slug">%s</span>' % escape(card.get("slug", path.stem)))
-    lines.append('    <span class="chip %s">%s</span>' % (chip_class, escape(status)))
-    lines.append("  </div>")
+    lines = ['<article class="card" id="part-%s">' % escape(record["slug"])]
 
     lines.append('  <div class="stage">')
-    lines.append('    <iframe src="%s" height="%s" loading="lazy" title="%s"></iframe>'
-                 % (escape(source), escape(height), escape(card.get("name", ""))))
+    if record["specimen"]:
+        lines.append('    <iframe src="%s" height="%d" loading="lazy" title="%s"></iframe>'
+                     % (escape(record["specimen"]), record["height"], escape(card.get("name", ""))))
+    else:
+        lines.append('    <p class="stage-note">образца нет — файла рядом с карточкой не нашлось</p>')
+    lines.append("  </div>")
+    if record["specimen"] and record["height_guessed"]:
+        lines.append('  <p class="stage-note">высота образца в карточке не указана — '
+                     "витрина показывает %dpx и может врать</p>" % DEFAULT_SIDECAR_HEIGHT)
+
+    lines.append('  <div class="card-head">')
+    lines.append("    <h3>%s</h3>" % escape(card.get("name", record["slug"])))
+    lines.append('    <span class="slug">%s</span>' % escape(record["slug"]))
+    lines.append('    <span class="chip %s">%s</span>' % (chip_class, escape(status)))
     lines.append("  </div>")
 
     lines.append("  <dl>")
     lines.append("    <dt>Зачем</dt><dd>%s</dd>" % escape(card.get("why", "—")))
     lines.append('    <dt>Никогда</dt><dd class="never">%s</dd>' % escape(card.get("never", "—")))
 
-    tokens_used = card.get("tokens") or []
-    tokens_html = "".join("<span>%s</span>" % escape(token) for token in tokens_used) or "—"
-    lines.append('    <dt>Ест токены</dt><dd class="tokens">%s</dd>' % tokens_html)
+    if card.get("debt"):
+        lines.append('    <dt>Долг</dt><dd class="debt">%s</dd>' % escape(card["debt"]))
 
-    canon_links = card.get("canon") or []
-    links = ", ".join('<a href="../docs/design/%s">%s</a>' % (escape(chapter), escape(chapter))
-                      for chapter in canon_links) or "—"
-    lines.append("    <dt>Канон</dt><dd>%s</dd>" % links)
+    if "tokens" in card:
+        tokens_html = "".join("<span>%s</span>" % escape(token) for token in card["tokens"] or []) or "—"
+        lines.append('    <dt>Ест токены</dt><dd class="tokens">%s</dd>' % tokens_html)
 
-    swift_symbol = card.get("swift")
-    if swift_symbol:
-        lines.append("    <dt>Реализация</dt><dd><code>%s</code></dd>" % escape(swift_symbol))
-    else:
-        lines.append('    <dt>Реализация</dt><dd class="debt">реализации нет</dd>')
+    if card.get("canon"):
+        links = ", ".join('<a href="../docs/design/%s">%s</a>' % (escape(chapter), escape(chapter))
+                          for chapter in card["canon"])
+        lines.append("    <dt>Канон</dt><dd>%s</dd>" % links)
 
-    lines.append("    <dt>Родословная</dt><dd>%s</dd>" % escape(card.get("lineage", "—")))
+    if "swift" in card:
+        if card["swift"]:
+            lines.append("    <dt>Реализация</dt><dd><code>%s</code></dd>" % escape(card["swift"]))
+        else:
+            lines.append('    <dt>Реализация</dt><dd class="debt">реализации нет</dd>')
+
     lines.append("  </dl>")
+
+    lines.append("  <details>")
+    lines.append("    <summary>родословная</summary>")
+    lines.append("    <p>%s</p>" % escape(card.get("lineage", "—")))
+    lines.append("  </details>")
     lines.append("</article>")
     return lines
 
 
+def render_candidate_reference(record):
+    """Кандидат в своей категории — одной строкой со ссылкой в приёмную.
+    Карточка у части одна: два образца одной вещи — два якоря вместо одного
+    (02 §2.2) и вдвое больше чернил на то же (11 §1.1)."""
+    card = record["card"]
+    return ('<p class="reference"><a href="#part-%s">%s</a> '
+            '<span class="chip chip-candidate">кандидат</span> — лежит в приёмной, законом не является</p>'
+            % (escape(record["slug"]), escape(card.get("name", record["slug"]))))
+
+
 def generate_showcase(tokens):
     parts = collect_parts()
-    candidates = collect_candidates()
     rejected = collect_rejected()
+
+    # Раскладка по зрелости — по статусу карточки, а не по папке: статус —
+    # единственная истина о зрелости, папка говорит только о категории
+    # (README, «Три статуса»). Файл при смене статуса никуда не едет.
+    candidate_parts = [record for record in parts if record["card"].get("status") == CANDIDATE_STATUS]
+    law_parts = [record for record in parts if record["card"].get("status") != CANDIDATE_STATUS]
+    # Сайдкары идут первыми: это крупное неразобранное, ради чего приёмная и есть.
+    candidates = collect_sidecars() + candidate_parts
 
     lines = ["<!doctype html>", "<html lang=\"ru\">", "<head>", '<meta charset="utf-8">',
              "<!-- %s -->" % HEADER,
@@ -1110,8 +1247,9 @@ def generate_showcase(tokens):
     if candidates:
         lines.append('  <a href="#candidates">Кандидаты <span class="count">%d</span></a>' % len(candidates))
     for folder, title in CATEGORIES:
+        in_category = [record for record in law_parts if record["category"] == folder]
         lines.append('  <a href="#%s">%s <span class="count">%d</span></a>'
-                     % (folder, escape(title), len(parts[folder])))
+                     % (folder, escape(title), len(in_category)))
     if rejected:
         lines.append('  <a href="#rejected">Отвергнуто <span class="count">%d</span></a>' % len(rejected))
     lines.append("</nav>")
@@ -1120,26 +1258,34 @@ def generate_showcase(tokens):
 
     if candidates:
         lines.append('<section id="candidates">')
-        lines.append("  <h2>Кандидаты — не закон</h2>")
-        lines.append('  <p class="note">Приехали из сессий, приёмку не проходили. Ссылаться на них '
-                     "как на решённое нельзя. Проходят приёмку — переезжают в свою категорию; "
-                     "не проходят — на кладбище с причиной.</p>")
+        lines.append("  <h2>Приёмная — не закон</h2>")
+        lines.append('  <p class="note">Приехало из сессий, приёмку не проходило. <strong>Ссылаться '
+                     "на это как на решённое нельзя.</strong> Крупные куски лежат неразобранными "
+                     "(своя шкала, сырые значения, линт им не судья) — это законный вход в систему: "
+                     "иначе находки оседают в воркtree и умирают вместе с ним. Проходит приёмку — "
+                     "меняется статус в карточке; не проходит — уезжает на кладбище с причиной.</p>")
         lines.append('  <div class="band candidates"><div class="grid">')
-        for card, path in candidates:
-            lines.extend("    " + line for line in render_card(card, path))
+        for record in candidates:
+            lines.extend("    " + line for line in render_card(record))
         lines.append("  </div></div>")
         lines.append("</section>")
 
     for folder, title in CATEGORIES:
         lines.append('<section id="%s">' % folder)
         lines.append("  <h2>%s</h2>" % escape(title))
-        if not parts[folder]:
+        in_category = [record for record in law_parts if record["category"] == folder]
+        waiting = [record for record in candidate_parts if record["category"] == folder]
+        if not in_category and not waiting:
             lines.append('  <div class="empty">Частей пока нет.</div>')
+        elif not in_category:
+            lines.append('  <div class="empty">Принятых частей пока нет — только кандидаты в приёмной.</div>')
         else:
             lines.append('  <div class="grid">')
-            for card, path in parts[folder]:
-                lines.extend("    " + line for line in render_card(card, path))
+            for record in in_category:
+                lines.extend("    " + line for line in render_card(record))
             lines.append("  </div>")
+        for record in waiting:
+            lines.append("  " + render_candidate_reference(record))
         lines.append("</section>")
 
     if rejected:
