@@ -1,0 +1,124 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Бейдж — foundry-desktop</title>
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../specimen.css">
+
+<script type="application/json" id="card">
+{
+  "name": "Бейдж",
+  "slug": "badge",
+  "status": "кандидат",
+  "height": 250,
+  "why": "Плашка на строке или карточке, где статус надо сказать словом и цветом сразу: глиф даёт форму, заливка @14% — семантику, и оба канала читаются до чтения.",
+  "never": "Не применять без глифа в цветных вариантах: цвет обязан дублироваться формой — бейдж без ✓ ⚠ ✕ ◉ при дейтеранопии пуст (06 §3.3). Не заливать бейдж сплошным цветом с белым текстом: рецепт канона — цвет текста на том же цвете @14% (06 §3.2); белый на циане и мадженте вообще запрещён (text.on-accent). Не красить бейдж ультрамарином: акцент зарезервирован за действием и выделением, и цветной бейдж рядом начинает спорить с кнопкой «Принять» за внимание (08 §1.3); нейтральная категория — базовый вариант, без цвета. Не вешать бейдж на каждый элемент списка: раскрашенная целиком колонка — экран-светофор, цвет перестаёт значить (06, «цвет только на значимом»). Не дублировать бейджем то, что уже сказано позицией: чип стадии на карточке канбана — ложь дважды, колонка и есть стадия (§6 макета). Не делать бейдж кликабельным: это ярлык, а не контрол; нужен клик — это кнопка или фильтр-токен со своей хит-зоной ≥24pt (08 §5). Не носить бейджем имя проекта или сервиса — для этого project-label, где цвет намеренно не расходуется.",
+  "tokens": ["space.1", "space.2", "radius.s", "type.caption", "font.text", "text.secondary", "bg.hover", "border.subtle", "sem.info", "sem.info-fill", "sem.info-border", "sem.success", "sem.success-fill", "sem.success-border", "sem.warning", "sem.warning-fill", "sem.warning-border", "sem.error", "sem.error-fill", "sem.error-border"],
+  "canon": ["06-color.md", "12-icons.md", "08-controls.md"],
+  "swift": null,
+  "lineage": "Выделен из foundry-mockups.html §5 (строки 2004–2009, галерея «Бейджи · семантика = цвет + форма») и §6 (строки 2166, 2171 — «⚠ завис 40 мин» и «✕ CI упал» на карточках канбана) — встретился дважды. Класс макета — .chip (CSS строки 235–245). Заливки и бордеры совпали с токенами буквально: warn/err/live у макета — это @14% + @30%, то есть sem.*-fill и sem.*-border без остатка. КАНДИДАТ по двум причинам. Первая: зелёный «✓ принято» существует в макете только инлайн-стилем (строка 2009), класса под него нет — модификатор ok здесь нормализация этого места. Вторая: модификатор .chip.stage макета побайтно совпадает с базовым правилом (цвет, фон и бордер те же) — пустой алиас, он выброшен, нейтральная категория осталась базовым вариантом; заодно этим бейдж перестал знать слово «стадия» и остался в 3-elements. Модификатор .chip.proj из CSS макета мёртв (в разметке не встречается ни разу) и не перенесён. Вертикальный паддинг вырос с 1px до space.1 = 4pt: подпиксельных значений в шкале нет, а роль space.1 в tokens.json прямо названа «внутренности бейджа (верт.)» — бейдж стал выше макета примерно на 6pt, это осознанная сверка с законом, а не дрейф."
+}
+</script>
+
+<style>
+  .p-badge {
+    display: flex; flex-direction: column; gap: var(--space-5);
+    font-family: var(--font-text);
+  }
+  .p-badge .group { display: flex; flex-direction: column; gap: var(--space-3); }
+  .p-badge .multiples { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; }
+  .p-badge .cell { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; }
+
+  /* ——— тело: §5 макета (CSS строки 235–245) ———
+     padding 1px 7px → space.1 / space.2 (ДОЛГ: подпиксельных шагов в шкале нет;
+     роль space.1 в tokens.json — «внутренности бейджа (верт.)», то есть закон здесь у шкалы)
+     нейтральная заливка @6% → bg.hover: значение совпадает точно, но роль токена — ховер (ДОЛГ) */
+  .p-badge .chip {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-s);
+    font-family: var(--font-text);
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-leading);
+    color: var(--text-secondary);
+    background: var(--bg-hover);
+    border: 1px solid var(--border-subtle);   /* ДОЛГ: ширины линии в токенах нет */
+    white-space: nowrap;
+  }
+  /* цветные варианты — текст цветом токена на том же цвете @14% + бордер @30% (06 §3.2) */
+  .p-badge .chip.live { color: var(--sem-info);    background: var(--sem-info-fill);    border-color: var(--sem-info-border); }
+  .p-badge .chip.ok   { color: var(--sem-success); background: var(--sem-success-fill); border-color: var(--sem-success-border); }
+  .p-badge .chip.warn { color: var(--sem-warning); background: var(--sem-warning-fill); border-color: var(--sem-warning-border); }
+  .p-badge .chip.err  { color: var(--sem-error);   background: var(--sem-error-fill);   border-color: var(--sem-error-border); }
+
+  /* проверка на дейтеранопию: тот же ряд без цвета — смысл обязан остаться */
+  .p-badge .desat { filter: grayscale(1); }
+</style>
+
+<div class="specimen p-badge">
+
+  <!-- пять вариантов рядом: нейтральный + четыре семантики -->
+  <div class="group">
+    <span class="state-label">варианты · цвет + форма</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">базовый · нейтральная категория</span>
+        <span class="chip">Design</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">live</span>
+        <span class="chip live">◉ live</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">ok</span>
+        <span class="chip ok">✓ принято</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">warn</span>
+        <span class="chip warn">⚠ на доработку</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">err</span>
+        <span class="chip err">✕ CI упал</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- тот же ряд, обесцвеченный: самотест 06 §3.3 — если смысл пропал, кодирование только цветом -->
+  <div class="group">
+    <span class="state-label">тот же ряд без цвета · самотест на дейтеранопию (06 §3.3)</span>
+    <div class="multiples desat">
+      <div class="cell">
+        <span class="state-label">базовый</span>
+        <span class="chip">Design</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">live</span>
+        <span class="chip live">◉ live</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">ok</span>
+        <span class="chip ok">✓ принято</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">warn</span>
+        <span class="chip warn">⚠ на доработку</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">err</span>
+        <span class="chip err">✕ CI упал</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- длинное имя: бейдж не переносится и не усекается — он короткий по определению -->
+  <div class="group">
+    <span class="state-label">граница · бейдж не переносится (white-space: nowrap)</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">предел читаемого</span>
+        <span class="chip warn">⚠ снапшот устарел на 3 дня</span>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,168 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Кнопка — foundry-desktop</title>
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../specimen.css">
+
+<script type="application/json" id="card">
+{
+  "name": "Кнопка",
+  "slug": "button",
+  "status": "принят",
+  "height": 270,
+  "why": "Единственный носитель действия в интерфейсе: заливкой, обводкой и цветом говорит, насколько сильно система рекомендует нажать.",
+  "never": "Не ставить две primary в одной замкнутой зоне: primary — это ответ на «что делать дальше», два ответа = отсутствие ответа (08 §1.1). Не выделять главное действие размером — размер даёт плотность контекста, иерархию даёт заливка (08 §1.2). Не красить danger-out ничем, кроме реальной потери данных: «Вернуть на доработку» — не опасность, а нормальная работа, и красный на ней сжигает единственный способ крикнуть настоящему «Удалить проект» (08 §1.4). Не применять как носитель статуса: у кнопки нет состояния «ok/warn» — цветная плашка это badge, а не кнопка. Не вешать glow ни на что, кроме hover primary: в поле зрения ровно одно свечение (13 §12, glow._role). Не заводить кнопку-иконку из этой части: там своя хит-зона ≥24pt и обязательный тултип (08 §5), и primary у иконок не бывает — главное действие заслуживает слова. Не прятать недоступное — выключать: спрятанное заставляет искать (08 §4.3).",
+  "tokens": ["control.h-default", "space.1", "space.3", "radius.m", "radius.full", "type.body", "type.body-em", "type.caption", "font.text", "font.mono", "brand.ultramarine", "text.on-accent", "text.primary", "text.secondary", "text.disabled", "sem.warning", "sem.warning-fill", "sem.warning-border", "sem.error", "sem.error-fill", "sem.error-border", "border.strong", "border.focus", "bg.hover", "bg.pressed", "glow.accent", "icon.s", "motion.live"],
+  "canon": ["08-controls.md", "06-color.md", "07-interaction.md"],
+  "swift": null,
+  "lineage": "Выделена из foundry-mockups.html §1 (строки 1586–1588, пара «Вернуть на доработку» + «Принять» в инспекторе) и §3 (строки 1740–1744, та же пара + «Отмена» под диффом) — встретилась дважды и далее ещё пятикратно: §4 (1928–1936), §5 (1974–1979 — галерея состояний), §7 (2226), §8 (2278–2279), §9 (2379–2380), §12 (2626). Имена вариантов взяты у макета без переименования: primary · secondary (янтарный «вернуть») · ghost · danger-out. Внимание: они НЕ совпадают с четырьмя уровнями канона 08 §1.1 — ghost макета = secondary канона (обводка border.strong), secondary макета = янтарный частный случай «вернуть на доработку», danger-out = destructive. Состояния rest/hover/pressed/loading/disabled — дословно из галереи §5. Фокус-ринг добавлен по 08 §4.1 («контрол без прорисованных состояний — недоделанный контрол») рецептом из того же §5 (.drow.focus, цвет — border.focus), но отрисован НЕ по канону: канон, макет и роль border.focus требуют 2px с offset 2px, а ширин линии в tokens.json нет ни одной, и назвать двойку системе нечем — ринг стоит 1px. Это видимый долг, а не решение; лечится токенами border.focus-width и border.focus-offset. Ghost-hover добавлен по 08 §1.3 (bg.hover). Pressed выражен brightness от brand.ultramarine, а не хексом #2749c9: канон 08 §4.2 объявляет нажатую заливку производным значением, а не токеном."
+}
+</script>
+
+<style>
+  .p-button {
+    display: flex; flex-direction: column; gap: var(--space-5);
+    font-family: var(--font-text);
+  }
+  .p-button .group { display: flex; flex-direction: column; gap: var(--space-3); }
+  .p-button .multiples { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; }
+  .p-button .cell { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; }
+
+  /* ——— тело кнопки: §5 макета, значения переложены на токены ———
+     height 28 → control.h-default · padding 12 → space.3 · gap 5 → space.1 (ДОЛГ: 5pt нет в шкале) */
+  .p-button .btn {
+    height: var(--control-h-default);
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-m);
+    font-family: var(--font-text);
+    font-size: var(--type-body-size);
+    font-weight: var(--type-body-em-weight);
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    border: 1px solid transparent;      /* ДОЛГ: ширины линии в токенах нет, border.* — только цвета */
+    background: transparent;
+    color: var(--text-primary);
+    white-space: nowrap; flex: none; cursor: default;
+  }
+  .p-button .btn kbd { font-family: var(--font-mono); font-size: var(--type-caption-size); }
+
+  /* Фокус клавиатуры — 08 §4.1, рецепт .drow.focus из §5 макета. */
+  .p-button .btn:focus-visible,
+  .p-button .btn.is-focus {
+    outline: var(--border-focus-width) solid var(--border-focus);
+    outline-offset: var(--border-focus-offset);
+  }
+
+  /* primary — заливка акцентом, одна на зону (08 §1.1) */
+  .p-button .btn.primary { background: var(--brand-ultramarine); color: var(--text-on-accent); }
+  .p-button .btn.primary:hover,
+  .p-button .btn.primary.is-hover { box-shadow: var(--glow-accent); }
+  .p-button .btn.primary:active,
+  .p-button .btn.primary.is-pressed { box-shadow: none; filter: brightness(0.8); }
+
+  /* secondary — «вернуть на доработку»: янтарная обводка, не заливка (08 §1.3) */
+  .p-button .btn.secondary { color: var(--sem-warning); border-color: var(--sem-warning-border); }
+  .p-button .btn.secondary:hover,
+  .p-button .btn.secondary.is-hover { background: var(--sem-warning-fill); }
+
+  /* ghost — обводка border.strong + вторичный текст */
+  .p-button .btn.ghost { color: var(--text-secondary); border-color: var(--border-strong); }
+  .p-button .btn.ghost:hover,
+  .p-button .btn.ghost.is-hover { background: var(--bg-hover); }
+
+  /* danger-out — только реальная потеря данных (08 §1.4) */
+  .p-button .btn.danger-out { color: var(--sem-error); border-color: var(--sem-error-border); }
+  .p-button .btn.danger-out:hover,
+  .p-button .btn.danger-out.is-hover { background: var(--sem-error-fill); }
+
+  /* loading — спиннер внутри, ширина не прыгает (08 §4.4) */
+  .p-button .btn.loading { background: var(--brand-ultramarine); color: var(--text-secondary); }
+  .p-button .spin {
+    width: var(--icon-s); height: var(--icon-s); border-radius: var(--radius-full);
+    border: 1px solid var(--text-disabled); border-top-color: var(--text-primary);
+    display: inline-block; flex: none;
+    /* ДОЛГ: периода вращения в токенах нет — motion.live без длительности, запасное 700ms из §5 макета */
+    animation: p-button-spin var(--motion-live-duration, 700ms) linear infinite;
+  }
+  @keyframes p-button-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .p-button .spin { animation: none; } }
+
+  /* disabled — не прятать, а выключать (08 §4.3) */
+  .p-button .btn.disabled { background: var(--bg-pressed); color: var(--text-disabled); border-color: transparent; }
+</style>
+
+<div class="specimen p-button">
+
+  <!-- четыре варианта в покое: иерархия читается заливкой, не размером -->
+  <div class="group">
+    <span class="state-label">варианты · покой</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">primary</span>
+        <span class="btn primary">Принять <kbd>⌘⏎</kbd></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">secondary</span>
+        <span class="btn secondary">Вернуть на доработку <kbd>⇧⌘R</kbd></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">ghost</span>
+        <span class="btn ghost">Отмена</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">danger-out</span>
+        <span class="btn danger-out">Удалить проект</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- шесть состояний primary: галерея §5 макета -->
+  <div class="group">
+    <span class="state-label">primary · состояния</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">rest</span>
+        <span class="btn primary">Принять</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">hover</span>
+        <span class="btn primary is-hover">Принять</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">pressed</span>
+        <span class="btn primary is-pressed">Принять</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">focus</span>
+        <span class="btn primary is-focus">Принять</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">loading</span>
+        <span class="btn loading"><span class="spin"></span> Принимаю…</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">disabled</span>
+        <span class="btn disabled">Принять</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- hover у обводочных вариантов: подложка своим цветом, glow не появляется -->
+  <div class="group">
+    <span class="state-label">обводочные · hover</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">secondary hover</span>
+        <span class="btn secondary is-hover">Вернуть на доработку</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">ghost hover</span>
+        <span class="btn ghost is-hover">Отмена</span>
+      </div>
+      <div class="cell">
+        <span class="state-label">danger-out hover</span>
+        <span class="btn danger-out is-hover">Удалить проект</span>
+      </div>
+    </div>
+  </div>
+
+</div>

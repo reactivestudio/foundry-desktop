@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<!-- СГЕНЕРИРОВАНО design/build.py — не править руками -->
+<title>Витрина дизайн-системы — foundry-desktop</title>
+<link rel="stylesheet" href="tokens/tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-text);
+    font-size: var(--type-body-size);
+    line-height: var(--type-body-leading);
+  }
+  a { color: var(--text-accent); }
+  code { font-family: var(--font-mono); font-size: var(--type-mono-s-size); }
+
+  header {
+    padding: var(--space-8) var(--space-8) var(--space-5);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  h1 {
+    margin: 0 0 var(--space-2);
+    font-size: var(--type-title-size);
+    line-height: var(--type-title-leading);
+    font-weight: var(--type-title-weight);
+  }
+  header p { margin: 0; color: var(--text-secondary); max-width: 640px; }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-8);
+    background: var(--bg-raised);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  nav a {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-m);
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  nav a:hover { background: var(--bg-hover); color: var(--text-primary); }
+  nav .count { color: var(--text-tertiary); }
+
+  main { padding: var(--space-6) var(--space-8) var(--space-10); }
+  section { margin-bottom: var(--space-10); }
+  section > h2 {
+    margin: 0 0 var(--space-1);
+    font-size: var(--type-heading-size);
+    line-height: var(--type-heading-leading);
+    font-weight: var(--type-heading-weight);
+  }
+  section > p.note { margin: 0 0 var(--space-5); color: var(--text-secondary); max-width: 720px; }
+
+  .band {
+    padding: var(--space-5);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    background: var(--bg-surface);
+  }
+  .band.candidates { border-color: var(--sem-warning-border); }
+
+  .grid { display: grid; gap: var(--space-5); grid-template-columns: 1fr; }
+  @media (min-width: 1100px) { .grid { grid-template-columns: 1fr 1fr; } }
+
+  .card {
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-l);
+    background: var(--bg-surface);
+    overflow: hidden;
+  }
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: var(--space-4);
+  }
+  .card-head h3 {
+    margin: 0;
+    font-size: var(--type-heading-size);
+    line-height: var(--type-heading-leading);
+    font-weight: var(--type-heading-weight);
+  }
+  .card-head .slug { color: var(--text-tertiary); font-family: var(--font-mono); }
+
+  .chip {
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-s);
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-leading);
+    white-space: nowrap;
+  }
+  .chip-accepted { background: var(--sem-success-fill); color: var(--sem-success); }
+  .chip-candidate { background: var(--sem-warning-fill); color: var(--sem-warning); }
+  .chip-rejected { background: var(--sem-error-fill); color: var(--sem-error); }
+
+  .stage { background: var(--bg-base); border-top: 1px solid var(--border-subtle); }
+  .stage iframe { display: block; width: 100%; border: 0; }
+
+  dl { margin: 0; padding: var(--space-4); border-top: 1px solid var(--border-subtle); }
+  dt {
+    margin-bottom: var(--space-1);
+    color: var(--text-tertiary);
+    font-size: var(--type-label-size);
+    line-height: var(--type-label-leading);
+    font-weight: var(--type-label-weight);
+    text-transform: var(--type-label-caps);
+    letter-spacing: var(--type-label-tracking);
+  }
+  dd { margin: 0 0 var(--space-3); color: var(--text-secondary); }
+  dd:last-child { margin-bottom: 0; }
+  dd.never { color: var(--text-primary); }
+  dd.debt { color: var(--sem-warning); }
+
+  .tokens { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+  .tokens span {
+    padding: 0 var(--space-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-s);
+    font-family: var(--font-mono);
+    font-size: var(--type-mono-s-size);
+    color: var(--text-secondary);
+  }
+
+  .empty {
+    padding: var(--space-6);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-l);
+    color: var(--text-tertiary);
+    text-align: center;
+  }
+
+  table.rejected { width: 100%; border-collapse: collapse; }
+  table.rejected th, table.rejected td {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: left;
+    vertical-align: top;
+  }
+  table.rejected th {
+    color: var(--text-tertiary);
+    font-size: var(--type-caption-size);
+    font-weight: var(--type-caption-weight);
+  }
+  table.rejected td { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Витрина дизайн-системы</h1>
+  <p>Собрана из частей скриптом <code>design/build.py</code>. Своего содержимого не имеет: правка руками теряется при следующей сборке. Договор о формате части — <a href="parts/README.md">design/parts/README.md</a>, значения — <a href="tokens/tokens.json">tokens.json</a>.</p>
+</header>
+<nav>
+  <a href="#1-foundation">Основа <span class="count">0</span></a>
+  <a href="#2-marks">Знаки <span class="count">0</span></a>
+  <a href="#3-elements">Элементы <span class="count">3</span></a>
+  <a href="#4-blocks">Блоки <span class="count">2</span></a>
+  <a href="#5-layers">Слои <span class="count">0</span></a>
+  <a href="#6-views">Экраны <span class="count">0</span></a>
+  <a href="#7-behaviour">Поведение <span class="count">0</span></a>
+  <a href="#rejected">Отвергнуто <span class="count">16</span></a>
+</nav>
+<main>
+<section id="1-foundation">
+  <h2>Основа</h2>
+  <div class="empty">Частей пока нет.</div>
+</section>
+<section id="2-marks">
+  <h2>Знаки</h2>
+  <div class="empty">Частей пока нет.</div>
+</section>
+<section id="3-elements">
+  <h2>Элементы</h2>
+  <div class="grid">
+    <article class="card">
+      <div class="card-head">
+        <h3>Бейдж</h3>
+        <span class="slug">badge</span>
+        <span class="chip chip-candidate">кандидат</span>
+      </div>
+      <div class="stage">
+        <iframe src="parts/3-elements/badge.html" height="250" loading="lazy" title="Бейдж"></iframe>
+      </div>
+      <dl>
+        <dt>Зачем</dt><dd>Плашка на строке или карточке, где статус надо сказать словом и цветом сразу: глиф даёт форму, заливка @14% — семантику, и оба канала читаются до чтения.</dd>
+        <dt>Никогда</dt><dd class="never">Не применять без глифа в цветных вариантах: цвет обязан дублироваться формой — бейдж без ✓ ⚠ ✕ ◉ при дейтеранопии пуст (06 §3.3). Не заливать бейдж сплошным цветом с белым текстом: рецепт канона — цвет текста на том же цвете @14% (06 §3.2); белый на циане и мадженте вообще запрещён (text.on-accent). Не красить бейдж ультрамарином: акцент зарезервирован за действием и выделением, и цветной бейдж рядом начинает спорить с кнопкой «Принять» за внимание (08 §1.3); нейтральная категория — базовый вариант, без цвета. Не вешать бейдж на каждый элемент списка: раскрашенная целиком колонка — экран-светофор, цвет перестаёт значить (06, «цвет только на значимом»). Не дублировать бейджем то, что уже сказано позицией: чип стадии на карточке канбана — ложь дважды, колонка и есть стадия (§6 макета). Не делать бейдж кликабельным: это ярлык, а не контрол; нужен клик — это кнопка или фильтр-токен со своей хит-зоной ≥24pt (08 §5). Не носить бейджем имя проекта или сервиса — для этого project-label, где цвет намеренно не расходуется.</dd>
+        <dt>Ест токены</dt><dd class="tokens"><span>space.1</span><span>space.2</span><span>radius.s</span><span>type.caption</span><span>font.text</span><span>text.secondary</span><span>bg.hover</span><span>border.subtle</span><span>sem.info</span><span>sem.info-fill</span><span>sem.info-border</span><span>sem.success</span><span>sem.success-fill</span><span>sem.success-border</span><span>sem.warning</span><span>sem.warning-fill</span><span>sem.warning-border</span><span>sem.error</span><span>sem.error-fill</span><span>sem.error-border</span></dd>
+        <dt>Канон</dt><dd><a href="../docs/design/06-color.md">06-color.md</a>, <a href="../docs/design/12-icons.md">12-icons.md</a>, <a href="../docs/design/08-controls.md">08-controls.md</a></dd>
+        <dt>Реализация</dt><dd class="debt">реализации нет</dd>
+        <dt>Родословная</dt><dd>Выделен из foundry-mockups.html §5 (строки 2004–2009, галерея «Бейджи · семантика = цвет + форма») и §6 (строки 2166, 2171 — «⚠ завис 40 мин» и «✕ CI упал» на карточках канбана) — встретился дважды. Класс макета — .chip (CSS строки 235–245). Заливки и бордеры совпали с токенами буквально: warn/err/live у макета — это @14% + @30%, то есть sem.*-fill и sem.*-border без остатка. КАНДИДАТ по двум причинам. Первая: зелёный «✓ принято» существует в макете только инлайн-стилем (строка 2009), класса под него нет — модификатор ok здесь нормализация этого места. Вторая: модификатор .chip.stage макета побайтно совпадает с базовым правилом (цвет, фон и бордер те же) — пустой алиас, он выброшен, нейтральная категория осталась базовым вариантом; заодно этим бейдж перестал знать слово «стадия» и остался в 3-elements. Модификатор .chip.proj из CSS макета мёртв (в разметке не встречается ни разу) и не перенесён. Вертикальный паддинг вырос с 1px до space.1 = 4pt: подпиксельных значений в шкале нет, а роль space.1 в tokens.json прямо названа «внутренности бейджа (верт.)» — бейдж стал выше макета примерно на 6pt, это осознанная сверка с законом, а не дрейф.</dd>
+      </dl>
+    </article>
+    <article class="card">
+      <div class="card-head">
+        <h3>Кнопка</h3>
+        <span class="slug">button</span>
+        <span class="chip chip-accepted">принят</span>
+      </div>
+      <div class="stage">
+        <iframe src="parts/3-elements/button.html" height="270" loading="lazy" title="Кнопка"></iframe>
+      </div>
+      <dl>
+        <dt>Зачем</dt><dd>Единственный носитель действия в интерфейсе: заливкой, обводкой и цветом говорит, насколько сильно система рекомендует нажать.</dd>
+        <dt>Никогда</dt><dd class="never">Не ставить две primary в одной замкнутой зоне: primary — это ответ на «что делать дальше», два ответа = отсутствие ответа (08 §1.1). Не выделять главное действие размером — размер даёт плотность контекста, иерархию даёт заливка (08 §1.2). Не красить danger-out ничем, кроме реальной потери данных: «Вернуть на доработку» — не опасность, а нормальная работа, и красный на ней сжигает единственный способ крикнуть настоящему «Удалить проект» (08 §1.4). Не применять как носитель статуса: у кнопки нет состояния «ok/warn» — цветная плашка это badge, а не кнопка. Не вешать glow ни на что, кроме hover primary: в поле зрения ровно одно свечение (13 §12, glow._role). Не заводить кнопку-иконку из этой части: там своя хит-зона ≥24pt и обязательный тултип (08 §5), и primary у иконок не бывает — главное действие заслуживает слова. Не прятать недоступное — выключать: спрятанное заставляет искать (08 §4.3).</dd>
+        <dt>Ест токены</dt><dd class="tokens"><span>control.h-default</span><span>space.1</span><span>space.3</span><span>radius.m</span><span>radius.full</span><span>type.body</span><span>type.body-em</span><span>type.caption</span><span>font.text</span><span>font.mono</span><span>brand.ultramarine</span><span>text.on-accent</span><span>text.primary</span><span>text.secondary</span><span>text.disabled</span><span>sem.warning</span><span>sem.warning-fill</span><span>sem.warning-border</span><span>sem.error</span><span>sem.error-fill</span><span>sem.error-border</span><span>border.strong</span><span>border.focus</span><span>bg.hover</span><span>bg.pressed</span><span>glow.accent</span><span>icon.s</span><span>motion.live</span></dd>
+        <dt>Канон</dt><dd><a href="../docs/design/08-controls.md">08-controls.md</a>, <a href="../docs/design/06-color.md">06-color.md</a>, <a href="../docs/design/07-interaction.md">07-interaction.md</a></dd>
+        <dt>Реализация</dt><dd class="debt">реализации нет</dd>
+        <dt>Родословная</dt><dd>Выделена из foundry-mockups.html §1 (строки 1586–1588, пара «Вернуть на доработку» + «Принять» в инспекторе) и §3 (строки 1740–1744, та же пара + «Отмена» под диффом) — встретилась дважды и далее ещё пятикратно: §4 (1928–1936), §5 (1974–1979 — галерея состояний), §7 (2226), §8 (2278–2279), §9 (2379–2380), §12 (2626). Имена вариантов взяты у макета без переименования: primary · secondary (янтарный «вернуть») · ghost · danger-out. Внимание: они НЕ совпадают с четырьмя уровнями канона 08 §1.1 — ghost макета = secondary канона (обводка border.strong), secondary макета = янтарный частный случай «вернуть на доработку», danger-out = destructive. Состояния rest/hover/pressed/loading/disabled — дословно из галереи §5. Фокус-ринг добавлен по 08 §4.1 («контрол без прорисованных состояний — недоделанный контрол») рецептом из того же §5 (.drow.focus, цвет — border.focus), но отрисован НЕ по канону: канон, макет и роль border.focus требуют 2px с offset 2px, а ширин линии в tokens.json нет ни одной, и назвать двойку системе нечем — ринг стоит 1px. Это видимый долг, а не решение; лечится токенами border.focus-width и border.focus-offset. Ghost-hover добавлен по 08 §1.3 (bg.hover). Pressed выражен brightness от brand.ultramarine, а не хексом #2749c9: канон 08 §4.2 объявляет нажатую заливку производным значением, а не токеном.</dd>
+      </dl>
+    </article>
+    <article class="card">
+      <div class="card-head">
+        <h3>Точка статуса</h3>
+        <span class="slug">status-dot</span>
+        <span class="chip chip-candidate">кандидат</span>
+      </div>
+      <div class="stage">
+        <iframe src="parts/3-elements/status-dot.html" height="160" loading="lazy" title="Точка статуса"></iframe>
+      </div>
+      <dl>
+        <dt>Зачем</dt><dd>Держит рейл статусов в плотном списке: шесть состояний читаются периферией на ширине 8pt, где слово не помещается.</dd>
+        <dt>Никогда</dt><dd class="never">Не применять без слова или тултипа рядом: точка на 8pt — акселератор чтения, а не носитель смысла; канон 12 §6 разрешает её только там, где значение раскрыто текстом поблизости. Не применять как единственный канал: цвет обязан дублироваться формой, иконкой или подписью — 8% мужчин не различат ok от err (06 §3.3); в диффе, в чеклисте и в статусе стадии это глиф ✓▲✕, а точка — только ускорение. Не заводить седьмой модификатор: шесть статусов — это ровно таблица 12 §6, и особый случай говорится словом, а не новым цветом точки (Бирман: одноразовое исключение не стоит нового элемента языка). Не вешать на точку glow: пульс live идёт только альфой, единственное свечение в окне держит орб (13 §12). Не использовать точку как кликабельную цель: 8pt против hit-min 24pt — промах гарантирован (07, Фиттс); кликается строка целиком. Не красить точкой то, что не является состоянием: категория, тип, проект — это форма и слово (project-label), цвет здесь дефицитен.</dd>
+        <dt>Ест токены</dt><dd class="tokens"><span>space.2</span><span>radius.full</span><span>brand.ultramarine</span><span>sem.info</span><span>sem.success</span><span>sem.warning</span><span>sem.error</span><span>text.disabled</span><span>text.secondary</span><span>type.caption</span><span>font.text</span><span>motion.live</span></dd>
+        <dt>Канон</dt><dd><a href="../docs/design/12-icons.md">12-icons.md</a>, <a href="../docs/design/06-color.md">06-color.md</a></dd>
+        <dt>Реализация</dt><dd class="debt">реализации нет</dd>
+        <dt>Родословная</dt><dd>Выделена из foundry-mockups.html §1 (строки 1467–1540, рейл статусов в строках инбокса) и §5 (строки 1988–1991, галерея состояний строки) — встретилась дважды и далее в §4 (1887–1890, легенда распределения) и §7 (2203–2208, мини-список). Модификаторы wait · live · warn · err — дословно из CSS макета (строки 220–227). КАНДИДАТ, потому что пришлось сводить два разных варианта: §1 кодирует статус модификатором, §4 — инлайн-стилем (style=&quot;background:var(--sem-success)&quot;), а зелёный ok существует в макете только у соседней точки .rh-dot.ok (строка 958, тепловая карта §4). Модификатор ok здесь — нормализация этих трёх мест в один класс по таблице 12 §6. Базовое состояние (без модификатора) в макете цвета не имело вовсе — здесь это «не начата» = text.disabled по той же таблице канона; .rh-dot ставил на это место белый @20%, токена под который нет. Диаметр 8pt взят у макета через space.2 — размерного токена под точку в системе нет (icon.s = 12pt даёт +50%).</dd>
+      </dl>
+    </article>
+  </div>
+</section>
+<section id="4-blocks">
+  <h2>Блоки</h2>
+  <div class="grid">
+    <article class="card">
+      <div class="card-head">
+        <h3>Строка диффа</h3>
+        <span class="slug">diff-line</span>
+        <span class="chip chip-accepted">принят</span>
+      </div>
+      <div class="stage">
+        <iframe src="parts/4-blocks/diff-line.html" height="390" loading="lazy" title="Строка диффа"></iframe>
+      </div>
+      <dl>
+        <dt>Зачем</dt><dd>Атом ревью: два номера строк, знак ± и фон @12% дают «что изменилось» тремя независимыми каналами, а подсветка слова показывает, что именно, не заставляя сличать строки глазами.</dd>
+        <dt>Никогда</dt><dd class="never">Не применять без знаков + и − в теле строки: фон обязан дублироваться знаком и позицией — при дейтеранопии зелёный и красный неразличимы, и цвет остаётся лишь ускорением (06 §3.3). Не применять для показа кода без изменений: две колонки номеров и рейл ± там — пустая нотация, это панель кода (code.bg), а не дифф. Не красить строку ничем, кроме diff.*: фон строки занят семантикой изменения — статус, стадия и выделение обязаны найти другой канал, иначе панель становится светофором (06). Не переносить строку по словам: строка диффа не переносится принципиально (white-space: pre) — номер обязан отвечать за одну экранную строку; проза и спека, которые надо читать целиком, требуют диффа словами, а не строками (§12 макета). Не путать со строкой таблицы: колонка номеров — это гаттер моноширинного кода, а не данные, и правила 10-tables (зебра, линейки, выравнивание) к ней не применяются. Не подсвечивать словами всю строку: word-level имеет смысл, только когда изменилось меньше половины строки, иначе подсветка съедает фон и перестаёт указывать. Не растить сюда подсветку синтаксиса: тема токенов кода — отдельная часть, она живёт в §3 макета одна и по правилу двух ещё не элемент.</dd>
+        <dt>Ест токены</dt><dd class="tokens"><span>space.2</span><span>space.3</span><span>space.8</span><span>radius.s</span><span>type.mono</span><span>type.mono-s</span><span>font.mono</span><span>code.bg</span><span>code.linenum</span><span>text.secondary</span><span>text.disabled</span><span>diff.added-bg</span><span>diff.added-text</span><span>diff.added-word</span><span>diff.removed-bg</span><span>diff.removed-text</span><span>diff.removed-word</span></dd>
+        <dt>Канон</dt><dd><a href="../docs/design/06-color.md">06-color.md</a>, <a href="../docs/design/10-tables.md">10-tables.md</a>, <a href="../docs/design/04-typography.md">04-typography.md</a></dd>
+        <dt>Реализация</dt><dd class="debt">реализации нет</dd>
+        <dt>Родословная</dt><dd>Выделена из foundry-mockups.html §3 (строки 1689–1706, дифф Swift-кода в панели ревью) и §7 (строки 2220–2223, тот же дифф markdown-таблицы токенов в отдельном окне) — встретилась дважды, анатомия в обоих местах совпала побайтно. Класс макета — .dline (CSS строки 380–389); модификаторы add · rem, внутренности .ln (номер), .code (тело), .gutter (контекст), .w (подсветка слова). Значения переложены на токены: 12px mono → type.mono, номера → type.mono-s + code.linenum, фон панели → code.bg, фоны и подсветки слов → diff.*-bg / diff.*-word (у макета совпали точно: @12% и @25%). Цвет текста изменённых строк макета (#b9f5cf и #f6c0c0) токена не имеет — взят diff.added-text / diff.removed-text, то есть sem.success и sem.error: tokens.json уже назначил этим строкам ровно эти цвета, макет от собственного закона отклонился. Гаттер 44+44px токена не имеет — взят space.8 (48pt) дважды: колонка стала шире макета на 4pt каждая. Подсветка синтаксиса (.tok-kw/.tok-ty/.tok-str/.tok-fn/.tok-num) в часть не перенесена: она живёт только в §3 и правило двух не прошла.</dd>
+      </dl>
+    </article>
+    <article class="card">
+      <div class="card-head">
+        <h3>Лейбл проекта</h3>
+        <span class="slug">project-label</span>
+        <span class="chip chip-accepted">принят</span>
+      </div>
+      <div class="stage">
+        <iframe src="parts/4-blocks/project-label.html" height="250" loading="lazy" title="Лейбл проекта"></iframe>
+      </div>
+      <dl>
+        <dt>Зачем</dt><dd>Отвечает «чей это change» там, где на экране сразу несколько сервисов: категорию несёт форма, имя — текст, и на цвет не тратится ничего.</dd>
+        <dt>Никогда</dt><dd class="never">Не красить: отказ от цвета — суть этой части, а не её недоделка. Категорию несёт форма (▣ инфра · ◆ утилита · ● бизнес) именно потому, что цвет в системе дефицитен и занят значимым — статусом и действием; радуга лейблов гасит и то и другое (06, «цвет только на значимом»). Не применять там, где проект уже известен: внутри экрана одного проекта лейбл на каждой строке повторяет заголовок и превращается в шум (Бирман). Не носить лейблом статус, стадию или тип change&#x27;а: это badge и status-dot — здесь цвет и семантика, там форма и постоянная величина. Не ставить второй лейбл на одну карточку: change живёт в одном сервисе; если сервисов правда несколько — это не лейбл, а колонка таблицы (10-tables). Не заводить седьмую категорию под форму: алфавит из трёх фигур запоминается, из семи — читается по легенде, а легенда означает, что нотация не работает (12 §6, «одноразовое исключение не стоит нового элемента языка»). Не растягивать под длинное имя: лейбл усекает многоточием и остаётся узким — если имя обязано читаться целиком, ему нужна колонка, а не лейбл.</dd>
+        <dt>Ест токены</dt><dd class="tokens"><span>space.1</span><span>space.2</span><span>radius.s</span><span>type.caption2</span><span>font.text</span><span>text.tertiary</span><span>text.disabled</span><span>bg.hover</span><span>border.subtle</span></dd>
+        <dt>Канон</dt><dd><a href="../docs/design/06-color.md">06-color.md</a>, <a href="../docs/design/12-icons.md">12-icons.md</a>, <a href="../docs/design/10-tables.md">10-tables.md</a></dd>
+        <dt>Реализация</dt><dd class="debt">реализации нет</dd>
+        <dt>Родословная</dt><dd>Выделен из foundry-mockups.html §6 (строки 2136–2171, лейбл сервиса на карточках канбана) и §11 (строка 2514, якорь change&#x27;а при зуме в задачи) — встретился дважды и далее в §12 (2579), §13 (2654) и §14 (2725–2760, колонка сквозной таблицы задач): пять секций, самая переиспользуемая плашка макета. Класс макета — .plbl (CSS строки 585–588) с внутренностями .lcat (категория формой) и .lsvc (имя сервиса текстом); анатомия во всех пяти местах совпала. Алфавит категорий взят из комментария макета над правилом (строки 583–584): ▣ инфра · ◆ утилита · ● бизнес, и там же зафиксирована причина отказа от цвета. Значения переложены на токены: кегль 9px и 8px токена не имеют — взят type.caption2 (10pt, самый мелкий в шкале), паддинг 1px 5px → space.1 / space.2, фон @5% → bg.hover (@6%). 4-blocks, а не 3-elements: часть знает слова «проект» и «сервис» и несёт таксономию роутера (§18 макета) — в одиночку у неё есть смысл, и применить её больше не к чему.</dd>
+      </dl>
+    </article>
+  </div>
+</section>
+<section id="5-layers">
+  <h2>Слои</h2>
+  <div class="empty">Частей пока нет.</div>
+</section>
+<section id="6-views">
+  <h2>Экраны</h2>
+  <div class="empty">Частей пока нет.</div>
+</section>
+<section id="7-behaviour">
+  <h2>Поведение</h2>
+  <div class="empty">Частей пока нет.</div>
+</section>
+<section id="rejected">
+  <h2>Отвергнуто</h2>
+  <p class="note">Кладбище — полноправный житель системы и стоит дороже принятого: принятое видно на экране, отвергнутое не видно нигде и потому предлагается заново каждой следующей сессией.</p>
+  <table class="rejected">
+    <tr><th>Что</th><th>Почему отвергнуто</th><th>Файл</th></tr>
+    <tr><td>Градиент-форма по телу кнопки</td><td>Снят на финальном заходе 2026-07-17 вместе с остальным объёмом. Из memory/dark-shadow-is-spilled-light.md: Финал эволюции (2026-07-17, принято пользователем): тело кнопки — плоская заливка (градиент по телу тоже снят), под ней shadow-soft — четырёхслойная чёрная тень как *отделение кромки*, не объём; поверх — микрорельеф по явной просьбе: inset-блик 1px сверху (белый 9%) + inset-тень 1px снизу (чёрный 26%), «прям минимально почти незаметно». Это кромки, не возврат объёма; в состояниях не дышит.</td><td><a href="rejected/button-body-gradient.md"><code>button-body-gradient.md</code></a></td></tr>
+    <tr><td>Тень-объём под кнопкой</td><td>Тень на почти чёрном фоне не видна — тени некуда темнеть. Канон сказал это раньше всех и оказался прав; спор с ним стоил четырёх заходов.</td><td><a href="rejected/button-drop-shadow.md"><code>button-drop-shadow.md</code></a></td></tr>
+    <tr><td>Световой пролив под кнопкой (тень как пролитый свет)</td><td>Отвергнут глазом пользователя: «смотрится как в 2000». Из memory/dark-shadow-is-spilled-light.md: Пролив тоже отвергнут («смотрится как в 2000»): синий пролив под кнопкой читается ореолом — тем самым свечением, которое 13 §12 отдало орбу. «Отрицательный spread» отделял опору от ореола только на числах, не на глаз.</td><td><a href="rejected/button-light-spill.md"><code>button-light-spill.md</code></a></td></tr>
+    <tr><td>Кодовое имя CRISPY в текстах первого знакомства</td><td>Нарушало канон docs/design/05-text.md:240 — «первая строка обязана читаться без знания кодовой базы». Из подписи в design/candidates/onboarding.html: Кодовое имя пайплайна с приветствия снято. Здесь было «Пульт над пайплайном CRISPY», и это нарушало канон 05:240 — «первая строка обязана читаться без знания кодовой базы»: CRISPY ничего не сообщает тому, кто открыл приложение впервые, а обещание понимания создаёт.</td><td><a href="rejected/crispy-codename-in-first-run.md"><code>crispy-codename-in-first-run.md</code></a></td></tr>
+    <tr><td>Оранжевая палитра (ember)</td><td>Отвергнута пользователем при отборе палитры. Канон формулирует отказ безоговорочно и в единственной строке — docs/design/13-tokens.md §1: Фирменная гамма — аналоговый ход ультрамарин → пурпур → маджента (OKLCH hue ≈ 266 → 293 → 316°) + циан как «точка света». Мотив — орб, свет в темноте. Оранжевый/ember — отвергнут, не возвращать.</td><td><a href="rejected/ember-palette.md"><code>ember-palette.md</code></a></td></tr>
+    <tr><td>Плоская CSS/SVG-графика в знаках продукта</td><td>Отвергнуто пользователем с формулировкой «второсортно, дёшево, будто ребёнок рисовал». Из memory/foundry-desktop-visual-direction.md: Отвергнуто пользователем (не повторять): ember/«литейная» оранжевая палитра; плоская CSS/SVG-графика («второсортно, дёшево, будто ребёнок рисовал»); яркое центральное пятно-блик; навязчивый/толстый/белый серп; направленный motion-blur с гостингом …</td><td><a href="rejected/flat-vector-graphics.md"><code>flat-vector-graphics.md</code></a></td></tr>
+    <tr><td>Иконка — альтернативы «Восходу»: paper-cut и огненный сквиркл</td><td>Исход зафиксирован в источниках, причина — нет. Прямого «отвергаю paper-cut» или «отвергаю огненный» пользователь не говорил. Обе развилки закрылись молча: иконкой стал «Восход», и это зафиксировано твёрдо — «Иконка «Восход» ФИНАЛ (вариант A) — на master», а позже, при отказе от иконки-роя (2026-07-17), подтверждено ещё раз: «иконка остаётся одна — «Восход» (вариант A)».</td><td><a href="rejected/icon-alternatives-paper-cut-and-fire.md"><code>icon-alternatives-paper-cut-and-fire.md</code></a></td></tr>
+    <tr><td>Иконка «Восход» — вариант B</td><td>Отброшен окончательно. Из memory/foundry-desktop-visual-direction.md, сразу за описанием Ramp A: Вариант B отброшен окончательно. Метод правки цвета: рендер cand vs base headless-Chrome, сравнение side-by-side, потом перегон master+appiconset.</td><td><a href="rejected/icon-variant-b.md"><code>icon-variant-b.md</code></a></td></tr>
+    <tr><td>Светлая тема</td><td>Решение однострочное и категоричное — docs/design/README.md:18: Только тёмная тема. Светлая не проектируется вообще.</td><td><a href="rejected/light-theme.md"><code>light-theme.md</code></a></td></tr>
+    <tr><td>Нотч-хелпер — два независимых крыла по бокам чёлки</td><td>Фидбек пользователя «тут всё плохо» + просьба работать этапами. Из memory/foundry-notch-helper-concept.md: ⚠️ РЕДИЗАЙН свёрнутого состояния (2026-07-17, фидбек «тут всё плохо» + просьба работать этапами): механика «два независимых крыла из-за чёлки» ОТВЕРГНУТА — два тела внахлёст порождали швы, наложения и несовпадение ширин по построению.</td><td><a href="rejected/notch-two-wings.md"><code>notch-two-wings.md</code></a></td></tr>
+    <tr><td>Обводка как оформление (рамки вокруг панелей и карточек)</td><td>Обводка была третьим способом сказать то же самое — два лишних. Из коммита d8bcdc9: Обводка панели была третьей границей поверх зазора и перепада светлоты — три способа сказать одно и то же, два лишних (УВЛ). Панель = заливка + радиус. Проверено скриптом: 20 панелей, обводок 0.</td><td><a href="rejected/panel-borders.md"><code>panel-borders.md</code></a></td></tr>
+    <tr><td>Розовый тон (300°) и смешивание цветовых семей лоадера</td><td>Любая середина между семьями даёт розовый 300° — тон, вычеркнутый пользователем при отборе палитры. Из memory/loader-particles-constraints.md: Семьи цветов смешивать нельзя ничем. Холодная (231°–275°) и тёплая (348°–39°) почти дополнительны: любая середина между ними — розовый 300°, вычеркнутый Дмитрием при отборе палитры. Запрещены и аддитивный блендинг, и mix() через границу семей.  Why: это не стилистика — это единственный способ показать обе семьи, не показывая вычеркнутый тон.</td><td><a href="rejected/pink-hue-and-family-blending.md"><code>pink-hue-and-family-blending.md</code></a></td></tr>
+    <tr><td>Заметный перелёт пружины (3–8%)</td><td>Отвергнут как «батут» — фидбек «не нравится пружинистость, надо изящнее». Из memory/foundry-notch-helper-concept.md: Движение = пружина, не безье (запрос «похоже на механизм в реальности»), но демпфирование почти критическое (фидбек «не нравится пружинистость, надо изящнее», 2026-07-17): демпфированный осциллятор, просэмплированный в CSS linear(); принятые параметры: высота k=200 ζ=0.83 → 610мс, перелёт 0,9%; ширина k=360 ζ=0.86 → 450мс, перелёт 0,5%. Заметный перелёт (3–8%) пользователь отверг как «батут»; след механики должен быть едва различим.</td><td><a href="rejected/spring-overshoot.md"><code>spring-overshoot.md</code></a></td></tr>
+    <tr><td>Отвергнутые трактовки иконки «Восход»</td><td>Из memory/foundry-desktop-visual-direction.md: Отвергнуто пользователем (не повторять): … яркое центральное пятно-блик; навязчивый/толстый/белый серп; направленный motion-blur с гостингом (мягкость референса — атмосферный гаусс, НЕ directional); бандинг-ступеньки; блюр/свечение СПРАВА от центра (правая половина должна быть чёткой).</td><td><a href="rejected/sunrise-icon-treatments.md"><code>sunrise-icon-treatments.md</code></a></td></tr>
+    <tr><td>Кадрирование роя по кромкам кадра (uFit 0.695 / 0.80)</td><td>Обе отвергнуты пользователем — и, что важно, просьбу о кадрировании подал он же. Из memory/swarm-hero-giant-scale.md: Пользователь дважды отверг кадрирование роя на приветствии онбординга (2026-07-17): сначала сам попросил «частицы не ближе 20px к кромкам», получил честное исполнение (uFit 0.695, «ни одна частица никогда») — «мы так испортили»; компромисс 0.80 («выход за рамки минимален») тоже не то. Финальная формулировка: «анимация могла немного заходить под Foundry и этот гигантский размер смотрелся классно» → HERO_FIT = 1.0, исходный масштаб.</td><td><a href="rejected/swarm-crop-to-frame.md"><code>swarm-crop-to-frame.md</code></a></td></tr>
+    <tr><td>Иконка приложения из роя частиц</td><td>Все три итерации пользователю не понравились; файлы удалены по его просьбе. Дословно (memory/foundry-desktop-visual-direction.md): Попытка второй версии иконки на базе роя лоадера: три итерации (стоп-кадр орба по центру → композиция «Восхода» из частиц → рой целиком «кристалл-капля» с иконочным светом) — все три пользователю не понравились, файлы удалены по его просьбе («не нравится, удаляй всё»). Не предлагать иконку из частиц снова; иконка остаётся одна — «Восход» (вариант A).</td><td><a href="rejected/swarm-icon.md"><code>swarm-icon.md</code></a></td></tr>
+  </table>
+</section>
+</main>
+</body>
+</html>

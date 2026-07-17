@@ -1,0 +1,104 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Точка статуса — foundry-desktop</title>
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../specimen.css">
+
+<script type="application/json" id="card">
+{
+  "name": "Точка статуса",
+  "slug": "status-dot",
+  "status": "кандидат",
+  "height": 160,
+  "why": "Держит рейл статусов в плотном списке: шесть состояний читаются периферией на ширине 8pt, где слово не помещается.",
+  "never": "Не применять без слова или тултипа рядом: точка на 8pt — акселератор чтения, а не носитель смысла; канон 12 §6 разрешает её только там, где значение раскрыто текстом поблизости. Не применять как единственный канал: цвет обязан дублироваться формой, иконкой или подписью — 8% мужчин не различат ok от err (06 §3.3); в диффе, в чеклисте и в статусе стадии это глиф ✓▲✕, а точка — только ускорение. Не заводить седьмой модификатор: шесть статусов — это ровно таблица 12 §6, и особый случай говорится словом, а не новым цветом точки (Бирман: одноразовое исключение не стоит нового элемента языка). Не вешать на точку glow: пульс live идёт только альфой, единственное свечение в окне держит орб (13 §12). Не использовать точку как кликабельную цель: 8pt против hit-min 24pt — промах гарантирован (07, Фиттс); кликается строка целиком. Не красить точкой то, что не является состоянием: категория, тип, проект — это форма и слово (project-label), цвет здесь дефицитен.",
+  "tokens": ["space.2", "radius.full", "brand.ultramarine", "sem.info", "sem.success", "sem.warning", "sem.error", "text.disabled", "text.secondary", "type.caption", "font.text", "motion.live"],
+  "canon": ["12-icons.md", "06-color.md"],
+  "swift": null,
+  "lineage": "Выделена из foundry-mockups.html §1 (строки 1467–1540, рейл статусов в строках инбокса) и §5 (строки 1988–1991, галерея состояний строки) — встретилась дважды и далее в §4 (1887–1890, легенда распределения) и §7 (2203–2208, мини-список). Модификаторы wait · live · warn · err — дословно из CSS макета (строки 220–227). КАНДИДАТ, потому что пришлось сводить два разных варианта: §1 кодирует статус модификатором, §4 — инлайн-стилем (style=\"background:var(--sem-success)\"), а зелёный ok существует в макете только у соседней точки .rh-dot.ok (строка 958, тепловая карта §4). Модификатор ok здесь — нормализация этих трёх мест в один класс по таблице 12 §6. Базовое состояние (без модификатора) в макете цвета не имело вовсе — здесь это «не начата» = text.disabled по той же таблице канона; .rh-dot ставил на это место белый @20%, токена под который нет. Диаметр 8pt взят у макета через space.2 — размерного токена под точку в системе нет (icon.s = 12pt даёт +50%)."
+}
+</script>
+
+<style>
+  .p-status-dot {
+    display: flex; flex-direction: column; gap: var(--space-5);
+    font-family: var(--font-text);
+  }
+  .p-status-dot .group { display: flex; flex-direction: column; gap: var(--space-3); }
+  .p-status-dot .multiples { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; }
+  .p-status-dot .cell { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; }
+
+  /* ——— тело: §1 макета (строки 220–227) ———
+     Ø 8pt → space.2 (ДОЛГ: размерного токена под точку нет; icon.s = 12pt) */
+  .p-status-dot .sdot {
+    width: var(--space-2); height: var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--text-disabled);        /* «не начата» — 12 §6 */
+    display: inline-block; flex: none;
+  }
+  .p-status-dot .sdot.wait { background: var(--brand-ultramarine); }
+  /* live пульсирует ТОЛЬКО альфой: единственное свечение в окне держит орб (13 §12) */
+  .p-status-dot .sdot.live {
+    background: var(--sem-info);
+    /* ДОЛГ: периода пульса в токенах нет — motion.live без длительности, запасное 1800ms из §1 макета */
+    animation: p-status-dot-pulse var(--motion-live-duration, 1800ms) ease-in-out infinite;
+  }
+  .p-status-dot .sdot.ok   { background: var(--sem-success); }
+  .p-status-dot .sdot.warn { background: var(--sem-warning); }
+  .p-status-dot .sdot.err  { background: var(--sem-error); }
+  @keyframes p-status-dot-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) { .p-status-dot .sdot.live { animation: none; } }
+
+  /* правильное применение: точка + слово (12 §6) */
+  .p-status-dot .usage { display: flex; flex-direction: column; gap: var(--space-2); }
+  .p-status-dot .urow {
+    display: flex; align-items: center; gap: var(--space-2);
+    font-size: var(--type-caption-size); line-height: var(--type-caption-leading);
+    color: var(--text-secondary);
+  }
+</style>
+
+<div class="specimen p-status-dot">
+
+  <!-- шесть статусов рядом: таблица 12 §6 целиком, сравнивается глазом -->
+  <div class="group">
+    <span class="state-label">шесть статусов стадии</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">не начата</span>
+        <span class="sdot"></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">wait · ждёт ревью</span>
+        <span class="sdot wait"></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">live · в работе</span>
+        <span class="sdot live"></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">ok · принята</span>
+        <span class="sdot ok"></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">warn · на доработке</span>
+        <span class="sdot warn"></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">err · ошибка</span>
+        <span class="sdot err"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- как её вообще можно применять: рядом всегда слово -->
+  <div class="group">
+    <span class="state-label">применение · точка всегда со словом (12 §6)</span>
+    <div class="usage">
+      <span class="urow"><span class="sdot wait"></span>ждёт ревью</span>
+      <span class="urow"><span class="sdot live"></span>Claude пишет сейчас</span>
+      <span class="urow"><span class="sdot err"></span>упал CI</span>
+    </div>
+  </div>
+
+</div>
