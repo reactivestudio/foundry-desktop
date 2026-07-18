@@ -100,13 +100,18 @@
   .izone{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:8}
   /* вогнутые фаски снаружи тела: чёрное перетекает в кромку экрана, как у железа;
      мягкая рампа 1px — резкий стоп градиента рисует волосяную кромку на светлых обоях */
-  /* фаски — вектор (SVG), не растровый градиент: градиент даёт пиксельные ступеньки */
-  .izone::before,.izone::after{content:"";position:absolute;top:0;width:12px;height:12px;
-    pointer-events:none;background-size:12px 12px}
+  /* фаски — вектор (SVG), не растровый градиент: градиент даёт пиксельные ступеньки.
+     Бокс на 2px шире и перекрывает тело чёрной полосой — «сварка» стыка: два растра
+     (SVG и кромка тела) на дробной ширине во время анимации расходятся на подпиксель
+     и рисуют волосяную линию у скругления */
+  .izone::before,.izone::after{content:"";position:absolute;top:0;width:14px;height:12px;
+    pointer-events:none}
   .izone::before{left:-12px;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath d='M0 0H12V12A12 12 0 0 0 0 0Z'/%3E%3C/svg%3E")}
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath d='M0 0H12V12A12 12 0 0 0 0 0Z'/%3E%3C/svg%3E") left top/12px 12px no-repeat,
+      linear-gradient(#000,#000) right top/2px 12px no-repeat}
   .izone::after{right:-12px;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath d='M12 0H0V12A12 12 0 0 1 12 0Z'/%3E%3C/svg%3E")}
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath d='M12 0H0V12A12 12 0 0 1 12 0Z'/%3E%3C/svg%3E") right top/12px 12px no-repeat,
+      linear-gradient(#000,#000) left top/2px 12px no-repeat}
   .island{position:relative;width:var(--iw,212px);height:var(--ih,44px);background:#000;
     border-radius:0 0 14px 14px;overflow:hidden;cursor:pointer;
     box-shadow:0 14px 34px rgba(0,0,0,0);
@@ -115,8 +120,9 @@
   /* ховер: дышит симметрично — +14px в обе стороны и 3px вниз, мягкий отклик */
   .izone:hover .island:not(.open){width:calc(var(--iw,212px) + 28px);height:47px;
     transition:width 520ms cubic-bezier(.25,.9,.3,1),height 330ms ease}
-  /* открыто: ширина ровно как под ховером; вниз — пружина, закрытие — доводчик */
-  .island.open{width:calc(max(var(--iw,212px),372px) + 28px);border-radius:0 0 18px 18px;
+  /* открыто: ширина РОВНО как под ховером — та же формула, совпадение по построению;
+     минимум под контент обеспечивает setBar (сообщение ⇒ --iw ≥ 372) */
+  .island.open{width:calc(var(--iw,212px) + 28px);border-radius:0 0 18px 18px;
     box-shadow:0 14px 34px rgba(0,0,0,.35);
     transition:width 1400ms var(--spring-w),height 1900ms var(--spring-p),
       border-radius 550ms ease,box-shadow 1300ms ease}
@@ -152,35 +158,61 @@
   /* ══ панель = нижняя часть того же тела ══
      контент свёрстан на финальной ширине с самого начала: тело растёт и ПРОЯВЛЯЕТ его,
      ничего не переверстывается на промежуточных ширинах */
-  .ibody{position:absolute;top:52px;left:50%;transform:translateX(-50%);
-    width:calc(max(var(--iw,212px),372px) + 28px)}
+  .ibody{position:absolute;top:52px;left:50%;transform:translate(-50%,10px);
+    width:calc(var(--iw,212px) + 28px);
+    transition:transform 300ms ease}
+  /* лёгкий параллакс: тело панели доезжает чуть позже корпуса — глубина */
+  .island.open .ibody{transform:translate(-50%,0);transition:transform 1100ms var(--spring-p)}
   /* фон панели: bg.surface, сверху плавно перетекающий в чёрный корпуса */
   .ibody::before{content:"";position:absolute;inset:0;pointer-events:none;
     background:linear-gradient(180deg,rgba(13,12,20,0) 0,#0D0C14 150px);
     opacity:0;transition:opacity 300ms ease}
   .island.open .ibody::before{opacity:1;transition:opacity 1500ms ease 300ms}
-  /* материализация: секции всплывают снизу из расфокуса, чуть увеличиваясь до
-     натуральной величины — глубина вместо простого фейда; каскад неспешный */
-  .island .stag{opacity:0;transform:translateY(18px) scale(.965);filter:blur(10px);
-    transition:opacity 300ms ease,transform 300ms ease,filter 300ms ease}
-  .island.open .stag{opacity:1;transform:none;filter:blur(0);
-    transition:opacity 720ms cubic-bezier(.2,.6,.2,1),filter 720ms cubic-bezier(.2,.6,.2,1),
-      transform 1000ms var(--spring-p);
-    transition-delay:340ms}
-  .island.open .stag:nth-child(2){transition-delay:470ms}
-  .island.open .stag:nth-child(3){transition-delay:600ms}
-  .island.open .stag:nth-child(4){transition-delay:730ms}
-  .island.open .stag:nth-child(5){transition-delay:860ms}
-  .island.open .stag:nth-child(6){transition-delay:990ms}
+  /* материализация ПОЭЛЕМЕНТНО: секция — только носитель задержки каскада (--sd),
+     а всплывает из расфокуса каждый её элемент отдельно (заголовок → строка →
+     лента → хвост), внутри секции шаг 75 мс — хореография, не общий фейд */
+  .island.open .stag:nth-child(1){--sd:340ms}
+  .island.open .stag:nth-child(2){--sd:470ms}
+  .island.open .stag:nth-child(3){--sd:600ms}
+  .island.open .stag:nth-child(4){--sd:730ms}
+  .island.open .stag:nth-child(5){--sd:860ms}
+  .island.open .stag:nth-child(6){--sd:990ms}
+  .island .sec>*:not(.rev),.island .pfoot>*{opacity:0;
+    transform:translateY(16px) scale(.97);filter:blur(9px);
+    transition:opacity 260ms ease,transform 260ms ease,filter 260ms ease}
+  .island.open .sec>*:not(.rev),.island.open .pfoot>*{opacity:1;transform:none;filter:blur(0);
+    transition:opacity 640ms cubic-bezier(.2,.6,.2,1),filter 640ms cubic-bezier(.2,.6,.2,1),
+      transform 900ms var(--spring-p);
+    transition-delay:var(--sd,340ms)}
+  .island.open .sec>*:nth-child(2),.island.open .pfoot>*:nth-child(2){
+    transition-delay:calc(var(--sd,340ms) + 75ms)}
+  .island.open .sec>*:nth-child(3),.island.open .pfoot>*:nth-child(3){
+    transition-delay:calc(var(--sd,340ms) + 150ms)}
+  .island.open .sec>*:nth-child(4){transition-delay:calc(var(--sd,340ms) + 225ms)}
+  .island.open .sec>*:nth-child(5){transition-delay:calc(var(--sd,340ms) + 300ms)}
+  /* строки ревью прокатываются одна за другой — keyframes, чтобы новые строки
+     после морфа заезжали так же; approve (.gone) снимает анимацию */
+  .island .rev li{opacity:0}
+  /* opacity держит fill-режим both (до старта — from, после — to);
+     явного opacity:1 тут нет, иначе он пересилит .gone при approve */
+  .island.open .rev li{
+    animation:rowIn 700ms cubic-bezier(.2,.6,.2,1) both;
+    animation-delay:calc(var(--sd,340ms) + 90ms)}
+  .island.open .rev li:nth-child(2){animation-delay:calc(var(--sd,340ms) + 175ms)}
+  .island.open .rev li:nth-child(3){animation-delay:calc(var(--sd,340ms) + 260ms)}
+  .rev li.gone{animation:none!important}
+  @keyframes rowIn{from{opacity:0;transform:translateY(14px);filter:blur(6px)}
+    to{opacity:1;transform:none;filter:blur(0)}}
 
   .sec{padding:12px 16px;display:none;position:relative}
   .sec.on{display:block}
   /* разделители прорастают от центра после появления секции;
-     delay:inherit берёт задержку каскада у родителя-.stag */
+     --sd наследуется псевдоэлементу от родителя-.stag */
   .sec+.sec.on::after{content:"";position:absolute;top:0;left:16px;right:16px;height:1px;
     background:var(--b1);transform:scaleX(0);
-    transition:transform 900ms cubic-bezier(.16,.6,.2,1);transition-delay:inherit}
-  .island.open .sec+.sec.on::after{transform:scaleX(1)}
+    transition:transform 900ms cubic-bezier(.16,.6,.2,1)}
+  .island.open .sec+.sec.on::after{transform:scaleX(1);
+    transition-delay:calc(var(--sd,340ms) + 220ms)}
   .sec h5{margin:0 0 10px;font-size:10.5px;font-weight:500;letter-spacing:.06em;
     text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:8px}
   .sec h5 .pill{margin-left:auto}
@@ -210,7 +242,7 @@
   .rev li{display:flex;align-items:center;gap:10px;padding:7px 8px;margin:0 -8px;border-radius:6px;
     cursor:pointer;transition:background var(--fast),transform var(--fast);
     overflow:hidden;max-height:36px}
-  .rev li:hover{background:rgba(255,255,255,.06);transform:translateX(2px)}
+  .rev li:hover{background:rgba(255,255,255,.06)}
   .rev li.gone{max-height:0;padding-top:0;padding-bottom:0;opacity:0;
     transition:all var(--base)}
   .badge{flex:none;font-size:9.5px;font-weight:590;letter-spacing:.05em;text-transform:uppercase;
@@ -237,7 +269,8 @@
   .qdone{font-size:12px;color:var(--ok);display:none;align-items:center;gap:7px}
 
   /* морф: контент гаснет, форма меняется, контент проявляется (референс Nook) */
-  .island.morph .stag{opacity:0!important;filter:blur(3px)!important;
+  .island.morph .sec>*,.island.morph .pfoot>*,.island.morph .rev li{
+    opacity:0!important;filter:blur(3px)!important;
     transition:opacity 110ms ease,filter 110ms ease!important}
 
   /* композер из полки */
@@ -341,7 +374,8 @@
 
   @media (prefers-reduced-motion:reduce){
     .dot.live{animation:none}
-    .island,.iband,.island .stag,.rev li{transition:none}
+    .island,.iband,.island .sec>*,.island .pfoot>*,.rev li,.ibody{transition:none;animation:none}
+    .island .sec>*,.island .pfoot>*,.island .rev li{opacity:1;transform:none;filter:none}
     .izone:hover .island:not(.open){width:var(--iw,212px);height:44px}
   }
   @media (max-width:760px){
@@ -586,12 +620,14 @@
       блюра, когда форма почти осела. Перелёт полпроцента — след механики,
       не батут. Форма и контент никогда не движутся одновременно</td></tr>
     <tr><td>Клик: тело растёт вниз</td><td>пружина, ~1,9 с</td>
-      <td>верх приклеен к кромке и не движется; ширина — ровно как под ховером,
-      меняется только высота: разгоняется и мягко оседает (перелёт &lt;1%). Фон
-      панели — bg.surface, сверху плавно перетекающий в чёрный корпуса. Контент
-      свёрстан на финальной ширине заранее и <b>материализуется</b>: секции
-      всплывают снизу из расфокуса (блюр 10px, сдвиг 18px, масштаб 0,965→1),
-      старт на 340 мс, шаг 130 мс; разделители прорастают от центра следом.
+      <td>верх приклеен к кромке и не движется; ширина клика = ширине ховера
+      <b>одной формулой</b> (--iw+28, сообщение держит --iw ≥ 372) — совпадение по
+      построению, не по калибровке. Высота разгоняется и мягко оседает (перелёт
+      &lt;1%), тело панели доезжает с лёгким параллаксом. Фон — bg.surface, сверху
+      перетекающий в чёрный корпуса. Контент <b>материализуется поэлементно</b>:
+      секция задаёт такт каскада (старт 340 мс, шаг 130 мс), внутри неё каждый
+      элемент всплывает из расфокуса отдельно (шаг 75 мс), строки ревью
+      прокатываются одна за другой, разделители прорастают от центра следом.
       Закрытие — доводчик без отскока: пружина у нулевой границы дребезжит</td></tr>
     <tr><td>Пульс живой точки</td><td><span class="tok">motion.live</span> · <span class="tok">glow.live</span></td>
       <td>дыхание 2,4 с; единственное свечение в поле зрения</td></tr>
@@ -704,7 +740,9 @@
     setTimeout(()=>{
       ibl.innerHTML=l||''; ibr.innerHTML=r||'';
       const need=(l||r)? ibl.scrollWidth+ibr.scrollWidth+36+((l&&r)?96:24) : 0;
-      let w=Math.max(212,Math.ceil(need)); if(w%2)w++; /* чётная ширина: -50% без полупикселя */
+      /* с сообщением — минимум 372: тогда ховер и клик = --iw+28 одной формулой,
+         и панели хватает ширины под контент; чётность — чтобы -50% не дал полупиксель */
+      let w=(l||r)? Math.max(372,Math.ceil(need)) : 212; if(w%2)w++;
       island.style.setProperty('--iw',w+'px');
       island.classList.remove('mute');
     },270);
