@@ -10,29 +10,32 @@
 <body>
 <div class="canvas">
 <section class="cover">
-  <h1>Дизайн-система Foundry</h1>
+  <p class="cover-mark">Foundry</p>
+  <h1>Design System</h1>
   <p class="lede">Не описание системы, а сама система, собранная в одном месте: каждая ступень, кегль и отступ ниже — <b>не картинка решения, а решение</b>. Значения приезжают из <code>tokens.json</code> при сборке; поменяется хекс в источнике — поменяется эта страница.</p>
   <div class="cover-facts">
     <div class="cover-fact"><b>91</b><span>токенов в источнике</span></div>
     <div class="cover-fact"><b>6</b><span>частей — закон</span></div>
     <div class="cover-fact"><b>5</b><span>частей — на утверждении</span></div>
-    <div class="cover-fact"><b>3</b><span>в приёмной — не закон</span></div>
+    <div class="cover-fact"><b>1</b><span>в приёмной — не закон</span></div>
     <div class="cover-fact"><b>16</b><span>отвергнуто, с причиной</span></div>
   </div>
 </section>
 <nav class="rail">
   <a href="#colors"><span class="n">01</span>Цвета</a>
   <a href="#typography"><span class="n">02</span>Типографика</a>
-  <a href="#spacing"><span class="n">03</span>Отступы и сетка</a>
-  <a href="#buttons"><span class="n">04</span>Кнопки</a>
-  <a href="#tabs"><span class="n">05</span>Табы</a>
-  <a href="#labels"><span class="n">06</span>Лейблы</a>
-  <a href="#panels"><span class="n">07</span>Панели</a>
-  <a href="#blocks"><span class="n">08</span>Блоки</a>
-  <a href="#icons"><span class="n">09</span>Иконки</a>
-  <a href="#logo"><span class="n">10</span>Логотип</a>
-  <a href="#animation"><span class="n">11</span>Анимации</a>
-  <a href="#screens"><span class="n">12</span>Экраны</a>
+  <a href="#layout"><span class="n">03</span>Сетка</a>
+  <a href="#spacing"><span class="n">04</span>Отступы</a>
+  <a href="#radius"><span class="n">05</span>Скругления</a>
+  <a href="#buttons"><span class="n">06</span>Кнопки</a>
+  <a href="#tabs"><span class="n">07</span>Табы</a>
+  <a href="#labels"><span class="n">08</span>Лейблы</a>
+  <a href="#panels"><span class="n">09</span>Панели</a>
+  <a href="#blocks"><span class="n">10</span>Блоки</a>
+  <a href="#icons"><span class="n">11</span>Иконки</a>
+  <a href="#logo"><span class="n">12</span>Логотип</a>
+  <a href="#animation"><span class="n">13</span>Анимации</a>
+  <a href="#screens"><span class="n">14</span>Экраны</a>
   <a href="#candidates"><span class="n">—</span>Приёмная</a>
   <a href="#rejected"><span class="n">—</span>Отвергнуто</a>
 </nav>
@@ -335,9 +338,88 @@
     </div>
   </div>
 </section>
+<section class="section" id="layout">
+  <div class="section-head"><span class="num">03</span><h2>Сетка</h2></div>
+  <p class="section-lede">Модульная сетка на трёх уровнях: панели окна в натуральную величину, микросетка колонок с единым гаттером, колонка чтения ровно в меру — правило, которому подчинена и эта страница.</p>
+  <div class="block" id="layout-macro">
+    <div class="block-head"><h3>Панели окна — макросетка</h3><span class="hint">ширины в натуральную величину, pt→px 1:1: панель — это «колонка» приложения (02 §8)</span></div>
+    <div class="win">
+      <div class="win-panel" style="flex: 0 0 240px">
+        <b>Сайдбар</b>
+        <span class="role">«где я»: проекты и инбокс</span>
+        <span class="w">240pt</span>
+      </div>
+      <div class="win-panel" style="flex: 0 0 300px">
+        <b>Список</b>
+        <span class="role">master в ревью</span>
+        <span class="w">300pt</span>
+      </div>
+      <div class="win-panel" style="flex: 1 1 auto; min-width: 0">
+        <b>Контент / деталь</b>
+        <span class="role">«работаю»: доска, ревью, лог</span>
+        <span class="w">мин 480pt · ∞</span>
+      </div>
+      <div class="win-panel" style="flex: 0 0 320px">
+        <b>Инспектор</b>
+        <span class="role">«свойства выбранного»</span>
+        <span class="w">320pt</span>
+      </div>
+    </div>
+    <ul class="panels">
+      <li><span class="t">Сайдбар</span><span class="n">200 / 240 / 320 pt</span><span class="g">фиксирован при ресайзе; схлопывается целиком (⌘⌥S)</span></li>
+      <li><span class="t">Список</span><span class="n">260 / 300 / 400 pt</span><span class="g">фиксирован; тянется только вручную</span></li>
+      <li><span class="t">Контент / деталь</span><span class="n">480 / — / ∞ pt</span><span class="g">забирает весь прирост окна</span></li>
+      <li><span class="t">Инспектор</span><span class="n">260 / 320 / 480 pt</span><span class="g">скрыт по умолчанию; при окне &lt; 1100pt — overlay</span></li>
+    </ul>
+  </div>
+  <div class="block" id="layout-micro">
+    <div class="block-head"><h3>Микросетка и мера</h3><span class="hint">12 колонок, единый гаттер space.4; колонка чтения держит меру 45–75 знаков</span></div>
+    <div class="grid">
+      <div class="col-6">
+        <div class="cols">
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+          <i></i>
+        </div>
+        <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">12 колонок, гаттер <code>space.4</code> (16pt), в плотных местах <code>space.3</code> (12pt). Элемент занимает целое число колонок — между колонками ничего не висит.</p>
+      </div>
+      <div class="col-6">
+        <div class="measure">
+          <div class="measure-col">Колонка чтения держит меру: глаз не теряет строку на обратном пути и не спотыкается о частокол переносов. На широком окне контент не растягивается во всю ширь, а держит эти знаки — остальное уходит в поля.</div>
+          <span class="measure-mark">75 знаков · оптимум ~66 · «широкое окно → поля, не длина строки»</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="verdict">
+    <div class="can">
+      <h3>Можно — правило группы</h3>
+      <ul>
+        <li><span><code>layout</code> — Экран собирается на модульной сетке: небольшое число колонок, единый гаттер, элементы занимают целое число модулей.</span></li>
+      </ul>
+    </div>
+    <div class="cant">
+      <h3>Нельзя — запреты, которыми токены помечены сами</h3>
+      <ul>
+        <li><span><code>layout</code> — Колонку чтения растягивать во всю ширь окна ЗАПРЕЩЕНО: держит меру 45–75 знаков (оптимум ~66), остальное — поля.</span></li>
+        <li><span><code>layout</code> — Сетку нарушать поодиночке и ради оптики; ЖЁСТКОЕ ПРАВИЛО — нарушение обязано выглядеть намеренным, то есть заметным.</span></li>
+        <li><span><code>layout</code> — Умных пересортировок панелей по частоте не бывает: места — константы, пространственная память эксперта дороже.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
 <section class="section" id="spacing">
-  <div class="section-head"><span class="num">03</span><h2>Отступы и сетка</h2></div>
-  <p class="section-lede">Шаг и радиус, измеряющие сами себя: столбик длиной ровно в свой токен, вложенный радиус = внешний − паддинг.</p>
+  <div class="section-head"><span class="num">04</span><h2>Отступы</h2></div>
+  <p class="section-lede">Шкала, измеряющая сама себя: столбик длиной ровно в свой токен, 1:1 — линейка, а не таблица; рядом — инвариант Бирмана «внутреннее ≤ внешнее», нарисованный.</p>
   <div class="block" id="space">
     <div class="block-head"><h3>Отступы</h3><span class="hint">столбик длиной ровно в свой токен, 1:1 — линейка, а не таблица</span></div>
     <div class="grid">
@@ -414,6 +496,24 @@
       </div>
     </div>
   </div>
+  <div class="verdict">
+    <div class="can">
+      <h3>Можно — правило группы</h3>
+      <ul>
+        <li><span><code>space</code> — База 4pt, рабочая единица 8pt.</span></li>
+      </ul>
+    </div>
+    <div class="cant">
+      <h3>Нельзя — запреты, которыми токены помечены сами</h3>
+      <ul>
+        <li><span><code>space</code> — Соседние значения различаются минимум на шаг шкалы, промежуточных значений нет.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="radius">
+  <div class="section-head"><span class="num">05</span><h2>Скругления</h2></div>
+  <p class="section-lede">Концентрика, нарисованная и заодно проверенная: вложенный радиус = внешний − паддинг, и шкала попадает шагом в один space.1 ровно в следующий токен.</p>
   <div class="block" id="radius">
     <div class="block-head"><h3>Радиусы</h3><span class="hint">вложенный = внешний − паддинг: правило нарисовано, а не пересказано</span></div>
     <div class="grid">
@@ -438,20 +538,18 @@
     <div class="can">
       <h3>Можно — правило группы</h3>
       <ul>
-        <li><span><code>space</code> — База 4pt, рабочая единица 8pt.</span></li>
         <li><span><code>radius</code> — Система концентрическая: вложенный радиус = внешний − паддинг.</span></li>
       </ul>
     </div>
     <div class="cant">
       <h3>Нельзя — запреты, которыми токены помечены сами</h3>
       <ul>
-        <li><span><code>space</code> — Соседние значения различаются минимум на шаг шкалы, промежуточных значений нет.</span></li>
       </ul>
     </div>
   </div>
 </section>
 <section class="section" id="buttons">
-  <div class="section-head"><span class="num">04</span><h2>Кнопки</h2></div>
+  <div class="section-head"><span class="num">06</span><h2>Кнопки</h2></div>
   <p class="section-lede">Первоэлемент действия: в одиночку смысла не имеет и про домен не знает.</p>
   <div class="grid">
     <div class="col-12">
@@ -519,7 +617,7 @@
   </div>
 </section>
 <section class="section" id="tabs">
-  <div class="section-head"><span class="num">05</span><h2>Табы</h2></div>
+  <div class="section-head"><span class="num">07</span><h2>Табы</h2></div>
   <p class="section-lede">Переключение вида: один активный, остальные ждут.</p>
   <div class="grid">
     <div class="col-12">
@@ -583,7 +681,7 @@
   </div>
 </section>
 <section class="section" id="labels">
-  <div class="section-head"><span class="num">06</span><h2>Лейблы</h2></div>
+  <div class="section-head"><span class="num">08</span><h2>Лейблы</h2></div>
   <p class="section-lede">Метки состояния и принадлежности: бейдж, точка статуса, чип, лейбл проекта.</p>
   <div class="grid">
     <div class="col-12">
@@ -746,7 +844,7 @@
   </div>
 </section>
 <section class="section" id="panels">
-  <div class="section-head"><span class="num">07</span><h2>Панели</h2></div>
+  <div class="section-head"><span class="num">09</span><h2>Панели</h2></div>
   <p class="section-lede">Контейнер для другого: панель как слой поверх фона.</p>
   <div class="grid">
     <div class="col-12">
@@ -804,7 +902,7 @@
   </div>
 </section>
 <section class="section" id="blocks">
-  <div class="section-head"><span class="num">08</span><h2>Блоки</h2></div>
+  <div class="section-head"><span class="num">10</span><h2>Блоки</h2></div>
   <p class="section-lede">Компонент, который знает про домен: строка диффа, стадия, change.</p>
   <div class="grid">
     <div class="col-12">
@@ -861,8 +959,95 @@
   </div>
 </section>
 <section class="section" id="icons">
-  <div class="section-head"><span class="num">09</span><h2>Иконки</h2></div>
-  <p class="section-lede">Опознавательный знак продукта в пикселях: иконка приложения «Восход» и орб.</p>
+  <div class="section-head"><span class="num">11</span><h2>Иконки</h2></div>
+  <p class="section-lede">Система, а не ряд картинок: размеры из токенов, закреплённый словарь доменных метафор на SF Symbols, статусы «глиф + цвет» — и опознавательные марки продукта «Восход» и орб.</p>
+  <div class="block" id="icon-sizes">
+    <div class="block-head"><h3>Размеры</h3><span class="hint">в натуральную величину из icon.*; кегль иконки = кегль соседнего текста (§2.1)</span></div>
+    <ul class="icon-sizes">
+      <li data-token="icon.s">
+        <i style="width: var(--icon-s); height: var(--icon-s)"></i>
+        <span class="t">icon.s</span>
+        <span class="n">12pt</span>
+        <span class="r">мелкая иконка</span>
+      </li>
+      <li data-token="icon.m">
+        <i style="width: var(--icon-m); height: var(--icon-m)"></i>
+        <span class="t">icon.m</span>
+        <span class="n">16pt</span>
+        <span class="r">иконка по умолчанию</span>
+      </li>
+      <li data-token="icon.l">
+        <i style="width: var(--icon-l); height: var(--icon-l)"></i>
+        <span class="t">icon.l</span>
+        <span class="n">20pt</span>
+        <span class="r">крупная иконка; в тексте SF Symbols масштабируются сами</span>
+      </li>
+    </ul>
+  </div>
+  <div class="block" id="icon-metaphors">
+    <div class="block-head"><h3>Доменные метафоры</h3><span class="hint">одно понятие — один SF Symbol, везде (§3); браузер их не рисует — это карта, глиф живёт в приложении</span></div>
+    <table class="icon-map">
+      <thead><tr><th>Понятие</th><th>SF Symbol</th><th>Почему</th></tr></thead>
+      <tbody>
+        <tr><th>Проект</th><td><code>folder / folder.fill</code></td><td>контейнер работ; узнаётся мгновенно, не спорит с доменными</td></tr>
+        <tr><th>Change</th><td><code>arrow.triangle.branch</code></td><td>ветвление — единица изменения с git-природой</td></tr>
+        <tr><th>Стадия</th><td><code>circle.dotted → circle.lefthalf.filled → checkmark.circle.fill</code></td><td>узел пайплайна; заполненность = прогресс</td></tr>
+        <tr><th>Артефакт</th><td><code>doc.text</code></td><td>документ стадии — markdown и есть документ</td></tr>
+        <tr><th>Снапшот / diff</th><td><code>plus.forwardslash.minus</code></td><td>+/- — интернациональный знак диффа (GitHub-школа)</td></tr>
+        <tr><th>Ревью</th><td><code>text.magnifyingglass</code></td><td>читать пристально; лупа с текстом = разбор текста</td></tr>
+        <tr><th>Комментарий</th><td><code>text.bubble</code></td><td>пузырь — вошедшая метафора; счётчик цифрой рядом, не в иконке</td></tr>
+        <tr><th>Live-лог</th><td><code>terminal</code></td><td>моношрифт-консоль — донорская метафора Xcode/Terminal</td></tr>
+        <tr><th>Стрим токенов</th><td><code>waveform</code></td><td>живой поток; держит variable-color-анимацию</td></tr>
+        <tr><th>Луп / итерация</th><td><code>arrow.2.circlepath</code></td><td>круговые стрелки = повторение; счётчик рядом, не внутри</td></tr>
+        <tr><th>Аналитика</th><td><code>chart.xyaxis.line</code></td><td>линия на осях = графики лупов</td></tr>
+        <tr><th>Инбокс</th><td><code>tray / tray.full</code></td><td>системная метафора macOS Mail; пара empty/full — состояние формой</td></tr>
+        <tr><th>Claude / агент</th><td><code>орб (кастом)</code></td><td>фирменный элемент; SF-фолбэк не брать, орб рисуем сами</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="block" id="icon-statuses">
+    <div class="block-head"><h3>Статусы стадии</h3><span class="hint">форма дублирует цвет: каждому статусу свой глиф И свой токен-цвет (§6)</span></div>
+    <ul class="icon-statuses">
+      <li data-token="text.disabled">
+        <i class="dot" style="background: var(--text-disabled)"></i>
+        <span class="t">Не начата</span>
+        <span class="g"><code>circle.dotted</code></span>
+        <span class="c">text.disabled</span>
+      </li>
+      <li data-token="sem.info">
+        <i class="dot" style="background: var(--sem-info)"></i>
+        <span class="t">В работе</span>
+        <span class="g"><code>circle.lefthalf.filled + пульс</code></span>
+        <span class="c">sem.info</span>
+      </li>
+      <li data-token="brand.ultramarine">
+        <i class="dot" style="background: var(--brand-ultramarine)"></i>
+        <span class="t">Ждёт ревью</span>
+        <span class="g"><code>circle.fill + точка-бейдж</code></span>
+        <span class="c">brand.ultramarine</span>
+      </li>
+      <li data-token="sem.success">
+        <i class="dot" style="background: var(--sem-success)"></i>
+        <span class="t">Принята</span>
+        <span class="g"><code>checkmark.circle.fill</code></span>
+        <span class="c">sem.success</span>
+      </li>
+      <li data-token="sem.warning">
+        <i class="dot" style="background: var(--sem-warning)"></i>
+        <span class="t">На доработке</span>
+        <span class="g"><code>arrow.uturn.backward.circle.fill</code></span>
+        <span class="c">sem.warning</span>
+      </li>
+      <li data-token="sem.error">
+        <i class="dot" style="background: var(--sem-error)"></i>
+        <span class="t">Ошибка / блок</span>
+        <span class="g"><code>exclamationmark.triangle.fill</code></span>
+        <span class="c">sem.error</span>
+      </li>
+    </ul>
+  </div>
+  <div class="block" id="icon-marks">
+    <div class="block-head"><h3>Марки продукта</h3><span class="hint">опознавательный знак в пикселях: иконка приложения и орб</span></div>
   <div class="grid">
     <div class="col-12">
       <article class="part" id="part-app-icon">
@@ -910,17 +1095,28 @@
       </article>
     </div>
   </div>
+  </div>
   <div class="verdict">
     <div class="can">
-      <h3>Можно — зачем часть есть</h3>
+      <h3>Можно — правила системы иконок</h3>
       <ul>
+        <li><span><code>SF Symbols</code> — monochrome по умолчанию, alpha-белый уровней текста; hierarchical для составных (§2.2)</span></li>
+        <li><span>иконка ставится, только если ускоряет распознавание уже знакомого (§1.1)</span></li>
+        <li><span>одно понятие — один символ, везде: словарь §3 закреплён</span></li>
+        <li><span>кегль и вес иконки = кегль и вес соседнего текста (§2.1)</span></li>
+        <li><span>статус = глиф + цвет: форма дублирует цвет (§6)</span></li>
         <li><span><a href="#part-app-icon">Иконка приложения «Восход»</a> — Знак продукта там, где до продукта ещё не дошли: Dock, Finder, DMG.<details class="more"><summary>+1</summary><p>Показан лестницей натуральных размеров — иконка живёт или умирает на 16, и один крупный рендер это прячет.</p></details></span></li>
         <li><span><a href="#part-orb">Орб «Восход»</a> — Живой знак продукта: рой непрозрачных частиц на сфере, перетекающий из холодной семьи в тёплую переключением частиц поодиночке.<details class="more"><summary>+1</summary><p>Тот же материал, стоп-кадром которого является иконка.</p></details></span></li>
       </ul>
     </div>
     <div class="cant">
-      <h3>Нельзя — где часть неуместна</h3>
+      <h3>Нельзя — запреты канона 12</h3>
       <ul>
+        <li><span>multicolor запрещён — пёстрые заливки разваливают тёмную палитру (§2.2)</span></li>
+        <li><span>доменная иконка без подписи и тултипа — «стадия», «луп», «change» иконкой не читаются (§1.2)</span></li>
+        <li><span>синонимия: сегодня change молния, завтра карандаш — выученность убита (§3)</span></li>
+        <li><span>декоративные иконки-обои у каждого пункта — ряд пестрит, чтение медленнее (§1.1)</span></li>
+        <li><span>смешивать outline и filled как «просто разные»: заполненность означает состояние, и только его (§4)</span></li>
         <li><span><a href="#part-app-icon">Иконка приложения «Восход»</a> — Не перерисовывать знак плоской графикой — CSS-градиентами, SVG, чистыми заливками: отвергнуто дословно («второсортно, дёшево, будто ребёнок рисовал»), материал даёт только canvas2d-конвейер → rejected/flat-vector-graphics.md.<details class="more"><summary>+8</summary><p>Не предлагать иконку из роя частиц: отвергнута целиком, все три итерации, файлы удалены по просьбе пользователя → rejected/swarm-icon.md. Не возвращать отвергнутые трактовки: яркое центральное пятно-блик (источник света вынесен ЗА канвас, внутри сферы его нет), толстый/белый/навязчивый серп, направленный motion-blur с гостингом, любой блюр или свечение СПРАВА от центра (правая половина — единственная чёткая), 2× супер-семпл всего канваса (лечит бандинг ценой мягкой кромки — лечить его надо densify, 160 стопов Catmull-Rom) → rejected/sunrise-icon-treatments.md. Не переоткрывать выбор варианта: A — финал, B отброшен окончательно; paper-cut и огненный сквиркл закрыты → rejected/icon-variant-b.md, rejected/icon-alternatives-paper-cut-and-fire.md. Не ставить плитку в край: поля входят в саму картинку, macOS их НЕ добавляет — иконка без полей стоит в Dock крупнее соседей, и это уже ловили. Не скруглять угол дугой окружности и не подбирать радиус: угол — суперэллипс Ламе n=4, L = 0.4042 ТЕЛА (дуга промахивается на 4.97px против 0.49px у суперэллипса при плитке 204); заодно не путать CSS corner-shape: superellipse(4) — это n=16, squircle — это n=4. Не получать мелкий размер ресайзом крупного: маска считается формулой под каждый размер отдельно, пересемпл альфы и чёрная кайма от ресайза RGBA по прозрачному фону — измеренные потери кромки (до −85 по сумме RGB), а не теория. Не считать правку артворка законченной без прогона make-appiconset.py — на этом конвейер разъезжался ДВАЖДЫ, и приложение месяц шипило иконку без двух одобренных доработок. Не брать палитру иконки за палитру системы: Void/Navy/Violet/Indigo/Sky/Halo — отдельный webphone-ход, снятый пипеткой с референса; токенов у него нет и быть не должно.</p></details></span></li>
         <li><span><a href="#part-orb">Орб «Восход»</a> — Семьи цветов не смешивать НИЧЕМ: ни аддитивным блендингом, ни mix() через границу, ни полупрозрачными частицами, ни ресемплом кадра.<details class="more"><summary>+15</summary><p>Холодная (231°–275°) и тёплая (348°–39°) почти дополнительны, и любая середина между ними — розовый ~300°, вычеркнутый при отборе палитры; это не стилистика, а единственная конструкция, при которой обе семьи существуют на одном экране легально → rejected/pink-hue-and-family-blending.md. Проверка механическая и обязательная: доля пикселей в 290–330°, норма 0%. Растушёвка оттенков допустима ТОЛЬКО внутри семьи (соседи по рампе ≤50°). Не прибивать CSS-размер канваса к дробному значению и не давать браузеру ресемплить кадр: буфер обязан совпадать с CSS пиксель в пиксель — иначе розовый придёт сам, без единой правки цвета. Не поджимать рой кадрированием на hero-экранах: гигантскость — часть образа («свет больше кадра»), срез верха кромкой и заезд под литеры — норма, а не дефект; uFit 0.695 и 0.80 отвергнуты оба, и просьбу об отступах подавал сам пользователь → rejected/swarm-crop-to-frame.md. Если рой мешает контенту — лечится завесой ПОД контентом, а не рамкой. Не ставить живой рой в мелкие места: пресет c годен от 64, a — от 128; ниже зерно физически не помещается в пиксель, и файл на это ругается вместо молчаливого клампа — молчаливый кламп и был причиной мельтешения. На 28px рой вырождается в цветную точку, которая медленно меняет тон: цикл 54 с, зерно и фронт волны схлопнулись — это уже не знак, а пятно. Спиннера 32×32 не существует: он значится запечённым спрайт-листом, а не живым WebGL, и упирается в некратные частоты (оборот 20.9 с, качание 33.1 с, волна 54 с, fbm-дрейф не повторяется вовсе) — то есть маленький живой рой это известная нерешённая задача, а не недосмотр. Не задавать размер частицы в пикселях — только зерном (доля тела): 2.6px на Retina превращаются в 1.3px на экране, и на этом уже дважды врали панели сравнения. Не назначать число частиц руками: N = COVERAGE / зерно², иначе «мельче зерно» означает просто «реже рой». Ниже 6000 частиц не опускаться (3000 = 18% заполненности, отклонено). Не ставить рой туда, где ждут секунду: цикл 54 с, и на загрузке всегда видно одно и то же начало — место роя там, где ждут долго. Не делать из роя иконку приложения → rejected/swarm-icon.md. Не держать на экране больше одной циклической анимации и не превращать орб в «AI-иконку» на каждой строке — это статус «агент работает», а не логотип-стикер (12 §9, §10).</p></details></span></li>
       </ul>
@@ -928,7 +1124,7 @@
   </div>
 </section>
 <section class="section" id="logo">
-  <div class="section-head"><span class="num">10</span><h2>Логотип</h2></div>
+  <div class="section-head"><span class="num">12</span><h2>Логотип</h2></div>
   <p class="section-lede">Вордмарк «Foundry AI» — знак неделим.</p>
   <div class="grid">
     <div class="col-12">
@@ -973,7 +1169,7 @@
   </div>
 </section>
 <section class="section" id="animation">
-  <div class="section-head"><span class="num">11</span><h2>Анимации</h2></div>
+  <div class="section-head"><span class="num">13</span><h2>Анимации</h2></div>
   <p class="section-lede">Движение и свечение показываются собой — переход переходом, свет светом; при prefers-reduced-motion молчат.</p>
   <div class="block" id="motion">
     <div class="block-head"><h3>Движение</h3><span class="hint">живьём, теми самыми токенами; при <code>prefers-reduced-motion</code> — молчит</span></div>
@@ -1052,14 +1248,54 @@
   </div>
 </section>
 <section class="section" id="screens">
-  <div class="section-head"><span class="num">12</span><h2>Экраны</h2></div>
+  <div class="section-head"><span class="num">14</span><h2>Экраны</h2></div>
   <p class="section-lede">Вся система разом, собранная обратно в экраны — единственное место, где её видно в работе.</p>
-  <div class="block" id="in-situ">
-    <div class="block-head"><h3>Девятнадцать экранов, живьём</h3><span class="hint">не скриншоты — настоящий макет, вставленный сюда целиком</span></div>
+  <nav class="subrail">
+    <a href="#screen-onboarding">Онбординг</a>
+    <a href="#screen-main">Главный экран</a>
+    <a href="#screen-notch">Нотч-хелпер</a>
+    <a href="#screen-dmg">DMG — установщик</a>
+    <a href="#screen-all">Все экраны разом</a>
+  </nav>
+  <div class="block" id="screen-onboarding">
+    <div class="block-head"><h3>Онбординг</h3><span class="hint">кандидат · экран 0 принят эталоном</span></div>
+    <p class="screen-blurb">Первый запуск: шесть решений на рое и разлёт в главное окно. Экран приветствия принят целиком как эталон — источник правды по кнопке, вордмарку, рою и завесе.</p>
     <div class="screens">
-      <iframe src="../docs/design/mockups/foundry-mockups.html" style="height: calc(var(--space-10) * 15)" loading="lazy" title="Макеты экранов foundry-desktop"></iframe>
+      <iframe src="candidates/onboarding.html" style="height: calc(var(--space-10) * 14)" loading="lazy" title="Онбординг"></iframe>
     </div>
-    <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">Макет длинный — панель скроллится сама, и ⌘F доски по ней не пройдёт. Читать целиком — <a href="../docs/design/mockups/foundry-mockups.html">открыть в своей вкладке</a>.</p>
+    <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">Открыть отдельно — <a href="candidates/onboarding.html">в своей вкладке</a>.</p>
+  </div>
+  <div class="block" id="screen-main">
+    <div class="block-head"><h3>Главный экран</h3><span class="hint">кандидат · эскиз на утверждение</span></div>
+    <p class="screen-blurb">Рейл, сайдбар и плавающие панели: границу держит зазор, а не линейка. Эскиз доводит §1 макета до того, что его собственная подпись уже обещает.</p>
+    <div class="screens">
+      <iframe src="candidates/main-screen-sketch.html" style="height: calc(var(--space-10) * 15)" loading="lazy" title="Главный экран"></iframe>
+    </div>
+    <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">Открыть отдельно — <a href="candidates/main-screen-sketch.html">в своей вкладке</a>.</p>
+  </div>
+  <div class="block" id="screen-notch">
+    <div class="block-head"><h3>Нотч-хелпер</h3><span class="hint">кандидат · этап 1 принят рабоче</span></div>
+    <p class="screen-blurb">Чёлка макбука как амбиентный пульт пайплайна CRISPY. Этап 1 (свёрнутая чёлка · ховер · раскрытие) принят рабоче; композер, полка и приоритеты — следующие этапы.</p>
+    <div class="screens">
+      <iframe src="candidates/notch-helper-board.html" style="height: calc(var(--space-10) * 14)" loading="lazy" title="Нотч-хелпер"></iframe>
+    </div>
+    <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">Открыть отдельно — <a href="candidates/notch-helper-board.html">в своей вкладке</a>.</p>
+  </div>
+  <div class="block" id="screen-dmg">
+    <div class="block-head"><h3>DMG — установщик</h3><span class="hint">принят · собирается appdmg</span></div>
+    <p class="screen-blurb">Окно установки: перетащить .app в Applications. Градиент на тёмной гамме проекта, дизеринг против лесенок — эскиз утверждён и собирается из design/dmg.</p>
+    <div class="screens">
+      <img src="dmg/mockup.png" alt="DMG — установщик">
+    </div>
+    <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">Открыть отдельно — <a href="dmg/mockup.png">в своей вкладке</a>.</p>
+  </div>
+  <div class="block" id="screen-all">
+    <div class="block-head"><h3>Все экраны разом</h3><span class="hint">лист макетов</span></div>
+    <p class="screen-blurb">Вся система, собранная обратно в экраны: ревью, канбан, лог, аналитика, настройки. Панель скроллится сама, и ⌘F доски по ней не пройдёт.</p>
+    <div class="screens">
+      <iframe src="../docs/design/mockups/foundry-mockups.html" style="height: calc(var(--space-10) * 15)" loading="lazy" title="Все экраны разом"></iframe>
+    </div>
+    <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">Лист длинный — панель скроллится сама. Открыть отдельно — <a href="../docs/design/mockups/foundry-mockups.html">в своей вкладке</a>.</p>
   </div>
 </section>
 <section class="section" id="candidates">
@@ -1088,66 +1324,18 @@
         </details>
       </article>
     </div>
-    <div class="col-12">
-      <article class="part" id="part-main-screen-sketch">
-        <div class="part-stage">
-          <iframe src="candidates/main-screen-sketch.html" height="900" loading="lazy" title="Основной экран — эскиз (рейл, сайдбар и плавающие панели)"></iframe>
-        </div>
-        <div class="part-meta">
-          <h4>Основной экран — эскиз (рейл, сайдбар и плавающие панели)</h4>
-          <span class="slug">main-screen-sketch</span>
-          <span class="chip chip-candidate">кандидат</span>
-          <span class="spacer"></span>
-          <span class="refs"><a href="../docs/design/02-composition.md">02-composition.md</a> · <a href="../docs/design/03-spacing.md">03-spacing.md</a> · <a href="../docs/design/09-surfaces.md">09-surfaces.md</a> · <a href="../docs/design/13-tokens.md">13-tokens.md</a></span>
-        </div>
-        <details class="debt">
-          <summary>долг</summary>
-          <p>Свой :root, сырые hex, нет карточки #card — сайдкар, не часть. Параметры эскиза (--gap, --pad, --pane-border) намеренно не зафиксированы — их выбирают на утверждении пультом. Расхождение с onboarding.html по шкале поверхностей СНЯТО 2026-07-17: канон сдвинут на шкалу онбординга, файл переведён на неё же (#05030D/#0B0717/#120B23) — теперь оба кандидата показывают один почти-чёрный.</p>
-        </details>
-        <details>
-          <summary>родословная</summary>
-          <p>Жил в чужом воркtree, в git не был; спасён коммитом d58db46 «spasenie: эталоны из воркtree — в git». Развивает §1 существующего макета `docs/design/mockups/foundry-mockups.html`; ветка решений про обводки — PR #17 (коммиты d8bcdc9, 37e9186)</p>
-        </details>
-      </article>
-    </div>
-    <div class="col-12">
-      <article class="part" id="part-onboarding">
-        <div class="part-stage">
-          <iframe src="candidates/onboarding.html" height="880" loading="lazy" title="Онбординг — первый запуск"></iframe>
-        </div>
-        <div class="part-meta">
-          <h4>Онбординг — первый запуск</h4>
-          <span class="slug">onboarding</span>
-          <span class="chip chip-candidate">кандидат</span>
-          <span class="spacer"></span>
-          <span class="refs"><a href="../docs/design/01-principles.md">01-principles.md</a> · <a href="../docs/design/02-composition.md">02-composition.md</a> · <a href="../docs/design/04-typography.md">04-typography.md</a> · <a href="../docs/design/05-text.md">05-text.md</a> · <a href="../docs/design/06-color.md">06-color.md</a> · <a href="../docs/design/08-controls.md">08-controls.md</a> · <a href="../docs/design/09-surfaces.md">09-surfaces.md</a> · <a href="../docs/design/13-tokens.md">13-tokens.md</a></span>
-        </div>
-        <details class="debt">
-          <summary>долг</summary>
-          <p>Два главных долга ЗАКРЫТЫ 2026-07-17 не правкой файла, а решением: его шкала поверхностей признана правой и стала каноном (#05030D/#0B0717/#120B23/#1A1030 — она держит hue в 1.1° против прежних 5°), янтарь заведён токеном brand.amber с ролью «только знак». Остаётся: ~22 пункта собственного раздела «Долг перед каноном» + свой :root и сырые hex — сайдкар, не часть, линт по построению не проходит.</p>
-        </details>
-        <details>
-          <summary>родословная</summary>
-          <p>Сессия f31899ad; жил как `docs/design/mockups/onboarding.html` в чужом воркtree, в git не был; спасён коммитом d58db46 «spasenie: эталоны из воркtree — в git»</p>
-        </details>
-      </article>
-    </div>
   </div>
   <div class="verdict">
     <div class="can">
       <h3>Зачем это спасали</h3>
       <ul>
         <li><span><a href="#part-logo">Логотип «Foundry AI»</a> — Эталон знака продукта — вордмарк «Foundry» + лейбл «AI» на янтарной плашке; при работе со знаком копировать отсюда, а не пересобирать по памяти.</span></li>
-        <li><span><a href="#part-main-screen-sketch">Основной экран — эскиз (рейл, сайдбар и плавающие панели)</a> — Доводит §1 макета до того, что его собственная подпись уже обещает — «панели не примыкают, границу держит зазор, а не линейка»; плюс два стенда, решающих вопросы глазом — закон кривой угла панелей и минимальный размер, на котором рой ещё читается роем.</span></li>
-        <li><span><a href="#part-onboarding">Онбординг — первый запуск</a> — Живой прототип первого запуска — шесть решений на рое и разлёт в главное окно; экран приветствия принят пользователем целиком как эталон и служит источником правды по кнопке, вордмарку, рою и завесе.</span></li>
       </ul>
     </div>
     <div class="cant">
       <h3>Чего с этим делать нельзя</h3>
       <ul>
         <li><span><a href="#part-logo">Логотип «Foundry AI»</a> — Знак неделим — вордмарк отдельно от лейбла не живёт, разбирать на части нельзя.<details class="more"><summary>+3</summary><p>Не форсировать SF Pro Display явно и не подменять сторонним веб-шрифтом — сломается ровно то, за что похвалили. Не тянуть трекинг в минус на мелких кеглях. Не пересобирать знак по памяти — только копировать из файла.</p></details></span></li>
-        <li><span><a href="#part-main-screen-sketch">Основной экран — эскиз (рейл, сайдбар и плавающие панели)</a> — Не считать принятым — это эскиз НА утверждение, решения пользователя по нему в источниках нет.<details class="more"><summary>+2</summary><p>Не путать corner-shape squircle с superellipse(4) — это n=4 и n=16. Не ставить живой рой в мелкие места (28px — точка, не рой) и не ставить его туда, где ждут недолго.</p></details></span></li>
-        <li><span><a href="#part-onboarding">Онбординг — первый запуск</a> — Не трогать экран data-step=&quot;0&quot; — он принят целиком и собирался десятками итераций с подбором глазом; любое «улучшение заодно» разрушает принятые балансы.<details class="more"><summary>+3</summary><p>Не поджимать рой рамками (uFit = 1.0). Не брать значения :root этого файла как токены — источник значений один, и это tokens.json. Не выделять из файла части, пока долг не закрыт.</p></details></span></li>
       </ul>
     </div>
   </div>

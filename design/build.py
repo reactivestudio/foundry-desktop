@@ -1016,6 +1016,39 @@ TYPE_SPECIMEN = {
     "mono-s": "42a1f · 1284 строки",
 }
 
+# Закреплённый словарь доменных метафор — канон 12 §3. Одно понятие — один
+# символ, везде: синонимия иконок убивает выученность. Источник — проза главы;
+# SF Symbols браузер не рисует (это продолжение шрифта San Francisco, а не
+# картинки), поэтому доска показывает КАРТУ понятие→символ, а глиф живёт
+# в приложении. Меняется метафора в каноне — меняется здесь.
+ICON_METAPHORS = [
+    ("Проект", "folder / folder.fill", "контейнер работ; узнаётся мгновенно, не спорит с доменными"),
+    ("Change", "arrow.triangle.branch", "ветвление — единица изменения с git-природой"),
+    ("Стадия", "circle.dotted → circle.lefthalf.filled → checkmark.circle.fill", "узел пайплайна; заполненность = прогресс"),
+    ("Артефакт", "doc.text", "документ стадии — markdown и есть документ"),
+    ("Снапшот / diff", "plus.forwardslash.minus", "+/- — интернациональный знак диффа (GitHub-школа)"),
+    ("Ревью", "text.magnifyingglass", "читать пристально; лупа с текстом = разбор текста"),
+    ("Комментарий", "text.bubble", "пузырь — вошедшая метафора; счётчик цифрой рядом, не в иконке"),
+    ("Live-лог", "terminal", "моношрифт-консоль — донорская метафора Xcode/Terminal"),
+    ("Стрим токенов", "waveform", "живой поток; держит variable-color-анимацию"),
+    ("Луп / итерация", "arrow.2.circlepath", "круговые стрелки = повторение; счётчик рядом, не внутри"),
+    ("Аналитика", "chart.xyaxis.line", "линия на осях = графики лупов"),
+    ("Инбокс", "tray / tray.full", "системная метафора macOS Mail; пара empty/full — состояние формой"),
+    ("Claude / агент", "орб (кастом)", "фирменный элемент; SF-фолбэк не брать, орб рисуем сами"),
+]
+
+# Статусы стадии — канон 12 §6. Форма ДУБЛИРУЕТ цвет (обязательный императив:
+# 8% мужчин плохо различают красный/зелёный). Каждому статусу — свой глиф И
+# свой цвет-токен; глиф-имя несёт форму, токен несёт цвет.
+ICON_STATUSES = [
+    ("Не начата", "circle.dotted", "text.disabled"),
+    ("В работе", "circle.lefthalf.filled + пульс", "sem.info"),
+    ("Ждёт ревью", "circle.fill + точка-бейдж", "brand.ultramarine"),
+    ("Принята", "checkmark.circle.fill", "sem.success"),
+    ("На доработке", "arrow.uturn.backward.circle.fill", "sem.warning"),
+    ("Ошибка / блок", "exclamationmark.triangle.fill", "sem.error"),
+]
+
 # Ступени, которые складываются в лестницу светлоты. Остальные bg.* —
 # накладки поверх текущего уровня, у них нет своей ступени (bg._role).
 RAMP_GROUPS = [
@@ -1099,7 +1132,8 @@ def board_cover(tokens, law_parts, candidate_parts, sidecars, rejected):
         (len(rejected), "отвергнуто, с причиной"),
     ]
     lines = ['<section class="cover">']
-    lines.append("  <h1>Дизайн-система Foundry</h1>")
+    lines.append('  <p class="cover-mark">Foundry</p>')
+    lines.append("  <h1>Design System</h1>")
     lines.append('  <p class="lede">Не описание системы, а сама система, собранная в одном месте: '
                  "каждая ступень, кегль и отступ ниже — <b>не картинка решения, а решение</b>. "
                  "Значения приезжают из <code>tokens.json</code> при сборке; поменяется хекс "
@@ -1550,6 +1584,89 @@ def radius_block(tokens):
     return lines
 
 
+def layout_block(tokens):
+    """Модульная сетка, показанная собой, а не пересказанная.
+
+    Три уровня из канона 02: макро — панели окна в натуральную величину
+    (pt→px один к одному, как везде на доске); микро — 12 колонок с гаттером
+    в тот самый space-токен; мера — колонка чтения ровно в 66 знаков, то самое
+    правило, которому обязана подчиняться и эта страница. Значения панелей
+    приезжают из `_layout` в tokens.json (док-ключ: панель окна — забота
+    приложения, не документа), гаттер и поля — из space-токенов."""
+    layout = tokens["_layout"]
+    panels = layout["_panels"]
+    measure = layout["_measure"]
+    columns = layout["_columns"]
+
+    lines = ['<div class="block" id="layout-macro">']
+    lines.append('  <div class="block-head"><h3>Панели окна — макросетка</h3>'
+                 '<span class="hint">ширины в натуральную величину, pt→px 1:1: '
+                 "панель — это «колонка» приложения (02 §8)</span></div>")
+    # Окно в масштабе: сайдбар и инспектор — фиксированной ширины своим pt,
+    # контент забирает остаток (min 480). Это не картинка окна, а окно в меру.
+    lines.append('  <div class="win">')
+    for panel in panels:
+        default = panel["default"]
+        if default is None:
+            # Контент/деталь: ∞, тянется и сжимается до остатка. min-width:0 —
+            # иначе минимум 480 распирает окно шире колонки доски и режет инспектор;
+            # честную ширину «мин 480pt» несёт подпись и легенда, а не распор.
+            style = "flex: 1 1 auto; min-width: 0"
+            width_label = "мин %dpt · ∞" % panel["min"]
+        else:
+            style = "flex: 0 0 %dpx" % default
+            width_label = "%dpt" % default
+        lines.append('    <div class="win-panel" style="%s">' % style)
+        lines.append('      <b>%s</b>' % escape(panel["name"]))
+        lines.append('      <span class="role">%s</span>' % escape(panel["role"]))
+        lines.append('      <span class="w">%s</span>' % escape(width_label))
+        lines.append("    </div>")
+    lines.append("  </div>")
+    # Легенда: мин / по умолчанию / макс и поведение при ресайзе — данные панели.
+    lines.append('  <ul class="panels">')
+    for panel in panels:
+        default = "—" if panel["default"] is None else "%d" % panel["default"]
+        maximum = "∞" if panel["max"] is None else "%d" % panel["max"]
+        lines.append('    <li><span class="t">%s</span>'
+                     '<span class="n">%d / %s / %s pt</span>'
+                     '<span class="g">%s</span></li>'
+                     % (escape(panel["name"]), panel["min"], default, maximum,
+                        escape(panel["grow"])))
+    lines.append("  </ul>")
+    lines.append("</div>")
+
+    lines.append('<div class="block" id="layout-micro">')
+    lines.append('  <div class="block-head"><h3>Микросетка и мера</h3>'
+                 '<span class="hint">%d колонок, единый гаттер space.4; колонка '
+                 "чтения держит меру %d–%d знаков</span></div>" % (columns, measure["min"], measure["max"]))
+    lines.append('  <div class="grid">')
+    # Микро: 12 колонок с гаттером в space.4. Элемент занимает целое число колонок.
+    lines.append('    <div class="col-6">')
+    lines.append('      <div class="cols">')
+    for _index in range(columns):
+        lines.append('        <i></i>')
+    lines.append("      </div>")
+    lines.append('      <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">'
+                 "%d колонок, гаттер <code>space.4</code> (16pt), в плотных местах "
+                 "<code>space.3</code> (12pt). Элемент занимает целое число колонок — "
+                 "между колонками ничего не висит.</p>" % columns)
+    lines.append("    </div>")
+    # Мера чтения: колонка ровно в 66 знаков. Правило, которому подчинена и доска.
+    lines.append('    <div class="col-6">')
+    lines.append('      <div class="measure">')
+    lines.append('        <div class="measure-col">Колонка чтения держит меру: глаз '
+                 "не теряет строку на обратном пути и не спотыкается о частокол "
+                 "переносов. На широком окне контент не растягивается во всю ширь, "
+                 "а держит эти знаки — остальное уходит в поля.</div>")
+    lines.append('        <span class="measure-mark">%d знаков · оптимум ~%d · '
+                 "«широкое окно → поля, не длина строки»</span>" % (measure["max"], measure["opt"]))
+    lines.append("      </div>")
+    lines.append("    </div>")
+    lines.append("  </div>")
+    lines.append("</div>")
+    return lines
+
+
 def motion_block(tokens):
     """Движение честно показывается только движением. Переход запускается
     по интервалу, потому что переход — это переход, а не цикл: гонять его
@@ -1712,8 +1829,16 @@ def typography_blocks(tokens):
     return typography_block(tokens)
 
 
+def layout_blocks(tokens):
+    return layout_block(tokens)
+
+
 def spacing_blocks(tokens):
-    return spacing_block(tokens) + radius_block(tokens)
+    return spacing_block(tokens)
+
+
+def radius_blocks(tokens):
+    return radius_block(tokens)
 
 
 def animation_blocks(tokens):
@@ -1724,8 +1849,10 @@ def board_foundation(tokens, section):
     """Токеновая секция: её блоки, затем «Можно / Нельзя» по её же группам."""
     lines = list(section["blocks"](tokens))
     can, cant = foundation_verdict(tokens, section["groups"])
-    can_items = ["<code>%s</code> — %s" % (escape(path), escape(text)) for path, text in can]
-    cant_items = ["<code>%s</code> — %s" % (escape(path), escape(text)) for path, text in cant]
+    # Ведущее подчёркивание — служебная метка док-группы (_layout): читателю
+    # вердикта она ни к чему, а «layout — …» читается как имя категории.
+    can_items = ["<code>%s</code> — %s" % (escape(path.lstrip("_")), escape(text)) for path, text in can]
+    cant_items = ["<code>%s</code> — %s" % (escape(path.lstrip("_")), escape(text)) for path, text in cant]
     lines.extend(render_verdict(can_items, cant_items,
                                 "Можно — правило группы",
                                 "Нельзя — запреты, которыми токены помечены сами"))
@@ -1841,26 +1968,107 @@ def board_parts(records):
 # 06 · Экраны — система в работе
 # --------------------------------------------------------------------------
 
-def board_screens(parts):
-    """Части — это система, разобранная на решения. Здесь она собрана обратно.
+# Экраны — по поверхностям продукта, а не одним листом. Каждая подкатегория
+# показывает СВОЙ артефакт (эскиз-кандидат, фон установщика, лист макетов);
+# чего ещё нет — честно пусто, не выдумано. Пути — относительно design/index.html.
+# Порядок фиксирован (пространственная память, 02 §8.4).
+SCREEN_GROUPS = [
+    {
+        "anchor": "screen-onboarding", "title": "Онбординг", "kind": "iframe",
+        "src": "candidates/onboarding.html", "height": 14,
+        "status": "кандидат · экран 0 принят эталоном",
+        "blurb": "Первый запуск: шесть решений на рое и разлёт в главное окно. "
+                 "Экран приветствия принят целиком как эталон — источник правды "
+                 "по кнопке, вордмарку, рою и завесе.",
+    },
+    {
+        "anchor": "screen-main", "title": "Главный экран", "kind": "iframe",
+        "src": "candidates/main-screen-sketch.html", "height": 15,
+        "status": "кандидат · эскиз на утверждение",
+        "blurb": "Рейл, сайдбар и плавающие панели: границу держит зазор, "
+                 "а не линейка. Эскиз доводит §1 макета до того, что его "
+                 "собственная подпись уже обещает.",
+    },
+    {
+        "anchor": "screen-notch", "title": "Нотч-хелпер", "kind": "iframe",
+        "src": "candidates/notch-helper-board.html", "height": 14,
+        "status": "кандидат · этап 1 принят рабоче",
+        "blurb": "Чёлка макбука как амбиентный пульт пайплайна CRISPY. "
+                 "Этап 1 (свёрнутая чёлка · ховер · раскрытие) принят рабоче; "
+                 "композер, полка и приоритеты — следующие этапы.",
+    },
+    {
+        "anchor": "screen-dmg", "title": "DMG — установщик", "kind": "image",
+        "src": "dmg/mockup.png",
+        "status": "принят · собирается appdmg",
+        "blurb": "Окно установки: перетащить .app в Applications. Градиент "
+                 "на тёмной гамме проекта, дизеринг против лесенок — эскиз "
+                 "утверждён и собирается из design/dmg.",
+    },
+    {
+        "anchor": "screen-all", "title": "Все экраны разом", "kind": "iframe",
+        "src": MOCKUPS, "height": 15, "external": True,
+        "status": "лист макетов",
+        "blurb": "Вся система, собранная обратно в экраны: ревью, канбан, лог, "
+                 "аналитика, настройки. Панель скроллится сама, и ⌘F доски "
+                 "по ней не пройдёт.",
+    },
+]
 
-    Без этой секции доска остаётся коллекцией деталей: доказательство
-    системы — не в том, что кнопка нарисована, а в том, что она стоит
-    на экране рядом с восемнадцатью другими и не спорит ни с одной.
+# Файлы-образцы, которые Экраны показывают сами: их сайдкары в приёмной не
+# дублируются (двойной тяжёлый iframe — два якоря на одно, 11 §1.1).
+SCREEN_SIDECAR_FILES = {
+    group["src"].rsplit("/", 1)[-1]
+    for group in SCREEN_GROUPS if group["kind"] == "iframe" and group["src"].startswith("candidates/")
+}
+
+
+def board_screens(tokens):
+    """Экраны — по поверхностям продукта, каждая своим артефактом.
+
+    Прежде здесь висел один длинный лист макетов; система в работе видна, но
+    поверхности в нём не различить. Теперь — подкатегории (онбординг, главный,
+    нотч-хелпер, DMG, весь лист), и каждая показывает СВОЙ файл: эскиз-кандидат
+    целиком, фон установщика картинкой, лист — листом. Чего ещё нет — честно
+    пусто, а не нарисовано.
     """
-    lines = board_parts(parts)
-    lines.append('<div class="block" id="in-situ">')
-    lines.append('  <div class="block-head"><h3>Девятнадцать экранов, живьём</h3>'
-                 '<span class="hint">не скриншоты — настоящий макет, '
-                 'вставленный сюда целиком</span></div>')
-    lines.append('  <div class="screens">')
-    lines.append('    <iframe src="%s" style="height: calc(var(--space-10) * 15)" '
-                 'loading="lazy" title="Макеты экранов foundry-desktop"></iframe>' % MOCKUPS)
-    lines.append("  </div>")
-    lines.append('  <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">'
-                 "Макет длинный — панель скроллится сама, и ⌘F доски по ней не пройдёт. "
-                 'Читать целиком — <a href="%s">открыть в своей вкладке</a>.</p>' % MOCKUPS)
-    lines.append("</div>")
+    lines = []
+    # Локальный рельс по подкатегориям: якоря и ⌘F обязаны работать.
+    lines.append('<nav class="subrail">')
+    for group in SCREEN_GROUPS:
+        lines.append('  <a href="#%s">%s</a>' % (escape(group["anchor"]), escape(group["title"])))
+    lines.append("</nav>")
+
+    for group in SCREEN_GROUPS:
+        if group["src"].startswith("../"):
+            exists = (ROOT / group["src"].replace("../", "", 1)).exists()
+        else:
+            exists = (ROOT / "design" / group["src"]).exists()
+        lines.append('<div class="block" id="%s">' % escape(group["anchor"]))
+        lines.append('  <div class="block-head"><h3>%s</h3><span class="hint">%s</span></div>'
+                     % (escape(group["title"]), escape(group["status"])))
+        lines.append('  <p class="screen-blurb">%s</p>' % escape(group["blurb"]))
+        if not exists:
+            lines.append('  <div class="empty">Артефакта ещё нет — подкатегория '
+                         "названа, файл не приехал.</div>")
+            lines.append("</div>")
+            continue
+        lines.append('  <div class="screens">')
+        if group["kind"] == "image":
+            # Картинку не ленивим: одна на подкатегорию, а lazy вне вьюпорта
+            # не грузится при снимке — образец врал бы пустотой.
+            lines.append('    <img src="%s" alt="%s">'
+                         % (escape(group["src"]), escape(group["title"])))
+        else:
+            lines.append('    <iframe src="%s" style="height: calc(var(--space-10) * %d)" '
+                         'loading="lazy" title="%s"></iframe>'
+                         % (escape(group["src"]), group["height"], escape(group["title"])))
+        lines.append("  </div>")
+        note = ("Лист длинный — панель скроллится сама. " if group.get("external") else "")
+        lines.append('  <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">'
+                     '%sОткрыть отдельно — <a href="%s">в своей вкладке</a>.</p>'
+                     % (note, escape(group["src"])))
+        lines.append("</div>")
     return lines
 
 
@@ -2105,11 +2313,28 @@ BOARD_SECTIONS = [
         "groups": ["type"],
     },
     {
-        "kind": "foundation", "anchor": "spacing", "title": "Отступы и сетка",
-        "lede": "Шаг и радиус, измеряющие сами себя: столбик длиной ровно в свой "
-                "токен, вложенный радиус = внешний − паддинг.",
+        "kind": "foundation", "anchor": "layout", "title": "Сетка",
+        "lede": "Модульная сетка на трёх уровнях: панели окна в натуральную "
+                "величину, микросетка колонок с единым гаттером, колонка чтения "
+                "ровно в меру — правило, которому подчинена и эта страница.",
+        "blocks": layout_blocks,
+        "groups": ["_layout"],
+    },
+    {
+        "kind": "foundation", "anchor": "spacing", "title": "Отступы",
+        "lede": "Шкала, измеряющая сама себя: столбик длиной ровно в свой токен, "
+                "1:1 — линейка, а не таблица; рядом — инвариант Бирмана «внутреннее "
+                "≤ внешнее», нарисованный.",
         "blocks": spacing_blocks,
-        "groups": ["space", "radius"],
+        "groups": ["space"],
+    },
+    {
+        "kind": "foundation", "anchor": "radius", "title": "Скругления",
+        "lede": "Концентрика, нарисованная и заодно проверенная: вложенный радиус "
+                "= внешний − паддинг, и шкала попадает шагом в один space.1 ровно "
+                "в следующий токен.",
+        "blocks": radius_blocks,
+        "groups": ["radius"],
     },
     {
         "kind": "parts", "anchor": "buttons", "title": "Кнопки",
@@ -2139,9 +2364,10 @@ BOARD_SECTIONS = [
         "slugs": ["diff-line"],
     },
     {
-        "kind": "parts", "anchor": "icons", "title": "Иконки",
-        "lede": "Опознавательный знак продукта в пикселях: иконка приложения "
-                "«Восход» и орб.",
+        "kind": "icons", "anchor": "icons", "title": "Иконки",
+        "lede": "Система, а не ряд картинок: размеры из токенов, закреплённый "
+                "словарь доменных метафор на SF Symbols, статусы «глиф + цвет» — "
+                "и опознавательные марки продукта «Восход» и орб.",
         "slugs": ["app-icon", "orb"],
     },
     {
@@ -2217,6 +2443,109 @@ def board_section_parts(section, law_parts, candidate_parts):
     return lines
 
 
+def board_icons(tokens, section, law_parts, candidate_parts):
+    """Иконки — не картинка ряда глифов, а система: размеры из токенов, карта
+    доменных метафор и статусов из канона 12, и опознавательные марки продукта.
+
+    SF Symbols браузер не рисует — это продолжение шрифта San Francisco, а не
+    набор картинок. Поэтому доска показывает то, что МОЖЕТ показать правдой:
+    шкалу размеров в натуральную величину (из icon.*), карту «понятие → символ»
+    (закреплённый словарь §3) и связку «статус = глиф + цвет» (§6, форма
+    дублирует цвет). Сам глиф живёт в приложении; выдумывать его начертание
+    на доске значило бы ломать систему руками (§2.1)."""
+    lines = []
+
+    # Размеры — в натуральную величину, из icon.*. Правило §2.1: кегль иконки =
+    # кегль соседнего текста; квадрат размера стоит рядом со строкой body.
+    lines.append('<div class="block" id="icon-sizes">')
+    lines.append('  <div class="block-head"><h3>Размеры</h3>'
+                 '<span class="hint">в натуральную величину из icon.*; кегль иконки = '
+                 "кегль соседнего текста (§2.1)</span></div>")
+    lines.append('  <ul class="icon-sizes">')
+    for name, token in tokens["icon"].items():
+        if is_documentation_key(name):
+            continue
+        path = "icon.%s" % name
+        lines.append('    <li data-token="%s">' % escape(path))
+        lines.append('      <i style="width: var(%s); height: var(%s)"></i>'
+                     % (variable_name(path), variable_name(path)))
+        lines.append('      <span class="t">%s</span>' % escape(path))
+        lines.append('      <span class="n">%spt</span>' % format_number(token["pt"]))
+        lines.append('      <span class="r">%s</span>' % escape(token.get("role", "")))
+        lines.append("    </li>")
+    lines.append("  </ul>")
+    lines.append("</div>")
+
+    # Карта доменных метафор — закреплённый словарь §3. Символ моноширинным:
+    # это идентификатор в приложении, а не слово.
+    lines.append('<div class="block" id="icon-metaphors">')
+    lines.append('  <div class="block-head"><h3>Доменные метафоры</h3>'
+                 '<span class="hint">одно понятие — один SF Symbol, везде (§3); '
+                 "браузер их не рисует — это карта, глиф живёт в приложении</span></div>")
+    lines.append('  <table class="icon-map">')
+    lines.append("    <thead><tr><th>Понятие</th><th>SF Symbol</th><th>Почему</th></tr></thead>")
+    lines.append("    <tbody>")
+    for concept, symbol, why in ICON_METAPHORS:
+        lines.append("      <tr><th>%s</th><td><code>%s</code></td><td>%s</td></tr>"
+                     % (escape(concept), escape(symbol), escape(why)))
+    lines.append("    </tbody>")
+    lines.append("  </table>")
+    lines.append("</div>")
+
+    # Статусы стадии — форма ДУБЛИРУЕТ цвет (§6). Цвет берём из токена, форму
+    # несёт имя глифа: цвет и имя рядом, а не цвет вместо имени.
+    lines.append('<div class="block" id="icon-statuses">')
+    lines.append('  <div class="block-head"><h3>Статусы стадии</h3>'
+                 '<span class="hint">форма дублирует цвет: каждому статусу свой '
+                 "глиф И свой токен-цвет (§6)</span></div>")
+    lines.append('  <ul class="icon-statuses">')
+    for status, glyph, color_path in ICON_STATUSES:
+        lines.append('    <li data-token="%s">' % escape(color_path))
+        lines.append('      <i class="dot" style="background: var(%s)"></i>' % variable_name(color_path))
+        lines.append('      <span class="t">%s</span>' % escape(status))
+        lines.append('      <span class="g"><code>%s</code></span>' % escape(glyph))
+        lines.append('      <span class="c">%s</span>' % escape(color_path))
+        lines.append("    </li>")
+    lines.append("  </ul>")
+    lines.append("</div>")
+
+    # Марки продукта в пикселях — иконка приложения «Восход» и орб — образцами.
+    slugs = section["slugs"]
+    accepted = [record for record in law_parts if record["slug"] in slugs]
+    candidates = [record for record in candidate_parts if record["slug"] in slugs]
+    marks = accepted + candidates
+    if marks:
+        lines.append('<div class="block" id="icon-marks">')
+        lines.append('  <div class="block-head"><h3>Марки продукта</h3>'
+                     '<span class="hint">опознавательный знак в пикселях: иконка '
+                     "приложения и орб</span></div>")
+        lines.extend(board_parts(marks))
+        lines.append("</div>")
+
+    # Один закрывающий вердикт на всю секцию: императивы канона 12 плюс why/never
+    # самих марок. Правила системы иконок написаны автором главы — как и why/never
+    # части; доска их не выдумывает, а собирает.
+    can = [
+        "<code>SF Symbols</code> — monochrome по умолчанию, alpha-белый уровней текста; hierarchical для составных (§2.2)",
+        "иконка ставится, только если ускоряет распознавание уже знакомого (§1.1)",
+        "одно понятие — один символ, везде: словарь §3 закреплён",
+        "кегль и вес иконки = кегль и вес соседнего текста (§2.1)",
+        "статус = глиф + цвет: форма дублирует цвет (§6)",
+    ]
+    cant = [
+        "multicolor запрещён — пёстрые заливки разваливают тёмную палитру (§2.2)",
+        "доменная иконка без подписи и тултипа — «стадия», «луп», «change» иконкой не читаются (§1.2)",
+        "синонимия: сегодня change молния, завтра карандаш — выученность убита (§3)",
+        "декоративные иконки-обои у каждого пункта — ряд пестрит, чтение медленнее (§1.1)",
+        "смешивать outline и filled как «просто разные»: заполненность означает состояние, и только его (§4)",
+    ]
+    can.extend(part_verdict_line(record, "why") for record in marks)
+    cant.extend(part_verdict_line(record, "never") for record in marks)
+    lines.extend(render_verdict(can, cant, "Можно — правила системы иконок",
+                                "Нельзя — запреты канона 12"))
+    return lines
+
+
 # --------------------------------------------------------------------------
 # Сборка доски
 # --------------------------------------------------------------------------
@@ -2244,15 +2573,20 @@ def generate_showcase(tokens):
     # Приёмная — только сайдкары: крупное неразобранное (целые экраны, эталоны),
     # ради чего приёмная и есть. Оформленные части-кандидаты приёмной не касаются
     # — они стоят в своих категориях с чипом «кандидат» (board_section_parts).
-    sidecars = collect_sidecars()
+    # Экранные сайдкары показывает секция «Экраны» подкатегориями — в приёмной
+    # их не дублируем (двойной тяжёлый iframe — два якоря на одно, 11 §1.1).
+    sidecars = [record for record in collect_sidecars()
+                if not (record.get("specimen")
+                        and record["specimen"].rsplit("/", 1)[-1] in SCREEN_SIDECAR_FILES)]
 
     sections = []
     for index, section in enumerate(BOARD_SECTIONS, start=1):
         if section["kind"] == "foundation":
             body = board_foundation(tokens, section)
         elif section["kind"] == "screens":
-            wired = [record for record in law_parts if record["slug"] in section["slugs"]]
-            body = board_screens(wired)
+            body = board_screens(tokens)
+        elif section["kind"] == "icons":
+            body = board_icons(tokens, section, law_parts, candidate_parts)
         else:
             body = board_section_parts(section, law_parts, candidate_parts)
         sections.append({

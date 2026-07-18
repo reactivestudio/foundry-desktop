@@ -15,6 +15,11 @@
       tokens.json и отдаёт множителем к space-токену. Это данные, а не
       решение: столбик обязан быть пропорционален числу (11 §1.3, lie factor).
 
+   4. --measure ниже — колонка чтения в ch. Это не решение цвета/отступа,
+      а типографская мера строки: канон 02 §8.2 и 04 §7 задают 45–75 знаков,
+      оптимум ~66. В токенах меры нет (это единица чтения, не пункт), поэтому
+      она живёт здесь и держит всю бегущую прозу доски на одной ширине.
+
    Всё остальное сырьё — ошибка, а не исключение. */
 
 .canvas {
@@ -23,6 +28,8 @@
   /* Обложка и заголовки секций — производные от type.display (исключение 2). */
   --canvas-cover: calc(var(--type-display-size) * 2.5);
   --canvas-section: calc(var(--type-display-size) * 1.4);
+  /* Мера чтения (исключение 4): бегущая проза не растягивается во всю колонку. */
+  --measure: 66ch;
 }
 
 * { box-sizing: border-box; }
@@ -84,17 +91,28 @@ a:hover { text-decoration: underline; }
   padding: var(--space-10) 0;
 }
 
+/* Подпись над знаком — «Foundry», как эйрбоу лока. Тихо, чтобы знак не спорил
+   с заголовком: сам логотип живёт в секции «Логотип», здесь только отсылка. */
+.cover-mark {
+  margin: 0;
+  font-size: var(--type-heading-size);
+  line-height: 1;
+  font-weight: var(--type-display-weight);
+  letter-spacing: -0.01em;
+  color: var(--text-tertiary);
+}
+/* Заголовок в стиле логотипа: белый (как вордмарк), SF Pro Display, тесный
+   трекинг. Никакого градиента — знак продукта монохромен, янтарь у него только
+   на плашке «AI», а не разлит по буквам. balance гасит висячее слово. */
 .cover h1 {
   margin: 0;
-  max-width: 15ch;
+  max-width: 18ch;
   font-size: var(--canvas-cover);
-  line-height: 1.02;
+  line-height: 1.0;
   font-weight: var(--type-display-weight);
-  letter-spacing: -0.02em;
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  text-wrap: balance;
 }
 
 .cover .lede {
@@ -103,6 +121,7 @@ a:hover { text-decoration: underline; }
   font-size: var(--type-heading-size);
   line-height: var(--type-heading-leading);
   color: var(--text-secondary);
+  text-wrap: pretty;
 }
 .cover .lede b { color: var(--text-primary); font-weight: var(--type-body-em-weight); }
 
@@ -181,6 +200,7 @@ a:hover { text-decoration: underline; }
   line-height: var(--canvas-section);
   font-weight: var(--type-display-weight);
   letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
 /* Обоснование открывает секцию ОДНОЙ строкой. Потолок текста на доске —
@@ -192,6 +212,7 @@ a:hover { text-decoration: underline; }
   font-size: var(--type-heading-size);
   line-height: var(--type-heading-leading);
   color: var(--text-secondary);
+  text-wrap: pretty;
 }
 
 /* ——— Блок внутри секции ——— */
@@ -208,6 +229,7 @@ a:hover { text-decoration: underline; }
   font-size: var(--type-heading-size);
   line-height: var(--type-heading-leading);
   font-weight: var(--type-heading-weight);
+  text-wrap: balance;
 }
 .block-head .hint {
   color: var(--text-tertiary);
@@ -434,7 +456,7 @@ a:hover { text-decoration: underline; }
 }
 .finding > *:first-child { margin-top: 0; }
 .finding > *:last-child { margin-bottom: 0; }
-.finding p { margin: var(--space-3) 0 0; color: var(--text-secondary); }
+.finding p { margin: var(--space-3) 0 0; max-width: var(--measure); color: var(--text-secondary); text-wrap: pretty; }
 .finding p:first-child { color: var(--text-primary); }
 .finding code { font-family: var(--font-mono); font-size: var(--type-mono-s-size); }
 .finding .roles { margin-top: var(--space-3); }
@@ -442,9 +464,11 @@ a:hover { text-decoration: underline; }
 /* Сноска матрицы: почему клетка не помечена провалом. */
 .matrix-note {
   margin: var(--space-3) 0 0;
+  max-width: var(--measure);
   color: var(--text-tertiary);
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-leading);
+  text-wrap: pretty;
 }
 .matrix-note code { font-family: var(--font-mono); font-size: var(--type-mono-s-size); }
 
@@ -729,9 +753,11 @@ a:hover { text-decoration: underline; }
 .part details p, .grave details p {
   margin: 0;
   padding: 0 var(--space-4) var(--space-4);
+  max-width: var(--measure);
   color: var(--text-tertiary);
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-leading);
+  text-wrap: pretty;
 }
 
 .stage-note {
@@ -860,8 +886,171 @@ details.more > p { margin: var(--space-2) 0 0; padding: 0; color: var(--text-ter
 
 .foot {
   padding: var(--space-8) 0 var(--space-10);
+  max-width: var(--measure);
   border-top: 1px solid var(--border-subtle);
   color: var(--text-tertiary);
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-leading);
+  text-wrap: pretty;
 }
+
+/* ——— 03 · Сетка ———
+   Панели окна в натуральную величину (pt→px 1:1, как везде), контент забирает
+   остаток. Не картинка окна, а окно в меру: сайдбар 240, инспектор 320 стоят
+   ровно своей шириной. Гаттер между панелями — тонкий шов (внутреннее). */
+.win {
+  display: flex;
+  gap: var(--space-2);
+  align-items: stretch;
+  min-height: calc(var(--space-10) * 3);
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--bg-base);
+  overflow-x: auto;
+}
+.win-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-m);
+  background: var(--bg-surface);
+}
+.win-panel b { font-weight: var(--type-body-em-weight); }
+.win-panel .role {
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+}
+.win-panel .w {
+  margin-top: auto;
+  padding-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Легенда панелей: мин / по умолчанию / макс — числа табличные, выключка колонкой. */
+.panels { margin: var(--space-4) 0 0; padding: 0; list-style: none; }
+.panels li {
+  display: grid;
+  grid-template-columns: 16ch 20ch 1fr;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
+}
+.panels .t { font-weight: var(--type-body-em-weight); }
+.panels .n {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.panels .g {
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+}
+@media (max-width: 1000px) { .panels li { grid-template-columns: 1fr; gap: 0; } }
+
+/* Микросетка: 12 колонок, гаттер в тот самый space.4 (16pt), нарисованный. */
+.cols {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-4);
+  height: calc(var(--space-10) * 2);
+}
+.cols i {
+  display: block;
+  border-radius: var(--radius-s);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Мера чтения: колонка ровно в свою меру, остальное — поле. Правило, которому
+   подчинена и эта проза (--measure, исключение 4). */
+.measure { display: flex; flex-direction: column; gap: var(--space-3); }
+.measure-col {
+  max-width: var(--measure);
+  padding: var(--space-4);
+  border-left: var(--border-focus-width) solid var(--text-accent);
+  border-radius: 0 var(--radius-m) var(--radius-m) 0;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+.measure-mark {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ——— Иконки ———
+   Размеры в натуральную величину: квадрат-заглушка глифа шириной ровно в свой
+   icon-токен, цветом покоя (alpha-белый вторичного текста, 07 §цвет иконок). */
+.icon-sizes { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-3); }
+.icon-sizes li {
+  display: grid;
+  grid-template-columns: var(--space-6) 8ch 6ch 1fr;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-1) 0;
+}
+.icon-sizes i { justify-self: center; border-radius: var(--radius-s); background: var(--text-secondary); }
+.icon-sizes .t { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-primary); }
+.icon-sizes .n {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.icon-sizes .r { color: var(--text-tertiary); font-size: var(--type-caption-size); line-height: var(--type-caption-leading); }
+
+/* Карта метафор: понятие — символ (моно, идентификатор) — почему (в меру). */
+.icon-map { width: 100%; border-collapse: collapse; }
+@media (max-width: 760px) { .icon-map { display: block; overflow-x: auto; } }
+.icon-map th, .icon-map td { padding: var(--space-2) var(--space-3); text-align: left; vertical-align: baseline; }
+.icon-map thead th {
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+  font-weight: var(--type-caption-weight);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.icon-map tbody th { font-weight: var(--type-body-em-weight); color: var(--text-primary); white-space: nowrap; }
+.icon-map tbody tr + tr th, .icon-map tbody tr + tr td { border-top: 1px solid var(--border-subtle); }
+.icon-map code { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-accent); }
+.icon-map td:last-child { color: var(--text-secondary); max-width: 46ch; text-wrap: pretty; }
+
+/* Статусы: цвет из токена + форма именем глифа. Цвет и имя рядом, а не вместо. */
+.icon-statuses { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2) var(--space-6); }
+@media (max-width: 1000px) { .icon-statuses { grid-template-columns: 1fr; } }
+.icon-statuses li { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-1) 0; }
+.icon-statuses .dot { align-self: center; width: var(--space-3); height: var(--space-3); border-radius: var(--radius-full); }
+.icon-statuses .t { font-weight: var(--type-body-em-weight); min-width: 12ch; }
+.icon-statuses .g code { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-accent); }
+.icon-statuses .c { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-tertiary); }
+
+/* ——— Экраны · подкатегории ——— */
+.subrail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.subrail a { color: var(--text-tertiary); font-size: var(--type-caption-size); line-height: var(--type-caption-leading); }
+.subrail a:hover { color: var(--text-primary); text-decoration: none; }
+.screen-blurb {
+  margin: 0 0 var(--space-4);
+  max-width: var(--measure);
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+.screens img { display: block; width: 100%; height: auto; }
