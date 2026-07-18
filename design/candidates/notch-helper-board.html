@@ -75,17 +75,24 @@
   .win .cl.c{background:rgba(88,199,255,.16)}.win .cl.p{background:rgba(139,92,246,.16)}
   .win .cl.a{background:rgba(124,154,255,.14)}
 
-  /* меню-бар */
-  .menubar{position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;
-    justify-content:space-between;padding:0 18px;font-size:13px;color:var(--t1r);
-    background:rgba(16,15,24,.62);backdrop-filter:blur(22px);z-index:3}
-  .mb-l,.mb-r{display:flex;align-items:center;gap:19px;white-space:nowrap}
+  /* меню-бар — как настоящий: размытые обои, белый текст с тенью;
+     ВЫШЕ чёлки (52 против 44) — на железе нотч короче меню-бара */
+  .menubar{position:absolute;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+    justify-content:space-between;padding:0 20px;font-size:13.5px;color:#fff;
+    background:rgba(46,44,52,.30);backdrop-filter:blur(28px) saturate(1.4);
+    text-shadow:0 1px 5px rgba(0,0,0,.45);z-index:3}
+  .mb-l,.mb-r{display:flex;align-items:center;white-space:nowrap}
+  .mb-l{gap:21px}
+  .mb-r{gap:17px;font-variant-numeric:tabular-nums}
   .mb-l .app{font-weight:700}
-  .mb-l span,.mb-r span{opacity:.85}
-  .mb-l .apl{font-size:15px;opacity:.95}
-  .mb-r{font-variant-numeric:tabular-nums}
-  .mb-r .ic{opacity:.75;display:inline-flex;align-items:center}
+  .mb-l span,.mb-r span{opacity:.92}
+  .mb-l .apl{font-size:16px;opacity:.98}
+  .mb-r .ic{opacity:.85;display:inline-flex;align-items:center;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
   .mb-r .ic svg{display:block}
+  .mb-r .kbd{background:rgba(0,0,0,.28);border-radius:4.5px;padding:2px 4.5px;
+    font-size:9.5px;font-weight:700;letter-spacing:.03em;line-height:1}
+  .mb-r .tm{display:flex;gap:8px}
 
   /* ══ чёлка — ОДНО тело строго по центру ══
      сообщения раздают её симметрично влево-вправо, ховер дышит симметрично,
@@ -358,24 +365,28 @@
     <div class="bezel"></div>
     <div class="menubar">
       <div class="mb-l">
-        <span class="apl"></span><span class="app">Zed</span><span>File</span><span>Edit</span>
-        <span>Selection</span><span>View</span><span>Go</span>
+        <span class="apl"><svg width="13" height="16" viewBox="0 0 384 512" fill="currentColor" style="display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg></span><span class="app">Finder</span><span>File</span><span>Edit</span>
+        <span>View</span><span>Go</span>
       </div>
       <div class="mb-r">
-        <span class="ic"><svg width="22" height="11" viewBox="0 0 22 11" fill="currentColor">
-          <rect x="0.5" y="0.5" width="18" height="10" rx="3" fill="none" stroke="currentColor" opacity=".5"/>
-          <rect x="2" y="2" width="13" height="7" rx="1.6"/>
-          <path d="M20.3 3.6v3.8c1-.2 1.2-1 1.2-1.9s-.2-1.7-1.2-1.9z" opacity=".5"/></svg></span>
-        <span class="ic"><svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor">
-          <path d="M1.4 4.3a9.4 9.4 0 0 1 13.2 0" stroke-width="1.7" stroke-linecap="round"/>
-          <path d="M4 7a5.7 5.7 0 0 1 8 0" stroke-width="1.7" stroke-linecap="round"/>
-          <circle cx="8" cy="10" r="1.5" fill="currentColor" stroke="none"/></svg></span>
         <span class="ic"><svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
           <rect x="1" y="2.2" width="14" height="5.2" rx="2.6" opacity=".55"/>
           <circle cx="4.1" cy="4.8" r="1.8" fill="#0B0A14"/>
           <rect x="1" y="8.6" width="14" height="5.2" rx="2.6" opacity=".55"/>
           <circle cx="11.9" cy="11.2" r="1.8" fill="#0B0A14"/></svg></span>
-        <span id="mdate">Чт 16 июл</span><span id="clock">14:32</span>
+        <span class="ic"><svg width="9" height="14" viewBox="0 0 9 14" fill="none"
+          stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round">
+          <path d="M4.5 13V1l3.2 2.8-6.4 5.6M1.3 3.8l6.4 5.6L4.5 13"/></svg></span>
+        <span class="ic"><svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor">
+          <path d="M1.4 4.3a9.4 9.4 0 0 1 13.2 0" stroke-width="1.7" stroke-linecap="round"/>
+          <path d="M4 7a5.7 5.7 0 0 1 8 0" stroke-width="1.7" stroke-linecap="round"/>
+          <circle cx="8" cy="10" r="1.5" fill="currentColor" stroke="none"/></svg></span>
+        <span class="kbd">РУ</span>
+        <span class="ic"><svg width="22" height="11" viewBox="0 0 22 11" fill="currentColor">
+          <rect x="0.5" y="0.5" width="18" height="10" rx="3" fill="none" stroke="currentColor" opacity=".5"/>
+          <rect x="2" y="2" width="13" height="7" rx="1.6"/>
+          <path d="M20.3 3.6v3.8c1-.2 1.2-1 1.2-1.9s-.2-1.7-1.2-1.9z" opacity=".5"/></svg></span>
+        <span class="tm"><span id="mdate">Чт 16 июл</span><span id="clock">14:32</span></span>
       </div>
     </div>
 
