@@ -1125,19 +1125,20 @@ def board_cover(tokens, law_parts, candidate_parts, sidecars, rejected):
     """Единственная задача обложки — показать, что это спроектированная вещь.
     Цифры на ней не украшение: это состояние системы на момент сборки."""
     facts = [
-        (count_tokens(tokens), "токенов в источнике"),
-        (len(law_parts), "частей — закон"),
-        (len(candidate_parts), "частей — на утверждении"),
-        (len(sidecars), "в приёмной — не закон"),
-        (len(rejected), "отвергнуто, с причиной"),
+        (count_tokens(tokens), "дизайн-токенов в источнике"),
+        (len(law_parts), "принятых компонентов"),
+        (len(candidate_parts), "на утверждении"),
+        (len(sidecars), "в приёмной"),
+        (len(rejected), "отклонено, с причиной"),
     ]
     lines = ['<section class="cover">']
     lines.append('  <p class="cover-mark">Foundry</p>')
     lines.append("  <h1>Design System</h1>")
     lines.append('  <p class="lede">Не описание системы, а сама система, собранная в одном месте: '
-                 "каждая ступень, кегль и отступ ниже — <b>не картинка решения, а решение</b>. "
-                 "Значения приезжают из <code>tokens.json</code> при сборке; поменяется хекс "
-                 "в источнике — поменяется эта страница.</p>")
+                 "каждая ступень цвета, кегль и отступ ниже — <b>не картинка решения, а решение</b>. "
+                 "Все значения — цвета, кегли, отступы, радиусы — приезжают из "
+                 "<code>tokens.json</code> при сборке (это и есть дизайн-токены); поменяется "
+                 "значение в источнике — поменяется эта страница.</p>")
     lines.append('  <div class="cover-facts">')
     for number, caption in facts:
         lines.append('    <div class="cover-fact"><b>%d</b><span>%s</span></div>' % (number, escape(caption)))
@@ -1383,7 +1384,7 @@ def contrast_block(tokens):
 
     if drifted:
         lines.append('  <div class="finding">')
-        lines.append("    <p><b>Источник разошёлся сам с собой.</b> У этих токенов поле "
+        lines.append("    <p><b>Источник разошёлся сам с собой.</b> У этих дизайн-токенов поле "
                      "<code>contrast</code> в <code>tokens.json</code> не совпало с тем, "
                      "что доска только что посчитала:</p>")
         lines.append('    <ul class="roles">')
@@ -1694,8 +1695,8 @@ def motion_block(tokens):
                      'color: var(--text-tertiary)">%s</p>' % escape(token.get("role", "")))
     lines.append('  <p class="verdict-note" style="border-left-color: var(--sem-warning); '
                  'background: var(--sem-warning-fill)"><code>motion.live</code> — состояние, '
-                 "а не переход: длительности у него в источнике нет, и витрина её "
-                 "не выдумывает. Пульс выше показан, но его период — не токен. "
+                 "а не переход: длительности у него в источнике нет, и доска её "
+                 "не выдумывает. Пульс выше показан, но его период — не дизайн-токен. "
                  "Видимый долг, а не решение.</p>")
     lines.append("</div>")
     return lines
@@ -1815,8 +1816,9 @@ def colors_blocks(tokens):
     lines.extend(ramp_block(
         tokens, "brand", ["ultramarine", "purple", "magenta", "cyan", "amber"],
         "Фирменная гамма",
-        "аналоговый ход по тону; подпись на ступени витрина красит счётом, "
-        "и переворот подписи — это и есть граница text.on-accent", False))
+        "аналоговая гамма — переход по смежным тонам; цвет подписи на ступени "
+        "доска считает по контрасту, и там, где он переключается со светлого на "
+        "тёмный, проходит граница text.on-accent", False))
     lines.extend(ramp_block(
         tokens, "sem", ["success", "warning", "error", "info"],
         "Семантика",
@@ -1855,7 +1857,7 @@ def board_foundation(tokens, section):
     cant_items = ["<code>%s</code> — %s" % (escape(path.lstrip("_")), escape(text)) for path, text in cant]
     lines.extend(render_verdict(can_items, cant_items,
                                 "Можно — правило группы",
-                                "Нельзя — запреты, которыми токены помечены сами"))
+                                "Нельзя — запреты, которыми дизайн-токены помечены сами"))
     return lines
 
 
@@ -1886,7 +1888,7 @@ def render_part(record):
     lines.append("  </div>")
     if record["specimen"] and record["height_guessed"]:
         lines.append('  <p class="stage-note">высота образца в карточке не указана — '
-                     "витрина показывает %dpx и может врать</p>" % DEFAULT_SIDECAR_HEIGHT)
+                     "доска показывает %dpx и может врать</p>" % DEFAULT_SIDECAR_HEIGHT)
 
     lines.append('  <div class="part-meta">')
     lines.append("    <h4>%s</h4>" % escape(card.get("name", record["slug"])))
@@ -2276,6 +2278,29 @@ CANVAS_SCRIPT = """
       }, 900);
     }, 1800);
   }
+
+  // ——— Рельс-табы: подсветить раздел, который сейчас читают ———
+  // Таб — цель по Фиттсу, но у пассивной цели нет обратной связи: какой
+  // раздел под тобой, видно только по нему самому. Scroll-spy эту связь
+  // возвращает, не требуя клика.
+  var railLinks = {};
+  document.querySelectorAll(".rail a").forEach(function (link) {
+    var id = (link.getAttribute("href") || "").slice(1);
+    if (id) { railLinks[id] = link; }
+  });
+  var railSections = document.querySelectorAll("section.section[id]");
+  if (railSections.length && "IntersectionObserver" in window) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) { return; }
+        var link = railLinks[entry.target.id];
+        if (!link) { return; }
+        Object.keys(railLinks).forEach(function (id) { railLinks[id].classList.remove("active"); });
+        link.classList.add("active");
+      });
+    }, { rootMargin: "-12% 0px -78% 0px", threshold: 0 });
+    railSections.forEach(function (section) { spy.observe(section); });
+  }
 })();
 """
 
@@ -2338,8 +2363,8 @@ BOARD_SECTIONS = [
     },
     {
         "kind": "parts", "anchor": "buttons", "title": "Кнопки",
-        "lede": "Первоэлемент действия: в одиночку смысла не имеет и про домен "
-                "не знает.",
+        "lede": "Базовый элемент действия: сам по себе смысла не несёт и о "
+                "предметной области не знает.",
         "slugs": ["button"],
     },
     {
@@ -2360,7 +2385,8 @@ BOARD_SECTIONS = [
     },
     {
         "kind": "parts", "anchor": "blocks", "title": "Блоки",
-        "lede": "Компонент, который знает про домен: строка диффа, стадия, change.",
+        "lede": "Доменный компонент — знает про предметную область: строка диффа, "
+                "стадия, change.",
         "slugs": ["diff-line"],
     },
     {
@@ -2438,8 +2464,8 @@ def board_section_parts(section, law_parts, candidate_parts):
     lines = board_parts(shown)
     can = [part_verdict_line(record, "why") for record in shown]
     cant = [part_verdict_line(record, "never") for record in shown]
-    lines.extend(render_verdict(can, cant, "Можно — зачем часть есть",
-                                "Нельзя — где часть неуместна"))
+    lines.extend(render_verdict(can, cant, "Можно — зачем компонент есть",
+                                "Нельзя — где компонент неуместен"))
     return lines
 
 
@@ -2604,8 +2630,8 @@ def generate_showcase(tokens):
             "title": "Приёмная",
             "lede": "Крупное неразобранное — целые экраны и эталоны, приехавшие из "
                     "сессий и приёмку не проходившие: ссылаться как на решённое нельзя. "
-                    "Законный вход в систему — иначе находки оседают в воркtree и "
-                    "умирают вместе с ним. Оформится в часть — переедет в свою "
+                    "Штатный вход в систему — иначе находки оседают в рабочей ветке и "
+                    "теряются вместе с ней. Оформится в компонент — переедет в свою "
                     "категорию кандидатом.",
             "body": board_intake(sidecars),
         })
@@ -2645,10 +2671,10 @@ def generate_showcase(tokens):
         lines.extend("  " + line for line in section["body"])
         lines.append("</section>")
 
-    lines.append('<footer class="foot">Собрана из частей и из <a href="tokens/tokens.json">'
+    lines.append('<footer class="foot">Собрана из компонентов и из <a href="tokens/tokens.json">'
                  "tokens.json</a> скриптом <code>design/build.py</code>. Своего содержимого "
                  "не имеет: правка руками теряется при следующей сборке. Договор о формате "
-                 'части — <a href="parts/README.md">design/parts/README.md</a>.</footer>')
+                 'компонента — <a href="parts/README.md">design/parts/README.md</a>.</footer>')
     lines.append("</div>")
     lines.append('<script type="application/json" id="canvas-data">%s</script>'
                  % json.dumps(contrast_payload(tokens), ensure_ascii=False))

@@ -155,24 +155,53 @@ a:hover { text-decoration: underline; }
   z-index: 3;
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-4);
-  margin-bottom: var(--space-10);
-  padding: var(--space-3) 0;
+  align-items: stretch;
+  gap: var(--space-2);
+  margin: 0 calc(-1 * var(--space-2)) var(--space-10);
+  padding: var(--space-3) var(--space-2);
   background: var(--bg-base);
   border-bottom: 1px solid var(--border-subtle);
 }
+/* Табы категорий: настоящая цель по Фиттсу — крупный клик, фон, рамка,
+   различимые ховер и активное состояние, а не бледная строчка ссылок. */
 .rail a {
-  color: var(--text-tertiary);
-  font-size: var(--type-caption-size);
-  line-height: var(--type-caption-leading);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-m);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: var(--type-body-size);
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color var(--motion-fast-duration) var(--motion-fast-easing),
+              border-color var(--motion-fast-duration) var(--motion-fast-easing),
+              color var(--motion-fast-duration) var(--motion-fast-easing);
 }
-.rail a:hover { color: var(--text-primary); text-decoration: none; }
+.rail a:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.rail a.active {
+  background: var(--bg-selected);
+  border-color: var(--brand-ultramarine);
+  color: var(--text-primary);
+}
 .rail a .n {
   font-family: var(--font-mono);
   font-size: var(--type-mono-s-size);
   color: var(--text-disabled);
-  padding-right: var(--space-1);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--motion-fast-duration) var(--motion-fast-easing);
+}
+.rail a:hover .n { color: var(--text-tertiary); }
+.rail a.active .n { color: var(--text-accent); }
+@media (prefers-reduced-motion: reduce) {
+  .rail a, .rail a .n { transition: none; }
 }
 
 /* ——— Секция ——— */
@@ -1040,13 +1069,34 @@ details.more > p { margin: var(--space-2) 0 0; padding: 0; color: var(--text-ter
 .subrail {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  gap: var(--space-2);
   margin-bottom: var(--space-6);
-  padding-bottom: var(--space-3);
+  padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border-subtle);
 }
-.subrail a { color: var(--text-tertiary); font-size: var(--type-caption-size); line-height: var(--type-caption-leading); }
-.subrail a:hover { color: var(--text-primary); text-decoration: none; }
+/* Те же табы, что и рельс, но на ступень мельче: подкатегория, не категория. */
+.subrail a {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-s);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-body-leading);
+  white-space: nowrap;
+  transition: background-color var(--motion-fast-duration) var(--motion-fast-easing),
+              border-color var(--motion-fast-duration) var(--motion-fast-easing),
+              color var(--motion-fast-duration) var(--motion-fast-easing);
+}
+.subrail a:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+@media (prefers-reduced-motion: reduce) { .subrail a { transition: none; } }
 .screen-blurb {
   margin: 0 0 var(--space-4);
   max-width: var(--measure);
