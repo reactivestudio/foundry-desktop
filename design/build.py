@@ -1101,9 +1101,11 @@ def escape(value):
 # для уже собранной разметки (<code>, <b>, <a>): пробелов внутри тегов нет,
 # ломать нечего. Применяется к бегущей прозе доски, не к моно-идентификаторам.
 NBSP = "\u00A0"
-# Короткие слова, которым нельзя заканчивать строку: одно- и двухбуквенные
-# предлоги, союзы, частицы.
-_HANG_WORDS = ("а в и к о с у я во да до же за из ко ли на не ни но ну об от по со то")
+# Короткие слова, которым нельзя заканчивать строку: одно-, двух- и
+# трёхбуквенные предлоги, союзы, частицы. Пробел после — неразрывный (слово
+# уезжает на следующую строку вместе со своим существительным).
+_HANG_WORDS = ("а в и к о с у я во да до же за из ко ли на не ни но ну об от по со то "
+               "без для над под при про или что как чем")
 _HANG = re.compile(r"(?<![^\s(«>—])(%s) " % "|".join(_HANG_WORDS.split()), re.IGNORECASE)
 # Пробел перед тире — неразрывный (тире не начинает строку).
 _DASH = re.compile(r"(\S)[ \t]+—")
@@ -1123,6 +1125,15 @@ def typo(text):
     for _ in range(2):
         result = _HANG.sub(lambda match: match.group(1) + NBSP, result)
     return result
+
+
+def block_head(title, hint=""):
+    """Заголовок блока и подпись-кикер. Подпись — проза, идёт через typo();
+    так микротипографика Бирмана достаётся всем блокам из одного места, а не
+    двенадцати россыпью. Заголовок и подпись экранируются на стороне вызова
+    (одни литералы без спецсимволов, другие — уже escape-нутые значения)."""
+    span = '<span class="hint">%s</span>' % typo(hint) if hint else ""
+    return '  <div class="block-head"><h3>%s</h3>%s</div>' % (title, span)
 
 
 def sentences(text):
@@ -1222,7 +1233,7 @@ def ramp_block(tokens, group_name, names, title, hint, prove_steps):
 
     columns = "repeat(%d, 1fr)" % len(steps)
     lines = ['<div class="block" id="ramp-%s">' % escape(group_name)]
-    lines.append('  <div class="block-head"><h3>%s</h3><span class="hint">%s</span></div>' % (title, hint))
+    lines.append(block_head(title, hint))
     lines.append('  <div class="ramp-band" style="grid-template-columns: %s">' % columns)
     for step in steps:
         lines.append('    <div class="ramp-cell %s" style="background: %s" data-token="%s" data-hex="%s">'
@@ -1263,9 +1274,8 @@ def ramp_block(tokens, group_name, names, title, hint, prove_steps):
 def states_block(tokens):
     """Статичная доска умеет нарисовать только картинку ховера. Эта — ховерится."""
     lines = ['<div class="block" id="ramp-states">']
-    lines.append('  <div class="block-head"><h3>Состояния поверхности</h3>'
-                 '<span class="hint">наведи и нажми — это не картинка состояния, '
-                 "а состояние</span></div>")
+    lines.append(block_head("Состояния поверхности",
+                            "наведи и нажми — это не картинка состояния, а состояние"))
     lines.append('  <div class="states">')
     rows = [
         ("bg.hover", "Вернуть спеку на доработку", "покой → наведи"),
@@ -1381,10 +1391,10 @@ def contrast_block(tokens):
     drifted = contrast_drift(tokens)
 
     lines = ['<div class="block" id="contrast">']
-    lines.append('  <div class="block-head"><h3>Контраст</h3>'
-                 '<span class="hint">посчитан браузером сейчас, при открытии страницы: '
-                 "альфа-белый сперва кладётся на фон, потом берётся WCAG — "
-                 "иначе цифра врёт</span></div>")
+    lines.append(block_head("Контраст",
+                            "посчитан браузером сейчас, при открытии страницы: "
+                            "альфа-белый сперва кладётся на фон, потом берётся WCAG — "
+                            "иначе цифра врёт"))
     lines.append('  <div class="grid">')
 
     lines.append('    <div class="col-8">')
@@ -1556,7 +1566,7 @@ def spacing_block(tokens):
             lines.append('            <div class="inout-group">'
                          '<i class="line"></i><i class="line"></i><i class="line"></i></div>')
         lines.append("          </div>")
-        lines.append('          <p><span class="verdict-mark">%s</span> %s</p>' % (mark, escape(text)))
+        lines.append('          <p><span class="verdict-mark">%s</span> %s</p>' % (mark, typo(escape(text))))
         lines.append("        </div>")
     lines.append("      </div>")
     lines.append("    </div>")
@@ -1628,9 +1638,9 @@ def layout_block(tokens):
     columns = layout["_columns"]
 
     lines = ['<div class="block" id="layout-macro">']
-    lines.append('  <div class="block-head"><h3>Панели окна — макросетка</h3>'
-                 '<span class="hint">ширины в натуральную величину, pt→px 1:1: '
-                 "панель — это «колонка» приложения (02 §8)</span></div>")
+    lines.append(block_head("Панели окна — макросетка",
+                            "ширины в натуральную величину, pt→px 1:1: "
+                            "панель — это «колонка» приложения (02 §8)"))
     # Окно в масштабе: сайдбар и инспектор — фиксированной ширины своим pt,
     # контент забирает остаток (min 480). Это не картинка окна, а окно в меру.
     lines.append('  <div class="win">')
@@ -1665,9 +1675,9 @@ def layout_block(tokens):
     lines.append("</div>")
 
     lines.append('<div class="block" id="layout-micro">')
-    lines.append('  <div class="block-head"><h3>Микросетка и мера</h3>'
-                 '<span class="hint">%d колонок, единый гаттер space.4; колонка '
-                 "чтения держит меру %d–%d знаков</span></div>" % (columns, measure["min"], measure["max"]))
+    lines.append(block_head("Микросетка и мера",
+                            "%d колонок, единый гаттер space.4; колонка чтения держит "
+                            "меру %d–%d знаков" % (columns, measure["min"], measure["max"])))
     lines.append('  <div class="grid">')
     # Микро: 12 колонок с гаттером в space.4. Элемент занимает целое число колонок.
     lines.append('    <div class="col-6">')
@@ -1702,9 +1712,9 @@ def motion_block(tokens):
     туда-обратно значило бы соврать про кривую (обратный ход ease-out —
     это ease-in)."""
     lines = ['<div class="block" id="motion">']
-    lines.append('  <div class="block-head"><h3>Движение</h3>'
-                 '<span class="hint">живьём, теми самыми токенами; при '
-                 "<code>prefers-reduced-motion</code> — молчит</span></div>")
+    lines.append(block_head("Движение",
+                            "живьём, теми самыми токенами; при "
+                            "<code>prefers-reduced-motion</code> — молчит"))
     for name, token in tokens["motion"].items():
         if is_documentation_key(name):
             continue
@@ -1742,9 +1752,8 @@ def glow_block(tokens):
     outer = "0 0 %dpx %s" % (GLOW_OUTER_BLUR, rgba_text(rgb, GLOW_OUTER_ALPHA))
 
     lines = ['<div class="block" id="glow">']
-    lines.append('  <div class="block-head"><h3>Свечение</h3>'
-                 '<span class="hint">фирменная замена тени: свет в темноте, '
-                 "а не тень под предметом</span></div>")
+    lines.append(block_head("Свечение",
+                            "фирменная замена тени: свет в темноте, а не тень под предметом"))
     lines.append('  <div class="glow-lab">')
     cases = [
         ("покой", "", "заливка без свечения"),
@@ -1975,9 +1984,10 @@ def compress(text):
 def part_verdict_line(record, field):
     """Строка суждения: часть, сжатая до первой фразы."""
     card = record["card"]
-    return '<a href="#part-%s">%s</a> — %s' % (escape(record["slug"]),
-                                               escape(card.get("name", record["slug"])),
-                                               compress(card.get(field) or "—"))
+    return '<a href="#part-%s">%s</a>%s— %s' % (escape(record["slug"]),
+                                                escape(card.get("name", record["slug"])),
+                                                NBSP,
+                                                typo(compress(card.get(field) or "—")))
 
 
 def board_parts(records):
@@ -2074,8 +2084,7 @@ def board_screens(tokens):
         else:
             exists = (ROOT / "design" / group["src"]).exists()
         lines.append('<div class="block" id="%s">' % escape(group["anchor"]))
-        lines.append('  <div class="block-head"><h3>%s</h3><span class="hint">%s</span></div>'
-                     % (escape(group["title"]), escape(group["status"])))
+        lines.append(block_head(escape(group["title"]), escape(group["status"])))
         lines.append('  <p class="screen-blurb">%s</p>' % typo(escape(group["blurb"])))
         if not exists:
             lines.append('  <div class="empty">Артефакта ещё нет — подкатегория '
@@ -2511,9 +2520,9 @@ def board_icons(tokens, section, law_parts, candidate_parts):
     # Размеры — в натуральную величину, из icon.*. Правило §2.1: кегль иконки =
     # кегль соседнего текста; квадрат размера стоит рядом со строкой body.
     lines.append('<div class="block" id="icon-sizes">')
-    lines.append('  <div class="block-head"><h3>Размеры</h3>'
-                 '<span class="hint">в натуральную величину из icon.*; кегль иконки = '
-                 "кегль соседнего текста (§2.1)</span></div>")
+    lines.append(block_head("Размеры",
+                            "в натуральную величину из icon.*; кегль иконки = кегль "
+                            "соседнего текста (§2.1)"))
     lines.append('  <ul class="icon-sizes">')
     for name, token in tokens["icon"].items():
         if is_documentation_key(name):
@@ -2532,15 +2541,15 @@ def board_icons(tokens, section, law_parts, candidate_parts):
     # Карта доменных метафор — закреплённый словарь §3. Символ моноширинным:
     # это идентификатор в приложении, а не слово.
     lines.append('<div class="block" id="icon-metaphors">')
-    lines.append('  <div class="block-head"><h3>Доменные метафоры</h3>'
-                 '<span class="hint">одно понятие — один SF Symbol, везде (§3); '
-                 "браузер их не рисует — это карта, глиф живёт в приложении</span></div>")
+    lines.append(block_head("Доменные метафоры",
+                            "одно понятие — один SF Symbol, везде (§3); браузер их не "
+                            "рисует — это карта, глиф живёт в приложении"))
     lines.append('  <table class="icon-map">')
     lines.append("    <thead><tr><th>Понятие</th><th>SF Symbol</th><th>Почему</th></tr></thead>")
     lines.append("    <tbody>")
     for concept, symbol, why in ICON_METAPHORS:
         lines.append("      <tr><th>%s</th><td><code>%s</code></td><td>%s</td></tr>"
-                     % (escape(concept), escape(symbol), escape(why)))
+                     % (escape(concept), escape(symbol), typo(escape(why))))
     lines.append("    </tbody>")
     lines.append("  </table>")
     lines.append("</div>")
@@ -2548,9 +2557,9 @@ def board_icons(tokens, section, law_parts, candidate_parts):
     # Статусы стадии — форма ДУБЛИРУЕТ цвет (§6). Цвет берём из токена, форму
     # несёт имя глифа: цвет и имя рядом, а не цвет вместо имени.
     lines.append('<div class="block" id="icon-statuses">')
-    lines.append('  <div class="block-head"><h3>Статусы стадии</h3>'
-                 '<span class="hint">форма дублирует цвет: каждому статусу свой '
-                 "глиф И свой токен-цвет (§6)</span></div>")
+    lines.append(block_head("Статусы стадии",
+                            "форма дублирует цвет: каждому статусу свой глиф И свой "
+                            "токен-цвет (§6)"))
     lines.append('  <ul class="icon-statuses">')
     for status, glyph, color_path in ICON_STATUSES:
         lines.append('    <li data-token="%s">' % escape(color_path))
@@ -2569,9 +2578,9 @@ def board_icons(tokens, section, law_parts, candidate_parts):
     marks = accepted + candidates
     if marks:
         lines.append('<div class="block" id="icon-marks">')
-        lines.append('  <div class="block-head"><h3>Марки продукта</h3>'
-                     '<span class="hint">опознавательный знак в пикселях: иконка '
-                     "приложения и орб</span></div>")
+        lines.append(block_head("Марки продукта",
+                                "опознавательный знак в пикселях: иконка приложения "
+                                "и орб"))
         lines.extend(board_parts(marks))
         lines.append("</div>")
 
