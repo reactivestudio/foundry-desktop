@@ -1095,6 +1095,36 @@ def escape(value):
     return html.escape(str(value), quote=True)
 
 
+# Микротипографика по Бирману. Перенос строки не должен оставлять висеть предлог
+# или уводить тире в начало следующей строки — там, где это грозит, ставим
+# неразрывный пробел U+00A0. Функция вставляет ТОЛЬКО пробелы и потому безопасна
+# для уже собранной разметки (<code>, <b>, <a>): пробелов внутри тегов нет,
+# ломать нечего. Применяется к бегущей прозе доски, не к моно-идентификаторам.
+NBSP = "\u00A0"
+# Короткие слова, которым нельзя заканчивать строку: одно- и двухбуквенные
+# предлоги, союзы, частицы.
+_HANG_WORDS = ("а в и к о с у я во да до же за из ко ли на не ни но ну об от по со то")
+_HANG = re.compile(r"(?<![^\s(«>—])(%s) " % "|".join(_HANG_WORDS.split()), re.IGNORECASE)
+# Пробел перед тире — неразрывный (тире не начинает строку).
+_DASH = re.compile(r"(\S)[ \t]+—")
+# Число и следующее за ним слово/единица держатся вместе: «45 знаков», «13 pt».
+_NUM = re.compile(r"(\d)[ \t]+(?=[А-Яа-яёA-Za-z])")
+
+
+def typo(text):
+    """Бегущая проза → та же проза с неразрывными пробелами Бирмана."""
+    if not text:
+        return text
+    result = str(text)
+    result = _DASH.sub(r"\1" + NBSP + "—", result)
+    result = _NUM.sub(r"\1" + NBSP, result)
+    # Два прохода: соседние короткие слова («и в поле») делят пробелы-границы,
+    # и один re.sub оставил бы второе слово необработанным.
+    for _ in range(2):
+        result = _HANG.sub(lambda match: match.group(1) + NBSP, result)
+    return result
+
+
 def sentences(text):
     return [part.strip() for part in SENTENCE.split((text or "").strip()) if part.strip()]
 
@@ -1134,11 +1164,12 @@ def board_cover(tokens, law_parts, candidate_parts, sidecars, rejected):
     lines = ['<section class="cover">']
     lines.append('  <p class="cover-mark">Foundry</p>')
     lines.append("  <h1>Design System</h1>")
-    lines.append('  <p class="lede">Не описание системы, а сама система, собранная в одном месте: '
-                 "каждая ступень цвета, кегль и отступ ниже — <b>не картинка решения, а решение</b>. "
-                 "Все значения — цвета, кегли, отступы, радиусы — приезжают из "
-                 "<code>tokens.json</code> при сборке (это и есть дизайн-токены); поменяется "
-                 "значение в источнике — поменяется эта страница.</p>")
+    lines.append('  <p class="lede">%s</p>' % typo(
+        "Не описание системы, а сама система, собранная в одном месте: "
+        "каждая ступень цвета, кегль и отступ ниже — <b>не картинка решения, а решение</b>. "
+        "Все значения — цвета, кегли, отступы, радиусы — приезжают из "
+        "<code>tokens.json</code> при сборке (это и есть дизайн-токены); поменяется "
+        "значение в источнике — поменяется эта страница."))
     lines.append('  <div class="cover-facts">')
     for number, caption in facts:
         lines.append('    <div class="cover-fact"><b>%d</b><span>%s</span></div>' % (number, escape(caption)))
@@ -1468,10 +1499,10 @@ def typography_block(tokens):
             lines.append('      <span class="hint">%s</span>' % escape(token.get("role", "")))
             lines.append("    </div>")
         lines.append("  </div>")
-        lines.append('  <p class="section-lede" style="margin-top: var(--space-3)">Один кегль — '
-                     "два токена. Имя в шкале даёт работа, а не размер: <code>type.body</code> "
-                     "и <code>type.body-em</code> оба %s pt, и это не дубль, а два разных "
-                     "решения.</p>" % format_number(body["size"]))
+        lines.append('  <p class="section-lede" style="margin-top: var(--space-3)">%s</p>' % typo(
+            "Один кегль — два токена. Имя в шкале даёт работа, а не размер: "
+            "<code>type.body</code> и <code>type.body-em</code> оба %s pt, и это не дубль, "
+            "а два разных решения." % format_number(body["size"])))
     lines.append("</div>")
     return lines
 
@@ -1791,7 +1822,7 @@ def render_verdict(can, cant, can_title, cant_title):
             # занимает первую колонку сетки. Второй пустой span сделал бы
             # ссылку, текст и раскрытие тремя отдельными ячейками — и строка
             # рассыпалась бы по слову на строку.
-            lines.append("      <li><span>%s</span></li>" % item)
+            lines.append("      <li><span>%s</span></li>" % typo(item))
         lines.append("    </ul>")
         lines.append("  </div>")
     lines.append("</div>")
@@ -2045,7 +2076,7 @@ def board_screens(tokens):
         lines.append('<div class="block" id="%s">' % escape(group["anchor"]))
         lines.append('  <div class="block-head"><h3>%s</h3><span class="hint">%s</span></div>'
                      % (escape(group["title"]), escape(group["status"])))
-        lines.append('  <p class="screen-blurb">%s</p>' % escape(group["blurb"]))
+        lines.append('  <p class="screen-blurb">%s</p>' % typo(escape(group["blurb"])))
         if not exists:
             lines.append('  <div class="empty">Артефакта ещё нет — подкатегория '
                          "названа, файл не приехал.</div>")
@@ -2100,7 +2131,7 @@ def board_graveyard(items):
         # Причина — тем же сжатием, что и всё на доске: вердикт виден,
         # разбирательство — под «+N». Шестнадцать причин по семь строк —
         # это стена прозы, то есть ровно то, ради ухода от чего доска есть.
-        lines.append("    <p>%s</p>" % compress(item["reason"]))
+        lines.append("    <p>%s</p>" % typo(compress(item["reason"])))
         lines.append('    <a href="rejected/%s">%s</a>' % (escape(item["file"]), escape(item["file"])))
         lines.append("  </div>")
     lines.append("</div>")
@@ -2663,7 +2694,7 @@ def generate_showcase(tokens):
         lines.append('  <div class="section-head"><span class="num">%s</span><h2>%s</h2></div>'
                      % (escape(section["num"]), escape(section["title"])))
         if section["lede"]:
-            lines.append('  <p class="section-lede">%s</p>' % escape(section["lede"]))
+            lines.append('  <p class="section-lede">%s</p>' % typo(escape(section["lede"])))
         lines.extend("  " + line for line in section["body"])
         lines.append("</section>")
 
