@@ -164,23 +164,24 @@ a:hover { text-decoration: underline; }
   flex-wrap: wrap;
   align-items: stretch;
   gap: var(--space-2);
-  margin: 0 calc(-1 * var(--space-2)) var(--space-10);
-  padding: var(--space-3) var(--space-2);
+  margin: 0 calc(-1 * var(--space-3)) var(--space-10);
+  padding: var(--space-4) var(--space-3);
   background: var(--bg-base);
   border-bottom: 1px solid var(--border-subtle);
 }
-/* Табы категорий: настоящая цель по Фиттсу — крупный клик, фон, рамка,
-   различимые ховер и активное состояние, а не бледная строчка ссылок. */
+/* Табы категорий: настоящая цель по Фиттсу — крупный клик (кегль heading,
+   паддинг панели), фон, рамка, различимые ховер и активное состояние, а не
+   бледная строчка ссылок. Высота ≈44px: палец и курсор попадают не целясь. */
 .rail a {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-m);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-l);
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
-  font-size: var(--type-body-size);
+  font-size: var(--type-heading-size);
   line-height: 1;
   white-space: nowrap;
   transition: background-color var(--motion-fast-duration) var(--motion-fast-easing),
@@ -200,7 +201,7 @@ a:hover { text-decoration: underline; }
 }
 .rail a .n {
   font-family: var(--font-mono);
-  font-size: var(--type-mono-s-size);
+  font-size: var(--type-mono-size);
   color: var(--text-disabled);
   font-variant-numeric: tabular-nums;
   transition: color var(--motion-fast-duration) var(--motion-fast-easing);
