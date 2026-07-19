@@ -217,6 +217,10 @@ a:hover { text-decoration: underline; }
   border-top: 1px solid var(--border-default);
 }
 .section-head .num {
+  /* Фикс-ширина в два моно-знака: заголовки секций начинаются с одной
+     вертикали независимо от того, «01» там или «—» (иначе левый край
+     титулов дрожит между нумерованными и служебными секциями). */
+  min-width: 2ch;
   font-family: var(--font-mono);
   font-size: var(--type-display-size);
   line-height: var(--canvas-section);
@@ -260,10 +264,15 @@ a:hover { text-decoration: underline; }
   font-weight: var(--type-heading-weight);
   text-wrap: balance;
 }
+/* Подпись-спутник заголовка — короткий кикер, а не абзац. Ширина ограничена,
+   чтобы длинная подпись переносилась заранее, а не убегала в правую кромку
+   колонки (Горбунов: подпись не спорит с заголовком и не тянется во всю ширь). */
 .block-head .hint {
+  max-width: 54ch;
   color: var(--text-tertiary);
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-leading);
+  text-wrap: pretty;
 }
 
 .label {

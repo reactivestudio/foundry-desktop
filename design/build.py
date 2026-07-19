@@ -1408,10 +1408,10 @@ def contrast_block(tokens):
 def typography_block(tokens):
     """Лестница в натуральную величину. Таблица чисел не показывает кегль —
     она о нём рассказывает; 13 pt узнаётся только тем, что он 13 pt."""
+    # Без block-head: секция «Типографика» уже представлена заголовком и лидом
+    # секции; повтор имени над единственным блоком — дубль, который Горбунов
+    # режет первым (лид несёт ту же мысль). Лестница начинается сразу.
     lines = ['<div class="block" id="type">']
-    lines.append('  <div class="block-head"><h3>Типографика</h3>'
-                 '<span class="hint">в натуральную величину, на реальных строках '
-                 "продукта — на lorem не видно ни длины, ни кириллицы</span></div>")
     lines.append('  <div class="ladder">')
     for name, token in tokens["type"].items():
         if is_documentation_key(name):
@@ -1481,10 +1481,9 @@ def spacing_block(tokens):
     Таблица чисел этого не умеет — 24 pt узнаются только тем, что они 24 pt."""
     base_pt = min(token["pt"] for name, token in tokens["space"].items()
                   if not is_documentation_key(name))
+    # Без block-head — см. типографику: единственный блок секции не повторяет
+    # её имя. Линейка отступов начинается сразу под лидом.
     lines = ['<div class="block" id="space">']
-    lines.append('  <div class="block-head"><h3>Отступы</h3>'
-                 '<span class="hint">столбик длиной ровно в свой токен, 1:1 — '
-                 "линейка, а не таблица</span></div>")
     lines.append('  <div class="grid">')
 
     lines.append('    <div class="col-6">')
@@ -1549,10 +1548,8 @@ def radius_block(tokens):
             "expected": expected, "holds": expected == radius[inner]["pt"],
         })
 
+    # Без block-head — см. типографику. Концентрика начинается сразу под лидом.
     lines = ['<div class="block" id="radius">']
-    lines.append('  <div class="block-head"><h3>Радиусы</h3>'
-                 '<span class="hint">вложенный = внешний − паддинг: правило нарисовано, '
-                 "а не пересказано</span></div>")
     lines.append('  <div class="grid">')
     lines.append('    <div class="col-6">')
     lines.append('      <div class="nest nest-l1" data-token="radius.xl">')
@@ -1816,9 +1813,8 @@ def colors_blocks(tokens):
     lines.extend(ramp_block(
         tokens, "brand", ["ultramarine", "purple", "magenta", "cyan", "amber"],
         "Фирменная гамма",
-        "аналоговая гамма — переход по смежным тонам; цвет подписи на ступени "
-        "доска считает по контрасту, и там, где он переключается со светлого на "
-        "тёмный, проходит граница text.on-accent", False))
+        "аналоговая гамма — по смежным тонам; где подпись темнеет, там "
+        "граница text.on-accent", False))
     lines.extend(ramp_block(
         tokens, "sem", ["success", "warning", "error", "info"],
         "Семантика",
