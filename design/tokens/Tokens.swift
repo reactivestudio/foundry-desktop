@@ -70,16 +70,14 @@ extension Color {
 }
 
 enum Token {
-    /// Фирменная гамма: аналоговый ход ультрамарин → пурпур → маджента (OKLCH hue 266 → 293 → 316) + циан как «точка света». Мотив — орб, свет в темноте. Оранжевый/ember отвергнут, не возвращать → rejected/ember-palette.md
+    /// Фирменная гамма: аналоговый ход ультрамарин → пурпур → маджента (OKLCH hue 266 → 293 → 316). Мотив — орб, свет в темноте. Гамма держится смежной: тон-выброс (был циан 234°, снят 2026-07-19 → rejected/cyan-accent.md) в неё не входит; live/стрим несёт brand.purple как «AI работает». Оранжевый/ember отвергнут, не возвращать → rejected/ember-palette.md
     enum Brand {
         /// главный акцент: primary-действия, активные состояния, выделение
         static let ultramarine = Color(hexValue: 0x2F5CFF)
-        /// вторичный акцент: градиенты, AI-сущности
+        /// вторичный акцент: градиенты, AI-сущности; live/стрим и работа агента (sem.info, glow.live)
         static let purple = Color(hexValue: 0x8B5CF6)
         /// третичный: только в градиентах и орбе, не как самостоятельный цвет UI
         static let magenta = Color(hexValue: 0xD65CFF)
-        /// «точка света»: данные, live-индикация, блики орба
-        static let cyan = Color(hexValue: 0x58C7FF)
         /// ТОЛЬКО знак: логотип «Foundry AI» и фирменные места, где он появляется целиком. НИКОГДА не статус и не состояние — для этого есть sem.warning. Разведение ролей обязательно и держится дисциплиной, а не глазом: янтарь всего в 9° от sem.warning #FBBF24, глаз их не различит. Отсюда правило: увидел жёлтый в UI — это sem.warning; увидел жёлтый в знаке — это brand.amber; в одном экране они не встречаются.
         static let amber = Color(hexValue: 0xFFB020)
         /// орб, hero-акценты
@@ -142,7 +140,7 @@ enum Token {
         static let accent = Color(hexValue: 0x7C9AFF)
         /// второстепенные акценты, активные иконки в плотных списках
         static let accentMuted = Color(hexValue: 0x6B8CFF)
-        /// текст на ультрамарине (5.1:1) и пурпуре (4.2:1); на циане, мадженте и янтаре белый ЗАПРЕЩЁН (1.9:1, 3.1:1, 1.8:1) — там тёмный bg.base
+        /// текст на ультрамарине (5.1:1); на пурпуре (4.2:1), мадженте (3.1:1) и янтаре (1.8:1) белый ЗАПРЕЩЁН — там тёмный bg.base
         static let onAccent = Color(white: 1, opacity: 1)
     }
 
@@ -167,14 +165,14 @@ enum Token {
         /// бордер плашки (опционально)
         static let errorBorder = Token.Semantic.error.opacity(0.3)
         /// live/стрим, работа агента, нейтральные уведомления
-        static let info = Token.Brand.cyan
+        static let info = Token.Brand.purple
         /// заливка плашки
-        static let infoFill = Token.Brand.cyan.opacity(0.14)
+        static let infoFill = Token.Brand.purple.opacity(0.14)
         /// бордер плашки (опционально)
-        static let infoBorder = Token.Brand.cyan.opacity(0.3)
+        static let infoBorder = Token.Brand.purple.opacity(0.3)
     }
 
-    /// Дифф и код. Подсветка синтаксиса — тема на базе фирменной гаммы (циан/пурпур/маджента + нейтрали), референсы One Dark / Tokyo Night, контраст токенов ≥4.5:1.
+    /// Дифф и код. Подсветка синтаксиса — тема на базе фирменной гаммы (светлый ультрамарин #7C9AFF для типов/функций, пурпур для ключевых слов, маджента для констант + нейтрали), референсы One Dark / Tokyo Night, контраст токенов ≥4.5:1.
     enum Diff {
         /// фон добавленной строки
         static let addedBg = Token.Semantic.success.opacity(0.12)
@@ -305,7 +303,7 @@ enum Token {
         static let base = MotionToken(duration: 0.22, animation: .easeInOut(duration: 0.22))
         /// модалки, крупные перестановки (канбан)
         static let slow = MotionToken(duration: 0.32, animation: .timingCurve(0.22, 1, 0.36, 1, duration: 0.32))
-        /// пульс орба/циана при стриме
+        /// пульс орба и live-индикатора при стриме
         /// Непрерывное состояние, а не переход: длительности нет,
         /// пульс задаёт сама сцена (мягкая, непрерывная).
         static let live = MotionToken(duration: nil, animation: nil)
@@ -316,7 +314,7 @@ enum Token {
         /// primary-кнопка (hover), активная стадия пайплайна
         static let accent = GlowToken(color: Token.Brand.ultramarine)
         /// индикатор работы Claude, live-лог
-        static let live = GlowToken(color: Token.Brand.cyan)
+        static let live = GlowToken(color: Token.Brand.purple)
         /// только орб
         /// Градиент, а не тень: заливка орба — brand.gradient.
         /// Значения свечения здесь нет намеренно.

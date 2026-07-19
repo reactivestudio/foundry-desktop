@@ -1196,7 +1196,7 @@ def board_cover(tokens, law_parts, candidate_parts, sidecars, rejected):
 def ink_on(tokens, path):
     """Цвет подписи на цветной ступени витрина не выбирает вкусом, а считает:
     что контрастнее — белый или bg.base. Ровно там, где выбор переворачивается,
-    и проходит граница text.on-accent («на циане, мадженте и янтаре белый
+    и проходит граница text.on-accent («на пурпуре, мадженте и янтаре белый
     ЗАПРЕЩЁН»)."""
     token = find_token(tokens, path)
     rgb = resolve_rgb(tokens, token, path)
@@ -1204,7 +1204,7 @@ def ink_on(tokens, path):
     return "on-dark" if contrast_ratio((255, 255, 255), rgb) < contrast_ratio(base, rgb) else ""
 
 
-def ramp_block(tokens, group_name, names, title, hint, prove_steps):
+def ramp_block(tokens, group_name, names, title, hint, prove_steps, block_id=None):
     """Лестница вместо сетки свотчей.
 
     Сетка свотчей показывает N цветов; лестница показывает N решений. Ступень
@@ -1232,7 +1232,7 @@ def ramp_block(tokens, group_name, names, title, hint, prove_steps):
         previous = lightness
 
     columns = "repeat(%d, 1fr)" % len(steps)
-    lines = ['<div class="block" id="ramp-%s">' % escape(group_name)]
+    lines = ['<div class="block" id="ramp-%s">' % escape(block_id or group_name)]
     lines.append(block_head(title, hint))
     lines.append('  <div class="ramp-band" style="grid-template-columns: %s">' % columns)
     for step in steps:
@@ -1851,10 +1851,16 @@ def colors_blocks(tokens):
         "и шаг между ними обязан быть равным", True))
     lines.extend(states_block(tokens))
     lines.extend(ramp_block(
-        tokens, "brand", ["ultramarine", "purple", "magenta", "cyan", "amber"],
+        tokens, "brand", ["ultramarine", "purple", "magenta"],
         "Фирменная гамма",
-        "аналоговая гамма — по смежным тонам; где подпись темнеет, там "
-        "граница text.on-accent", False))
+        "аналоговая гамма — по смежным тонам (OKLCH hue 266 → 293 → 316); "
+        "где подпись темнеет, там граница text.on-accent", False))
+    lines.extend(ramp_block(
+        tokens, "brand", ["amber"],
+        "Янтарь — только знак",
+        "в гамму не входит и НИКОГДА не статус: только логотип «Foundry AI». "
+        "От sem.warning всего 9° по тону — глаз не различит, роли разводит "
+        "дисциплина, а не глаз", False, block_id="brand-amber"))
     lines.extend(ramp_block(
         tokens, "sem", ["success", "warning", "error", "info"],
         "Семантика",

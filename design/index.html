@@ -14,11 +14,11 @@
   <h1>Design System</h1>
   <p class="lede">Не описание системы, а сама система, собранная в одном месте: каждая ступень цвета, кегль и отступ ниже — <b>не картинка решения, а решение</b>. Все значения — цвета, кегли, отступы, радиусы — приезжают из <code>tokens.json</code> при сборке (это и есть дизайн-токены); поменяется значение в источнике — поменяется эта страница.</p>
   <div class="cover-facts">
-    <div class="cover-fact"><b>91</b><span>дизайн-токенов в источнике</span></div>
+    <div class="cover-fact"><b>90</b><span>дизайн-токенов в источнике</span></div>
     <div class="cover-fact"><b>6</b><span>принятых компонентов</span></div>
     <div class="cover-fact"><b>5</b><span>на утверждении</span></div>
     <div class="cover-fact"><b>1</b><span>в приёмной</span></div>
-    <div class="cover-fact"><b>16</b><span>отклонено, с причиной</span></div>
+    <div class="cover-fact"><b>17</b><span>отклонено, с причиной</span></div>
   </div>
 </section>
 <nav class="rail">
@@ -101,8 +101,8 @@
     </ul>
   </div>
   <div class="block" id="ramp-brand">
-    <div class="block-head"><h3>Фирменная гамма</h3><span class="hint">аналоговая гамма — по смежным тонам; где подпись темнеет, там граница text.on-accent</span></div>
-    <div class="ramp-band" style="grid-template-columns: repeat(5, 1fr)">
+    <div class="block-head"><h3>Фирменная гамма</h3><span class="hint">аналоговая гамма — по смежным тонам (OKLCH hue 266 → 293 → 316); где подпись темнеет, там граница text.on-accent</span></div>
+    <div class="ramp-band" style="grid-template-columns: repeat(3, 1fr)">
       <div class="ramp-cell " style="background: var(--brand-ultramarine)" data-token="brand.ultramarine" data-hex="#2F5CFF">
         <b>brand.ultramarine</b>
         <span class="v">#2F5CFF</span>
@@ -118,11 +118,16 @@
         <span class="v">#D65CFF</span>
         <span class="v">L 0.694 · C 0.245 · H 316.5°</span>
       </div>
-      <div class="ramp-cell on-dark" style="background: var(--brand-cyan)" data-token="brand.cyan" data-hex="#58C7FF">
-        <b>brand.cyan</b>
-        <span class="v">#58C7FF</span>
-        <span class="v">L 0.788 · C 0.128 · H 233.7°</span>
-      </div>
+    </div>
+    <ul class="roles">
+      <li><i class="swatch" style="background: var(--brand-ultramarine)"></i><span class="t">brand.ultramarine</span><span class="r">главный акцент: primary-действия, активные состояния, выделение</span></li>
+      <li><i class="swatch" style="background: var(--brand-purple)"></i><span class="t">brand.purple</span><span class="r">вторичный акцент: градиенты, AI-сущности; live/стрим и работа агента (sem.info, glow.live)</span></li>
+      <li><i class="swatch" style="background: var(--brand-magenta)"></i><span class="t">brand.magenta</span><span class="r">третичный: только в градиентах и орбе, не как самостоятельный цвет UI</span></li>
+    </ul>
+  </div>
+  <div class="block" id="ramp-brand-amber">
+    <div class="block-head"><h3>Янтарь — только знак</h3><span class="hint">в гамму не входит и НИКОГДА не статус: только логотип «Foundry AI». От sem.warning всего 9° по тону — глаз не различит, роли разводит дисциплина, а не глаз</span></div>
+    <div class="ramp-band" style="grid-template-columns: repeat(1, 1fr)">
       <div class="ramp-cell on-dark" style="background: var(--brand-amber)" data-token="brand.amber" data-hex="#FFB020">
         <b>brand.amber</b>
         <span class="v">#FFB020</span>
@@ -130,10 +135,6 @@
       </div>
     </div>
     <ul class="roles">
-      <li><i class="swatch" style="background: var(--brand-ultramarine)"></i><span class="t">brand.ultramarine</span><span class="r">главный акцент: primary-действия, активные состояния, выделение</span></li>
-      <li><i class="swatch" style="background: var(--brand-purple)"></i><span class="t">brand.purple</span><span class="r">вторичный акцент: градиенты, AI-сущности</span></li>
-      <li><i class="swatch" style="background: var(--brand-magenta)"></i><span class="t">brand.magenta</span><span class="r">третичный: только в градиентах и орбе, не как самостоятельный цвет UI</span></li>
-      <li><i class="swatch" style="background: var(--brand-cyan)"></i><span class="t">brand.cyan</span><span class="r">«точка света»: данные, live-индикация, блики орба</span></li>
       <li><i class="swatch" style="background: var(--brand-amber)"></i><span class="t">brand.amber</span><span class="r">ТОЛЬКО знак: логотип «Foundry AI» и фирменные места, где он появляется целиком. НИКОГДА не статус и не состояние — для этого есть sem.warning. Разведение ролей обязательно и держится дисциплиной, а не глазом: янтарь всего в 9° от sem.warning #FBBF24, глаз их не различит. Отсюда правило: увидел жёлтый в UI — это sem.warning; увидел жёлтый в знаке — это brand.amber; в одном экране они не встречаются.</span></li>
     </ul>
   </div>
@@ -155,10 +156,10 @@
         <span class="v">#F87171</span>
         <span class="v">L 0.711 · C 0.166 · H 22.2°</span>
       </div>
-      <div class="ramp-cell on-dark" style="background: var(--sem-info)" data-token="sem.info" data-hex="#58C7FF">
+      <div class="ramp-cell on-dark" style="background: var(--sem-info)" data-token="sem.info" data-hex="#8B5CF6">
         <b>sem.info</b>
-        <span class="v">#58C7FF</span>
-        <span class="v">L 0.788 · C 0.128 · H 233.7°</span>
+        <span class="v">#8B5CF6</span>
+        <span class="v">L 0.606 · C 0.219 · H 292.7°</span>
       </div>
     </div>
     <ul class="roles">
@@ -184,7 +185,7 @@
           <thead><tr><th>Заливка</th></tr></thead>
           <tbody></tbody>
         </table>
-        <p class="verdict-note">текст на ультрамарине (5.1:1) и пурпуре (4.2:1); на циане, мадженте и янтаре белый ЗАПРЕЩЁН (1.9:1, 3.1:1, 1.8:1) — там тёмный bg.base</p>
+        <p class="verdict-note">текст на ультрамарине (5.1:1); на пурпуре (4.2:1), мадженте (3.1:1) и янтаре (1.8:1) белый ЗАПРЕЩЁН — там тёмный bg.base</p>
       </div>
     </div>
   </div>
@@ -192,7 +193,7 @@
     <div class="can">
       <h3>Можно — правило группы</h3>
       <ul>
-        <li><span><code>brand</code> — Фирменная гамма: аналоговый ход ультрамарин → пурпур → маджента (OKLCH hue 266 → 293 → 316) + циан как «точка света».</span></li>
+        <li><span><code>brand</code> — Фирменная гамма: аналоговый ход ультрамарин → пурпур → маджента (OKLCH hue 266 → 293 → 316).</span></li>
         <li><span><code>bg</code> — Elevation через светлоту, не через тень: равные шаги ΔL ≈ 0.03 в OKLCH, hue удержан в фиолетовой зоне 294±1, хрома растёт с высотой.</span></li>
         <li><span><code>border</code> — Дефолт — вообще без линейки: сначала воздух и выравнивание, линейка — осознанное исключение.</span></li>
         <li><span><code>text</code> — Альфа-белый, не серые хардкоды.</span></li>
@@ -208,7 +209,7 @@
         <li><span><code>bg</code> — Слой не перепрыгивает уровни; уровней на экране ≤3.</span></li>
         <li><span><code>bg</code> — Сайдбар и тулбар — системный Liquid Glass, их фон не хардкодим.</span></li>
         <li><span><code>text</code> — Ни один цвет палитры не используется как цвет текста: brand.ultramarine на тёмном даёт 4.0:1 и не проходит — текстом всегда text.accent.</span></li>
-        <li><span><code>text.on-accent</code> — текст на ультрамарине (5.1:1) и пурпуре (4.2:1); на циане, мадженте и янтаре белый ЗАПРЕЩЁН (1.9:1, 3.1:1, 1.8:1) — там тёмный bg.base</span></li>
+        <li><span><code>text.on-accent</code> — текст на ультрамарине (5.1:1); на пурпуре (4.2:1), мадженте (3.1:1) и янтаре (1.8:1) белый ЗАПРЕЩЁН — там тёмный bg.base</span></li>
         <li><span><code>sem</code> — Цвет всегда дублируется формой/иконкой (дейтеранопия).</span></li>
       </ul>
     </div>
@@ -833,7 +834,7 @@
       <h3>Нельзя — где компонент неуместен</h3>
       <ul>
         <li><span><a href="#part-project-label">Лейбл проекта</a> — Не красить: отказ от цвета — суть этой части, а не её недоделка.<details class="more"><summary>+6</summary><p>Категорию несёт форма (▣ инфра · ◆ утилита · ● бизнес) именно потому, что цвет в системе дефицитен и занят значимым — статусом и действием; радуга лейблов гасит и то и другое (06, «цвет только на значимом»). Не применять там, где проект уже известен: внутри экрана одного проекта лейбл на каждой строке повторяет заголовок и превращается в шум (Бирман). Не носить лейблом статус, стадию или тип change&#x27;а: это badge и status-dot — здесь цвет и семантика, там форма и постоянная величина. Не ставить второй лейбл на одну карточку: change живёт в одном сервисе; если сервисов правда несколько — это не лейбл, а колонка таблицы (10-tables). Не заводить седьмую категорию под форму: алфавит из трёх фигур запоминается, из семи — читается по легенде, а легенда означает, что нотация не работает (12 §6, «одноразовое исключение не стоит нового элемента языка»). Не растягивать под длинное имя: лейбл усекает многоточием и остаётся узким — если имя обязано читаться целиком, ему нужна колонка, а не лейбл.</p></details></span></li>
-        <li><span><a href="#part-badge">Бейдж</a> — Не применять без глифа в цветных вариантах: цвет обязан дублироваться формой — бейдж без ✓ ⚠ ✕ ◉ при дейтеранопии пуст (06 §3.3).<details class="more"><summary>+6</summary><p>Не заливать бейдж сплошным цветом с белым текстом: рецепт канона — цвет текста на том же цвете @14% (06 §3.2); белый на циане и мадженте вообще запрещён (text.on-accent). Не красить бейдж ультрамарином: акцент зарезервирован за действием и выделением, и цветной бейдж рядом начинает спорить с кнопкой «Принять» за внимание (08 §1.3); нейтральная категория — базовый вариант, без цвета. Не вешать бейдж на каждый элемент списка: раскрашенная целиком колонка — экран-светофор, цвет перестаёт значить (06, «цвет только на значимом»). Не дублировать бейджем то, что уже сказано позицией: чип стадии на карточке канбана — ложь дважды, колонка и есть стадия (§6 макета). Не делать бейдж кликабельным: это ярлык, а не контрол; нужен клик — это кнопка или фильтр-токен со своей хит-зоной ≥24pt (08 §5). Не носить бейджем имя проекта или сервиса — для этого project-label, где цвет намеренно не расходуется.</p></details></span></li>
+        <li><span><a href="#part-badge">Бейдж</a> — Не применять без глифа в цветных вариантах: цвет обязан дублироваться формой — бейдж без ✓ ⚠ ✕ ◉ при дейтеранопии пуст (06 §3.3).<details class="more"><summary>+6</summary><p>Не заливать бейдж сплошным цветом с белым текстом: рецепт канона — цвет текста на том же цвете @14% (06 §3.2); белый на пурпуре и мадженте вообще запрещён (text.on-accent). Не красить бейдж ультрамарином: акцент зарезервирован за действием и выделением, и цветной бейдж рядом начинает спорить с кнопкой «Принять» за внимание (08 §1.3); нейтральная категория — базовый вариант, без цвета. Не вешать бейдж на каждый элемент списка: раскрашенная целиком колонка — экран-светофор, цвет перестаёт значить (06, «цвет только на значимом»). Не дублировать бейджем то, что уже сказано позицией: чип стадии на карточке канбана — ложь дважды, колонка и есть стадия (§6 макета). Не делать бейдж кликабельным: это ярлык, а не контрол; нужен клик — это кнопка или фильтр-токен со своей хит-зоной ≥24pt (08 §5). Не носить бейджем имя проекта или сервиса — для этого project-label, где цвет намеренно не расходуется.</p></details></span></li>
         <li><span><a href="#part-chip">Чип</a> — Не носить чипом статус или состояние: у чипа нет семантического цвета — как только признак нужно сказать цветом и формой (✓ ⚠ ✕ ◉), это badge, а не чип (09 §6, 06 §3.2).<details class="more"><summary>+6</summary><p>Не красить чип в акцент или семантику: цвет в системе дефицитен и занят действием и статусом; набор разноцветных чипов гасит и то и другое (06, «цвет только на значимом»). Не носить чипом единоличную опознавательную метку сервиса — для «чей это change» есть project-label, где категория дана формой, а цвет намеренно не расходуется. Не ставить одиночный чип там, где смысл несёт набор: чип оправдан, когда признаков у объекта несколько (скиллы агента, стек проекта, применённые фильтры); один признак — это поле строки, а не чип. Не делать чип-ярлык кликабельным ради вида: крестик появляется только у того, что реально снимается (фильтр, 10 §10); неснимаемый признак — не контрол. Не усекать ключевое слово: чип короткий по определению; если значение обязано читаться целиком и не влезает — это колонка таблицы, а не чип (10-tables). Не заводить чип под то, что уже сказано позицией или заголовком экрана: повтор известного — шум (Бирман).</p></details></span></li>
         <li><span><a href="#part-status-dot">Точка статуса</a> — Не применять без слова или тултипа рядом: точка на 8pt — акселератор чтения, а не носитель смысла; канон 12 §6 разрешает её только там, где значение раскрыто текстом поблизости.<details class="more"><summary>+5</summary><p>Не применять как единственный канал: цвет обязан дублироваться формой, иконкой или подписью — 8% мужчин не различат ok от err (06 §3.3); в диффе, в чеклисте и в статусе стадии это глиф ✓▲✕, а точка — только ускорение. Не заводить седьмой модификатор: шесть статусов — это ровно таблица 12 §6, и особый случай говорится словом, а не новым цветом точки (Бирман: одноразовое исключение не стоит нового элемента языка). Не вешать на точку glow: пульс live идёт только альфой, единственное свечение в окне держит орб (13 §12). Не использовать точку как кликабельную цель: 8pt против hit-min 24pt — промах гарантирован (07, Фиттс); кликается строка целиком. Не красить точкой то, что не является состоянием: категория, тип, проект — это форма и слово (project-label), цвет здесь дефицитен.</p></details></span></li>
       </ul>
@@ -1193,7 +1194,7 @@
       <span class="d">нет длительности · мягкая, непрерывная</span>
       <span class="motion-track"><i class="motion-dot live"></i></span>
     </div>
-    <p class="hint" style="padding-bottom: var(--space-3); color: var(--text-tertiary)">пульс орба/циана при стриме</p>
+    <p class="hint" style="padding-bottom: var(--space-3); color: var(--text-tertiary)">пульс орба и live-индикатора при стриме</p>
     <p class="verdict-note" style="border-left-color: var(--sem-warning); background: var(--sem-warning-fill)"><code>motion.live</code> — состояние, а не переход: длительности у него в источнике нет, и доска её не выдумывает. Пульс выше показан, но его период — не дизайн-токен. Видимый долг, а не решение.</p>
   </div>
   <div class="block" id="glow">
@@ -1362,8 +1363,13 @@
       <a href="rejected/crispy-codename-in-first-run.md">crispy-codename-in-first-run.md</a>
     </div>
     <div class="grave-item">
+      <h4>Циан как фирменный цвет (brand.cyan)</h4>
+      <p>Отвергнут пользователем при огранке доски: «вижу cyan цвет, который вообще нам не нужен».<details class="more"><summary>+4</summary><p>За вкусовым «не нужен» стоит проверяемая причина, которую доска и показала. Гамму объявляли аналоговой — «по смежным тонам», но циан 234° лежит против хода ультрамарин 266° → пурпур 293° → маджента 316°: он не смежный, а выброс на другую сторону круга. Пять свотчей в одной ленте «аналоговой гаммы» были враньём ровно про два из них (циан и янтарь); глаз это и поймал. Как фирменный тон циан в гамму не входит по построению.</p></details></p>
+      <a href="rejected/cyan-accent.md">cyan-accent.md</a>
+    </div>
+    <div class="grave-item">
       <h4>Оранжевая палитра (ember)</h4>
-      <p>Отвергнута пользователем при отборе палитры.<details class="more"><summary>+3</summary><p>Канон формулирует отказ безоговорочно и в единственной строке — docs/design/13-tokens.md §1: Фирменная гамма — аналоговый ход ультрамарин → пурпур → маджента (OKLCH hue ≈ 266 → 293 → 316°) + циан как «точка света». Мотив — орб, свет в темноте. Оранжевый/ember — отвергнут, не возвращать.</p></details></p>
+      <p>Отвергнута пользователем при отборе палитры.<details class="more"><summary>+3</summary><p>Канон формулирует отказ безоговорочно и в единственной строке — docs/design/13-tokens.md §1: Фирменная гамма — смежный аналоговый ход ультрамарин → пурпур → маджента (OKLCH hue ≈ 266 → 293 → 316°). Мотив — орб, свет в темноте. Оранжевый/ember — отвергнут, не возвращать.</p></details></p>
       <a href="rejected/ember-palette.md">ember-palette.md</a>
     </div>
     <div class="grave-item">
@@ -1425,7 +1431,7 @@
 </section>
 <footer class="foot">Собрана из компонентов и из <a href="tokens/tokens.json">tokens.json</a> скриптом <code>design/build.py</code>. Своего содержимого не имеет: правка руками теряется при следующей сборке. Договор о формате компонента — <a href="parts/README.md">design/parts/README.md</a>.</footer>
 </div>
-<script type="application/json" id="canvas-data">{"surfaces": [{"path": "bg.base", "rgb": [5, 3, 13]}, {"path": "bg.surface", "rgb": [11, 7, 23]}, {"path": "bg.raised", "rgb": [18, 11, 35]}, {"path": "bg.overlay", "rgb": [26, 16, 48]}], "inks": [{"path": "text.primary", "rgb": [255, 255, 255], "alpha": 1.0, "role": "основной текст, заголовки; длинное чтение — 85–90%", "exempt": false}, {"path": "text.secondary", "rgb": [255, 255, 255], "alpha": 0.7, "role": "вторичные строки, описания, подписи, иконки в покое", "exempt": false}, {"path": "text.tertiary", "rgb": [255, 255, 255], "alpha": 0.5, "role": "мета: время, счётчики, номера строк", "exempt": false}, {"path": "text.disabled", "rgb": [255, 255, 255], "alpha": 0.38, "role": "недоступное", "exempt": true}, {"path": "text.accent", "rgb": [124, 154, 255], "alpha": 1.0, "role": "ссылки, интерактивный текст, акценты", "exempt": false}, {"path": "text.accent-muted", "rgb": [107, 140, 255], "alpha": 1.0, "role": "второстепенные акценты, активные иконки в плотных списках", "exempt": false}, {"path": "sem.success", "rgb": [74, 222, 128], "alpha": 1.0, "role": "approve/принято, зелёный диффа, пройденная стадия", "exempt": false}, {"path": "sem.warning", "rgb": [251, 191, 36], "alpha": 1.0, "role": "request changes, зависший луп, устаревший снапшот", "exempt": false}, {"path": "sem.error", "rgb": [248, 113, 113], "alpha": 1.0, "role": "fail стадии, красный диффа, деструктивные действия", "exempt": false}, {"path": "sem.info", "rgb": [88, 199, 255], "alpha": 1.0, "role": "live/стрим, работа агента, нейтральные уведомления", "exempt": false}, {"path": "brand.ultramarine", "rgb": [47, 92, 255], "alpha": 1.0, "role": "главный акцент: primary-действия, активные состояния, выделение", "exempt": false}], "accents": [{"path": "brand.ultramarine", "rgb": [47, 92, 255]}, {"path": "brand.purple", "rgb": [139, 92, 246]}, {"path": "brand.magenta", "rgb": [214, 92, 255]}, {"path": "brand.cyan", "rgb": [88, 199, 255]}, {"path": "brand.amber", "rgb": [255, 176, 32]}], "onAccent": {"path": "text.on-accent", "rgb": [255, 255, 255], "alpha": 1.0}, "threshold": 4.5, "error": [248, 113, 113], "base": [5, 3, 13]}</script>
+<script type="application/json" id="canvas-data">{"surfaces": [{"path": "bg.base", "rgb": [5, 3, 13]}, {"path": "bg.surface", "rgb": [11, 7, 23]}, {"path": "bg.raised", "rgb": [18, 11, 35]}, {"path": "bg.overlay", "rgb": [26, 16, 48]}], "inks": [{"path": "text.primary", "rgb": [255, 255, 255], "alpha": 1.0, "role": "основной текст, заголовки; длинное чтение — 85–90%", "exempt": false}, {"path": "text.secondary", "rgb": [255, 255, 255], "alpha": 0.7, "role": "вторичные строки, описания, подписи, иконки в покое", "exempt": false}, {"path": "text.tertiary", "rgb": [255, 255, 255], "alpha": 0.5, "role": "мета: время, счётчики, номера строк", "exempt": false}, {"path": "text.disabled", "rgb": [255, 255, 255], "alpha": 0.38, "role": "недоступное", "exempt": true}, {"path": "text.accent", "rgb": [124, 154, 255], "alpha": 1.0, "role": "ссылки, интерактивный текст, акценты", "exempt": false}, {"path": "text.accent-muted", "rgb": [107, 140, 255], "alpha": 1.0, "role": "второстепенные акценты, активные иконки в плотных списках", "exempt": false}, {"path": "sem.success", "rgb": [74, 222, 128], "alpha": 1.0, "role": "approve/принято, зелёный диффа, пройденная стадия", "exempt": false}, {"path": "sem.warning", "rgb": [251, 191, 36], "alpha": 1.0, "role": "request changes, зависший луп, устаревший снапшот", "exempt": false}, {"path": "sem.error", "rgb": [248, 113, 113], "alpha": 1.0, "role": "fail стадии, красный диффа, деструктивные действия", "exempt": false}, {"path": "sem.info", "rgb": [139, 92, 246], "alpha": 1.0, "role": "live/стрим, работа агента, нейтральные уведомления", "exempt": false}, {"path": "brand.ultramarine", "rgb": [47, 92, 255], "alpha": 1.0, "role": "главный акцент: primary-действия, активные состояния, выделение", "exempt": false}], "accents": [{"path": "brand.ultramarine", "rgb": [47, 92, 255]}, {"path": "brand.purple", "rgb": [139, 92, 246]}, {"path": "brand.magenta", "rgb": [214, 92, 255]}, {"path": "brand.amber", "rgb": [255, 176, 32]}], "onAccent": {"path": "text.on-accent", "rgb": [255, 255, 255], "alpha": 1.0}, "threshold": 4.5, "error": [248, 113, 113], "base": [5, 3, 13]}</script>
 <script>
 (function () {
   var data = JSON.parse(document.getElementById("canvas-data").textContent);
