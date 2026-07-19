@@ -257,11 +257,16 @@ a:hover { text-decoration: underline; }
   gap: var(--space-3);
   margin-bottom: var(--space-4);
 }
+/* Заголовок блока — ступень над лидом (16) и над текстом (13): иначе три
+   уровня сливаются в один серый поток. type.title даёт ясный якорь, с которого
+   глаз считывает структуру секции, не вчитываясь (Горбунов: иерархия — это
+   контраст размеров, а не только веса). */
 .block-head h3 {
   margin: 0;
-  font-size: var(--type-heading-size);
-  line-height: var(--type-heading-leading);
-  font-weight: var(--type-heading-weight);
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-leading);
+  font-weight: var(--type-title-weight);
+  letter-spacing: -0.01em;
   text-wrap: balance;
 }
 /* Подпись-спутник заголовка — короткий кикер, а не абзац. Ширина ограничена,
