@@ -221,13 +221,16 @@
   .liverow .t{font-weight:590;color:var(--t1r)}
   .liverow .m{color:var(--t3)}
   .liverow .time{margin-left:auto}
-  /* лента стадий: пройдено · текущая (циан, пульс) · впереди */
+  /* лента стадий: пройдено · текущая (циан, пульс) · впереди.
+     Ховер-рост — только transform на псевдо: геометрия панели от ховеров
+     контента меняться не должна (сдвиг лейаута читается как «чёлка выросла») */
   .stages{display:flex;gap:3px;margin:10px 0 2px}
-  .sg{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.10);position:relative;
-    transition:height var(--fast),background var(--fast)}
-  .sg.done{background:rgba(255,255,255,.30)}
-  .sg.cur{background:var(--cyan);animation:pulse 2.4s ease-in-out infinite}
-  .stages:hover .sg{height:6px}
+  .sg{flex:1;height:6px;position:relative}
+  .sg::before{content:"";position:absolute;left:0;right:0;top:1px;bottom:1px;border-radius:2px;
+    background:rgba(255,255,255,.10);transition:transform var(--fast),background var(--fast)}
+  .sg.done::before{background:rgba(255,255,255,.30)}
+  .sg.cur::before{background:var(--cyan);animation:pulse 2.4s ease-in-out infinite}
+  .stages:hover .sg::before{transform:scaleY(1.5)}
   .sg .lbl{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
     background:var(--bg-raised);border:1px solid var(--b2);border-radius:6px;padding:2px 8px;
     font-size:10.5px;color:var(--t1r);white-space:nowrap;opacity:0;pointer-events:none;
@@ -250,11 +253,16 @@
   .rev .who{font-weight:590;color:var(--t1r)}
   .rev .what{color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .rev .age{margin-left:auto;flex:none}
+  /* ✓ всегда в потоке (место зарезервировано — ховер не меняет высоту строки),
+     выпрыгивает pop'ом через opacity+transform, без вставки в лейаут */
   .okbtn{flex:none;width:22px;height:22px;border-radius:6px;border:1px solid rgba(74,222,128,.30);
-    background:rgba(74,222,128,.14);color:var(--ok);font-size:12px;line-height:1;display:none;
-    align-items:center;justify-content:center;cursor:pointer;padding:0}
-  .rev li:hover .okbtn{display:inline-flex;animation:pop 160ms cubic-bezier(.3,1.3,.4,1)}
-  .okbtn:hover{background:rgba(74,222,128,.26);transform:scale(1.08)}
+    background:rgba(74,222,128,.14);color:var(--ok);font-size:12px;line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+    opacity:0;transform:scale(.5);pointer-events:none;
+    transition:opacity 160ms cubic-bezier(.3,1.3,.4,1),transform 160ms cubic-bezier(.3,1.3,.4,1),
+      background var(--fast)}
+  .rev li:hover .okbtn{opacity:1;transform:scale(1);pointer-events:auto}
+  .rev li .okbtn:hover{background:rgba(74,222,128,.26);transform:scale(1.08)}
   @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
 
   .qtext{font-size:13px;color:var(--t1r);margin:2px 0 10px;line-height:1.45}
