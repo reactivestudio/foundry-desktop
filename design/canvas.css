@@ -87,14 +87,16 @@ a:hover { text-decoration: underline; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--space-6);
   padding: var(--space-10) 0;
+  /* Ритм задан не общим gap, а отбивками каждого блока: эйрбоу прижат к
+     заголовку (одна титульная единица), заголовок отбит от лида крупнее,
+     счётчики отбиты ещё крупнее и линуются во всю ширь — см. .cover-facts. */
 }
 
 /* Подпись над знаком — «Foundry», как эйрбоу лока. Тихо, чтобы знак не спорил
    с заголовком: сам логотип живёт в секции «Логотип», здесь только отсылка. */
 .cover-mark {
-  margin: 0;
+  margin: 0 0 var(--space-3);
   font-size: var(--type-heading-size);
   line-height: 1;
   font-weight: var(--type-display-weight);
@@ -105,7 +107,7 @@ a:hover { text-decoration: underline; }
    трекинг. Никакого градиента — знак продукта монохромен, янтарь у него только
    на плашке «AI», а не разлит по буквам. balance гасит висячее слово. */
 .cover h1 {
-  margin: 0;
+  margin: 0 0 var(--space-6);
   max-width: 18ch;
   font-size: var(--canvas-cover);
   line-height: 1.0;
@@ -126,14 +128,19 @@ a:hover { text-decoration: underline; }
 .cover .lede b { color: var(--text-primary); font-weight: var(--type-body-em-weight); }
 
 /* Счётчики обложки — не украшение: это состояние системы, посчитанное
-   при сборке. Числа табличные (04 §10). */
+   при сборке. Числа табличные (04 §10). Линуются во всю ширь колонки: под
+   левофлаговым мастхедом идёт полноширинная строка данных — она держит
+   правую половину обложки и оправдывает линейку во всю ширь над собой
+   (иначе линейка тянется в пустоту, к которой ничего не привязано). */
 .cover-facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-8);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-6);
+  margin-top: var(--space-10);
   padding-top: var(--space-5);
   border-top: 1px solid var(--border-subtle);
 }
+@media (max-width: 700px) { .cover-facts { grid-template-columns: repeat(2, 1fr); } }
 .cover-fact { display: flex; flex-direction: column; gap: var(--space-1); }
 .cover-fact b {
   font-size: var(--type-display-size);
