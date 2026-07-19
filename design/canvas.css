@@ -1061,8 +1061,15 @@ details.more > p { margin: var(--space-2) 0 0; padding: 0; color: var(--text-ter
 }
 .icon-sizes .r { color: var(--text-tertiary); font-size: var(--type-caption-size); line-height: var(--type-caption-leading); }
 
-/* Карта метафор: понятие — символ (моно, идентификатор) — почему (в меру). */
-.icon-map { width: 100%; border-collapse: collapse; }
+/* Карта метафор: понятие — символ (моно, идентификатор) — почему (в меру).
+   Таблица прижата к содержимому (не width: 100%): при растяжке во всю ширь
+   лишнее место уходило в неограниченную колонку SF Symbol, и между ней и
+   «Почему» вставала река пустоты (Бирман). Теперь пустое место — снаружи
+   справа, а не между колонок; колонка символа ограничена, и единственное
+   длинное трёхстадийное значение переносится по стрелкам, а не распирает
+   таблицу. «Почему» держит меру чтения. */
+.icon-map { border-collapse: collapse; }
+.icon-map td:nth-child(2) { max-width: 26ch; }
 @media (max-width: 760px) { .icon-map { display: block; overflow-x: auto; } }
 .icon-map th, .icon-map td { padding: var(--space-2) var(--space-3); text-align: left; vertical-align: baseline; }
 .icon-map thead th {
