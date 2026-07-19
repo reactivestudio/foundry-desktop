@@ -88,6 +88,13 @@ STACK = [('контакт',  3.0,  3, 1, -2, .42, (30, 24, 58)),
          ('дальняя', 38.0, 36, 5,  7, .24, (86, 80, 140)),
          ('амбиент', 68.0, 58, 7, 12, .10, (120, 114, 172))]
 
+# Вес слоёв тени под каждой иконкой — по STACK (контакт … амбиент).
+# app: тяжёлый тёмный орб, тень тонула в нём — усилены плотные ближние слои,
+#      предмет перестаёт парить. folder: светлая папка, резкий контакт бил в
+#      глаза — плотные слои приглушены, широкие целы, кромка мягче.
+SH_MUL = {'app':    (1.20, 1.18, 1.14, 1.10, 1.08),
+          'folder': (0.50, 0.68, 0.85, 1.00, 1.06)}
+
 HEAD = dict(Lh=9.8, Wd=4.1, notch=0.83)   # notch — ГДЕ вырез по оси, а не глубина:
 DOT, SPACING = 3.0, 7.5                   # 0.45 срезало бы спину на 55% в шеврон
 
@@ -138,17 +145,20 @@ def page_field(s):
     return img
 
 
-def _layer_alpha(s, icons, sigma, dy, dx, grow):
+def _layer_alpha(s, cx, icon, sigma, dy, dx, grow):
+    """Тень ОДНОГО силуэта на своём слое. Силуэты кладём порознь, а не в общий
+    холст: у каждой иконки свой вес слоёв (SH_MUL), а иконки далеко друг от
+    друга (208 и 496), их тени не пересекаются — раздельная обработка тождественна
+    прежней «max в холст → блюр»."""
     ws, hs = W * s, H * s
     canvas = np.zeros((hs, ws), np.float32)
-    for cx, icon in icons:
-        size = int(round((ICON + 2 * grow) * s))
-        m = np.asarray(icon.resize((size, size), Image.LANCZOS).split()[3],
-                       np.float32) / 255
-        x0 = int(round((cx - ICON // 2 - grow + dx) * s))
-        y0 = int(round((ICONY - grow + dy) * s))
-        h_, w_ = m.shape
-        canvas[y0:y0 + h_, x0:x0 + w_] = np.maximum(canvas[y0:y0 + h_, x0:x0 + w_], m)
+    size = int(round((ICON + 2 * grow) * s))
+    m = np.asarray(icon.resize((size, size), Image.LANCZOS).split()[3],
+                   np.float32) / 255
+    x0 = int(round((cx - ICON // 2 - grow + dx) * s))
+    y0 = int(round((ICONY - grow + dy) * s))
+    h_, w_ = m.shape
+    canvas[y0:y0 + h_, x0:x0 + w_] = m
     return fft_gauss(canvas, sigma * s)
 
 
@@ -156,12 +166,23 @@ def lay_shadows(img, s, icons):
     """Кладём от широкой к плотной: амбиент внизу, контакт сверху — так свет и
     убывает. Вторым возвращаем суммарную альфу: она нужна только для замеров.
 
+    Тень у каждой иконки СВОЯ по весу слоёв (SH_MUL). Не прихоть: тень читается
+    не сама по себе, а в контрасте с иконкой. Под почти чёрным орбом одинаковая
+    тень тонет (тёмное к тёмному) и тяжёлый предмет будто парит — ей добавлен
+    вес. Под светло-голубой папкой та же тень, наоборот, бьёт резкой кромкой —
+    у папки приглушены плотные ближние слои, край смягчён. Иконка `icons` —
+    (центр, картинка, ключ в SH_MUL).
+
     Подписи тени не боятся: при альфе 0.27 под подписью бумага даёт Y≈0.49, и
     чёрный текст на ней держит 10.8:1. Порог «альфа ниже 0.06» был выдуман.
     """
     total = np.zeros(img.shape[:2], np.float32)
-    for _, sigma, dy, dx, grow, alpha, tint in reversed(STACK):
-        a = _layer_alpha(s, icons, sigma, dy, dx, grow) * alpha
+    for li in range(len(STACK) - 1, -1, -1):        # амбиент → контакт
+        _, sigma, dy, dx, grow, alpha, tint = STACK[li]
+        a = np.zeros(img.shape[:2], np.float32)
+        for cx, icon, key in icons:
+            one = _layer_alpha(s, cx, icon, sigma, dy, dx, grow) * alpha * SH_MUL[key][li]
+            a = a + one - a * one                   # композит непересекающихся силуэтов
         img = img * (1 - a[..., None]) + np.float32(tint) * a[..., None]
         total = total + a - total * a
     return img, np.clip(total, 0, 1)
@@ -504,7 +525,7 @@ def render_mockup(bg2x, icons):
     win = Image.new('RGBA', (W * s, (H + TITLE) * s), (0, 0, 0, 0))
     win.paste(Image.new('RGB', (W * s, TITLE * s), (246, 246, 246)), (0, 0))
     content = bg2x.convert('RGBA')
-    for cx, ic in icons:
+    for cx, ic, _ in icons:
         content.alpha_composite(ic.resize((ICON * s, ICON * s), Image.LANCZOS),
                                 ((cx - ICON // 2) * s, ICONY * s))
     d = ImageDraw.Draw(content)
@@ -530,7 +551,7 @@ def render_mockup(bg2x, icons):
 
 
 if __name__ == '__main__':
-    icons = [(APPX, app_icon_rgba()), (DSTX, folder_icon_rgba())]
+    icons = [(APPX, app_icon_rgba(), 'app'), (DSTX, folder_icon_rgba(), 'folder')]
     bg1 = render_background(1, icons)
     bg1.save(OUT / 'background.png', dpi=(72, 72))
     bg2 = render_background(2, icons)
