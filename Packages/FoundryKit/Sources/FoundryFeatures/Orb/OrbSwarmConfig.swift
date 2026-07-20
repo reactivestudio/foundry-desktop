@@ -29,6 +29,44 @@ public struct OrbSwarmConfig: Equatable, Sendable {
     /// Потолок сверхвыборки: дальше растёт цена, а не качество.
     static let maxSupersample: Int = 8
 
+    /// Порог гладкости точки лоадера в пикселях буфера. Логотипу хватало просто
+    /// `minPointSize` (лишь бы драйвер рисовал), но у лоадера частицы мелкие и
+    /// редкие, каждая на виду — и жёсткий 2px-кружок читается ступеньками.
+    /// Сведение наращивается, пока точка в буфере не станет заметно крупнее, и
+    /// тогда сводится в гладкий кружок. При крупности 1px это даёт ×4.
+    static let glossPointSize: Float = 5.0
+
+    /// Лоадеры для мелких мест. В отличие от логотипа, где число частиц и их
+    /// крупность связаны заполненностью (`N = coverage/зерно²`), здесь они
+    /// РАЗВЯЗАНЫ: мало мелких частиц дают просветы — разрежённость, — а не то же
+    /// тело крупнее. Оба числа подобраны на глаз на живом стенде.
+    public enum Loader: String, CaseIterable, Sendable {
+        /// 32 pt: тело мелкое, потому плотнее — 0.13 частиц на пиксель.
+        case px32
+        /// 64 pt: площади вчетверо больше, потому реже — 0.05.
+        case px64
+
+        /// Натуральный размер лоадера в pt.
+        public var size: Float {
+            switch self {
+            case .px32: return 32
+            case .px64: return 64
+            }
+        }
+
+        /// Разрежённость: частиц на выходной пиксель. Разная у размеров нарочно —
+        /// на 64 при 0.13 было бы гуще, чем нужно, на 32 при 0.05 почти пусто.
+        var particlesPerPixel: Float {
+            switch self {
+            case .px32: return 0.13
+            case .px64: return 0.05
+            }
+        }
+
+        /// Крупность точки в пикселях экрана — мелкая, одна на оба размера.
+        var pointScreen: Float { 1.0 }
+    }
+
     /// Утверждённые эталоны зерна. Оба одобрены, отличаются только помолом.
     public enum Preset: String, CaseIterable, Sendable {
         /// Тонкий помол: зерно вдвое мельче лоадерного, рой читается пылью.
@@ -86,6 +124,41 @@ public struct OrbSwarmConfig: Equatable, Sendable {
         self.init(grain: preset.grain, size: size, scale: scale)
     }
 
+    /// Лоадер: число частиц и крупность заданы прямо и НЕЗАВИСИМО.
+    public init(loader: Loader, scale: Float) {
+        self.init(
+            particlesPerPixel: loader.particlesPerPixel,
+            pointScreen: loader.pointScreen, size: loader.size, scale: scale)
+    }
+
+    /// Развязанная раскладка: `particlesPerPixel` задаёт СКОЛЬКО частиц,
+    /// `pointScreen` — какой они КРУПНОСТИ, порознь. Зерно тут производное — оно
+    /// следствие крупности, а не наоборот, как у логотипа.
+    public init(particlesPerPixel: Float, pointScreen: Float, size: Float, scale: Float) {
+        self.size = size
+        self.scale = scale
+
+        let out = max(1, Int((size * scale).rounded()))
+        self.output = out
+        self.count = max(1, Int((particlesPerPixel * Float(out * out)).rounded()))
+
+        // Сведение — под гладкость мелкой точки, а не под порог рисования.
+        var ss = 1
+        while ss < Self.maxSupersample,
+            pointScreen * scale * Float(ss) < Self.glossPointSize
+        {
+            ss *= 2
+        }
+        self.supersample = ss
+        self.buffer = out * ss
+
+        let pt = pointScreen * scale * Float(ss)  // экранные px → px буфера
+        self.pointSize = pt
+        // Крупность как доля тела — нужна порогу fps и как справка.
+        self.grain = pt / (Self.orb * Self.zoom * Float(buffer))
+        self.flickers = pt < Self.minPointSize
+    }
+
     public init(grain: Float, size: Float, scale: Float) {
         self.grain = grain
         self.size = size
@@ -111,6 +184,17 @@ public struct OrbSwarmConfig: Equatable, Sendable {
 
     /// Размер точки в точках экрана — то, что видит глаз.
     public var pointSizeOnScreen: Float { pointSize / (scale * Float(supersample)) }
+
+    /// Частота, ниже которой рой шагает: сдвиг частицы за кадр = её диаметру.
+    ///
+    /// Порог ∝ 1/зерно (крупность как доля тела): крупнее частица — медленнее
+    /// морф двигает её относительно её ширины. Якорь — `standard` (зерно 1.008%,
+    /// 41 fps), из него и `fine` 82, и лоадеры выходят одной формулой. У мелких
+    /// лоадеров частица крупна в долях крошечного тела, поэтому порог низкий:
+    /// 32 — около 7 fps, 64 — около 13, оба берутся 60 Гц с запасом.
+    public var minimumFramesPerSecond: Int {
+        Int((41 * 0.01008 / grain).rounded())
+    }
 
     /// Частиц на один выходной пиксель.
     public var particlesPerPixel: Float { Float(count) / Float(output * output) }
