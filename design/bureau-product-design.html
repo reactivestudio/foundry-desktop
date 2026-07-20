@@ -162,6 +162,54 @@ a:hover { text-decoration: underline; }
   text-wrap: pretty;
 }
 
+.brief { margin-top: var(--space-3); }
+.theses {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: var(--measure);
+  color: var(--text-secondary);
+}
+.theses li { margin-top: var(--space-1); padding-left: var(--space-5); text-wrap: pretty; }
+.theses li::before {
+  content: "—";
+  margin-left: calc(var(--space-5) * -1);
+  margin-right: var(--space-2);
+  color: var(--text-tertiary);
+}
+.figs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+.figs figure { margin: 0; flex: 0 1 320px; max-width: 360px; }
+.figs img {
+  display: block;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  max-height: 400px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--border-default);
+}
+.figs figcaption {
+  margin-top: var(--space-1);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+  color: var(--text-tertiary);
+  text-wrap: pretty;
+}
+.digest dd img {
+  display: block;
+  max-width: 280px;
+  width: 100%;
+  height: auto;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-m);
+  border: 1px solid var(--border-default);
+}
+
 .demos {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--frame-min), 1fr));
@@ -416,6 +464,23 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150720/">«От&nbsp;чего зависит успех продукта?»</a></span>
     </div>
     <p class="statement">«В&nbsp;мире полно коммерчески успешных продуктов с&nbsp;отвратительным, непродуманным, равнодушным и&nbsp;даже издевательским дизайном» — и&nbsp;не&nbsp;меньше утонувших с&nbsp;прекрасным. Успех определяет не&nbsp;интерфейс, а&nbsp;что-то другое.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«В&nbsp;мире полно коммерчески успешных продуктов с&nbsp;отвратительным, непродуманным, равнодушным и&nbsp;даже издевательским дизайном».</li>
+        <li>«К&nbsp;сожалению, не&nbsp;меньше примеров „прогоревших“ продуктов с&nbsp;отличным дизайном» — такие проекты есть в&nbsp;практике каждого дизайнера.</li>
+        <li>«Когда идеалы разбиваются, нужно искать новые» — принципы Рамса верны, но&nbsp;успеха не&nbsp;объясняют.</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20150720-159.jpg" alt="Альфа-Ромео 159" loading="lazy">
+          <figcaption>Альфа-Ромео 159 — «автомобиль, который нравится всем»: прекрасный дизайн, коммерческий провал.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20150720-safelyremovewindow-2.png" alt="Окно безопасного извлечения флешки в Виндоусе" loading="lazy">
+          <figcaption>Виндоус: чтобы вынуть флешку — выбрать её из&nbsp;списка из&nbsp;одного пункта и&nbsp;нажать «Стоп». Издевательский дизайн успешного продукта.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -450,6 +515,23 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150817/">«От&nbsp;чего зависит успех продукта? Продолжение»</a></span>
     </div>
     <p class="statement">Интерфейс — прослойка между продуктом и&nbsp;человеком, «та&nbsp;же трансмиссия»: каждая лишняя передача теряет аудиторию, деньги и&nbsp;время. Дизайнер продукта ищет, какие передачи выкинуть.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«По&nbsp;определению интерфейс — это прослойка между объектами. Пользовательский интерфейс — прослойка между продуктом и&nbsp;человеком».</li>
+        <li>«Продукт будет успешен, если в&nbsp;его основе лежит работоспособная система».</li>
+        <li>«Интерфейс — зло. Дизайнер продукта ищет способы избавиться от&nbsp;лишних конструкций и&nbsp;сценариев в&nbsp;системе, чтобы повысить её работоспособность».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20150817-wrangler.jpg" alt="Джип Вранглер с точки зрения колеса" loading="lazy">
+          <figcaption>С&nbsp;точки зрения колеса весь автомобиль — «маленькая ржавая штуковина на&nbsp;пяти болтах»; суть продукта — в&nbsp;работоспособной системе.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20150817-protean.jpg" alt="Мотор-колесо Протеан" loading="lazy">
+          <figcaption>Мотор-колесо Протеан: двигатель прямо в&nbsp;колесе, без трансмиссии и&nbsp;потерь.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -485,6 +567,14 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150831/">«Признаки работоспособной системы»</a></span>
     </div>
     <p class="statement">«Работоспособная система — система, выполняющая своё полезное действие в&nbsp;течение ожидаемого времени». Признака четыре: формула, целостность, ресурсы, образование — провал прячется в&nbsp;любом из&nbsp;них.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Работоспособная система — система, выполняющая своё полезное действие в&nbsp;течение ожидаемого времени».</li>
+        <li>«Если у&nbsp;самолёта в&nbsp;полёте отвалятся крылья, никого не&nbsp;будут волновать его блестящие лётные характеристики».</li>
+        <li>«При анализе у&nbsp;успешных продуктов можно найти все четыре сильных свойства, а&nbsp;у&nbsp;неудачных — недостатки в&nbsp;одном или нескольких критериях работоспособности».</li>
+        <li>«Fire: formula, integrity, resources, education. Файр, чтобы продукт выстрелил!»</li>
+      </ul>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -525,7 +615,21 @@ a:hover { text-decoration: underline; }
       <h3>Без «потому что» не&nbsp;нажмётся ни&nbsp;одна кнопка</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150914/">«Формула работоспособной системы»</a></span>
     </div>
-    <p class="statement">Формула системы — одно предложение: «Элемент взаимодействует с&nbsp;другим элементом, потому что действует сила». Без силы-мотива «не&nbsp;заполнится ни&nbsp;одна форма на&nbsp;сайте, не&nbsp;нажмётся ни&nbsp;одна кнопка в&nbsp;приложении».</p>
+    <p class="statement">Формула системы — одно предложение: элемент взаимодействует с&nbsp;другим, потому что действует сила; эталон — «Проточная вода вращает колесо с&nbsp;жерновами, поэтому жернова мелют зерно». Без силы-мотива «не&nbsp;заполнится ни&nbsp;одна форма на&nbsp;сайте, не&nbsp;нажмётся ни&nbsp;одна кнопка в&nbsp;приложении».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«И&nbsp;дальше после предлога „потому что“ идёт самое важное» — сила.</li>
+        <li>«Без этого продолжения не&nbsp;заработает ни&nbsp;один стартап, не&nbsp;продастся ни&nbsp;один продукт, не&nbsp;заполнится ни&nbsp;одна форма на&nbsp;сайте, не&nbsp;нажмётся ни&nbsp;одна кнопка в&nbsp;приложении».</li>
+        <li>«В&nbsp;продуктах для людей источником энергии служит мотив, инстинкт, потребность, чувство, воспитание и&nbsp;культурная традиция человека».</li>
+        <li>«Это система с&nbsp;обратной связью. Советую запомнить эту формулу» — «Продавец прицельно предлагает потребителю то, что он хочет, потому что использует историю его покупок».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20151012-080-afisha.png" alt="Кнопка «Присоединиться» на Яндекс-афише" loading="lazy">
+          <figcaption>Кнопка «Присоединиться» на&nbsp;Яндекс-афише: на&nbsp;хиты проката «идут» единицы людей — силы нет (пример из&nbsp;совета о&nbsp;целостности той&nbsp;же подборки).</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -573,6 +677,23 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20151012/">«Целостность работоспособной системы»</a></span>
     </div>
     <p class="statement">Совместная работа элементов — самостоятельное качество, важнее безупречных винтиков. Система гибнет, когда рвётся поток информации и&nbsp;энергии через подсистемы критического контура — как «Покупатор», чьи заявки уходили в&nbsp;никуда.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Совместная работа элементов и&nbsp;подсистем — это самостоятельное качество. Оно важнее безупречного дизайна отдельных винтиков».</li>
+        <li>«Система потеряет работоспособность, если нарушится поток информации, ресурсов и&nbsp;энергии через подсистемы, от&nbsp;которых зависит её полезное действие».</li>
+        <li>«Единственная задача подсистемы интерфейса — обеспечить проход информации между другими подсистемами. Идеально, если информация пройдёт напрямую».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20151012-googleslider.png" alt="Ползунок-«расчёска» Гугль-карт" loading="lazy">
+          <figcaption>Ползунок-«расчёска» Гугль-карт: страшный сам по&nbsp;себе, но&nbsp;дающий мгновенную обратную связь — целостность бьёт полировку.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20151012-082-lastfm-profile.png" alt="Профиль пользователя Ласт.фм со списком концертов" loading="lazy">
+          <figcaption>Профиль пользователя Ласт.фм со&nbsp;списком концертов — «сквозной проход тщеславия».</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -584,7 +705,7 @@ a:hover { text-decoration: underline; }
             <p class="meta" style="margin-top:var(--space-2);">агент эту панель не&nbsp;читает</p>
           </div>
         </div>
-        <p class="cap">Замечания копятся в&nbsp;отдельной подсистеме, до&nbsp;агента не&nbsp;доходят — пользователь ждёт реакции, «заявки уходят в&nbsp;никуда». Разрыв критического контура.</p>
+        <p class="cap">Замечания копятся в&nbsp;отдельной подсистеме, до&nbsp;агента не&nbsp;доходят — пользователь ждёт реакции, а&nbsp;заявки уходят «в&nbsp;никуда». Разрыв критического контура.</p>
       </div>
       <div class="frame good">
         <div class="f-head"><span class="f-verdict">Хорошо</span></div>
@@ -621,6 +742,24 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20151026/">«Ресурсы работоспособной системы»</a></span>
     </div>
     <p class="statement">«От&nbsp;водяной мельницы мало толку в&nbsp;Сахаре»: систему кормят подведённые ресурсы, а&nbsp;топология меняется вслед за&nbsp;их дефицитом и&nbsp;избытком. Преждевременная рубрикация оставляет комментатора в&nbsp;одиночестве; лучший ресурс — бесплатный.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Топология — схема движения ресурсов в&nbsp;системе. Топология должна меняться, когда какой-то ресурс становится дефицитным или наоборот, избыточным».</li>
+        <li>«Делаете систему комментариев к&nbsp;каждому абзацу документа? Комментатору будет одиноко».</li>
+        <li>«Изобретательный дизайнер, инженер или бизнесмен достигает полезное действие бесплатно — без дополнительных ресурсов».</li>
+        <li>«Важнейший ресурс работоспособной системы — воля её создателя».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20151026-lenta2.jpg" alt="Этажи старой Ленты.ру" loading="lazy">
+          <figcaption>Этажи старой Ленты.ру: формат новостного комбината, убийственный для маленькой редакции — «кладбище новостей недельной давности».</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20151026-pochtosbornik.png" alt="Почтосборник бюро" loading="lazy">
+          <figcaption>Почтосборник бюро: подсистема, которая только собирает ресурс — адреса интересующихся.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -670,6 +809,24 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20151109/">«Образование в&nbsp;работоспособной системе»</a></span>
     </div>
     <p class="statement">Новый продукт неизбежно разрывает с&nbsp;привычками потребителя — колючую проволоку не&nbsp;покупали, пока Гейтс не&nbsp;показал её с&nbsp;коровами. Разрыв гасят работоспособные элементы обучения: демонстрация, скевоморфизм, туториал в&nbsp;процессе.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Опередил своё время» — не&nbsp;комплимент: «это значит, что новые знания не&nbsp;были поняты современниками, продукты с&nbsp;треском провалились, а&nbsp;их авторы умерли, не&nbsp;дождавшись признания».</li>
+        <li>«Новый предмет воспринимается как угроза комфорту».</li>
+        <li>Скевоморфизм — «сохранение в&nbsp;новых предметах внешнего вида, напоминающего устаревшие, но&nbsp;привычные предметы. Этот приём сокращает культурный разрыв чисто визуальными средствами».</li>
+        <li>«Айфон не&nbsp;стал опережать время, просто наступило будущее».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20151109-sqeuo.png" alt="Календарь старой АйОС с кожаным переплётом" loading="lazy">
+          <figcaption>Календарь старой АйОС с&nbsp;кожаным переплётом — скевоморфизм сокращает культурный разрыв.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20151109-alto.jpg" alt="Игра «Приключение Альто»" loading="lazy">
+          <figcaption>Игра «Приключение Альто»: обучение прямо в&nbsp;процессе игры вместо инструкции.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -702,7 +859,7 @@ a:hover { text-decoration: underline; }
             <p style="font-family:var(--font-mono);">ревью · teardown · ждёт вердикта</p>
           </div>
         </div>
-        <p class="cap">Пользователь освоился — интерфейс «аккуратно сбрасывает шелуху»: плотный режим без карточной метафоры. Не&nbsp;опередить время, а&nbsp;дождаться будущего.</p>
+        <p class="cap">Пользователь освоился — интерфейс «аккуратно сбросил шелуху»: плотный режим без карточной метафоры. Не&nbsp;опередить время, а&nbsp;дождаться будущего.</p>
       </div>
     </div>
   </article>
@@ -714,6 +871,20 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20151207/">«Как использовать FIRE вместе, ч.&nbsp;1»</a></span>
     </div>
     <p class="statement">Формула автодилера: «рекомендуем пользователю сайта автомобили, используя знания о&nbsp;нём самом, об&nbsp;автомобилях и&nbsp;о&nbsp;мире». Знания — информационный ресурс: копятся с&nbsp;каждым кликом, хранятся «в&nbsp;виде списка взвешенных тегов» и&nbsp;достаются бесплатно.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Правильный вопрос — как показать пользователю именно тот автомобиль, который его заинтересует?»</li>
+        <li>«Знания хранятся, например, в&nbsp;виде списка взвешенных тегов».</li>
+        <li>«Лучшие знания об&nbsp;автомобилях — у&nbsp;менеджеров по&nbsp;продажам, а&nbsp;не&nbsp;в&nbsp;технических спецификациях» — теги «невидимые для пользователя и&nbsp;поэтому, возможно, циничные».</li>
+        <li>«Лучшие ресурсы — бесплатные».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20151207-knowledge-people.png" alt="Портреты покупателей как облака взвешенных тегов" loading="lazy">
+          <figcaption>Портреты покупателей как облака взвешенных тегов: знания о&nbsp;человеке, накопленные по&nbsp;кликам.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -747,7 +918,21 @@ a:hover { text-decoration: underline; }
       <h3>Три визита — в&nbsp;один</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20151221/">«Как использовать FIRE вместе, ч.&nbsp;2»</a></span>
     </div>
-    <p class="statement">Покупка машины требовала трёх визитов в&nbsp;салон — целостная система сводит их к&nbsp;одному: «приезжаешь только за&nbsp;автомобилем». Между подсистемами информация ходит свободно, а&nbsp;«хороший дизайн услуг улучшает сервис и&nbsp;снижает издержки».</p>
+    <p class="statement">Покупка машины требовала трёх визитов в&nbsp;салон — целостная система сводит их к&nbsp;одному — приезжаешь только за&nbsp;автомобилем. Между подсистемами информация ходит свободно, а&nbsp;«хороший дизайн услуг улучшает сервис и&nbsp;снижает издержки».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«В&nbsp;целостной системе каждая подсистема должна быть эффективна, а&nbsp;между ними должны свободно проходить информация, ресурсы и&nbsp;энергия».</li>
+        <li>«Помимо удобства для покупателя мы снижаем нагрузку на&nbsp;продавцов в&nbsp;салоне. Хороший дизайн услуг улучшает сервис и&nbsp;снижает издержки».</li>
+        <li>«Образовательные элементы должны объединяться с&nbsp;остальными в&nbsp;целостную систему. Недостаточно опубликовать статьи и&nbsp;обзоры где-то на&nbsp;сайте».</li>
+        <li>«Покупатель иногда приходит за&nbsp;Опелем, а&nbsp;уезжает на&nbsp;Шкоде».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20151221-perlamutr.png" alt="«Соседние» модели вокруг Опеля Астры" loading="lazy">
+          <figcaption>«Соседние» модели вокруг Опеля Астры: скромнее, круче, прагматичнее, комфортнее — выбор без каталога.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -783,6 +968,20 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160104/">«Как использовать FIRE вместе, ч.&nbsp;3»</a></span>
     </div>
     <p class="statement">«Банки не&nbsp;говорят на&nbsp;языке клиента, а&nbsp;клиенты вынуждены учить банковскую терминологию». Лестница качества: плохо — термин, хорошо — польза в&nbsp;мире человека, лучше — термин исчезает вовсе, роскошно — система подсказывает сама.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Банки не&nbsp;говорят на&nbsp;языке клиента, а&nbsp;клиенты вынуждены учить банковскую терминологию… Это не&nbsp;в&nbsp;мире клиента».</li>
+        <li>«Плохо — говорить „установите лимит овердрафта“. Хорошо — рассказывать об&nbsp;услугах увлекательно и&nbsp;в&nbsp;мире человека: „Вы&nbsp;заработаете через полгода столько-то, если переведёте столько-то со&nbsp;счёта на&nbsp;вклад“».</li>
+        <li>«Ещё лучше — вообще не&nbsp;использовать слово „вклад“, а&nbsp;дать клиенту создать просто виртуальную ячейку с&nbsp;особыми условиями. Роскошно — подсказать, как накопить на&nbsp;дом, машину и&nbsp;образование детей».</li>
+        <li>«Новым банковским эплом станет тот, кто первым заговорит и&nbsp;заработает в&nbsp;мире клиента».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/fire/20160104-expenses-categs.png" alt="Расходы клиента, разбитые на категории" loading="lazy">
+          <figcaption>Расходы клиента, разбитые на&nbsp;категории: деньги учитываются сами, без дисциплины ввода.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -806,7 +1005,7 @@ a:hover { text-decoration: underline; }
             <div class="btn-row" style="justify-content:flex-start; margin-top:var(--space-3);"><span class="btn">Включить</span></div>
           </div>
         </div>
-        <p class="cap">Услуга рассказана в&nbsp;мире человека — что он получит и&nbsp;чем заплатит, как «вы&nbsp;заработаете столько-то, если переведёте на&nbsp;вклад».</p>
+        <p class="cap">Услуга рассказана в&nbsp;мире человека — что он получит и&nbsp;чем заплатит, как «Вы&nbsp;заработаете через полгода столько-то, если переведёте столько-то со&nbsp;счёта на&nbsp;вклад».</p>
       </div>
       <div class="frame better">
         <div class="f-head"><span class="f-verdict">Лучше</span></div>
@@ -839,6 +1038,28 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160411/">«Динамизация, ч.&nbsp;1: распилить и&nbsp;связать»</a></span>
   </div>
   <p class="statement">«Постоянство и&nbsp;неподвижность — это застой. Изменение и&nbsp;движение — прогресс». Простейшая динамизация — распилить жёсткое целое на&nbsp;части и&nbsp;соединить их подвижной связью: система становится компактнее и&nbsp;получает новые качества.</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Всё, что когда-то было жёстким и&nbsp;застывшим, становится гибким и&nbsp;подвижным. Этот неизбежный процесс называется „динамизацией“».</li>
+      <li>Дробление не&nbsp;обязано быть механическим: модульная вёрстка — логическое деление формата на&nbsp;модули, «при этом макет остаётся цельной системой»; на&nbsp;экране соединение модулей может быть подвижным — разделитель фреймов перетаскивается мышью.</li>
+      <li>«Обыкновенное колесо — по&nbsp;сути шарнир между телегой и&nbsp;дорогой» — гибкое соединение можно вводить и&nbsp;без дробления, между элементом и&nbsp;внешней средой.</li>
+      <li>Соединение бывает не&nbsp;только вращательным, но&nbsp;и&nbsp;скользящим: в&nbsp;Айфоне поверхность между списком и&nbsp;телефоном стала «скользящей» — «элементы свободно листаются пальцем без лишнего трения».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160411-nokia.jpg" alt="Нокия 3310 — монолитный корпус" loading="lazy">
+        <figcaption>Нокия 3310 — монолитный корпус высотой 113&nbsp;мм, точка отсчёта до&nbsp;«распила».</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160411-v50.png" alt="Моторола Ви-50 — раскладушка с шарниром" loading="lazy">
+        <figcaption>Моторола Ви-50 — корпус «распилен» на&nbsp;экран и&nbsp;клавиатуру и&nbsp;связан шарниром: в&nbsp;сложенном виде 83&nbsp;мм.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160411-resize-frame.png" alt="Панель закладок Сафари с перетаскиваемым разделителем" loading="lazy">
+        <figcaption>«Резиновая» панель закладок Сафари — разделитель фреймов перетаскивается мышью: подвижное соединение модулей на&nbsp;экране.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -883,6 +1104,24 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160509/">«Динамизация, ч.&nbsp;2: предельное дробление»</a></span>
   </div>
   <p class="statement">Дробление, доведённое до&nbsp;предела, превращает твёрдый объект в&nbsp;цепь, а&nbsp;затем в&nbsp;верёвку — гибкую в&nbsp;каждой точке. «Статичное и&nbsp;твёрдое превращается в&nbsp;песок, жидкость, газ, гибкую субстанцию — и&nbsp;необязательно физическую».</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Сильные дизайнерские решения парадоксальны, поэтому разрешают противоречия, обостряя их до&nbsp;предела. Они соединяют два противоречащих друг другу свойства, состояния, утверждения».</li>
+      <li>Цепь «целиком сделана из&nbsp;металла, но&nbsp;благодаря конструкции она твёрдая и&nbsp;мягкая одновременно» — провисает гибко, натягивается в&nbsp;жёсткий стержень.</li>
+      <li>Верёвка «гнётся в&nbsp;каждой точке и&nbsp;скользит по&nbsp;блокам и&nbsp;кольцам. Это суперизобретение человечества, передающее и&nbsp;регулирующее силу вдоль произвольной линии, меняющей направление сколько угодно раз».</li>
+      <li>«Статичная вёрстка сайта становится резиновой, текст ведёт себя как жидкость» — а&nbsp;гибкий экран Горбунов называет «мало кем осознаваемым суперпотенциалом».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160509-hand.jpg" alt="Игрушечная хваталка на шарнирном пантографе" loading="lazy">
+        <figcaption>Игрушечная хваталка на&nbsp;шарнирном пантографе — множественное дробление и&nbsp;связывание, «игрушки, перед которыми не&nbsp;могут устоять дети».</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160509-t1000.jpg" alt="Т1000 из «Терминатора-2» — жидкий металл" loading="lazy">
+        <figcaption>Т1000 — предел динамизации: гомогенная «умная жидкость», все части выполняют все функции.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -928,6 +1167,23 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160523/">«Динамизация, ч.&nbsp;3: динамизация связей»</a></span>
   </div>
   <p class="statement">Жёстко заданные маршруты сменяются связями, которые создаются и&nbsp;разрушаются по&nbsp;необходимости, — как транзистор вместо рубильника и&nbsp;пир-ту-пир вместо «звезды». «Динамизация связей между элементами повышает целостность системы».</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>Транзистор — «по&nbsp;сути выключатель, управляемый током»: «Транзистор динамизировал связи в&nbsp;цепи и&nbsp;открыл путь программированию, кибернетике и&nbsp;искусственному интеллекту».</li>
+      <li>В&nbsp;пир-ту-пир «связи произвольно создаются и&nbsp;разрушаются», сеть «практически невозможно вывести из&nbsp;строя, потому что каждая связь и&nbsp;любое их подмножество не&nbsp;входит в&nbsp;критический контур» — этим объясняется живучесть торрентов.</li>
+      <li>«Гиперссылка в&nbsp;вебе связывает любые места текста в&nbsp;любых материалах и&nbsp;документах, и&nbsp;что важно, даёт к&nbsp;ним немедленный доступ» — против жёсткого порядка изложения традиционной книги.</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160523-network-star.png" alt="Топология «звезда»: все узлы связаны с сервером" loading="lazy">
+        <figcaption>Клиент—сервер: информация ходит по&nbsp;жёстким централизованным маршрутам, сервер — единая точка отказа.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160523-network-p2p.png" alt="Пир-ту-пир: узлы связаны произвольно" loading="lazy">
+        <figcaption>Пир-ту-пир: связи произвольно создаются и&nbsp;разрушаются, ни&nbsp;одна не&nbsp;входит в&nbsp;критический контур.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -966,6 +1222,24 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160627/">«Динамизация, ч.&nbsp;4: динамизация взаимодействия»</a></span>
   </div>
   <p class="statement">Изменяемы не&nbsp;только «существительные»-элементы, но&nbsp;и&nbsp;«глаголы» — взаимодействие: сначала импульсами и&nbsp;ритмом, затем — динамизация «второго порядка» — плавными профилями и&nbsp;адаптивными алгоритмами.</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Мигающий или прерывающийся сигнал гораздо заметнее постоянного» — самое простое: изменять взаимодействие во&nbsp;времени, импульсами.</li>
+      <li>«В&nbsp;длинных произведениях воздействие всегда динамизировано: мощные атаки чередуются со&nbsp;спокойными интервалами». «Вариации силы воздействия помогают сохранить внимание зрителя, слушателя или читателя, не&nbsp;утомить его и&nbsp;подготовить к&nbsp;вкусным ярким моментам».</li>
+      <li>«Звук, изображение и&nbsp;движение, построенные на&nbsp;идеальных прямоугольных импульсах, воспринимаются человеком неестественно» — поэтому «от простых импульсов переходят к&nbsp;плавным профилям — получается динамизация „второго порядка“».</li>
+      <li>«В&nbsp;пользовательском интерфейсе — анимацией, сглаживающими функциями, адаптивными алгоритмами уведомлений и&nbsp;индикации» — чем динамизируют взаимодействие в&nbsp;интерфейсах.</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160627-profile-square.png" alt="Прямоугольный цифровой импульс" loading="lazy">
+        <figcaption>Идеальный цифровой импульс — прямоугольная форма: включено/выключено без переходов, воспринимается неестественно.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160627-profile-eased.png" alt="Аналоговый импульс с плавным нарастанием и затуханием" loading="lazy">
+        <figcaption>Физический аналоговый импульс — фазы плавного нарастания и&nbsp;затухания: образец для динамизации «второго порядка».</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1010,6 +1284,28 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160711/">«Динамизация, ч.&nbsp;5: динамизация функций»</a></span>
   </div>
   <p class="statement">Функции продукта растут по&nbsp;той&nbsp;же схеме «две, много, бесконечно»: антифункция, швейцарский нож — и, наконец, инструмент без конкретного предназначения: «у&nbsp;компьютера нет одной конкретной функции — их бесконечно много».</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«У&nbsp;продуктов, выполняющих одно дело, со&nbsp;временем появляется вторая, третья и&nbsp;десятая функция».</li>
+      <li>«Самый простой способ удвоить функциональность — добавить симметричную антифункцию».</li>
+      <li>«Как ножом не&nbsp;только режут, по&nbsp;телефону не&nbsp;только звонят» — швейцарский нож как эталон «много функций».</li>
+      <li>«Персональный компьютер — первый в&nbsp;истории человечества инструмент, не&nbsp;имеющий конкретного предназначения» — а&nbsp;настоящая революция смартфона — магазин сторонних приложений.</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160711-u-toilet.png" alt="Указатель-перевёртыш бюро для навигации «Сенсум»" loading="lazy">
+        <figcaption>Указатель-перевёртыш бюро для «Сенсума» — знак работает любой стороной: функция и&nbsp;антифункция в&nbsp;одном предмете.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160711-swissarmyknife.jpg" alt="Швейцарский армейский нож Викторинокс" loading="lazy">
+        <figcaption>Швейцарский армейский нож Викторинокс — эталон «много функций» в&nbsp;одном инструменте.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160711-3devices.jpg" alt="Презентация Айфона в 2007 году" loading="lazy">
+        <figcaption>Презентация Айфона в&nbsp;2007 году — «айпод, телефон, интернет» слились в&nbsp;один продукт; революцию довершил Апстор.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1060,6 +1356,24 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160725/">«Динамизация, ч.&nbsp;6: инструмент дизайнера»</a></span>
   </div>
   <p class="statement">Рабочий метод: взять любую константу продукта и&nbsp;«сделать постоянное переменным» — в&nbsp;идеале переменная сама подстраивается под&nbsp;режим работы. Закон настолько силён, что предсказывает изменения продуктов, «смысл которых заранее непонятен».</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«С&nbsp;ходом прогресса любая константа становится переменной».</li>
+      <li>«Легко взять любой объект, представить себе его изменяемым и&nbsp;подумать, что из&nbsp;этого выйдет полезного». «Скорее всего, вы получите изобретение, которое уже существует, что лишь доказывает работу закона динамизации».</li>
+      <li>«Иконка календарика меняется каждый день и&nbsp;показывает именно сегодняшнюю, а&nbsp;не&nbsp;набранную дизайнером в&nbsp;Фотошопе дату — это тоже динамизация».</li>
+      <li>«Идеально, если такая переменная сама подстраивается под&nbsp;режим работы» — парктроник снижает громкость музыки у&nbsp;препятствия, подсветка клавиатуры зависит от&nbsp;освещения.</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160725-iphone-icons.jpg" alt="Домашний экран Айфона с живыми иконками" loading="lazy">
+        <figcaption>Домашний экран Айфона — динамизированы и&nbsp;иконки (календарь показывает сегодняшнюю дату), и&nbsp;подписи к&nbsp;ним.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/dinamizatsiya/20160725-popularis.gif" alt="Клавиатура «Оптимус Популярис» с экранами в клавишах" loading="lazy">
+        <figcaption>Клавиатура «Оптимус Популярис» Студии Лебедева — клавиши меняют функции и&nbsp;изображения: константа клавиатуры стала переменной.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1114,6 +1428,23 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160822/">«Расскажите об&nbsp;управляемости. Часть первая»</a></span>
     </div>
     <p class="statement">«Человек стремится превращать неуправляемый хаос в&nbsp;управляемый порядок». Управление возможно при двух условиях: объект поддаётся управлению, а&nbsp;у&nbsp;управляющего есть способы получить информацию, принять и&nbsp;передать решение.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Стремление человека к&nbsp;управлению безгранично, а&nbsp;управляемым можно сделать любой объект».</li>
+        <li>«Во-первых, объект должен поддаваться управлению, во-вторых, у&nbsp;управляющего должны быть способы получить информацию, принять и&nbsp;передать управляющее решение» — два условия управления.</li>
+        <li>«„Сделать в&nbsp;шутку“ — мощный дизайнерский приём» — шкалу погоды Яндекс сделал двигаемой в&nbsp;шутку: Роме Воронежскому «хотелось её подвигать».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20160822-scale.png" alt="Шкала температуры в прогнозе Яндекса" loading="lazy">
+          <figcaption>Шкала температуры в&nbsp;прогнозе Яндекса (2004) выглядела как ползунок.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20160822-scale-operated.png" alt="Шкала с отметкой текущей температуры" loading="lazy">
+          <figcaption>Та&nbsp;же шкала с&nbsp;отметкой текущей температуры — «хочется подвигать».</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1147,6 +1478,23 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160905/">«Часть вторая: видоизменить элемент»</a></span>
     </div>
     <p class="statement">Дешевле всего повысить управляемость, не&nbsp;меняя ни&nbsp;состав, ни&nbsp;связи: видоизменить один элемент — сделать прозрачным, пометить, надписать. «После пометки достаточно контролировать только помеченный элемент, а&nbsp;не&nbsp;всю систему».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Дешевле всего улучшить систему, не&nbsp;заменяя в&nbsp;ней ни&nbsp;один элемент и&nbsp;не&nbsp;изменяя отношения между ними».</li>
+        <li>«Контроль — важнейшая часть управления. Поэтому чтобы повысить управляемость, какой-нибудь элемент часто нужно сделать прозрачным».</li>
+        <li>«„Пометить“, „маркировать“, „надписать“, „обозначить“ — дешёвый или бесплатный способ повысить управляемость системы без изменения принципа её работы».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20160905-1920.jpg" alt="Непрозрачная антикварная газовая печь 1920-х" loading="lazy">
+          <figcaption>Непрозрачная газовая печь 1920-х — глухой чёрный ящик.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20160905-2016.jpg" alt="Прозрачная двойная печь Дженерал Электрик 2016 года" loading="lazy">
+          <figcaption>Прозрачная печь «Дженерал Электрик» 2016 года — элемент видоизменён.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1191,6 +1539,27 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160919/">«Часть третья: добавить элемент»</a></span>
     </div>
     <p class="statement">Когда видоизменения мало, управляемость повышают добавлением элемента — ручки, противовеса, кнопки. Банер без&nbsp;кнопки глушит желание читателя: «его желание не&nbsp;находит выхода», а&nbsp;с&nbsp;кнопкой — «читатель знает, что делать».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Как чемодан без ручки: нести тяжело, а&nbsp;бросить жалко» — народная формула неуправляемости.</li>
+        <li>«Ручку можно получить добавлением дырки, то&nbsp;есть пустоты».</li>
+        <li>«Ручка как&nbsp;бы разрешает вам прикоснуться к&nbsp;компьютеру… Стив… сразу увидел, что ручка сделает Аймак более понятным и&nbsp;забавным» — Джони Айв о&nbsp;ручке Аймака.</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20160919-mac-handle.jpg" alt="Ручка Аймака" loading="lazy">
+          <figcaption>Ручка Аймака — предмет стал «ручным».</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20160919-infoscroll.png" alt="Инфоскроллер: пометки на полосе прокрутки" loading="lazy">
+          <figcaption>Инфоскроллер: пометки превращают полосу прокрутки в&nbsp;представление содержания.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20160919-ad-button.jpg" alt="Банер с добавленной кнопкой" loading="lazy">
+          <figcaption>Банер с&nbsp;добавленной кнопкой — желание читателя находит выход.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1206,7 +1575,7 @@ a:hover { text-decoration: underline; }
             <div class="btn-row" style="justify-content:flex-start; margin-top:var(--space-2);"><span class="btn">Открыть дифф</span><span class="btn btn-primary">Принять</span></div>
           </div>
         </div>
-        <p class="cap">То&nbsp;же уведомление с&nbsp;кнопками — «банер заработал»: у&nbsp;желания появился выход.</p>
+        <p class="cap">То&nbsp;же уведомление с&nbsp;кнопками — «банер заработает лучше»: у&nbsp;желания появился выход.</p>
       </div>
       <div class="frame better">
         <div class="f-head"><span class="f-verdict">Лучше</span></div>
@@ -1234,7 +1603,24 @@ a:hover { text-decoration: underline; }
       <h3>Добавить энергию: без&nbsp;самодвижения нет управления</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20161003/">«Часть четвёртая: добавить взаимодействие»</a></span>
     </div>
-    <p class="statement">«Управлять можно только тем, что имеет собственную энергию»: стулом управлять нельзя — только двигать и&nbsp;ломать. В&nbsp;интерфейсах энергия человека — мотивация: «добавить кнопку недостаточно для&nbsp;управления».</p>
+    <p class="statement">«Управлять можно только тем, что имеет собственную энергию»: стулом управлять нельзя — только двигать и&nbsp;ломать. В&nbsp;интерфейсах энергия человека — мотивация: «добавить кнопку в&nbsp;интерфейс недостаточно для&nbsp;управления».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Управление возможно только в&nbsp;отношении объектов, имеющих самодвижение» — Щедровицкий: стулом управлять нельзя, машиной — лишь когда она поехала.</li>
+        <li>«„Добавить моторчик“ — самый примитивный способ повысить управляемость» — принцип действия не&nbsp;изменился, а&nbsp;механизм усложнился.</li>
+        <li>«Человек — слабоуправляемый элемент систем. Поэтому добавить кнопку в&nbsp;интерфейс недостаточно для управления. Нужно добавить энергию — мотивацию».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20161003-watch-motivation.jpg" alt="Спортивные часы давят на совесть и тщеславие" loading="lazy">
+          <figcaption>Мотивация вместо кнопки: часы «Найк+» давят на&nbsp;совесть и&nbsp;тщеславие, чтобы владелец пробежал километры.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20161003-noregister.png" alt="У посетителя нет мотивации регистрироваться" loading="lazy">
+          <figcaption>У&nbsp;посетителя нет мотивации регистрироваться — но&nbsp;есть желание купить товар.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1280,6 +1666,27 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20161017/">«Часть пятая: подчинённая формула»</a></span>
     </div>
     <p class="statement">Элемент или связь превращают в&nbsp;независимо управляемую вложенную подсистему. «Подчинённая формула удобна тем, что не&nbsp;меняет принцип работы основной системы — управляемость повышается без&nbsp;выхода в&nbsp;надсистему».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«При введении подчинённой формулы любой элемент превращается в&nbsp;независимо управляемую подсистему».</li>
+        <li>Транзистор «связывает два проводника, при этом связь независимо управляется третьим» — подчинённую формулу может получить и&nbsp;связь.</li>
+        <li>Лампочка Филипс Хью вместо механического выключателя: «Это качественное повышение управляемости».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20161017-mechanical-pencil-r.jpg" alt="Механический карандаш" loading="lazy">
+          <figcaption>Механический карандаш: длина грифеля — независимо управляемая подсистема.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20161017-train.png" alt="Жёсткая связь рельсов" loading="lazy">
+          <figcaption>Жёсткая связь: поезд не&nbsp;выбирает направление.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20161017-train-strelka.png" alt="Управляемая железнодорожная стрелка" loading="lazy">
+          <figcaption>Управляемая стрелка — подчинённая формула связи.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1322,7 +1729,24 @@ a:hover { text-decoration: underline; }
       <h3>Параллельная формула: пульт рядом со&nbsp;старым управлением</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20161031/">«Часть шестая: параллельная формула»</a></span>
     </div>
-    <p class="statement">Если ни&nbsp;один элемент заменить нельзя, рядом достраивают параллельную хорошо управляемую подсистему. Пульт «не&nbsp;изменил принцип работы телевизора… элементы управления остались и&nbsp;работают параллельно».</p>
+    <p class="statement">Если ни&nbsp;один элемент заменить нельзя, рядом достраивают параллельную хорошо управляемую подсистему. «Пульт не&nbsp;изменил принцип работы телевизора и&nbsp;даже не&nbsp;заменил обычные элементы управления — они остались на&nbsp;телевизоре и&nbsp;работают параллельно».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Если ни&nbsp;один из&nbsp;элементов плохо управляемой или неэффективной системы заменить нельзя, в&nbsp;системе достраивают параллельную хорошо управляемую подсистему с&nbsp;новым источником энергии или способом взаимодействия».</li>
+        <li>«Управляющий сигнал от&nbsp;пульта передаётся излучением, и&nbsp;каналы переключаются без отрыва попы от&nbsp;дивана».</li>
+        <li>«Основное поле ввода не&nbsp;изменилось, а&nbsp;пресеты помогут его заполнить» — параллельная подсистема в&nbsp;экранном интерфейсе.</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20161031-zenith.jpg" alt="Реклама пульта Зенит Спейс Командер, 1971" loading="lazy">
+          <figcaption>Пульт «Зенит Спейс Командер» (реклама 1971 года) — параллельный контур управления телевизором.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20161031-hybrid-diagram-large.gif" alt="Схема гибридного привода" loading="lazy">
+          <figcaption>Гибридный привод: последовательная (подчинённая) и&nbsp;параллельная формулы.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1365,7 +1789,20 @@ a:hover { text-decoration: underline; }
       <h3>Заменить взаимодействие — костыли отмирают</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20161114/">«Часть седьмая: замена взаимодействия»</a></span>
     </div>
-    <p class="statement">Взаимодействие заменяют более управляемым — и&nbsp;«замена делает лишними подсистемы, которые раньше компенсировали недостатки управляемости»: у&nbsp;Теслы отмерли коробка передач, выхлоп и&nbsp;«валик на&nbsp;полу».</p>
+    <p class="statement">Взаимодействие заменяют более управляемым — и&nbsp;«замена источника энергии или взаимодействия делает лишними подсистемы, которые раньше компенсировали недостатки управляемости»: у&nbsp;Теслы отмерли коробка передач, выхлоп и&nbsp;«неудобный валик на&nbsp;полу между сидениями».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Эффективность работоспособной системы можно повысить, если заменить взаимодействие на&nbsp;более управляемое».</li>
+        <li>«Солнечный свет — плохо управляемый источник энергии, в&nbsp;отличие от&nbsp;электричества. Погоде не&nbsp;прикажешь, а&nbsp;напряжение меняется поворотом ручки или сигналом компьютера».</li>
+        <li>В&nbsp;рекламе заменяют мотивацию: «любопытство тщеславием, тщеславие — жадностью или сексуальным влечением. Чем более примитивна потребность, тем она более управляема».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20161114-teslabase.jpg" alt="Платформа Теслы S" loading="lazy">
+          <figcaption>Платформа Теслы S: замена взаимодействия упразднила механические подсистемы.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1397,7 +1834,7 @@ a:hover { text-decoration: underline; }
             <div class="btn-row" style="justify-content:flex-start; margin-top:var(--space-3);"><span class="btn btn-primary">Запустить</span></div>
           </div>
         </div>
-        <p class="cap">Тот&nbsp;же приём в&nbsp;мотивации: «изучите возможности» (любопытство) заменено жадностью до&nbsp;результата — «чем примитивнее потребность, тем она управляемее».</p>
+        <p class="cap">Тот&nbsp;же приём в&nbsp;мотивации: «изучите возможности» (любопытство) заменено жадностью до&nbsp;результата — «чем более примитивна потребность, тем она более управляема».</p>
       </div>
     </div>
   </article>
@@ -1409,6 +1846,23 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20161128/">«Часть восьмая: использовать спецэффекты. Раз»</a></span>
     </div>
     <p class="statement">Спецэффекты — «предсказуемые явления и&nbsp;трансформации, которые происходят в&nbsp;нашем мире вследствие его физической природы». Вода в&nbsp;лёд «выглядит как фокус: недавно плавали, а&nbsp;теперь можно ходить». В&nbsp;каждой области знаний — свой домен эффектов.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«В&nbsp;каждой области знаний свой набор спецэффектов — физика, химия, геометрия, производство, психология, социология, драматургия, графика, кино. Назовём их „доменами“».</li>
+        <li>«В&nbsp;дизайне часто бывает и&nbsp;так, что спецэффект используется до&nbsp;того, как наука его строго описала».</li>
+        <li>«Дизайн становится круче, если использовать науку. Именно поэтому дизайн — междисциплинарная профессия».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20161128-enisey.jpg" alt="Строительство моста через Енисей: ледяная шахта" loading="lazy">
+          <figcaption>Мост через Енисей: инженер Кнорре управлял рекой через спецэффект замерзания — «сухая прорубь».</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20161128-monumentvalley.jpg" alt="Долина монументов" loading="lazy">
+          <figcaption>«Долина монументов»: аксонометрия — невозможный, но&nbsp;управляемый мир.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1452,6 +1906,24 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20161212/">«Часть девятая: использовать спецэффекты. Два»</a></span>
     </div>
     <p class="statement">Человеческие домены тоже полны эффектов: гештальт управляет вниманием, «неизвестность психологически удлиняет ожидание», а&nbsp;«люди предсказуемо радуются, когда их ожидания превышены». Наука описала их неточно — но&nbsp;дизайнер обязан их накапливать и&nbsp;применять.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Когда люди бездействуют, их ощущение времени растягивается».</li>
+        <li>«Массивные элементы привлекают внимание раньше прочих» — эффект массы, один из&nbsp;пяти эффектов гештальта.</li>
+        <li>«Большой выбор привлекает людей, создаёт у&nbsp;них ощущение управляемости… Когда выбор слишком большой, мы не&nbsp;выбираем».</li>
+        <li>«Непредсказуемость награды усиливает желание действовать» — как малина в&nbsp;лесу.</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20161212-abfahrt.jpg" alt="Расписание немецких железных дорог" loading="lazy">
+          <figcaption>Расписание немецких железных дорог — все пять эффектов гештальта на&nbsp;одном листе.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20161212-onetwotrip.jpg" alt="Раз-два-трип: стопки билетов" loading="lazy">
+          <figcaption>«Раз-два-трип»: стопки с&nbsp;лучшими предложениями вместо простыни билетов.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1494,6 +1966,27 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170123/">«Расскажите об&nbsp;управляемости, ч.&nbsp;10»</a></span>
     </div>
     <p class="statement">Три закономерности развития действуют разом: динамизация даёт что&nbsp;менять, согласование наводит порядок, а&nbsp;переход к&nbsp;би- и&nbsp;полисистемам добавляет управляемость — «с&nbsp;двухстволкой удобнее управляться, чем с&nbsp;двумя ружьями».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Динамическая система — условие управления. Если в&nbsp;системе нечего менять, то&nbsp;нечем и&nbsp;управлять».</li>
+        <li>«Чем более зрелая и&nbsp;совершенная система, тем лучше в&nbsp;ней согласованы элементы и&nbsp;взаимодействие».</li>
+        <li>«Нортон Командер» — «двухстволка в&nbsp;интерфейсе»: две равноправные панели вместо текстовых команд, «настоящий буст в&nbsp;управляемости».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170123-nc-rus.png" alt="Нортон Командер" loading="lazy">
+          <figcaption>«Нортон Командер» — двухстволка в&nbsp;интерфейсе.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170123-ipad-commander.png" alt="Сплит-вью на Айпаде" loading="lazy">
+          <figcaption>Сплит-вью Айпада — современная инкарнация Нортона.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170123-mac.gif" alt="Первый Мак — полиинтерфейс" loading="lazy">
+          <figcaption>Первый Мак — полисистема: управление произвольным числом окон и&nbsp;документов.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1540,6 +2033,23 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170306/">«Расскажите об&nbsp;управляемости, ч.&nbsp;11»</a></span>
     </div>
     <p class="statement">Примитивное управление — силовое: управляющий сам и&nbsp;мотор, и&nbsp;руль. Вместо прямого воздействия — даровая сила плюс ограничения: воду гонит тяжесть, а&nbsp;направляют берега, плотины и&nbsp;шлюзы.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>Всадник «не&nbsp;толкает лошадь физически, но&nbsp;причиняет ей боль — мощнейший источник энергии для живых существ. Удар шпорами или нагайкой — это не&nbsp;просто управляющий сигнал, а&nbsp;воздействие».</li>
+        <li>«Канализировать можно не&nbsp;только воду, но&nbsp;и&nbsp;потоки людей» — перегородки перед эскалатором разделяют встречные потоки и&nbsp;снимают давку.</li>
+        <li>Шестерёнки часов — «силовой интерфейс, который передаёт одновременно энергию и&nbsp;информацию».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170306-greatlakes.jpg" alt="Система Великих озёр" loading="lazy">
+          <figcaption>Система Великих озёр — управление водой ограничениями: берега, плотины, шлюзы.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170306-watch.jpg" alt="Механизм часов Хойер Калибр 11" loading="lazy">
+          <figcaption>«Хойер Калибр 11»: шестерёнки передают одновременно энергию и&nbsp;информацию.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1574,6 +2084,27 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170320/">«Расскажите об&nbsp;управляемости, ч.&nbsp;12»</a></span>
     </div>
     <p class="statement">Следующая ступень — передавать только информацию, а&nbsp;управляемому дать свой источник энергии. Но&nbsp;«любой сигнал имеет материальную природу»: у&nbsp;него есть шум, пропускная способность и&nbsp;неизбежные потери.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Наша цивилизация построена на&nbsp;сигналах».</li>
+        <li>«Сигнал — это носитель информации, то&nbsp;есть состоит из&nbsp;информационного кода и&nbsp;его физического носителя».</li>
+        <li>«Дискретная „цифра“ победила непрерывный аналоговый сигнал из-за удобства и&nbsp;однозначности расчётов и&nbsp;управления, надёжности доставки. Но&nbsp;она по&nbsp;определению обедняет исходный сигнал».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170320-signal-analog.png" alt="Аналоговый сигнал" loading="lazy">
+          <figcaption>Аналоговый сигнал — искажается и&nbsp;затухает.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170320-signal-quantum.png" alt="Квантованный сигнал" loading="lazy">
+          <figcaption>Квантованный сигнал — скачки на&nbsp;ступени.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170320-signal-digital.png" alt="Цифровой сигнал" loading="lazy">
+          <figcaption>Дискретный, или цифровой сигнал.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1613,7 +2144,7 @@ a:hover { text-decoration: underline; }
             <p class="meta" style="margin-top:var(--space-2);">подписка: только смены состояния</p>
           </div>
         </div>
-        <p class="cap">Человек подписан лишь на&nbsp;скачки уровня — смены состояния карточки: «управляющий тратит меньше энергии и&nbsp;может заниматься только управлением».</p>
+        <p class="cap">Человек подписан лишь на&nbsp;скачки уровня — смены состояния карточки: «управляющий тратит гораздо меньше собственной энергии на&nbsp;передачу сигнала… и&nbsp;теперь может заниматься только управлением».</p>
       </div>
     </div>
   </article>
@@ -1625,6 +2156,23 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170403/">«Расскажите об&nbsp;управляемости, ч.&nbsp;13»</a></span>
     </div>
     <p class="statement">Система без обратной связи «слепая и&nbsp;неуправляемая», с&nbsp;обратной связью — саморегулируемая. Лучшие интерфейсы дают её мгновенно: «непосредственно и&nbsp;постоянно в&nbsp;процессе изменения», а&nbsp;не&nbsp;по&nbsp;факту.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Система без обратной связи слепая и&nbsp;неуправляемая, а&nbsp;с&nbsp;обратной связью — саморегулируемая и&nbsp;эффективная».</li>
+        <li>«В&nbsp;системе с&nbsp;сигнальной обратной связью ключевой элемент — датчик. Это её орган чувств, „глаз“, „ухо“ или „кожа“».</li>
+        <li>«Слишком грубая обратная связь при ошибке пользователя может сбить его с&nbsp;толку и&nbsp;вызвать новые ошибки» — модальное окно прерывает работу.</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170403-watt.jpg" alt="Центробежный регулятор Ватта" loading="lazy">
+          <figcaption>Центробежный регулятор Ватта (1788) — замкнутая саморегулируемая система.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170403-tags.png" alt="Облако тегов" loading="lazy">
+          <figcaption>Облако тегов — вредная положительная обратная связь.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1676,6 +2224,27 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170417/">«Расскажите об&nbsp;управляемости, ч.&nbsp;14»</a></span>
     </div>
     <p class="statement">«Программа — это информационный объект, выполняющий функцию управляющего». Динамизированная программа ветвится по&nbsp;условиям, помнит состояние, а&nbsp;командовать может не&nbsp;только машинами, но&nbsp;и&nbsp;людьми.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Человек всегда мечтал, чтобы ему не&nbsp;приходилось принимать решения и&nbsp;держать в&nbsp;голове сложную последовательность действий, а&nbsp;механизмы действовали автономно — по&nbsp;программе».</li>
+        <li>Динамизировать программу — «дать сценарию возможность изменяться в&nbsp;зависимости от&nbsp;логических условий, показаний датчиков, внешней обратной связи, решений пользователя или даже случайности».</li>
+        <li>«Даже организационные процедуры, которые выполняют люди, могут быть инициированы программой».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170417-musicbox.jpg" alt="Музыкальная шкатулка Николь Фрер" loading="lazy">
+          <figcaption>Шкатулка «Николь Фрер»: барабан-программа управляет воздействием.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170417-adventure.jpg" alt="Книга-игра Выбери себе приключение" loading="lazy">
+          <figcaption>Книга-игра «Выбери себе приключение» — ветвление без памяти о&nbsp;выборе.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170417-school.png" alt="Расписание Школы редакторов в Асане" loading="lazy">
+          <figcaption>Расписание Школы редакторов в&nbsp;Асане — программа командует людьми.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1721,6 +2290,28 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170529/">«Расскажите об&nbsp;управляемости, ч.&nbsp;15»</a></span>
     </div>
     <p class="statement">Взаимодействия выделяются в&nbsp;самостоятельную прослойку — интерфейс: он&nbsp;создаёт границу, стандартизируется и&nbsp;даёт полиморфизм. Но&nbsp;«интерфейс всегда материален» — и&nbsp;потому источник потерь.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Интерфейс — система взаимодействия других систем: человека с&nbsp;программой, человека с&nbsp;устройством, устройства с&nbsp;устройством, программы с&nbsp;программой, организации с&nbsp;другой организацией».</li>
+        <li>«Интерфейс создаёт чёткую границу между управляющим и&nbsp;управляемым. Благодаря этому эти объекты могут работать независимо».</li>
+        <li>«Как ни&nbsp;парадоксально, благодаря стандартизации, „одинаковости“ интерфейса появляется возможность разнообразия и&nbsp;динамизации систем».</li>
+        <li>Полиморфизм — «предоставление единого интерфейса к&nbsp;сущностям разных типов» (Страуструп).</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170529-thomasholden.png" alt="Кукловод Томас Холден" loading="lazy">
+          <figcaption>Кукловод Томас Холден (1879) — неупорядоченное управление, клубок нитей.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170529-puppetcontrol.png" alt="Патенты на ваги марионеток" loading="lazy">
+          <figcaption>Патенты на&nbsp;«ваги» марионеток — интерфейс как выделенная подсистема.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170529-pipe-adapters.jpg" alt="Переходники труб" loading="lazy">
+          <figcaption>Переходники труб — стандартизация интерфейса.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1739,7 +2330,7 @@ a:hover { text-decoration: underline; }
           <div class="mini-card">
             <h4>Артефакт · дифф watcher.ts</h4>
             <p class="meta">внутренность рендерится по&nbsp;типу</p>
-            <div class="btn-row" style="justify-content:flex-start; margin-top:var(--space-3);"><span class="btn btn-primary">Принять</span><span class="btn">Вернуть</span><span class="btn">Комментировать</span></div>
+            <div class="btn-row" style="justify-content:flex-start; margin-top:var(--space-3);"><span class="btn btn-primary">Принять</span><span class="btn">Вернуть</span><span class="btn">Обсудить</span></div>
           </div>
         </div>
         <p class="cap">Полиморфизм — одна «вага»: заголовок, тред и&nbsp;три действия едины для диффа, спеки и&nbsp;скриншота, как хостес и&nbsp;меню в&nbsp;любом ресторане.</p>
@@ -1765,6 +2356,19 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170612/">«Расскажите об&nbsp;управляемости, ч.&nbsp;16»</a></span>
     </div>
     <p class="statement">«Человек вытесняется из&nbsp;управления»: системы становятся самоуправляемыми, чтобы сэкономить его усилия и&nbsp;застраховаться от&nbsp;ошибок. Но&nbsp;«телега не&nbsp;станет эффективнее, если её будет толкать Эйнштейн» — развиты должны быть все подсистемы.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Первому самоуправляемому устройству больше двух тысяч лет» — клепсидра Ктезибия сама опустошала мерный сосуд раз в&nbsp;сутки.</li>
+        <li>«Искусственный интеллект скорее напоминает нервную систему, воспринимающую сигналы из&nbsp;окружающей среды и&nbsp;собственных систем и&nbsp;регулирующую деятельность всех остальных».</li>
+        <li>«Такие системы являются одновременно и&nbsp;производителем, и&nbsp;продуктом» — автопоэзис: переход от&nbsp;работоспособных систем к&nbsp;жизнеспособным.</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170612-tesla-cameras-rus.png" alt="Сенсорное зрение автомобиля Тесла" loading="lazy">
+          <figcaption>Сенсорное зрение «Теслы» — органы чувств ИИ: три камеры и&nbsp;радар стекаются в&nbsp;нейросеть.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1802,7 +2406,7 @@ a:hover { text-decoration: underline; }
             <div class="btn-row" style="justify-content:flex-start; margin-top:var(--space-3);"><span class="btn btn-primary">Принять</span><span class="btn">Отклонить</span></div>
           </div>
         </div>
-        <p class="cap">Жизнеспособность: foundry дорабатывает собственные стадии по&nbsp;итогам прогонов — автопоэзис, «одновременно и&nbsp;производитель, и&nbsp;продукт».</p>
+        <p class="cap">Жизнеспособность: foundry дорабатывает собственные стадии по&nbsp;итогам прогонов — автопоэзис: «такие системы являются одновременно и&nbsp;производителем, и&nbsp;продуктом».</p>
       </div>
     </div>
   </article>
@@ -1814,6 +2418,23 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170626/">«Расскажите об&nbsp;управляемости, ч.&nbsp;17»</a></span>
     </div>
     <p class="statement">Вершина лестницы — системы, где субъекты и&nbsp;объекты управления выборочно взаимодействуют и&nbsp;меняются ролями: шина, распределённая сеть, рой. «Рой не&nbsp;имеет лидера и&nbsp;адаптируется» к&nbsp;приходу и&nbsp;уходу участников.</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Управляющие и&nbsp;управляемые устройства объединяются в&nbsp;систему и&nbsp;управляют друг другом» — шина вместо интерфейса двух устройств.</li>
+        <li>«Совокупность эффективных эгоистов действует не&nbsp;самым эффективным образом (иногда — самым неэффективным)».</li>
+        <li>Эластичность роя: «система самовосстанавливается при удалении участников, оставшиеся берут на&nbsp;себя незаконченные дела».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170626-torrent.gif" alt="Торрент" loading="lazy">
+          <figcaption>Торрент — каждый клиент и&nbsp;потребитель, и&nbsp;источник.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/upravlenie/20170626-nobo.jpg" alt="Обогреватели Нобо" loading="lazy">
+          <figcaption>Обогреватели «Нобо» — автономны, но&nbsp;аранжируются в&nbsp;сценарии.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1868,6 +2489,24 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150202/">«Как решать дизайнерские задачи?»</a></span>
   </div>
   <p class="statement">«Полезное действие продукта — это за&nbsp;что люди готовы платить деньги». Первая задача дизайнера — определить его и&nbsp;сделать максимальным: системы и&nbsp;так движутся в&nbsp;сторону повышения пользы, применивший закон целенаправленно обгоняет прогресс.</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Системы движутся в&nbsp;сторону повышения пользы для других людей. Не&nbsp;повезёт одному продукту — появится другой, более полезный и&nbsp;востребованный» — первый универсальный закон дизайна.</li>
+      <li>«Если целенаправленно применить принцип максимизации, то появится шанс раньше других сделать более востребованный продукт».</li>
+      <li>«Первая задача дизайнера — определить полезное действие продукта, а&nbsp;чаще — шкалу его ценностей».</li>
+      <li>«Признак дизайнерской незрелости — выводить сереньким важный текст» — максимум не&nbsp;в&nbsp;физическом размере, а&nbsp;в&nbsp;полезном параметре: информативности, контрасте.</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150202-pasmo-screen.jpg" alt="Экран предупреждения турникета «Пасмо»: жёлтая заливка по максимальной площади" loading="lazy">
+        <figcaption>Турникет «Пасмо» в&nbsp;Токио: предупреждение о&nbsp;низком балансе залито жёлтым по&nbsp;максимальной площади — «человека заметно предупредили».</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150202-ios7.jpg" alt="iOS 7: жест разблокировки работает в любой части экрана" loading="lazy">
+        <figcaption>iOS 7: жест разблокировки работает в&nbsp;любой части экрана — площадь полезного жеста доведена до&nbsp;максимума.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1908,6 +2547,28 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150216/">«Что такое минимизация конструкции?»</a></span>
   </div>
   <p class="statement">«Вода — это польза, а&nbsp;стакан — физическое средство полезного действия»: системы развиваются в&nbsp;сторону минимума средств. Три приёма по&nbsp;нарастанию силы: убрать всё лишнее, вынести за&nbsp;скобки, перенести функцию.</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Некоторые части конструкции достигают „идеального“ состояния: когда их физически нет, но их функция выполняется» — в&nbsp;ТРИЗ это называется идеализацией.</li>
+      <li>«Дизайнер должен учиться не&nbsp;минимализму или дзен‑дизайну, а&nbsp;умению упрощать и&nbsp;уменьшать конструкцию без потери её полезного действия».</li>
+      <li>«Выделить повторяющиеся элементы с&nbsp;одинаковой функцией в&nbsp;один элемент, общий для полисистемы… не&nbsp;повторяется, работает сразу для всех слагаемых и&nbsp;не&nbsp;изменяет общую сумму» — приём «вынести за&nbsp;скобки».</li>
+      <li>«Заморозим воду — куску льда стакан не&nbsp;нужен. Таким волшебником должен ощущать себя дизайнер за&nbsp;работой».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150216-player-before.png" alt="Было: музыкальный виджет в виде магнитолы" loading="lazy">
+        <figcaption>Было: музыкальный виджет в&nbsp;виде «магнитолы» — своя конструкция на&nbsp;каждую функцию.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150216-player-after.png" alt="Стало: играющая ссылка — подчёркивание заодно показывает проигранное время" loading="lazy">
+        <figcaption>Стало: играющая ссылка — подчёркивание заодно показывает проигранное время. Перенос функции.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150216-mac.jpg" alt="Аймак: перенос функций — системный блок исчез, три элемента и три провода" loading="lazy">
+        <figcaption>Аймак: «три элемента, три провода» против «шести элементов, пятнадцати проводов» ПК — системный блок исчез, функции перенесены.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -1980,6 +2641,14 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150302/">«Как разрешать противоречия?»</a></span>
   </div>
   <p class="statement">«Противоречия и&nbsp;технические ограничения — дизайнерская рутина»: выигрыш в&nbsp;одном часто означает проигрыш в&nbsp;другом. Профессионал не&nbsp;отрицает правила и&nbsp;не&nbsp;выдумывает разграничители — спокойно слушает и&nbsp;диагностирует противоречие, даже замаскированное под конфликт людей.</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Дизайнеру недостаточно улучшить параметр продукта, важно не&nbsp;ухудшить другие».</li>
+      <li>«В&nbsp;работе с&nbsp;людьми дизайнерские противоречия маскируются под проблемы общения» — раболепие и&nbsp;отказ слушать «ересь» растут из&nbsp;одного корня: «страх и&nbsp;неуверенность в&nbsp;себе».</li>
+      <li>«По‑настоящему заботится о&nbsp;клиенте „взрослый“. Профессионал не&nbsp;боится, спокойно слушает и&nbsp;диагностирует противоречие».</li>
+      <li>«Волки должны быть накормлены, но поголовье овец не&nbsp;должно пострадать» — каноническая формула противоречия всей серии.</li>
+    </ul>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2014,6 +2683,28 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150316/">«Расскажите о&nbsp;компромиссах»</a></span>
   </div>
   <p class="statement">«При компромиссе по&nbsp;определению ухудшается положение обеих сторон». Он не&nbsp;разрешает противоречие, а&nbsp;лишь временно ослабляет — оно обострится снова; «хуже только отсутствие решения — преждевременная капитуляция».</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Компромисс — плата за&nbsp;воплощение идеи в&nbsp;реальность сегодня, а&nbsp;не&nbsp;через год и&nbsp;не&nbsp;через сто. Дизайнеру платят не&nbsp;за&nbsp;идею».</li>
+      <li>«На&nbsp;вид всё хорошо — при компромиссе противоречие почти незаметно. Аккуратная вёрстка скрыла недостаток… Последствия компромисса постоянно напоминают о&nbsp;себе».</li>
+      <li>«Компромисс не&nbsp;разрешает противоречие, а&nbsp;лишь временно его ослабляет» — оно обострится снова.</li>
+      <li>«Начинающий дизайнер склонен к&nbsp;поспешному компромиссу» — иногда «достаточно не&nbsp;идти на&nbsp;компромисс».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150316-facebook.png" alt="Мобильный Фейсбук: ссылки впихнуты как-нибудь" loading="lazy">
+        <figcaption>Мобильный Фейсбук: ссылки впихнуты «как-нибудь» — желающий открыть список лайкнувших «каждый раз сам рискует её „лайкнуть“».</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150316-payup-before.jpg" alt="Было: портмоне не вместилось — дизайнер сдвинул и уменьшил главное пятно" loading="lazy">
+        <figcaption>Было: портмоне не&nbsp;влезло под пятно — начинающий уменьшает и&nbsp;сдвигает главное пятно, компромисс с&nbsp;частным случаем.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150316-payup-after.jpg" alt="Стало: частный случай — не повод ухудшать иллюстрацию" loading="lazy">
+        <figcaption>Стало: частный случай — не&nbsp;повод ухудшать иллюстрацию; достаточно было не&nbsp;идти на&nbsp;компромисс.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2053,6 +2744,28 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150330/">«Нихт капитулирен!»</a></span>
   </div>
   <p class="statement">Капитуляция — отказ даже пытаться разрешить противоречие — хуже компромисса. Тест: решение, принятое от&nbsp;препятствия, а&nbsp;не&nbsp;от&nbsp;полезного действия, — преждевременная сдача. «Анализ решения начинается с&nbsp;„полезной“ стороны противоречия: сначала цель, потом бревно».</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Ещё хуже [компромисса] — капитулировать, то есть не&nbsp;пытаться разрешить, преодолеть силой или даже хотя&nbsp;бы как‑то сгладить противоречие».</li>
+      <li>«Мы занимаем в&nbsp;противоречии сторону, связанную с&nbsp;полезным действием. За&nbsp;бревном мы видим свою цель».</li>
+      <li>«Отказ от&nbsp;планов без попытки разобраться и&nbsp;преодолеть сопротивление разработчика — преждевременная капитуляция».</li>
+      <li>«Как только дизайнер уделил полезному варианту две минуты», решение «Мэри Трюфель» нашлось в&nbsp;уже существующем облачке — «эскиз нарисовали за&nbsp;пять минут и&nbsp;внедрили на&nbsp;следующий день».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150330-marytrufel.jpg" alt="Страница платья «Мэри Трюфель»: некуда вернуться в каталог" loading="lazy">
+        <figcaption>Страница платья «Мэри Трюфель»: минимализм оказался перебором — некуда вернуться в&nbsp;каталог; ведущий дизайнер «паникует и&nbsp;предлагает запустить как есть».</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150330-marytrufel-ampir.jpg" alt="Облачко-навигация уже существовало в каталоге" loading="lazy">
+        <figcaption>«Залипающее» облачко с&nbsp;названием силуэта уже существовало в&nbsp;каталоге — дармовой ресурс системы.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150330-marytrufel-2.jpg" alt="Стало: облачко даёт навигацию — эскиз за пять минут" loading="lazy">
+        <figcaption>Стало: текстовый модуль сдвинут, облачко даёт навигацию — эскиз за&nbsp;пять минут.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2089,6 +2802,19 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150413/">«Расскажите о&nbsp;методе грубой силы»</a></span>
   </div>
   <p class="statement">«Метод грубой силы преодолевает противоречие любой ценой без оглядки на&nbsp;затрачиваемые ресурсы, интересы второй стороны и&nbsp;возможные последствия». Он действительно работает — но&nbsp;это самый дорогой способ, и&nbsp;при чрезмерных потерях победа становится пирровой.</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Плюс метода грубой силы в&nbsp;том, что он действительно преодолевает противоречия. Это самый дорогостоящий способ, но вполне годится тем, кто может себе его позволить».</li>
+      <li>«Метод грубой силы работает, пока хватает ресурсов: богатая компания не&nbsp;выращивает своих специалистов, а&nbsp;сманивает чужих высокой зарплатой. Фотолюбитель покупает самый дорогой фотоаппарат. Дизайнер работает ночами и&nbsp;жертвует сном, чтобы уложиться в&nbsp;срок».</li>
+      <li>«Капитуляция — признак плохого дизайнера. Компромисс — вечный выбор слабого. К&nbsp;методу грубой силы прибегает самонадеянный новичок или тот, кто сознательно готов к&nbsp;потерям».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150413-safari.gif" alt="Сафари на Айфоне: подсказка настаивает на самом глубоком адресе" loading="lazy">
+        <figcaption>Адресная строка Сафари работает «по&nbsp;принципу пан или пропал»: подсказка навязывает самый «глубокий» адрес, промежуточный не&nbsp;набрать.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2126,6 +2852,24 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150427/">«Как разрешать противоречия без компромиссов?»</a></span>
   </div>
   <p class="statement">Сильное решение снимает противоречие без потерь с&nbsp;обеих сторон, а&nbsp;пока не&nbsp;найдено — «сама формулировка такого решения выглядит фантастической»: втулка есть — и&nbsp;втулки нет. Бороться — «не&nbsp;со&nbsp;злом, а&nbsp;с&nbsp;его источником или проводником».</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Сильный дизайнер ищет способ разрешить противоречие без потерь с&nbsp;любой стороны. Когда сильное решение найдено, кому‑то оно покажется очевидным».</li>
+      <li>«Неразумно пытаться высушить море, если источник проблемы — пробоина в&nbsp;лодке. Трудно бороться с&nbsp;последствиями — вычёрпывать воду быстрее, чем она поступает. Рационально — заделать пробоину».</li>
+      <li>«Не&nbsp;истреблять волков, а&nbsp;предотвращать их нападение на&nbsp;овец»; если с&nbsp;источником бороться нельзя — «надо сделать восстанавливаемую защиту».</li>
+      <li>«Вредный фактор надо определять так&nbsp;же точно, как и&nbsp;полезное действие. Для этого очень помогает приём — задавать подряд вопрос „почему“, пока ответ не&nbsp;станет очевидным».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150427-aquatube.jpg" alt="Растворяемая втулка Зева Аква Туб: втулка есть и втулки нет" loading="lazy">
+        <figcaption>Растворяемая втулка «Зева Аква Туб»: цепочка «почему» довела до&nbsp;парадокса — втулка есть и&nbsp;втулки нет.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150427-vzone.jpg" alt="Треугольная безопасная зона Тогнаццини" loading="lazy">
+        <figcaption>Треугольная безопасная зона Тогнаццини: «меню должно исчезать мгновенно и&nbsp;должно оставаться сколь угодно долго».</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2167,6 +2911,27 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150525/">«…без компромиссов? Часть вторая»</a></span>
   </div>
   <p class="statement">Имя задачи программирует решение: польза «калькулятора» — не&nbsp;расчёт значения, а&nbsp;подбор сочетания в&nbsp;пространстве решений. «Решение без компромиссов всегда звучит парадоксально: одновременно ограничения есть и&nbsp;ограничений нет».</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Полезное действие калькулятора — не&nbsp;расчёт конкретного значения, а&nbsp;подбор приемлемого сочетания в&nbsp;пространстве решений. Слово „калькулятор“ — плохое и&nbsp;само по&nbsp;себе навязывает слабое, но привычное проектировщику решение».</li>
+      <li>«Ползунок — уникальный элемент интерфейса, обеспечивающий мгновенную обратную связь… не&nbsp;в&nbsp;момент окончательной установки значения параметра, а&nbsp;непосредственно и&nbsp;постоянно в&nbsp;процессе изменения».</li>
+      <li>«Хорошее дизайнерское выражение на&nbsp;пути к&nbsp;пользе — „ничего страшного“» — клиент тянет ползунок за&nbsp;границы, интерфейс показывает копию-призрак; отпустил мышь — «все ползунки вернутся к&nbsp;ближайшим „разрешённым“ границам».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150525-calc-problem.png" alt="Линейная форма заставляет заранее зафиксировать один из связанных параметров" loading="lazy">
+        <figcaption>Проблема: линейная форма грубой силой заставляет заранее зафиксировать один из&nbsp;связанных параметров.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150525-calc-invention.png" alt="Полисистема ползунков с замочками визуализирует пространство решений" loading="lazy">
+        <figcaption>Без компромиссов: полисистема ползунков с&nbsp;замочками визуализирует пространство решений.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150525-calc-invention-outofrange.png" alt="Ползунок-призрак показывает, что получится, если снять ограничение" loading="lazy">
+        <figcaption>Ползунок-«призрак» показывает, что получится, если снять ограничение.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2236,6 +3001,24 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150608/">«…без компромиссов? Часть третья»</a></span>
   </div>
   <p class="statement">«Противоречие разрешается и&nbsp;полезное действие достигается бесплатно» — за&nbsp;счёт дармовых ресурсов и&nbsp;функций, уже имеющихся в&nbsp;системе. «Бесплатность или минимальная стоимость решения проблемы — признак сильного дизайна»; и&nbsp;«лучше недообещать, чем переобещать».</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Если изобретённая дизайнером суперкнопка стоит работы десяти программистов, ему стоит крепко задуматься — нельзя&nbsp;ли получить тот&nbsp;же результат бесплатно?»</li>
+      <li>«„Сделать заранее“ — мощный дизайнерский ход. В&nbsp;пользовательских интерфейсах приём встречается в&nbsp;форме всевозможных пресетов, сохранённых запросов и&nbsp;подсказок при наборе».</li>
+      <li>«Дизайнер должен экономить ресурсы, в&nbsp;которых система больше всего ограничена. Это не&nbsp;только внимание и&nbsp;время пользователя, но и&nbsp;стоимость производства или время работы программиста».</li>
+      <li>«Мест нет? Ничего страшного, места есть» — формула парадокса из&nbsp;кейса Коворкафе: кнопка «Всё равно иду» = «Ничего, я посижу в&nbsp;баре».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150608-atthebar.png" alt="Кнопка «Всё равно иду»: мест нет? Ничего страшного, места есть" loading="lazy">
+        <figcaption>Кнопка «Всё равно иду»: мест нет? Ничего страшного, места есть — гости заранее согласны, ожидания не&nbsp;обмануты.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150608-coworkafelive.jpg" alt="Живые советы: зал полон, бар — дармовой ресурс системы" loading="lazy">
+        <figcaption>Живые советы: зал полон, кофе-бар и&nbsp;барные стулья — дармовой ресурс системы.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2269,6 +3052,24 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150706/">«Как время и&nbsp;место связаны с&nbsp;разрешением противоречия?»</a></span>
   </div>
   <p class="statement">«Чем меньше место и&nbsp;чем точнее время, в&nbsp;пределах которых нужно решать проблему, тем больше область, в&nbsp;которой проблему решать не&nbsp;нужно». Смотреть — не&nbsp;туда, где проблема, а&nbsp;туда, где происходит полезный процесс и&nbsp;внимание человека.</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«При определении зоны решения надо сначала смотреть не&nbsp;туда, где возникает проблема, а&nbsp;туда, где происходит рабочий процесс — связанный с&nbsp;получением полезного действия».</li>
+      <li>«Решением проблемы недоставленного письма оказалось само недоставленное письмо. Идеальный отлуп — которого нет, но функция его выполняется».</li>
+      <li>«Особенно ценны все приёмы разделения времени, помогающие перейти от&nbsp;„среднего арифметического“ к&nbsp;точно отмеренному».</li>
+      <li>«Ещё лучше, если человеку не&nbsp;приходится специально сообщать о&nbsp;себе и&nbsp;своих намерениях» — класс решений «писсуарного датчика»: свет, двери, вода.</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150706-notdelivered-list-after.png" alt="Отлуп во входящих: индикатор у строки — решение там, где внимание отправителя" loading="lazy">
+        <figcaption>Отлуп во&nbsp;«входящих»: индикатор у&nbsp;строки — решение там, где внимание отправителя.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/protivorechiya/20150706-notdelivered-after.png" alt="Внутри письма: жёлтая плашка с причиной и кнопкой повторной отправки" loading="lazy">
+        <figcaption>Внутри письма: жёлтая плашка с&nbsp;причиной и&nbsp;кнопкой повторной отправки — вместо «простыни нечитаемого технического текста».</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2312,6 +3113,24 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170724/">«Что такое согласование в&nbsp;дизайне?» ч.&nbsp;1</a></span>
   </div>
   <p class="statement">«Согласование — это наведение порядка и&nbsp;усиление связей в&nbsp;системе». В&nbsp;хорошем интерфейсе согласованы и&nbsp;функция, и&nbsp;вид: элементы «знают» о&nbsp;существовании друг друга. Но&nbsp;нюансы согласуют, когда основная композиция уже найдена, — слишком раннее согласование — пустая трата сил.</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Согласование — это наведение порядка и&nbsp;усиление связей в&nbsp;системе».</li>
+      <li>«Причесать — значит согласовать угол наклона волос к&nbsp;голове» — не&nbsp;сделать угол равным, а&nbsp;превратить волосы в&nbsp;согласованную систему.</li>
+      <li>«Слишком раннее согласование — пустая трата сил, времени и&nbsp;ресурсов, а&nbsp;уже рабочая система с&nbsp;несогласованными элементами не&nbsp;реализует свой потенциал».</li>
+      <li>«Чем профессиональнее графическая работа, тем более согласованы её элементы. Но&nbsp;опытные дизайнеры тратят время на&nbsp;нюансы, когда основная композиция уже найдена».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/soglasovanie/20170724-birman.png" alt="Схема Московского метро Ильи Бирмана" loading="lazy">
+        <figcaption>Схема метро Ильи Бирмана — «согласовано всё со&nbsp;всем: ритм линий, углы наклона, центры дуг, пересечения, скругления, надписи и&nbsp;отступы».</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/soglasovanie/20170724-sliders-after.png" alt="Два ползунка диапазона со «стёклышком» между ними" loading="lazy">
+        <figcaption>Ползунки диапазона «знают» друг о&nbsp;друге, между ними — «стёклышко» для перетаскивания интервала: согласована функция, не&nbsp;только вид.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2392,6 +3211,24 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170807/">«Что такое согласование в&nbsp;дизайне?» ч.&nbsp;2</a></span>
   </div>
   <p class="statement">Система эффективнее, когда действие согласовано во&nbsp;времени с&nbsp;другими: «все сопутствующие движения должны начинаться или заканчиваться одновременно», а&nbsp;несовместимые — разнесены. «Для согласования взаимодействия в&nbsp;английском языке есть хорошее слово — тайминг».</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Но&nbsp;система становится ещё эффективнее, если действие не&nbsp;просто переменное, а&nbsp;согласованное с&nbsp;другими действиями или событиями. Например, разнесённое во&nbsp;времени с&nbsp;несовместимыми».</li>
+      <li>«Все сопутствующие движения должны начинаться или заканчиваться одновременно» — тогда переход в&nbsp;интерфейсной анимации выглядит единым.</li>
+      <li>«Анимация кнопки, переливание света на&nbsp;корзине и&nbsp;пульсация цифры заканчиваются одновременно» — поэтому переход у&nbsp;кнопки Лавишустринга читается как одно событие.</li>
+      <li>«Для согласования взаимодействия в&nbsp;английском языке есть хорошее слово — тайминг».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/soglasovanie/20170807-lavish-ani.gif" alt="Анимация кнопки добавления в корзину Лавишустринга" loading="lazy">
+        <figcaption>Кнопка Лавишустринга: все сопутствующие движения заканчиваются одновременно.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/soglasovanie/20170807-ninja.jpg" alt="Тройное комбо в игре «Фруктовый ниндзя»" loading="lazy">
+        <figcaption>Тройное комбо в&nbsp;«Фруктовом ниндзя» — одновременный запуск связанных событий усиливает каждое из&nbsp;них.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2437,6 +3274,24 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170904/">«Что такое согласование в&nbsp;дизайне?» ч.&nbsp;3</a></span>
   </div>
   <p class="statement">Структурирование — согласование на&nbsp;уровне всей системы: у&nbsp;зрелых систем структура усложняется, эффективность растёт. Приём «навести структуру» — «вытащить наружу скелет, на&nbsp;котором держится рассказ»: видимая структура заставляет «причесать» все описания, а&nbsp;читателю легче искать.</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Структура — это просто взаимное расположение и&nbsp;взаимосвязи между элементами системы».</li>
+      <li>«Как и&nbsp;другие виды согласования, структурирование — это преобразование, которое происходит с&nbsp;более зрелыми системами. Структура становится сложнее, эффективность растёт».</li>
+      <li>«Перестаньте скрывать структурность. Давайте сделаем из&nbsp;неё культ. Введём приём „навести структуру“ — вытащить наружу скелет, на&nbsp;котором держится рассказ» — Ильяхов о&nbsp;тексте.</li>
+      <li>«Как ни&nbsp;разнообразны системы в&nbsp;природе, науке, технологиях, информатике, бизнесе, в&nbsp;них можно найти универсальные структуры — прогрессию, иерархию, матричную сетку, фракталы».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/soglasovanie/20170904-framing.jpg" alt="Каркасный дом: несущий скелет из балок" loading="lazy">
+        <figcaption>Каркасный дом: «скелет» освобождает пространство между балками — эволюция структуры от&nbsp;несущих стен к&nbsp;каркасу.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/soglasovanie/20170904-grid.gif" alt="Вариации макетов по модульной сетке из 32 ячеек" loading="lazy">
+        <figcaption>Модульная сетка из&nbsp;32&nbsp;ячеек (Мюллер-Брокман) — невидимая структура делает страницы разнообразными и&nbsp;соответствующими материалу.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2496,6 +3351,19 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20171023/">«Что такое горизонтальное и&nbsp;вертикальное развитие продуктов?»</a></span>
   </div>
   <p class="statement">«Любая работоспособная система… состоит из&nbsp;подсистем и&nbsp;сама, в&nbsp;свою очередь, является частью надсистемы». В&nbsp;каждый момент продукт может пойти «вперёд, вверх или вниз, а&nbsp;иногда и&nbsp;назад — и&nbsp;это необязательно плохо»; увидеть направления и&nbsp;принять решение помогает матрица продукта.</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Любая работоспособная система, созданная природой или человеком, состоит из&nbsp;подсистем и&nbsp;сама, в&nbsp;свою очередь, является частью надсистемы».</li>
+      <li>«Каждый момент времени продукт на&nbsp;каждом уровне может пойти в&nbsp;одном из&nbsp;направлений: вперёд, вверх или вниз, а&nbsp;иногда и&nbsp;назад — и&nbsp;это необязательно плохо».</li>
+      <li>«Заполненные ячейки „прошлого“ — до&nbsp;появления продукта — помогают лучше сформулировать его настоящую пользу. А&nbsp;ячейки „будущего“ — увидеть потенциал линейки продуктов, аксессуаров или дополнительных сервисов».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/zadachi/20171023-matrix.png" alt="Матрица платёжного сервиса «Пэй-ап»: уровни системы по вертикали, прошлое и будущее по горизонтали" loading="lazy">
+        <figcaption>Матрица платёжного сервиса «Пэй-ап»: уровни системы по&nbsp;вертикали, прошлое и&nbsp;будущее по&nbsp;горизонтали — живой пример инструмента из&nbsp;совета.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2554,13 +3422,35 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20171211/">«Решение дизайнерской задачи: этапы»</a></span>
   </div>
   <p class="statement">Универсальная схема решения любой задачи — три этапа: анализ (полезное действие, конфликт, ресурсы), модель (образ решения, сформулированный одной фразой) и&nbsp;решение (конкретная форма). «Польза этой схемы в&nbsp;том, чтобы всегда знать, где ты находишься».</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«Польза этой схемы в&nbsp;том, чтобы всегда знать, где ты находишься».</li>
+      <li>«Первым делом нужно как можно точнее сформулировать полезное действие… Точное определение иногда даже само по&nbsp;себе приводит к&nbsp;решению задачи, а&nbsp;неверное — сбивает с&nbsp;курса».</li>
+      <li>«Полезное действие можно и&nbsp;нужно отделять от&nbsp;способа его достижения» — не&nbsp;«улучшить зубную щётку», а&nbsp;«чистка зубов»: так открываются чистка жидкостью, вибрацией, предохранение от&nbsp;налёта.</li>
+      <li>«Модель решения — это полезное действие и&nbsp;явно сформулированный способ его достижения. Лучше всего, если модель сформулирована одной фразой или абзацем — так видны все достоинства и&nbsp;недостатки решения».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/zadachi/20171211-marytrufel-matrix.png" alt="Матрица свадебного салона «Мэри Трюфель»: уровни системы, полезное действие и незакрытые элементы" loading="lazy">
+        <figcaption>Матрица свадебного салона «Мэри Трюфель»: анализ уровней показал выход в&nbsp;надсистему — на&nbsp;уровень свадьбы.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/zadachi/20171211-park-model.jpg" alt="Модель логотипа Парк-ридера: смысл найден, форма ещё «не логотипична»" loading="lazy">
+        <figcaption>Модель логотипа Парк-ридера: смысл найден, форма ещё «не&nbsp;логотипична» — на&nbsp;этапе модели это не&nbsp;страшно.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/zadachi/20171211-onetwotrip.png" alt="Финальный знак Андрея Зубрилова: тот же смысл, узнаваемая форма минимальными средствами" loading="lazy">
+        <figcaption>Этап решения: финальный знак «Раз-два-трипа» — та же модель, но&nbsp;узнаваемая форма минимальными средствами.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
       <div class="demo">
         <div class="mini-card">
           <h4>Добавить нотификации</h4>
-          <p class="meta" style="margin-top:var(--space-2);">Сделать красиво, как в Слаке. Ну и звук чтобы был.</p>
+          <p class="meta" style="margin-top:var(--space-2);">Сделать красиво, как в&nbsp;Слаке. Ну и&nbsp;звук чтобы был.</p>
           <div class="btn-row" style="margin-top:var(--space-3);"><span class="btn">В работу</span></div>
         </div>
       </div>
@@ -2608,6 +3498,14 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20111007/">«Заходят, разворачиваются и&nbsp;уходят»</a></span>
     </div>
     <p class="statement">«Если „самое главное“ отвращает пользователей, это повод стать честнее перед собой. Чем раньше откроется правда, тем меньше денег, времени и&nbsp;сил потратится на&nbsp;воплощение иллюзий». На&nbsp;старте об&nbsp;ошибке знают пять человек — «даже если их всех стошнит, на&nbsp;вторую версию придут другие пять».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Принцип ФФФ заставляет оставить в&nbsp;продукте только самое главное».</li>
+        <li>«Но с&nbsp;первого раза никогда ни&nbsp;у&nbsp;кого не&nbsp;получается» — ранний выпуск делает продукт «ближе к&nbsp;реальности, а, значит, лучше и&nbsp;успешнее».</li>
+        <li>«Если вы были честны перед миром с&nbsp;самого начала, то&nbsp;и&nbsp;первые пять стошнивших вернутся» — а&nbsp;ушедшим «напишите им письмо».</li>
+        <li>«Если продукт провалится, можно выпустить новый, под другим названием и&nbsp;на&nbsp;другом уровне. Если это сайт — хоть раз в&nbsp;два месяца».</li>
+      </ul>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2655,6 +3553,14 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20111111/">«Переработать дизайн перед запуском»</a></span>
     </div>
     <p class="statement">Если работоспособный продукт собран, «поменять оформление — дело нескольких недель. Иногда — одной ночи». Но&nbsp;«перекрашиваете, а&nbsp;не&nbsp;меняете корпус, такелаж и&nbsp;что там ещё у&nbsp;яхты» — и&nbsp;нет ничего хуже, чем «порождать один за&nbsp;другим комплекты графических файлов, не&nbsp;приближаясь к&nbsp;реализации».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Поговорите с&nbsp;клиентом. Узнайте его отношение к&nbsp;смене дизайна и&nbsp;его оценку риска отсрочки. Откровенно скажите, что вас беспокоит, но&nbsp;не&nbsp;давите».</li>
+        <li>«Разумеется, речь не&nbsp;о&nbsp;глобальной смене сценариев, навигации и&nbsp;принципов интерфейса» — оговорка повторена в&nbsp;совете дважды.</li>
+        <li>«Вы с&nbsp;чистой совестью перекрашиваете яхту, готовую к&nbsp;спуску. И&nbsp;между прочим, на&nbsp;это нужна воля, ведь всем уже хочется открыть шампанское».</li>
+        <li>«Представьте на&nbsp;секунду, что ваш новый ответственный — Стив Джобс».</li>
+      </ul>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2700,6 +3606,14 @@ a:hover { text-decoration: underline; }
       <span class="src">Бирман, <a href="https://bureau.ru/soviet/20120117/">«Пользователи воспринимают изменения в&nbsp;штыки»</a></span>
     </div>
     <p class="statement">Радикальные решения испытывают в&nbsp;отдельном новом продукте и&nbsp;переносят в&nbsp;старый по&nbsp;мере завоевания поддержки: «пользователи, убедившиеся в&nbsp;том, что новые решения хороши, воспринимают их миграцию в&nbsp;старый продукт несколько менее болезненно».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Есть такой способ, называется Back to&nbsp;the&nbsp;Mac» — новый отдельный продукт-«Айфон», «на&nbsp;котором испытываем новые непривычные, но&nbsp;представляющиеся перспективными решения».</li>
+        <li>По&nbsp;мере завоевания поддержки «отдельные решения прикручиваем к&nbsp;старому продукту».</li>
+        <li>Прогрессивные пользователи ушли бы в&nbsp;новый сервис, «а&nbsp;старые бы при этом радовались каждому новшеству: „Про нас тоже не&nbsp;забывают!“».</li>
+        <li>Из&nbsp;комментариев: важно «по-человечески пояснить, зачем что-то поменяли, и&nbsp;что это даст мне как пользователю; убедиться, что сообщение услышано».</li>
+      </ul>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2745,6 +3659,28 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160328/">«Как эволюционируют системы?»</a></span>
     </div>
     <p class="statement">Эволюция продуктов — случайный «пинбольный» процесс, но&nbsp;с&nbsp;закономерностями: «главные законы развития дизайна — максимизация полезного действия и&nbsp;минимизация конструкции». Их взаимодействие даёт волны — как бамперы, что «то&nbsp;росли, то&nbsp;уменьшались».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Эволюция техники, систем и&nbsp;продуктов — случайный процесс», но&nbsp;«прогресс поддаётся изучению и&nbsp;имеет свои закономерности».</li>
+        <li>«Важны не&nbsp;случайные события и&nbsp;цели создателей, а&nbsp;что по&nbsp;факту произошло, по&nbsp;какой линии развивался дизайн».</li>
+        <li>«Бамперы то&nbsp;росли, то&nbsp;уменьшались — так взаимодействовали законы максимизации полезного действия и&nbsp;минимизации конструкции».</li>
+        <li>«Если дизайнер понимает макрозаконы, по&nbsp;которым развивается дизайн, то&nbsp;он ускорит прогресс собственных продуктов и&nbsp;повлияет на&nbsp;то, как их принимает аудитория».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/produkty/20160328-ford-custom-cropped.jpg" alt="Форд Кастом 1951 года с массивной стальной балкой бампера" loading="lazy">
+          <figcaption>1951 год: Форд Кастом с&nbsp;массивной стальной балкой — конструкция на&nbsp;пике.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/produkty/20160328-plymouth.jpg" alt="Плимут Фьюри 1978 года с массивным бампером после «стандарта 5 миль/ч»" loading="lazy">
+          <figcaption>1978 год: Плимут Фьюри — после «стандарта 5&nbsp;миль/ч» конструкция снова выросла.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/produkty/20160328-audi.jpg" alt="Ауди А8 2012 года — бампер спрятан в пластиковую часть кузова" loading="lazy">
+          <figcaption>2012 год: Ауди А8 — бампер спрятался в&nbsp;кузов, «и&nbsp;притом он гораздо безопаснее своих массивных предшественников».</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2793,6 +3729,14 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170102/">«А&nbsp;как же „интерфейс — зло“?»</a></span>
     </div>
     <p class="statement">Интерфейс — «трансмиссия, благодаря которой продукт и&nbsp;пользователь образуют единую систему», и&nbsp;«источник потерь аудитории, денег и&nbsp;времени». Принцип не&nbsp;охраняет права потребителей: заблокированная кнопка «купить» честна, если работает система в&nbsp;целом. «Прежде чем повышать КПД, сначала хорошо бы добиться, чтобы система заработала в&nbsp;принципе» — не&nbsp;запускать «сразу десятую версию».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Принцип „интерфейс — зло“ не&nbsp;охраняет интересы пользователей… этот принцип — не&nbsp;закон о&nbsp;защите прав потребителей».</li>
+        <li>«По&nbsp;сути — это трансмиссия, благодаря которой продукт и&nbsp;пользователь образуют единую систему».</li>
+        <li>«Продукт будет успешен, если в&nbsp;его основе лежит работоспособная система» — дизайнер «работает с&nbsp;системой в&nbsp;целом».</li>
+        <li>«Сценарии, окна и&nbsp;кнопки пользовательского интерфейса — источник потерь аудитории, денег и&nbsp;времени в&nbsp;продукте».</li>
+      </ul>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2838,6 +3782,28 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170925/">«Эволюция и&nbsp;революция продуктов: опасности»</a></span>
     </div>
     <p class="statement">«Редизайн неудачен, если существующая система теряет работоспособность». Мельбурну и&nbsp;Айфону революция удалась, потому что «было нечего терять»; «если у&nbsp;продукта есть аудитория, революционный редизайн сродни пересадке головы — шансы выжить небольшие».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Для пользователей любое изменение — стресс. Иногда стресс превращается в&nbsp;катастрофу».</li>
+        <li>«Интерфейс радикально меняется, хотя пользователи этого не&nbsp;просили и&nbsp;не&nbsp;ждали. Система теряет главный ресурс — преданных пользователей».</li>
+        <li>«Мельбурну и&nbsp;Айфону было нечего терять» — и&nbsp;примечательно: «ни&nbsp;фирменный стиль Мельбурна, ни&nbsp;Айфон не&nbsp;менялись радикально с&nbsp;момента появления».</li>
+        <li>Из&nbsp;комментария: «если редизайн видоизменил интерфейс, но&nbsp;сохранил ценный функционал, то&nbsp;пользователи сформируют новые привычки».</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/produkty/20170925-sms-before.jpg" alt="Отправка сообщения на телефоне 2007 года — девять экранов" loading="lazy">
+          <figcaption>Отправка сообщения: «традиционному устройству требовалось девять экранов».</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/produkty/20170925-sms-after.jpg" alt="Отправка сообщения в Айфоне — три экрана" loading="lazy">
+          <figcaption>«Айфон обходился тремя» — революция удалась, потому что терять было нечего.</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/produkty/20170925-rambler-after.png" alt="Редизайн почты Рамблера 2012 года" loading="lazy">
+          <figcaption>Почта Рамблера 2012 года: интерфейс стал «аккуратным, простым и&nbsp;современным», но&nbsp;живая аудитория излила «эмоции, боль и&nbsp;страдания».</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2883,6 +3849,28 @@ a:hover { text-decoration: underline; }
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20171016/">«Эволюция и&nbsp;революция продуктов: стратегии»</a></span>
     </div>
     <p class="statement">«Самое прямолинейное и&nbsp;оттого не&nbsp;всегда очевидное решение — вообще не&nbsp;трогать работающий продукт, а&nbsp;создать совершенно новый». Строить систему слоями, где каждый слой опирается на&nbsp;старый; убрать неожиданность и&nbsp;дать право на&nbsp;«нет» — оно «даёт пользователям ощущение контроля и&nbsp;меняет тон их реакции».</p>
+    <div class="brief">
+      <ul class="theses">
+        <li>«Это самый безопасный способ революции, если революция вообще может быть безопасной» — построить рядом.</li>
+        <li>«Каждый следующий слой не&nbsp;разрушает старый, а&nbsp;опирается на&nbsp;него и&nbsp;пользуется его ресурсами» — построить сверху.</li>
+        <li>«Убрать неожиданность, дать привыкнуть к&nbsp;новому и, конечно, „образовать“ их — подробно рассказать о&nbsp;смысле и&nbsp;пользе изменений в&nbsp;их мире» — подготовить.</li>
+        <li>«Если решить настоящую проблему людей, у&nbsp;них будет меньше поводов сопротивляться изменениям» — и&nbsp;главное: сделать хорошо.</li>
+      </ul>
+      <div class="figs">
+        <figure>
+          <img src="../docs/design/research/bureau/img/produkty/20171016-iphone8.jpg" alt="Айфон 8 — традиционная модель, показанная «спиной»" loading="lazy">
+          <figcaption>Айфон&nbsp;8 рядом с&nbsp;Айфоном&nbsp;X: «если бы Эпл презентовали одну модель, пользователи лишились бы выбора и&nbsp;многие начали бы бунтовать».</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/produkty/20171016-otchety-mightbe.png" alt="Каким мог быть сервис «Отчёты»: огромная колонка рекомендаций" loading="lazy">
+          <figcaption>«Огромная колонка превратила бы лёгкий дополнительный сервис в&nbsp;монструозную систему».</figcaption>
+        </figure>
+        <figure>
+          <img src="../docs/design/research/bureau/img/produkty/20171016-otchety-after.png" alt="Как сделали: рекомендации — ненавязчивый модуль-слой в углу" loading="lazy">
+          <figcaption>Как сделали: рекомендации — ненавязчивый слой-модуль в&nbsp;углу, связанный с&nbsp;неотправленными отчётами.</figcaption>
+        </figure>
+      </div>
+    </div>
     <div class="demos">
       <div class="frame bad">
         <div class="f-head"><span class="f-verdict">Плохо</span></div>
@@ -2930,37 +3918,48 @@ a:hover { text-decoration: underline; }
 <div class="digest">
   <dl>
     <dt id="yaponskie-t1">Резинки-динозавры «Дино» → придать структуру</dt>
-    <dd>Канцелярские резинки, отлитые в&nbsp;силуэты динозавров: в&nbsp;работе — обычная резинка, без дела — зверинец на&nbsp;столе. Резинкам сто лет, и&nbsp;добавить им ценность можно уже только структурой: все части согласованы в&nbsp;форму животного. — <a href="https://bureau.ru/soviet/20170904/">совет о&nbsp;структурировании</a></dd>
+    <dd><img class="good" src="../docs/design/research/bureau/img/yaponskie/dino-rezinki.jpg" alt="Резинки-динозавры «Дино»" loading="lazy">
+    Канцелярские резинки, отлитые в&nbsp;силуэты динозавров: в&nbsp;работе — обычная резинка, без дела — зверинец на&nbsp;столе. Резинкам сто лет, и&nbsp;добавить им ценность можно уже только структурой: все части согласованы в&nbsp;форму животного. — <a href="https://bureau.ru/soviet/20170904/">совет о&nbsp;структурировании</a></dd>
 
     <dt id="yaponskie-t2">Половник с&nbsp;дном «Тате Отама» → метод грубой силы и&nbsp;бесплатность</dt>
-    <dd>Половник с&nbsp;приплюснутым дном стоит на&nbsp;столе сам — без подставки и&nbsp;крючка. Колумбово яйцо в&nbsp;посуде: «священная» круглая форма оказалась чисто ментальным блоком, а&nbsp;новая функция получена даром, без единой добавленной детали. — советы <a href="https://bureau.ru/soviet/20150413/">о&nbsp;методе грубой силы</a> и&nbsp;<a href="https://bureau.ru/soviet/20150608/">о&nbsp;решениях без компромиссов</a></dd>
+    <dd><img class="good" src="../docs/design/research/bureau/img/yaponskie/tate-otama-polovnik.jpg" alt="Половник с дном «Тате Отама»" loading="lazy">
+    Половник с&nbsp;приплюснутым дном стоит на&nbsp;столе сам — без подставки и&nbsp;крючка. Колумбово яйцо в&nbsp;посуде: «священная» круглая форма оказалась чисто ментальным блоком, а&nbsp;новая функция получена даром, без единой добавленной детали. — советы <a href="https://bureau.ru/soviet/20150413/">о&nbsp;методе грубой силы</a> и&nbsp;<a href="https://bureau.ru/soviet/20150608/">о&nbsp;решениях без компромиссов</a></dd>
 
     <dt id="yaponskie-t3">Беруши-такса «Мими Пет» → переход 1→2 и&nbsp;согласование элементов</dt>
-    <dd>Пара берушей — голова и&nbsp;хвост таксы, будто собака пролезает из&nbsp;уха в&nbsp;ухо. Не&nbsp;два предмета, а&nbsp;бисистема: одна половинка не&nbsp;имеет смысла без другой, и&nbsp;каждая «знает» о&nbsp;соседке — формы согласованы в&nbsp;одно животное. — советы <a href="https://bureau.ru/soviet/20170911/">о&nbsp;би- и&nbsp;полисистемах</a> и&nbsp;<a href="https://bureau.ru/soviet/20170724/">о&nbsp;согласовании элементов</a></dd>
+    <dd><img class="good" src="../docs/design/research/bureau/img/yaponskie/mimi-pet-berushi.jpg" alt="Беруши-такса «Мими Пет»" loading="lazy">
+    Пара берушей — голова и&nbsp;хвост таксы, будто собака пролезает из&nbsp;уха в&nbsp;ухо. Не&nbsp;два предмета, а&nbsp;бисистема: одна половинка не&nbsp;имеет смысла без другой, и&nbsp;каждая «знает» о&nbsp;соседке — формы согласованы в&nbsp;одно животное. — советы <a href="https://bureau.ru/soviet/20170911/">о&nbsp;би- и&nbsp;полисистемах</a> и&nbsp;<a href="https://bureau.ru/soviet/20170724/">о&nbsp;согласовании элементов</a></dd>
 
     <dt id="yaponskie-t4">Модульный коврик «Шиба» → переход 1→N и&nbsp;динамизация дроблением</dt>
-    <dd>Квадратные модули соединяются в&nbsp;ковёр любой формы, размера и&nbsp;узора. Один ковёр стал поликовром из&nbsp;ковриков, а&nbsp;дробление дало приём «разделить и&nbsp;связать»: коврик ровно такой, какой нужен в&nbsp;этой комнате. — советы <a href="https://bureau.ru/soviet/20170911/">о&nbsp;полисистемах</a> и&nbsp;<a href="https://bureau.ru/soviet/20160509/">о&nbsp;динамизации дроблением</a></dd>
+    <dd><img class="good" src="../docs/design/research/bureau/img/yaponskie/shiba-kovrik.jpg" alt="Модульный коврик «Шиба»" loading="lazy">
+    Квадратные модули соединяются в&nbsp;ковёр любой формы, размера и&nbsp;узора. Один ковёр стал поликовром из&nbsp;ковриков, а&nbsp;дробление дало приём «разделить и&nbsp;связать»: коврик ровно такой, какой нужен в&nbsp;этой комнате. — советы <a href="https://bureau.ru/soviet/20170911/">о&nbsp;полисистемах</a> и&nbsp;<a href="https://bureau.ru/soviet/20160509/">о&nbsp;динамизации дроблением</a></dd>
 
     <dt id="yaponskie-t5">Ластик «Эволюция» → переход N→∞</dt>
-    <dd>Стираешь со&nbsp;стороны обезьяны — ластик постепенно «эволюционирует» в&nbsp;человека. Классическая картинка эволюции — полисистема из&nbsp;шести рисунков, а&nbsp;здесь фазы слились в&nbsp;непрерывный морфинг: дискретная шкала стала континуумом. — <a href="https://bureau.ru/soviet/20160509/">совет о&nbsp;предельном дроблении</a></dd>
+    <dd><img class="good" src="../docs/design/research/bureau/img/yaponskie/evolution-lastik.jpg" alt="Ластик «Эволюция»" loading="lazy">
+    Стираешь со&nbsp;стороны обезьяны — ластик постепенно «эволюционирует» в&nbsp;человека. Классическая картинка эволюции — полисистема из&nbsp;шести рисунков, а&nbsp;здесь фазы слились в&nbsp;непрерывный морфинг: дискретная шкала стала континуумом. — <a href="https://bureau.ru/soviet/20160509/">совет о&nbsp;предельном дроблении</a></dd>
 
     <dt id="yaponskie-t6">Плоские губки «Е попап спонж» → динамизация функций</dt>
-    <dd>Губки спрессованы в&nbsp;плоские карточки с&nbsp;иллюстрациями; добавь воды — карточка вырастает в&nbsp;губку. Два состояния под две функции: плоская хранится и&nbsp;работает открыткой, объёмная моет посуду. — <a href="https://bureau.ru/soviet/20160711/">совет о&nbsp;динамизации функций</a></dd>
+    <dd><img class="good" src="../docs/design/research/bureau/img/yaponskie/popup-sponge-gubki.jpg" alt="Плоские губки «Е попап спонж»" loading="lazy">
+    Губки спрессованы в&nbsp;плоские карточки с&nbsp;иллюстрациями; добавь воды — карточка вырастает в&nbsp;губку. Два состояния под две функции: плоская хранится и&nbsp;работает открыткой, объёмная моет посуду. — <a href="https://bureau.ru/soviet/20160711/">совет о&nbsp;динамизации функций</a></dd>
 
     <dt id="yaponskie-t7">Карандашницы «Вейви» → переход 1→N и&nbsp;придать структуру</dt>
-    <dd>Куски кожи сшиты так, что складки образуют соты — по&nbsp;ячейке на&nbsp;карандаш. Стаканчик для карандашей раздробился в&nbsp;полисистему, а&nbsp;соты дали мягкой коже свойства, которых у&nbsp;неё не&nbsp;было: держать форму и&nbsp;раскладывать предметы. — советы <a href="https://bureau.ru/soviet/20170911/">о&nbsp;полисистемах</a> и&nbsp;<a href="https://bureau.ru/soviet/20170904/">о&nbsp;структурировании</a></dd>
+    <dd><img class="good" src="../docs/design/research/bureau/img/yaponskie/wavy-karandashnitsy.jpg" alt="Карандашницы «Вейви»" loading="lazy">
+    Куски кожи сшиты так, что складки образуют соты — по&nbsp;ячейке на&nbsp;карандаш. Стаканчик для карандашей раздробился в&nbsp;полисистему, а&nbsp;соты дали мягкой коже свойства, которых у&nbsp;неё не&nbsp;было: держать форму и&nbsp;раскладывать предметы. — советы <a href="https://bureau.ru/soviet/20170911/">о&nbsp;полисистемах</a> и&nbsp;<a href="https://bureau.ru/soviet/20170904/">о&nbsp;структурировании</a></dd>
 
     <dt id="yaponskie-t8">Подставки под палочки «Хирагана» → динамизация функций, N→∞ и&nbsp;маркетинговая динамизация</dt>
-    <dd>Фарфоровая «лапша», изогнутая иероглифами хираганы: сразу столовый прибор, лапша и&nbsp;знак; не&nbsp;набор деталей, а&nbsp;«гибкий» непрерывный объект; из&nbsp;одного «теста» — целый ассортимент. «Красота не&nbsp;бывает слишком простой». — советы <a href="https://bureau.ru/soviet/20160711/">о&nbsp;динамизации функций</a>, <a href="https://bureau.ru/soviet/20160509/">о&nbsp;дроблении</a> и&nbsp;<a href="https://bureau.ru/soviet/20160725/">о&nbsp;маркетинговой динамизации</a></dd>
+    <dd><img class="good" src="../docs/design/research/bureau/img/yaponskie/hiragana-podstavki.jpg" alt="Подставки под палочки «Хирагана»" loading="lazy">
+    Фарфоровая «лапша», изогнутая иероглифами хираганы: сразу столовый прибор, лапша и&nbsp;знак; не&nbsp;набор деталей, а&nbsp;«гибкий» непрерывный объект; из&nbsp;одного «теста» — целый ассортимент. «Красота не&nbsp;бывает слишком простой». — советы <a href="https://bureau.ru/soviet/20160711/">о&nbsp;динамизации функций</a>, <a href="https://bureau.ru/soviet/20160509/">о&nbsp;дроблении</a> и&nbsp;<a href="https://bureau.ru/soviet/20160725/">о&nbsp;маркетинговой динамизации</a></dd>
 
     <dt id="yaponskie-t9">Лупа для снежинок «Юки-мегане» → образование (E в&nbsp;FIRE)</dt>
-    <dd>Брелок с&nbsp;лупой, на&nbsp;коробке которого написано: «для снежинок». Всю ценность продукту дал текст на&nbsp;упаковке — надпись подсказывает идею, перед которой «не&nbsp;устоять»; обычно эту работу делают презентация, сайт и&nbsp;подсказки. — <a href="https://bureau.ru/soviet/20151109/">совет об&nbsp;образовании</a></dd>
+    <dd><img class="good" src="../docs/design/research/bureau/img/yaponskie/yuki-megane-lupa.jpg" alt="Лупа для снежинок «Юки-мегане»" loading="lazy">
+    Брелок с&nbsp;лупой, на&nbsp;коробке которого написано: «для снежинок». Всю ценность продукту дал текст на&nbsp;упаковке — надпись подсказывает идею, перед которой «не&nbsp;устоять»; обычно эту работу делают презентация, сайт и&nbsp;подсказки. — <a href="https://bureau.ru/soviet/20151109/">совет об&nbsp;образовании</a></dd>
 
     <dt id="yaponskie-t10">Надувные поросятки «Маммал» → минимизация конструкции, структура, 1→2</dt>
-    <dd>Каучуковые шарики-свинки с&nbsp;разным цветом снаружи и&nbsp;изнутри: одна оболочка работает как две, форма животного — структура, а&nbsp;пятачком служит завязанный конец шарика. Деталь, обязанная существовать, назначена мордой — ноль добавленных частей, максимум образа. — <a href="https://bureau.ru/soviet/20150216/">совет о&nbsp;минимизации конструкции</a></dd>
+    <dd><img class="good" src="../docs/design/research/bureau/img/yaponskie/mammal-shariki.jpg" alt="Надувные поросятки «Маммал»" loading="lazy">
+    Каучуковые шарики-свинки с&nbsp;разным цветом снаружи и&nbsp;изнутри: одна оболочка работает как две, форма животного — структура, а&nbsp;пятачком служит завязанный конец шарика. Деталь, обязанная существовать, назначена мордой — ноль добавленных частей, максимум образа. — <a href="https://bureau.ru/soviet/20150216/">совет о&nbsp;минимизации конструкции</a></dd>
 
     <dt id="yaponskie-t11">Пешеходный переход на&nbsp;Сотобори-дори → максимизировать пользу</dt>
-    <dd>Сверхширокий переход у&nbsp;станции Токио занимает больше полезной ширины улицы — и&nbsp;пропускает больший поток людей за&nbsp;меньшее время. Ресурс уже оплачен — пусть работает целиком. — <a href="https://bureau.ru/soviet/20150202/">совет о&nbsp;решении дизайнерских задач</a></dd>
+    <dd><img class="good" src="../docs/design/research/bureau/img/yaponskie/sotobori-perekhod.jpg" alt="Пешеходный переход через Сотобори-дори" loading="lazy">
+    Сверхширокий переход у&nbsp;станции Токио занимает больше полезной ширины улицы — и&nbsp;пропускает больший поток людей за&nbsp;меньшее время. Ресурс уже оплачен — пусть работает целиком. — <a href="https://bureau.ru/soviet/20150202/">совет о&nbsp;решении дизайнерских задач</a></dd>
   </dl>
 </div>
 
@@ -2971,6 +3970,28 @@ a:hover { text-decoration: underline; }
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170911/">«Расскажите о&nbsp;переходе к&nbsp;би- и&nbsp;полисистеме»</a></span>
   </div>
   <p class="statement">«Сдвоение системы создаёт возможности, которых нет у&nbsp;двух отдельных систем». Когда минимизировать и&nbsp;динамизировать уже нечего, качественный скачок дают переходы 1→2 и&nbsp;2→N, а&nbsp;зрелость би- и&nbsp;полисистемы измеряется тем, сколько общих элементов вынесено за&nbsp;скобку. «Два — волшебное число в&nbsp;дизайне».</p>
+  <div class="brief">
+    <ul class="theses">
+      <li>«При переходе от&nbsp;моносистемы к&nbsp;бисистеме происходит качественное изменение, что редко происходит, например, при переходе от&nbsp;двойной системы к&nbsp;тройной или четверной» — следующий скачок даёт только переход к&nbsp;множеству.</li>
+      <li>«Бисистема — не&nbsp;просто двойная функция. Часто в&nbsp;бисистеме создаётся потенциал для нескольких нововведений» — из&nbsp;двух камер Айфона родились плавный зум, боке и&nbsp;трёхмерная модель сцены.</li>
+      <li>«Чем более зрелая би- или полисистема, тем больше связей между её элементами. Из&nbsp;отдельных подсистем постепенно выносятся за&nbsp;скобку общие элементы» — эволюция от&nbsp;двухствольного пистолета к&nbsp;револьверу.</li>
+      <li>«Много — волшебное слово в&nbsp;дизайне».</li>
+    </ul>
+    <div class="figs">
+      <figure>
+        <img src="../docs/design/research/bureau/img/yaponskie/20170911-diptych.jpg" alt="Римский диптих — две соединённые восковые дощечки" loading="lazy">
+        <figcaption>Римский диптих — «бипланшет до&nbsp;н.&nbsp;э.»: сложенные дощечки защищают восковую запись — функция, которой не&nbsp;было ни&nbsp;у&nbsp;одной дощечки в&nbsp;отдельности.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/yaponskie/20170911-bokeh.jpg" alt="Эффект боке из сравнения двух кадров двойной камеры" loading="lazy">
+        <figcaption>Боке из&nbsp;сравнения двух кадров двойной камеры Айфона 7&nbsp;плюс — нововведение, рождённое потенциалом бисистемы.</figcaption>
+      </figure>
+      <figure>
+        <img src="../docs/design/research/bureau/img/yaponskie/20170911-polysticker.png" alt="Составная наклейка Коворкафе с базовой «тарелочкой»" loading="lazy">
+        <figcaption>Полинаклейка Коворкафе, 2015: базовая «тарелочка» — элемент, вынесенный за&nbsp;скобку и&nbsp;связывающий остальные элементы полисистемы.</figcaption>
+      </figure>
+    </div>
+  </div>
   <div class="demos">
     <div class="frame bad">
       <div class="f-head"><span class="f-verdict">Плохо</span></div>
