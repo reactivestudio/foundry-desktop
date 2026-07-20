@@ -1181,9 +1181,17 @@ def board_cover(tokens, law_parts, candidate_parts, sidecars, rejected):
         "Все значения — цвета, кегли, отступы, радиусы — приезжают из "
         "<code>tokens.json</code> при сборке (это и есть дизайн-токены); поменяется "
         "значение в источнике — поменяется эта страница."))
+    # Строка данных линуется гамма-спектром: пять чисел красятся сквозным ходом
+    # ультрамарин→маджента — тем же, что и номера секций ниже. Число-состояние
+    # системы становится и входом в её цветовую систему; обложка перестаёт быть
+    # серой. Спектр-полоса над строкой (см. .cover-facts::before) — та же гамма
+    # линией, оправдание правой пустоты мастхеда фирменным знаком.
     lines.append('  <div class="cover-facts">')
-    for number, caption in facts:
-        lines.append('    <div class="cover-fact"><b>%d</b><span>%s</span></div>' % (number, escape(caption)))
+    total = max(1, len(facts) - 1)
+    for index, (number, caption) in enumerate(facts):
+        color = section_accent(tokens, index / total)
+        lines.append('    <div class="cover-fact"><b style="color: %s">%d</b><span>%s</span></div>'
+                     % (color, number, escape(caption)))
     lines.append("  </div>")
     lines.append("</section>")
     return lines
@@ -1395,33 +1403,35 @@ def contrast_block(tokens):
                             "посчитан браузером сейчас, при открытии страницы: "
                             "альфа-белый сперва кладётся на фон, потом берётся WCAG — "
                             "иначе цифра врёт"))
-    lines.append('  <div class="grid">')
-
-    lines.append('    <div class="col-8">')
-    lines.append('      <table class="matrix" id="matrix-inks">')
-    lines.append("        <thead><tr><th>Чернила</th></tr></thead>")
-    lines.append("        <tbody></tbody>")
-    lines.append("      </table>")
-    lines.append('      <p class="matrix-note">%s — WCAG 1.4.3 недоступное не нормирует: '
+    # Две матрицы стоят стопкой, не бок о бок: рядом они не влезали в колонку
+    # доски (сайдбар съел ширину) и наезжали друг на друга. Главная — чернила
+    # на поверхностях — во всю ширину; частный случай — что кладём на фирменную
+    # заливку — ниже, своей естественной шириной.
+    lines.append('  <div class="matrix-wrap">')
+    lines.append('    <table class="matrix" id="matrix-inks">')
+    lines.append("      <thead><tr><th>Чернила</th></tr></thead>")
+    lines.append("      <tbody></tbody>")
+    lines.append("    </table>")
+    lines.append("  </div>")
+    lines.append('  <p class="matrix-note">%s — WCAG 1.4.3 недоступное не нормирует: '
                  "порог %s к нему не применяется, и провалом это не помечено.</p>"
                  % (", ".join("<code>%s</code>" % escape(path) for path in sorted(CONTRAST_EXEMPT)),
                     format_number(CONTRAST_THRESHOLD)))
-    lines.append('      <p class="verdict-note">Ультрамарин <code>brand.ultramarine</code> даёт '
+    lines.append('  <p class="verdict-note">Ультрамарин <code>brand.ultramarine</code> даёт '
                  "<b>%.1f:1</b> на <code>bg.base</code> — порог 4.5 не взят, и это видно "
                  "в таблице, а не в примечании. Поэтому текстом всегда "
                  "<code>text.accent</code>. Правило, которое видно проваливающимся, "
                  "не нужно заучивать.</p>" % failure)
-    lines.append("    </div>")
 
-    lines.append('    <div class="col-4">')
-    lines.append('      <table class="matrix" id="matrix-accents">')
-    lines.append("        <thead><tr><th>Заливка</th></tr></thead>")
-    lines.append("        <tbody></tbody>")
-    lines.append("      </table>")
-    lines.append('      <p class="verdict-note">%s</p>'
-                 % escape(find_token(tokens, "text.on-accent").get("role", "")))
-    lines.append("    </div>")
+    lines.append('  <p class="sub-kicker">На фирменной заливке — что читается</p>')
+    lines.append('  <div class="matrix-wrap narrow">')
+    lines.append('    <table class="matrix" id="matrix-accents">')
+    lines.append("      <thead><tr><th>Заливка</th></tr></thead>")
+    lines.append("      <tbody></tbody>")
+    lines.append("    </table>")
     lines.append("  </div>")
+    lines.append('  <p class="verdict-note">%s</p>'
+                 % escape(find_token(tokens, "text.on-accent").get("role", "")))
 
     if drifted:
         lines.append('  <div class="finding">')
@@ -1639,18 +1649,23 @@ def layout_block(tokens):
 
     lines = ['<div class="block" id="layout-macro">']
     lines.append(block_head("Панели окна — макросетка",
-                            "ширины в натуральную величину, pt→px 1:1: "
-                            "панель — это «колонка» приложения (02 §8)"))
+                            "ширины в натуральную величину, pt→px 1:1: панель — это "
+                            "«колонка» приложения (02 §8). Окно шире колонки доски — "
+                            "прокручивается вбок"))
     # Окно в масштабе: сайдбар и инспектор — фиксированной ширины своим pt,
     # контент забирает остаток (min 480). Это не картинка окна, а окно в меру.
+    # Рамка-обёртка несёт затемнение у правой кромки — знак, что окно
+    # продолжается за прокруткой, а не обрезано.
+    lines.append('  <div class="win-frame">')
     lines.append('  <div class="win">')
     for panel in panels:
         default = panel["default"]
         if default is None:
-            # Контент/деталь: ∞, тянется и сжимается до остатка. min-width:0 —
-            # иначе минимум 480 распирает окно шире колонки доски и режет инспектор;
-            # честную ширину «мин 480pt» несёт подпись и легенда, а не распор.
-            style = "flex: 1 1 auto; min-width: 0"
+            # Контент/деталь: ∞, тянется. Держит свою минимальную ширину (480pt)
+            # и НЕ сжимается — раньше flex-shrink давил её в ноль, и подпись
+            # вылезала под инспектор. Теперь окно честно шире колонки доски и
+            # прокручивается вбок (.win overflow-x), сохраняя 1:1.
+            style = "flex: 1 0 %dpx" % panel["min"]
             width_label = "мин %dpt · ∞" % panel["min"]
         else:
             style = "flex: 0 0 %dpx" % default
@@ -1661,6 +1676,7 @@ def layout_block(tokens):
         lines.append('      <span class="w">%s</span>' % escape(width_label))
         lines.append("    </div>")
     lines.append("  </div>")
+    lines.append("  </div>")  # .win-frame
     # Легенда: мин / по умолчанию / макс и поведение при ресайзе — данные панели.
     lines.append('  <ul class="panels">')
     for panel in panels:
@@ -1729,7 +1745,9 @@ def motion_block(tokens):
         lines.append('    <span class="d">%s</span>' % escape(value))
         lines.append('    <span class="motion-track"><i class="motion-dot %s"></i></span>' % escape(name))
         lines.append("  </div>")
-        lines.append('  <p class="hint" style="padding-bottom: var(--space-3); '
+        # Роль жмётся к своей дорожке (внутреннее), разрыв к следующему токену
+        # даёт margin-top .motion-row (внешнее) — воздух группирует, не линейка.
+        lines.append('  <p class="hint" style="margin: var(--space-1) 0 0; '
                      'color: var(--text-tertiary)">%s</p>' % escape(token.get("role", "")))
     lines.append('  <p class="verdict-note" style="border-left-color: var(--sem-warning); '
                  'background: var(--sem-warning-fill)"><code>motion.live</code> — состояние, '
@@ -2028,7 +2046,7 @@ SCREEN_GROUPS = [
     },
     {
         "anchor": "screen-main", "title": "Главный экран", "kind": "iframe",
-        "src": "candidates/main-screen-sketch.html", "height": 15,
+        "src": "candidates/main-screen-sketch.html", "height": 12,
         "status": "кандидат · эскиз на утверждение",
         "blurb": "Рейл, сайдбар и плавающие панели: границу держит зазор, "
                  "а не линейка. Эскиз доводит §1 макета до того, что его "
@@ -2036,7 +2054,7 @@ SCREEN_GROUPS = [
     },
     {
         "anchor": "screen-notch", "title": "Нотч-хелпер", "kind": "iframe",
-        "src": "candidates/notch-helper-board.html", "height": 14,
+        "src": "candidates/notch-helper-board.html", "height": 9,
         "status": "кандидат · этап 1 принят рабоче",
         "blurb": "Чёлка макбука как амбиентный пульт пайплайна CRISPY. "
                  "Этап 1 (свёрнутая чёлка · ховер · раскрытие) принят рабоче; "
@@ -2104,9 +2122,17 @@ def board_screens(tokens):
             lines.append('    <img src="%s" alt="%s">'
                          % (escape(group["src"]), escape(group["title"])))
         else:
+            # Прототип/лист макетов — это самонарративная doc-страница: свой
+            # h1, своя проза, свои пульты и каптионы. В доску встраиваем её в
+            # bare-режиме (?bare) — только живую поверхность продукта, без
+            # второго слоя прозы поверх подписи доски. Полный нарратив живёт
+            # по ссылке «в своей вкладке» (без ?bare). Разделитель выбирается
+            # по тому, есть ли уже query в пути.
+            sep = "&" if "?" in group["src"] else "?"
+            src = group["src"] + sep + "bare=1"
             lines.append('    <iframe src="%s" style="height: calc(var(--space-10) * %d)" '
                          'loading="lazy" title="%s"></iframe>'
-                         % (escape(group["src"]), group["height"], escape(group["title"])))
+                         % (escape(src), group["height"], escape(group["title"])))
         lines.append("  </div>")
         note = ("Лист длинный — панель скроллится сама. " if group.get("external") else "")
         lines.append('  <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">'
@@ -2206,9 +2232,12 @@ CANVAS_SCRIPT = """
     var td = document.createElement("td");
     td.className = fails ? "fail" : "pass";
     td.style.background = css(backgroundRgb);
+    // Образец — глиф «Аа» чернилами на поверхности (форма буквы и есть проба
+    // читаемости), рядом само число. Раньше в каждой из 40 ячеек стояло «Ждёт
+    // ревью» — это и распирало таблицу за колонку, и рябило повтором.
     td.innerHTML =
       '<span class="cell">' +
-      '<span class="sample" style="color:' + css(mixed) + '">Ждёт ревью</span>' +
+      '<span class="sample" style="color:' + css(mixed) + '">Аа</span>' +
       '<span class="ratio" style="color:' + css(meta) + '">' + value.toFixed(1) + ":1</span>" +
       '<span class="flag" style="color:' + css(meta) + '">✕</span></span>';
     return td;
@@ -2568,11 +2597,14 @@ def board_icons(tokens, section, law_parts, candidate_parts):
                             "токен-цвет (§6)"))
     lines.append('  <ul class="icon-statuses">')
     for status, glyph, color_path in ICON_STATUSES:
+        # Двухстрочная плитка: имя статуса сверху, «глиф · токен-цвет» строкой
+        # ниже. Раньше всё жалось в одну строку и длинные глифы переносились,
+        # налезая на соседний ряд; стек делает высоту рядов ровной.
         lines.append('    <li data-token="%s">' % escape(color_path))
         lines.append('      <i class="dot" style="background: var(%s)"></i>' % variable_name(color_path))
         lines.append('      <span class="t">%s</span>' % escape(status))
-        lines.append('      <span class="g"><code>%s</code></span>' % escape(glyph))
-        lines.append('      <span class="c">%s</span>' % escape(color_path))
+        lines.append('      <span class="m"><code>%s</code><span class="c">%s</span></span>'
+                     % (escape(glyph), escape(color_path)))
         lines.append("    </li>")
     lines.append("  </ul>")
     lines.append("</div>")
@@ -2618,6 +2650,26 @@ def board_icons(tokens, section, law_parts, candidate_parts):
 # Сборка доски
 # --------------------------------------------------------------------------
 
+def section_accent(tokens, frac):
+    """Цвет призрачного номера секции — точка на фирменной гамме.
+
+    Номера секций идут вниз страницы сквозным ходом ультрамарин → пурпур →
+    маджента (та же смежная аналоговая гамма, что и у бренда: OKLCH hue
+    266 → 293 → 316°). Цвет становится живым индексом: он разбивает
+    монотонность одинаковых шапок и поднимает контраст номера над почти-чёрным,
+    не заводя ни одного нового токена — только интерполяция между тремя
+    фирменными. `frac` ∈ [0,1] — доля пути по странице сверху вниз."""
+    def rgb(path):
+        return resolve_rgb(tokens, find_token(tokens, path), path)
+    ultramarine, purple, magenta = rgb("brand.ultramarine"), rgb("brand.purple"), rgb("brand.magenta")
+    if frac <= 0.5:
+        low, high, local = ultramarine, purple, frac * 2
+    else:
+        low, high, local = purple, magenta, (frac - 0.5) * 2
+    mixed = tuple(low[i] + (high[i] - low[i]) * local for i in range(3))
+    return "rgb(%d, %d, %d)" % tuple(round(value) for value in mixed)
+
+
 def generate_showcase(tokens):
     """Доска, а не вики.
 
@@ -2648,6 +2700,7 @@ def generate_showcase(tokens):
                         and record["specimen"].rsplit("/", 1)[-1] in SCREEN_SIDECAR_FILES)]
 
     sections = []
+    numbered = len(BOARD_SECTIONS)
     for index, section in enumerate(BOARD_SECTIONS, start=1):
         if section["kind"] == "foundation":
             body = board_foundation(tokens, section)
@@ -2657,11 +2710,13 @@ def generate_showcase(tokens):
             body = board_icons(tokens, section, law_parts, candidate_parts)
         else:
             body = board_section_parts(section, law_parts, candidate_parts)
+        frac = (index - 1) / max(1, numbered - 1)
         sections.append({
             "num": "%02d" % index,
             "anchor": section["anchor"],
             "title": section["title"],
             "lede": section["lede"],
+            "accent": section_accent(tokens, frac),
             "body": body,
         })
 
@@ -2694,20 +2749,32 @@ def generate_showcase(tokens):
              "<title>Дизайн-система Foundry</title>",
              '<link rel="stylesheet" href="tokens/tokens.css">',
              '<link rel="stylesheet" href="canvas.css">',
-             "</head>", "<body>", '<div class="canvas">']
+             "</head>", "<body>", '<div class="shell">']
 
-    lines.extend(board_cover(tokens, law_parts, candidate_parts, sidecars, rejected))
-
-    lines.append('<nav class="rail">')
+    # Навигация — липкий левый сайдбар, а не облако пилюль над контентом.
+    # Вертикальный список: каждая цель во всю ширину рельса (Фиттс — ширина
+    # тоже размер), ничего не переносится, порядок читается сверху вниз.
+    lines.append('<nav class="rail" aria-label="Разделы доски">')
+    lines.append('  <div class="rail-in">')
     for section in sections:
-        lines.append('  <a href="#%s"><span class="n">%s</span>%s</a>'
-                     % (escape(section["anchor"]), escape(section["num"]), escape(section["title"])))
+        # --sec: цвет секции на гамме; активный пункт красит им риску и номер,
+        # так рельс всё время «того же тона», что и раздел под курсором.
+        accent = section.get("accent")
+        style = ' style="--sec: %s"' % accent if accent else ""
+        lines.append('    <a href="#%s"%s><span class="n">%s</span><span class="t">%s</span></a>'
+                     % (escape(section["anchor"]), style, escape(section["num"]), escape(section["title"])))
+    lines.append("  </div>")
     lines.append("</nav>")
+
+    lines.append('<div class="canvas">')
+    lines.extend(board_cover(tokens, law_parts, candidate_parts, sidecars, rejected))
 
     for section in sections:
         lines.append('<section class="section" id="%s">' % escape(section["anchor"]))
-        lines.append('  <div class="section-head"><span class="num">%s</span><h2>%s</h2></div>'
-                     % (escape(section["num"]), escape(section["title"])))
+        accent = section.get("accent")
+        num_style = ' style="color: %s"' % accent if accent else ""
+        lines.append('  <div class="section-head"><span class="num"%s>%s</span><h2>%s</h2></div>'
+                     % (num_style, escape(section["num"]), escape(section["title"])))
         if section["lede"]:
             lines.append('  <p class="section-lede">%s</p>' % typo(escape(section["lede"])))
         lines.extend("  " + line for line in section["body"])
@@ -2717,7 +2784,8 @@ def generate_showcase(tokens):
                  "tokens.json</a> скриптом <code>design/build.py</code>. Своего содержимого "
                  "не имеет: правка руками теряется при следующей сборке. Договор о формате "
                  'компонента — <a href="parts/README.md">design/parts/README.md</a>.</footer>')
-    lines.append("</div>")
+    lines.append("</div>")  # .canvas
+    lines.append("</div>")  # .shell
     lines.append('<script type="application/json" id="canvas-data">%s</script>'
                  % json.dumps(contrast_payload(tokens), ensure_ascii=False))
     lines.append("<script>%s</script>" % CANVAS_SCRIPT)

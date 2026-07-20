@@ -1,4 +1,5 @@
 <title>foundry-desktop · UI макеты (тёмная тема)</title>
+<script>if(location.search.indexOf('bare')>-1)document.documentElement.classList.add('bare')</script>
 <style>
   :root {
     /* — палитра (13-tokens.md, единственный источник) — */
@@ -1345,6 +1346,12 @@
     .win, .variant, .kpi, .small-mult { animation: rise 0.5s ease-out both; }
     @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   }
+  /* ——— bare-режим: только поверхности, без прозы (встраивание в доску ?bare) ——— */
+  html.bare .eyebrow, html.bare .page-title, html.bare .lede, html.bare .legend,
+  html.bare .sec-head, html.bare .caption, html.bare footer.note { display: none !important; }
+  html.bare, html.bare body { padding: 0 !important; margin: 0 !important; background: transparent !important; }
+  html.bare .page, html.bare .wrap { max-width: none !important; margin: 0 !important; padding: 0 !important; }
+  html.bare .block { margin: 0 0 var(--space-6, 24px) !important; padding: 0 !important; border: 0 !important; background: none !important; }
 </style>
 
 <div class="page">

@@ -411,9 +411,17 @@
   .note { border-left: 2px solid var(--sem-warning); padding-left: var(--s3); margin-top: var(--s4); }
   .note .t { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sem-warning); margin-bottom: 4px; }
   .note p { margin: 0 0 var(--s2); font-size: 12.5px; line-height: 1.55; color: var(--t-secondary); }
+/* ——— bare-режим: только экран, без прозы (встраивание в доску ?bare) ——— */
+html.bare .eyebrow, html.bare .page-title, html.bare .lede,
+html.bare .controls, html.bare .caption { display: none !important; }
+html.bare, html.bare body { padding: 0 !important; margin: 0 !important; background: transparent !important; }
+html.bare .page, html.bare .wrap { max-width: none !important; margin: 0 !important; padding: 0 !important; }
+html.bare .block { margin: 0 !important; padding: 0 !important; border: 0 !important; background: none !important; }
+html.bare .block ~ .block { display: none !important; }
 </style>
 </head>
 <body>
+<script>if(location.search.indexOf('bare')>-1)document.documentElement.classList.add('bare')</script>
 <div class="page">
 <div class="wrap">
 

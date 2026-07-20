@@ -8,39 +8,42 @@
 <link rel="stylesheet" href="canvas.css">
 </head>
 <body>
+<div class="shell">
+<nav class="rail" aria-label="Разделы доски">
+  <div class="rail-in">
+    <a href="#colors" style="--sec: rgb(47, 92, 255)"><span class="n">01</span><span class="t">Цвета</span></a>
+    <a href="#typography" style="--sec: rgb(61, 92, 254)"><span class="n">02</span><span class="t">Типографика</span></a>
+    <a href="#layout" style="--sec: rgb(75, 92, 252)"><span class="n">03</span><span class="t">Сетка</span></a>
+    <a href="#spacing" style="--sec: rgb(89, 92, 251)"><span class="n">04</span><span class="t">Отступы</span></a>
+    <a href="#radius" style="--sec: rgb(104, 92, 249)"><span class="n">05</span><span class="t">Скругления</span></a>
+    <a href="#buttons" style="--sec: rgb(118, 92, 248)"><span class="n">06</span><span class="t">Кнопки</span></a>
+    <a href="#tabs" style="--sec: rgb(132, 92, 247)"><span class="n">07</span><span class="t">Табы</span></a>
+    <a href="#labels" style="--sec: rgb(145, 92, 247)"><span class="n">08</span><span class="t">Лейблы</span></a>
+    <a href="#panels" style="--sec: rgb(156, 92, 248)"><span class="n">09</span><span class="t">Панели</span></a>
+    <a href="#blocks" style="--sec: rgb(168, 92, 249)"><span class="n">10</span><span class="t">Блоки</span></a>
+    <a href="#icons" style="--sec: rgb(179, 92, 251)"><span class="n">11</span><span class="t">Иконки</span></a>
+    <a href="#logo" style="--sec: rgb(191, 92, 252)"><span class="n">12</span><span class="t">Логотип</span></a>
+    <a href="#animation" style="--sec: rgb(202, 92, 254)"><span class="n">13</span><span class="t">Анимации</span></a>
+    <a href="#screens" style="--sec: rgb(214, 92, 255)"><span class="n">14</span><span class="t">Экраны</span></a>
+    <a href="#candidates"><span class="n">—</span><span class="t">Приёмная</span></a>
+    <a href="#rejected"><span class="n">—</span><span class="t">Отвергнуто</span></a>
+  </div>
+</nav>
 <div class="canvas">
 <section class="cover">
   <p class="cover-mark">Foundry</p>
   <h1>Design System</h1>
   <p class="lede">Не описание системы, а сама система, собранная в одном месте: каждая ступень цвета, кегль и отступ ниже — <b>не картинка решения, а решение</b>. Все значения — цвета, кегли, отступы, радиусы — приезжают из <code>tokens.json</code> при сборке (это и есть дизайн-токены); поменяется значение в источнике — поменяется эта страница.</p>
   <div class="cover-facts">
-    <div class="cover-fact"><b>90</b><span>дизайн-токенов в источнике</span></div>
-    <div class="cover-fact"><b>6</b><span>принятых компонентов</span></div>
-    <div class="cover-fact"><b>5</b><span>на утверждении</span></div>
-    <div class="cover-fact"><b>1</b><span>в приёмной</span></div>
-    <div class="cover-fact"><b>17</b><span>отклонено, с причиной</span></div>
+    <div class="cover-fact"><b style="color: rgb(47, 92, 255)">90</b><span>дизайн-токенов в источнике</span></div>
+    <div class="cover-fact"><b style="color: rgb(93, 92, 250)">6</b><span>принятых компонентов</span></div>
+    <div class="cover-fact"><b style="color: rgb(139, 92, 246)">5</b><span>на утверждении</span></div>
+    <div class="cover-fact"><b style="color: rgb(176, 92, 250)">1</b><span>в приёмной</span></div>
+    <div class="cover-fact"><b style="color: rgb(214, 92, 255)">17</b><span>отклонено, с причиной</span></div>
   </div>
 </section>
-<nav class="rail">
-  <a href="#colors"><span class="n">01</span>Цвета</a>
-  <a href="#typography"><span class="n">02</span>Типографика</a>
-  <a href="#layout"><span class="n">03</span>Сетка</a>
-  <a href="#spacing"><span class="n">04</span>Отступы</a>
-  <a href="#radius"><span class="n">05</span>Скругления</a>
-  <a href="#buttons"><span class="n">06</span>Кнопки</a>
-  <a href="#tabs"><span class="n">07</span>Табы</a>
-  <a href="#labels"><span class="n">08</span>Лейблы</a>
-  <a href="#panels"><span class="n">09</span>Панели</a>
-  <a href="#blocks"><span class="n">10</span>Блоки</a>
-  <a href="#icons"><span class="n">11</span>Иконки</a>
-  <a href="#logo"><span class="n">12</span>Логотип</a>
-  <a href="#animation"><span class="n">13</span>Анимации</a>
-  <a href="#screens"><span class="n">14</span>Экраны</a>
-  <a href="#candidates"><span class="n">—</span>Приёмная</a>
-  <a href="#rejected"><span class="n">—</span>Отвергнуто</a>
-</nav>
 <section class="section" id="colors">
-  <div class="section-head"><span class="num">01</span><h2>Цвета</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(47, 92, 255)">01</span><h2>Цвета</h2></div>
   <p class="section-lede">Это значения, а не картинки: каждая ступень, состояние и контраст нарисованы из tokens.json — поменяется хекс в источнике, поменяется эта секция. Контраст доска считает при читателе.</p>
   <div class="block" id="ramp-bg">
     <div class="block-head"><h3>Поверхности — лестница светлоты</h3><span class="hint">четыре ступени, а не четыре цвета: у каждой своя работа, и шаг между ними обязан быть равным</span></div>
@@ -171,23 +174,22 @@
   </div>
   <div class="block" id="contrast">
     <div class="block-head"><h3>Контраст</h3><span class="hint">посчитан браузером сейчас, при открытии страницы: альфа-белый сперва кладётся на фон, потом берётся WCAG — иначе цифра врёт</span></div>
-    <div class="grid">
-      <div class="col-8">
-        <table class="matrix" id="matrix-inks">
-          <thead><tr><th>Чернила</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <p class="matrix-note"><code>text.disabled</code> — WCAG 1.4.3 недоступное не нормирует: порог 4.5 к нему не применяется, и провалом это не помечено.</p>
-        <p class="verdict-note">Ультрамарин <code>brand.ultramarine</code> даёт <b>4.0:1</b> на <code>bg.base</code> — порог 4.5 не взят, и это видно в таблице, а не в примечании. Поэтому текстом всегда <code>text.accent</code>. Правило, которое видно проваливающимся, не нужно заучивать.</p>
-      </div>
-      <div class="col-4">
-        <table class="matrix" id="matrix-accents">
-          <thead><tr><th>Заливка</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <p class="verdict-note">текст на ультрамарине (5.1:1); на пурпуре (4.2:1), мадженте (3.1:1) и янтаре (1.8:1) белый ЗАПРЕЩЁН — там тёмный bg.base</p>
-      </div>
+    <div class="matrix-wrap">
+      <table class="matrix" id="matrix-inks">
+        <thead><tr><th>Чернила</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
+    <p class="matrix-note"><code>text.disabled</code> — WCAG 1.4.3 недоступное не нормирует: порог 4.5 к нему не применяется, и провалом это не помечено.</p>
+    <p class="verdict-note">Ультрамарин <code>brand.ultramarine</code> даёт <b>4.0:1</b> на <code>bg.base</code> — порог 4.5 не взят, и это видно в таблице, а не в примечании. Поэтому текстом всегда <code>text.accent</code>. Правило, которое видно проваливающимся, не нужно заучивать.</p>
+    <p class="sub-kicker">На фирменной заливке — что читается</p>
+    <div class="matrix-wrap narrow">
+      <table class="matrix" id="matrix-accents">
+        <thead><tr><th>Заливка</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="verdict-note">текст на ультрамарине (5.1:1); на пурпуре (4.2:1), мадженте (3.1:1) и янтаре (1.8:1) белый ЗАПРЕЩЁН — там тёмный bg.base</p>
   </div>
   <div class="verdict">
     <div class="can">
@@ -216,7 +218,7 @@
   </div>
 </section>
 <section class="section" id="typography">
-  <div class="section-head"><span class="num">02</span><h2>Типографика</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(61, 92, 254)">02</span><h2>Типографика</h2></div>
   <p class="section-lede">Лестница кеглей в натуральную величину, на реальных строках продукта — на lorem не видно ни длины, ни кириллицы.</p>
   <div class="block" id="type">
     <div class="ladder">
@@ -339,10 +341,11 @@
   </div>
 </section>
 <section class="section" id="layout">
-  <div class="section-head"><span class="num">03</span><h2>Сетка</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(75, 92, 252)">03</span><h2>Сетка</h2></div>
   <p class="section-lede">Модульная сетка на трёх уровнях: панели окна в натуральную величину, микросетка колонок с единым гаттером, колонка чтения ровно в меру — правило, которому подчинена и эта страница.</p>
   <div class="block" id="layout-macro">
-    <div class="block-head"><h3>Панели окна — макросетка</h3><span class="hint">ширины в натуральную величину, pt→px 1:1: панель — это «колонка» приложения (02 §8)</span></div>
+    <div class="block-head"><h3>Панели окна — макросетка</h3><span class="hint">ширины в натуральную величину, pt→px 1:1: панель — это «колонка» приложения (02 §8). Окно шире колонки доски — прокручивается вбок</span></div>
+    <div class="win-frame">
     <div class="win">
       <div class="win-panel" style="flex: 0 0 240px">
         <b>Сайдбар</b>
@@ -354,7 +357,7 @@
         <span class="role">master в ревью</span>
         <span class="w">300pt</span>
       </div>
-      <div class="win-panel" style="flex: 1 1 auto; min-width: 0">
+      <div class="win-panel" style="flex: 1 0 480px">
         <b>Контент / деталь</b>
         <span class="role">«работаю»: доска, ревью, лог</span>
         <span class="w">мин 480pt · ∞</span>
@@ -364,6 +367,7 @@
         <span class="role">«свойства выбранного»</span>
         <span class="w">320pt</span>
       </div>
+    </div>
     </div>
     <ul class="panels">
       <li><span class="t">Сайдбар</span><span class="n">200 / 240 / 320 pt</span><span class="g">фиксирован при ресайзе; схлопывается целиком (⌘⌥S)</span></li>
@@ -418,7 +422,7 @@
   </div>
 </section>
 <section class="section" id="spacing">
-  <div class="section-head"><span class="num">04</span><h2>Отступы</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(89, 92, 251)">04</span><h2>Отступы</h2></div>
   <p class="section-lede">Шкала, измеряющая сама себя: столбик длиной ровно в свой токен, 1:1 — линейка, а не таблица; рядом — инвариант Бирмана «внутреннее ≤ внешнее», нарисованный.</p>
   <div class="block" id="space">
     <div class="grid">
@@ -511,7 +515,7 @@
   </div>
 </section>
 <section class="section" id="radius">
-  <div class="section-head"><span class="num">05</span><h2>Скругления</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(104, 92, 249)">05</span><h2>Скругления</h2></div>
   <p class="section-lede">Концентрика, нарисованная и заодно проверенная: вложенный радиус = внешний − паддинг, и шкала попадает шагом в один space.1 ровно в следующий токен.</p>
   <div class="block" id="radius">
     <div class="grid">
@@ -547,7 +551,7 @@
   </div>
 </section>
 <section class="section" id="buttons">
-  <div class="section-head"><span class="num">06</span><h2>Кнопки</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(118, 92, 248)">06</span><h2>Кнопки</h2></div>
   <p class="section-lede">Базовый элемент действия: сам по себе смысла не несёт и о предметной области не знает.</p>
   <div class="grid">
     <div class="col-12">
@@ -615,7 +619,7 @@
   </div>
 </section>
 <section class="section" id="tabs">
-  <div class="section-head"><span class="num">07</span><h2>Табы</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(132, 92, 247)">07</span><h2>Табы</h2></div>
   <p class="section-lede">Переключение вида: один активный, остальные ждут.</p>
   <div class="grid">
     <div class="col-12">
@@ -679,7 +683,7 @@
   </div>
 </section>
 <section class="section" id="labels">
-  <div class="section-head"><span class="num">08</span><h2>Лейблы</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(145, 92, 247)">08</span><h2>Лейблы</h2></div>
   <p class="section-lede">Метки состояния и принадлежности: бейдж, точка статуса, чип, лейбл проекта.</p>
   <div class="grid">
     <div class="col-12">
@@ -842,7 +846,7 @@
   </div>
 </section>
 <section class="section" id="panels">
-  <div class="section-head"><span class="num">09</span><h2>Панели</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(156, 92, 248)">09</span><h2>Панели</h2></div>
   <p class="section-lede">Контейнер для другого: панель как слой поверх фона.</p>
   <div class="grid">
     <div class="col-12">
@@ -900,7 +904,7 @@
   </div>
 </section>
 <section class="section" id="blocks">
-  <div class="section-head"><span class="num">10</span><h2>Блоки</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(168, 92, 249)">10</span><h2>Блоки</h2></div>
   <p class="section-lede">Доменный компонент — знает про предметную область: строка диффа, стадия, change.</p>
   <div class="grid">
     <div class="col-12">
@@ -957,7 +961,7 @@
   </div>
 </section>
 <section class="section" id="icons">
-  <div class="section-head"><span class="num">11</span><h2>Иконки</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(179, 92, 251)">11</span><h2>Иконки</h2></div>
   <p class="section-lede">Система, а не ряд картинок: размеры из токенов, закреплённый словарь доменных метафор на SF Symbols, статусы «глиф + цвет» — и опознавательные марки продукта «Восход» и орб.</p>
   <div class="block" id="icon-sizes">
     <div class="block-head"><h3>Размеры</h3><span class="hint">в натуральную величину из icon.*; кегль иконки = кегль соседнего текста (§2.1)</span></div>
@@ -1009,38 +1013,32 @@
       <li data-token="text.disabled">
         <i class="dot" style="background: var(--text-disabled)"></i>
         <span class="t">Не начата</span>
-        <span class="g"><code>circle.dotted</code></span>
-        <span class="c">text.disabled</span>
+        <span class="m"><code>circle.dotted</code><span class="c">text.disabled</span></span>
       </li>
       <li data-token="sem.info">
         <i class="dot" style="background: var(--sem-info)"></i>
         <span class="t">В работе</span>
-        <span class="g"><code>circle.lefthalf.filled + пульс</code></span>
-        <span class="c">sem.info</span>
+        <span class="m"><code>circle.lefthalf.filled + пульс</code><span class="c">sem.info</span></span>
       </li>
       <li data-token="brand.ultramarine">
         <i class="dot" style="background: var(--brand-ultramarine)"></i>
         <span class="t">Ждёт ревью</span>
-        <span class="g"><code>circle.fill + точка-бейдж</code></span>
-        <span class="c">brand.ultramarine</span>
+        <span class="m"><code>circle.fill + точка-бейдж</code><span class="c">brand.ultramarine</span></span>
       </li>
       <li data-token="sem.success">
         <i class="dot" style="background: var(--sem-success)"></i>
         <span class="t">Принята</span>
-        <span class="g"><code>checkmark.circle.fill</code></span>
-        <span class="c">sem.success</span>
+        <span class="m"><code>checkmark.circle.fill</code><span class="c">sem.success</span></span>
       </li>
       <li data-token="sem.warning">
         <i class="dot" style="background: var(--sem-warning)"></i>
         <span class="t">На доработке</span>
-        <span class="g"><code>arrow.uturn.backward.circle.fill</code></span>
-        <span class="c">sem.warning</span>
+        <span class="m"><code>arrow.uturn.backward.circle.fill</code><span class="c">sem.warning</span></span>
       </li>
       <li data-token="sem.error">
         <i class="dot" style="background: var(--sem-error)"></i>
         <span class="t">Ошибка / блок</span>
-        <span class="g"><code>exclamationmark.triangle.fill</code></span>
-        <span class="c">sem.error</span>
+        <span class="m"><code>exclamationmark.triangle.fill</code><span class="c">sem.error</span></span>
       </li>
     </ul>
   </div>
@@ -1122,7 +1120,7 @@
   </div>
 </section>
 <section class="section" id="logo">
-  <div class="section-head"><span class="num">12</span><h2>Логотип</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(191, 92, 252)">12</span><h2>Логотип</h2></div>
   <p class="section-lede">Вордмарк «Foundry AI» — знак неделим.</p>
   <div class="grid">
     <div class="col-12">
@@ -1167,7 +1165,7 @@
   </div>
 </section>
 <section class="section" id="animation">
-  <div class="section-head"><span class="num">13</span><h2>Анимации</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(202, 92, 254)">13</span><h2>Анимации</h2></div>
   <p class="section-lede">Движение и свечение показываются собой — переход переходом, свет светом; при prefers-reduced-motion молчат.</p>
   <div class="block" id="motion">
     <div class="block-head"><h3>Движение</h3><span class="hint">живьём, теми самыми токенами; при <code>prefers-reduced-motion</code> — молчит</span></div>
@@ -1176,25 +1174,25 @@
       <span class="d">150 мс · ease-out</span>
       <span class="motion-track"><i class="motion-dot fast"></i></span>
     </div>
-    <p class="hint" style="padding-bottom: var(--space-3); color: var(--text-tertiary)">hover, подсветки, мелкие переходы</p>
+    <p class="hint" style="margin: var(--space-1) 0 0; color: var(--text-tertiary)">hover, подсветки, мелкие переходы</p>
     <div class="motion-row">
       <span class="t" data-token="motion.base">motion.base</span>
       <span class="d">220 мс · ease-in-out</span>
       <span class="motion-track"><i class="motion-dot base"></i></span>
     </div>
-    <p class="hint" style="padding-bottom: var(--space-3); color: var(--text-tertiary)">раскрытия, поповеры, смена панелей</p>
+    <p class="hint" style="margin: var(--space-1) 0 0; color: var(--text-tertiary)">раскрытия, поповеры, смена панелей</p>
     <div class="motion-row">
       <span class="t" data-token="motion.slow">motion.slow</span>
       <span class="d">320 мс · spring</span>
       <span class="motion-track"><i class="motion-dot slow"></i></span>
     </div>
-    <p class="hint" style="padding-bottom: var(--space-3); color: var(--text-tertiary)">модалки, крупные перестановки (канбан)</p>
+    <p class="hint" style="margin: var(--space-1) 0 0; color: var(--text-tertiary)">модалки, крупные перестановки (канбан)</p>
     <div class="motion-row">
       <span class="t" data-token="motion.live">motion.live</span>
       <span class="d">нет длительности · мягкая, непрерывная</span>
       <span class="motion-track"><i class="motion-dot live"></i></span>
     </div>
-    <p class="hint" style="padding-bottom: var(--space-3); color: var(--text-tertiary)">пульс орба и live-индикатора при стриме</p>
+    <p class="hint" style="margin: var(--space-1) 0 0; color: var(--text-tertiary)">пульс орба и live-индикатора при стриме</p>
     <p class="verdict-note" style="border-left-color: var(--sem-warning); background: var(--sem-warning-fill)"><code>motion.live</code> — состояние, а не переход: длительности у него в источнике нет, и доска её не выдумывает. Пульс выше показан, но его период — не дизайн-токен. Видимый долг, а не решение.</p>
   </div>
   <div class="block" id="glow">
@@ -1246,7 +1244,7 @@
   </div>
 </section>
 <section class="section" id="screens">
-  <div class="section-head"><span class="num">14</span><h2>Экраны</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(214, 92, 255)">14</span><h2>Экраны</h2></div>
   <p class="section-lede">Вся система разом, собранная обратно в экраны — единственное место, где её видно в работе.</p>
   <nav class="subrail">
     <a href="#screen-onboarding">Онбординг</a>
@@ -1259,7 +1257,7 @@
     <div class="block-head"><h3>Онбординг</h3><span class="hint">кандидат · экран 0 принят эталоном</span></div>
     <p class="screen-blurb">Первый запуск: шесть решений на рое и разлёт в главное окно. Экран приветствия принят целиком как эталон — источник правды по кнопке, вордмарку, рою и завесе.</p>
     <div class="screens">
-      <iframe src="candidates/onboarding.html" style="height: calc(var(--space-10) * 14)" loading="lazy" title="Онбординг"></iframe>
+      <iframe src="candidates/onboarding.html?bare=1" style="height: calc(var(--space-10) * 14)" loading="lazy" title="Онбординг"></iframe>
     </div>
     <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">Открыть отдельно — <a href="candidates/onboarding.html">в своей вкладке</a>.</p>
   </div>
@@ -1267,7 +1265,7 @@
     <div class="block-head"><h3>Главный экран</h3><span class="hint">кандидат · эскиз на утверждение</span></div>
     <p class="screen-blurb">Рейл, сайдбар и плавающие панели: границу держит зазор, а не линейка. Эскиз доводит §1 макета до того, что его собственная подпись уже обещает.</p>
     <div class="screens">
-      <iframe src="candidates/main-screen-sketch.html" style="height: calc(var(--space-10) * 15)" loading="lazy" title="Главный экран"></iframe>
+      <iframe src="candidates/main-screen-sketch.html?bare=1" style="height: calc(var(--space-10) * 12)" loading="lazy" title="Главный экран"></iframe>
     </div>
     <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">Открыть отдельно — <a href="candidates/main-screen-sketch.html">в своей вкладке</a>.</p>
   </div>
@@ -1275,7 +1273,7 @@
     <div class="block-head"><h3>Нотч-хелпер</h3><span class="hint">кандидат · этап 1 принят рабоче</span></div>
     <p class="screen-blurb">Чёлка макбука как амбиентный пульт пайплайна CRISPY. Этап 1 (свёрнутая чёлка · ховер · раскрытие) принят рабоче; композер, полка и приоритеты — следующие этапы.</p>
     <div class="screens">
-      <iframe src="candidates/notch-helper-board.html" style="height: calc(var(--space-10) * 14)" loading="lazy" title="Нотч-хелпер"></iframe>
+      <iframe src="candidates/notch-helper-board.html?bare=1" style="height: calc(var(--space-10) * 9)" loading="lazy" title="Нотч-хелпер"></iframe>
     </div>
     <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">Открыть отдельно — <a href="candidates/notch-helper-board.html">в своей вкладке</a>.</p>
   </div>
@@ -1291,7 +1289,7 @@
     <div class="block-head"><h3>Все экраны разом</h3><span class="hint">лист макетов</span></div>
     <p class="screen-blurb">Вся система, собранная обратно в экраны: ревью, канбан, лог, аналитика, настройки. Панель скроллится сама, и ⌘F доски по ней не пройдёт.</p>
     <div class="screens">
-      <iframe src="../docs/design/mockups/foundry-mockups.html" style="height: calc(var(--space-10) * 15)" loading="lazy" title="Все экраны разом"></iframe>
+      <iframe src="../docs/design/mockups/foundry-mockups.html?bare=1" style="height: calc(var(--space-10) * 15)" loading="lazy" title="Все экраны разом"></iframe>
     </div>
     <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">Лист длинный — панель скроллится сама. Открыть отдельно — <a href="../docs/design/mockups/foundry-mockups.html">в своей вкладке</a>.</p>
   </div>
@@ -1431,6 +1429,7 @@
 </section>
 <footer class="foot">Собрана из компонентов и из <a href="tokens/tokens.json">tokens.json</a> скриптом <code>design/build.py</code>. Своего содержимого не имеет: правка руками теряется при следующей сборке. Договор о формате компонента — <a href="parts/README.md">design/parts/README.md</a>.</footer>
 </div>
+</div>
 <script type="application/json" id="canvas-data">{"surfaces": [{"path": "bg.base", "rgb": [5, 3, 13]}, {"path": "bg.surface", "rgb": [11, 7, 23]}, {"path": "bg.raised", "rgb": [18, 11, 35]}, {"path": "bg.overlay", "rgb": [26, 16, 48]}], "inks": [{"path": "text.primary", "rgb": [255, 255, 255], "alpha": 1.0, "role": "основной текст, заголовки; длинное чтение — 85–90%", "exempt": false}, {"path": "text.secondary", "rgb": [255, 255, 255], "alpha": 0.7, "role": "вторичные строки, описания, подписи, иконки в покое", "exempt": false}, {"path": "text.tertiary", "rgb": [255, 255, 255], "alpha": 0.5, "role": "мета: время, счётчики, номера строк", "exempt": false}, {"path": "text.disabled", "rgb": [255, 255, 255], "alpha": 0.38, "role": "недоступное", "exempt": true}, {"path": "text.accent", "rgb": [124, 154, 255], "alpha": 1.0, "role": "ссылки, интерактивный текст, акценты", "exempt": false}, {"path": "text.accent-muted", "rgb": [107, 140, 255], "alpha": 1.0, "role": "второстепенные акценты, активные иконки в плотных списках", "exempt": false}, {"path": "sem.success", "rgb": [74, 222, 128], "alpha": 1.0, "role": "approve/принято, зелёный диффа, пройденная стадия", "exempt": false}, {"path": "sem.warning", "rgb": [251, 191, 36], "alpha": 1.0, "role": "request changes, зависший луп, устаревший снапшот", "exempt": false}, {"path": "sem.error", "rgb": [248, 113, 113], "alpha": 1.0, "role": "fail стадии, красный диффа, деструктивные действия", "exempt": false}, {"path": "sem.info", "rgb": [139, 92, 246], "alpha": 1.0, "role": "live/стрим, работа агента, нейтральные уведомления", "exempt": false}, {"path": "brand.ultramarine", "rgb": [47, 92, 255], "alpha": 1.0, "role": "главный акцент: primary-действия, активные состояния, выделение", "exempt": false}], "accents": [{"path": "brand.ultramarine", "rgb": [47, 92, 255]}, {"path": "brand.purple", "rgb": [139, 92, 246]}, {"path": "brand.magenta", "rgb": [214, 92, 255]}, {"path": "brand.amber", "rgb": [255, 176, 32]}], "onAccent": {"path": "text.on-accent", "rgb": [255, 255, 255], "alpha": 1.0}, "threshold": 4.5, "error": [248, 113, 113], "base": [5, 3, 13]}</script>
 <script>
 (function () {
@@ -1477,9 +1476,12 @@
     var td = document.createElement("td");
     td.className = fails ? "fail" : "pass";
     td.style.background = css(backgroundRgb);
+    // Образец — глиф «Аа» чернилами на поверхности (форма буквы и есть проба
+    // читаемости), рядом само число. Раньше в каждой из 40 ячеек стояло «Ждёт
+    // ревью» — это и распирало таблицу за колонку, и рябило повтором.
     td.innerHTML =
       '<span class="cell">' +
-      '<span class="sample" style="color:' + css(mixed) + '">Ждёт ревью</span>' +
+      '<span class="sample" style="color:' + css(mixed) + '">Аа</span>' +
       '<span class="ratio" style="color:' + css(meta) + '">' + value.toFixed(1) + ":1</span>" +
       '<span class="flag" style="color:' + css(meta) + '">✕</span></span>';
     return td;
