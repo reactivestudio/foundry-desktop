@@ -1,0 +1,1249 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Самопроверка по бюро — foundry-desktop</title>
+<link rel="stylesheet" href="tokens/tokens.css">
+<style>
+/* Страница-справочник: правила Горбунова и Бирмана с живыми нарушениями.
+   Значения — только var(--…) из tokens/tokens.css. Исключения (три, целиком):
+   1. --page-column и --frame-min — раскладка самого документа (ширина колонки
+      страницы и минимум демо-фрейма), как --canvas-column у доски: канон задаёт
+      панели приложения, не документа о нём.
+   2. --measure 66ch — мера чтения бегущей прозы (канон 02 §8.2, 04 §7),
+      то же 4-е исключение, что в canvas.css.
+   3. Внутри демо с пометкой «Плохо» сырые значения СТАВЯТСЯ НАМЕРЕННО:
+      нарушение и есть экспонат (класс .bad; в «Хорошо/Лучше» сырья нет). */
+
+:root {
+  --page-column: 1160px;
+  --frame-min: 300px;
+  --measure: 66ch;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font: var(--type-body-weight) var(--type-body-size)/var(--type-body-leading) var(--font-text);
+  -webkit-font-smoothing: antialiased;
+  hanging-punctuation: first last;
+}
+
+a { color: var(--text-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.page {
+  max-width: var(--page-column);
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-8);
+}
+
+/* Обложка */
+.cover h1 {
+  font: var(--type-display-weight) calc(var(--type-display-size) * 1.4)/1.2 var(--font-text);
+  margin: 0 0 var(--space-3);
+  text-wrap: balance;
+}
+.cover .lede {
+  color: var(--text-secondary);
+  max-width: var(--measure);
+  margin: 0 0 var(--space-4);
+  text-wrap: pretty;
+}
+.cover .law {
+  color: var(--text-primary);
+  max-width: var(--measure);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-surface);
+  border-radius: var(--radius-l);
+}
+.cover .law strong { font-weight: var(--type-body-em-weight); }
+
+/* Рельс разделов */
+.rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-6) 0 0;
+}
+.rail a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-l);
+  color: var(--text-primary);
+  font-size: var(--type-heading-size);
+  line-height: var(--type-heading-leading);
+}
+.rail a:hover { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
+.rail .n {
+  font: var(--type-caption-weight) var(--type-caption-size)/1 var(--font-mono);
+  color: var(--text-tertiary);
+}
+
+/* Секция */
+.section { margin-top: var(--space-10); }
+.section > h2 {
+  font: var(--type-display-weight) var(--type-display-size)/var(--type-display-leading) var(--font-text);
+  margin: 0 0 var(--space-2);
+}
+.section > .section-lede {
+  color: var(--text-secondary);
+  max-width: var(--measure);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* Правило */
+.rule { margin-top: var(--space-8); }
+.rule .rule-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.rule h3 {
+  font: var(--type-title-weight) var(--type-title-size)/var(--type-title-leading) var(--font-text);
+  margin: 0;
+}
+.rule .src {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+  color: var(--text-tertiary);
+}
+.rule .src a { color: var(--text-tertiary); text-decoration: underline; text-decoration-color: var(--border-strong); }
+.rule .src a:hover { color: var(--text-accent); }
+.rule .statement {
+  color: var(--text-secondary);
+  max-width: var(--measure);
+  margin: var(--space-2) 0 0;
+  text-wrap: pretty;
+}
+
+/* Демо-ряд: фреймы Плохо / Хорошо / Лучше */
+.demos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--frame-min), 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  align-items: stretch;
+}
+.frame {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-l);
+  overflow: hidden;
+}
+.f-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) 0;
+}
+.f-verdict {
+  font: var(--type-label-weight) var(--type-label-size)/var(--type-label-leading) var(--font-text);
+  letter-spacing: var(--type-label-tracking);
+  text-transform: var(--type-label-caps);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-s);
+}
+.frame.bad    .f-verdict { color: var(--sem-error);   background: var(--sem-error-fill); }
+.frame.good   .f-verdict { color: var(--sem-success); background: var(--sem-success-fill); }
+.frame.better .f-verdict { color: var(--text-accent); background: var(--bg-selected); }
+.demo {
+  flex: 1;
+  margin: var(--space-3) var(--space-4);
+  padding: var(--space-4);
+  background: var(--bg-base);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+}
+.cap {
+  margin: 0 var(--space-4) var(--space-3);
+  color: var(--text-tertiary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+  text-wrap: pretty;
+}
+
+/* Примитивы мини-макетов (внутри .demo). Все значения — токены;
+   отклонения задаются в конкретных .bad-демо ниже. */
+.demo .mini-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-m);
+  padding: var(--space-3);
+}
+.demo h4 {
+  font: var(--type-body-em-weight) var(--type-body-size)/var(--type-body-leading) var(--font-text);
+  margin: 0;
+}
+.demo p { margin: 0; color: var(--text-secondary); }
+.demo .meta { color: var(--text-tertiary); font-size: var(--type-caption-size); line-height: var(--type-caption-leading); }
+.demo .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--control-h-default);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-m);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-size: var(--type-body-size);
+  cursor: default;
+  user-select: none;
+}
+.demo .btn-primary {
+  background: var(--brand-ultramarine);
+  border-color: var(--brand-ultramarine);
+  color: var(--text-on-accent);
+}
+.demo .btn-row { display: flex; gap: var(--space-2); justify-content: flex-end; margin-top: var(--space-4); }
+.demo .field {
+  height: var(--control-h-default);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-m);
+  padding: 0 var(--space-2);
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+}
+.demo .field .ph { color: var(--text-disabled); }
+.demo .label { font-size: var(--type-caption-size); line-height: var(--type-caption-leading); color: var(--text-secondary); }
+.demo .toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-m);
+  width: fit-content;
+}
+.demo table { border-collapse: collapse; width: 100%; }
+.demo th, .demo td { text-align: left; font-size: var(--type-body-size); line-height: var(--type-body-leading); padding: var(--space-2) var(--space-3); }
+.demo th { color: var(--text-tertiary); font-weight: var(--type-body-weight); font-size: var(--type-caption-size); }
+.demo .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Свод одной строкой */
+.digest { margin-top: var(--space-6); }
+.digest dl { margin: 0; max-width: var(--measure); }
+.digest dt {
+  font-weight: var(--type-body-em-weight);
+  margin-top: var(--space-4);
+}
+.digest dd { margin: var(--space-1) 0 0; color: var(--text-secondary); text-wrap: pretty; }
+
+.footer {
+  margin-top: var(--space-10);
+  padding-top: var(--space-5);
+  color: var(--text-tertiary);
+  max-width: var(--measure);
+}
+</style>
+
+<div class="page">
+
+<header class="cover">
+  <h1>Самопроверка по&nbsp;бюро</h1>
+  <p class="lede">Правила Артёма Горбунова и&nbsp;Ильи Бирмана, по&nbsp;которым проверяется каждый макет foundry-desktop, — с&nbsp;живыми примерами нарушений. Каждое правило показано на&nbsp;фрагментах нашего интерфейса: слева — как ломают, дальше — как чинят. Формулировки сжаты, первоисточник — по&nbsp;ссылке у&nbsp;правила; полный прогон перед сдачей экрана — <a href="../docs/design/14-checklist.md">канон&nbsp;14, сводный чек-лист</a>.</p>
+  <p class="law"><strong>Закон:</strong> чек-лист прогоняется на&nbsp;каждой итерации дизайна до&nbsp;показа результата. «Почти» считается за&nbsp;«нет».</p>
+  <nav class="rail">
+    <a href="#composition"><span class="n">01</span>Композиция и&nbsp;вёрстка</a>
+    <a href="#type"><span class="n">02</span>Набор</a>
+    <a href="#text"><span class="n">03</span>Текст интерфейса</a>
+    <a href="#interaction"><span class="n">04</span>Взаимодействие</a>
+    <a href="#digest"><span class="n">05</span>Одной строкой</a>
+  </nav>
+</header>
+
+<!-- ══════════════════════════ 01 · Композиция ══════════════════════════ -->
+<section class="section" id="composition">
+  <h2>01 · Композиция и&nbsp;вёрстка</h2>
+  <p class="section-lede">Ядро «Типографики и&nbsp;вёрстки» Горбунова. Общий тест — прищур: группы, оси и&nbsp;порядок чтения обязаны читаться без&nbsp;чтения текста.</p>
+
+  <!-- Внутреннее и внешнее -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Внутреннее ≤ внешнее</h3>
+      <span class="src">Горбунов, <a href="https://bureau.ru/books/typography/6">книга, гл. 6</a> · <a href="https://bureau.ru/soviet/20140818/">совет</a></span>
+    </div>
+    <p class="statement">Внутренние расстояния объекта меньше внешних — иначе содержимое «отклеивается» от&nbsp;своего контейнера и&nbsp;прилипает к&nbsp;чужому. Равенство — уже слипание.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div class="mini-card" style="padding:18px;"><h4>fix: гонка FSEvents</h4><p class="meta">review · 2&nbsp;лупа</p></div>
+            <div class="mini-card" style="padding:18px;"><h4>feat: канбан-доска</h4><p class="meta">in-progress</p></div>
+          </div>
+        </div>
+        <p class="cap">Паддинг карточки 18, зазор между карточками 6: соседки ближе друг к&nbsp;другу, чем контент — к&nbsp;своей кромке.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+            <div class="mini-card"><h4>fix: гонка FSEvents</h4><p class="meta">review · 2&nbsp;лупа</p></div>
+            <div class="mini-card"><h4>feat: канбан-доска</h4><p class="meta">in-progress</p></div>
+          </div>
+        </div>
+        <p class="cap">Внутри 12, снаружи 16 — каждая карточка целая, граница групп видна без рамок.</p>
+      </div>
+      <div class="frame better">
+        <div class="f-head"><span class="f-verdict">Лучше</span></div>
+        <div class="demo">
+          <div style="display:flex; flex-direction:column; gap:var(--space-2);">
+            <div class="mini-card"><h4>fix: гонка FSEvents</h4><p class="meta">review · 2&nbsp;лупа</p></div>
+            <div class="mini-card"><h4>fix: teardown при отмене</h4><p class="meta">review</p></div>
+          </div>
+          <div style="margin-top:var(--space-5);">
+            <div class="mini-card"><h4>feat: канбан-доска</h4><p class="meta">in-progress</p></div>
+          </div>
+        </div>
+        <p class="cap">Правило работает на&nbsp;каждом уровне: внутри группы 8, между группами 24 — иерархия вложенности видна одним воздухом.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Близость вместо линеек -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Близость вместо линеек</h3>
+      <span class="src">Бирман, <a href="https://bureau.ru/soviet/20160503/">совет, ч.&nbsp;1</a> · <a href="https://bureau.ru/soviet/20160510/">ч.&nbsp;2</a></span>
+    </div>
+    <p class="statement">Группировку держат расстояния, а&nbsp;не&nbsp;рамки и&nbsp;разделители. Линейка — последнее средство: её достоинство лишь в&nbsp;том, что она разделяет, сокращая расстояние.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div style="display:flex; flex-direction:column;">
+            <div style="padding:8px 0; border-bottom:1px solid var(--border-strong);">Запускать при входе</div>
+            <div style="padding:8px 0; border-bottom:1px solid var(--border-strong);">Показывать в&nbsp;меню-баре</div>
+            <div style="padding:8px 0; border-bottom:1px solid var(--border-strong);">Нотификации стадий</div>
+            <div style="padding:8px 0;">Звук при фейле</div>
+          </div>
+        </div>
+        <p class="cap">Линейка после каждой строки при равных интервалах: полосатый забор, смысловых групп не&nbsp;видно.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div style="display:flex; flex-direction:column; gap:var(--space-2);">
+            <div>Запускать при входе</div>
+            <div>Показывать в&nbsp;меню-баре</div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:var(--space-2); margin-top:var(--space-5);">
+            <div>Нотификации стадий</div>
+            <div>Звук при фейле</div>
+          </div>
+        </div>
+        <p class="cap">Линейки убраны; группы «приложение» и&nbsp;«нотификации» разделены одним воздухом.</p>
+      </div>
+      <div class="frame better">
+        <div class="f-head"><span class="f-verdict">Лучше</span></div>
+        <div class="demo">
+          <div>
+            <p class="label" style="margin-bottom:var(--space-2);">Приложение</p>
+            <div style="display:flex; flex-direction:column; gap:var(--space-2);">
+              <div>Запускать при входе</div>
+              <div>Показывать в&nbsp;меню-баре</div>
+            </div>
+          </div>
+          <div style="margin-top:var(--space-5);">
+            <p class="label" style="margin-bottom:var(--space-2);">Нотификации</p>
+            <div style="display:flex; flex-direction:column; gap:var(--space-2);">
+              <div>Стадия ждёт гейта</div>
+              <div>Звук при фейле</div>
+            </div>
+          </div>
+        </div>
+        <p class="cap">Плюс заголовок группы — ближе к&nbsp;своей группе, чем к&nbsp;чужой (то&nbsp;же внутреннее и&nbsp;внешнее).</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Флаговая вёрстка -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Левый флаг, одна ось</h3>
+      <span class="src">Советы бюро: <a href="https://bureau.ru/soviet/20101217/">флаг</a> · <a href="https://bureau.ru/soviet/20230913/">против центровки</a></span>
+    </div>
+    <p class="statement">Экранный текст набирается левым флагом; контент модуля стоит на&nbsp;одной левой оси. Центр — только для короткого самостоятельного элемента, не&nbsp;для разнородного набора.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div class="mini-card" style="text-align:center;">
+            <div style="width:32px;height:32px;border-radius:var(--radius-full);background:var(--brand-gradient);margin:0 auto var(--space-2);"></div>
+            <h4>design-agent</h4>
+            <p class="meta" style="margin-top:var(--space-1);">Пишет design.md по&nbsp;proposal и&nbsp;контексту проекта, гоняет самопроверку</p>
+            <div style="margin-top:var(--space-3);"><span class="btn">Настроить агента</span></div>
+          </div>
+        </div>
+        <p class="cap">Всё по&nbsp;центру: оба края рваные, оси нет, многострочный текст читается хуже.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <div style="display:flex; align-items:center; gap:var(--space-2);">
+              <div style="width:20px;height:20px;border-radius:var(--radius-full);background:var(--brand-gradient);flex:none;"></div>
+              <h4>design-agent</h4>
+            </div>
+            <p class="meta" style="margin-top:var(--space-2);">Пишет design.md по&nbsp;proposal и&nbsp;контексту проекта, гоняет самопроверку</p>
+            <div style="margin-top:var(--space-3);"><span class="btn">Настроить агента</span></div>
+          </div>
+        </div>
+        <p class="cap">Знак, заголовок, текст и&nbsp;кнопка — на&nbsp;одной левой оси; правый край честно рваный.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Якорные объекты -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Якорные объекты</h3>
+      <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20140324/">совет</a> · <a href="https://bureau.ru/books/typography/16">книга, гл.&nbsp;16</a></span>
+    </div>
+    <p class="statement">Самые заметные объекты тяготеют к&nbsp;углам или визуальному центру своего прямоугольника, с&nbsp;противоположных сторон — воздух. Якоря образуют иерархию: один главный на&nbsp;модуль, остальные тише.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div class="mini-card" style="position:relative; height:120px;">
+            <div style="position:absolute; left:38%; top:30%; width:28px; height:28px; border-radius:var(--radius-full); background:var(--brand-gradient);"></div>
+            <p class="meta" style="position:absolute; left:var(--space-3); bottom:var(--space-3); right:var(--space-3);">Claude работает над&nbsp;стадией design</p>
+          </div>
+        </div>
+        <p class="cap">Орб «плавает» между углом и&nbsp;центром, воздух не&nbsp;организован — композиция разваливается.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div class="mini-card" style="position:relative; height:120px;">
+            <div style="position:absolute; left:var(--space-3); top:var(--space-3); width:28px; height:28px; border-radius:var(--radius-full); background:var(--brand-gradient);"></div>
+            <p class="meta" style="position:absolute; left:var(--space-3); bottom:var(--space-3); right:30%;">Claude работает над&nbsp;стадией design</p>
+          </div>
+        </div>
+        <p class="cap">Якорь держит угол, справа и&nbsp;сверху — контрпространство; подпись не&nbsp;спорит с&nbsp;якорем.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Ряды -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Ряды сквозь модули</h3>
+      <span class="src">Горбунов, советы: <a href="https://bureau.ru/soviet/20140922/">высота в&nbsp;ряду</a> · <a href="https://bureau.ru/soviet/20141020/">чередование</a></span>
+    </div>
+    <p class="statement">Элементы в&nbsp;горизонтальном ряду согласуются по&nbsp;высоте и&nbsp;отметкам: одноимённые строки соседних модулей стоят на&nbsp;одних линиях и&nbsp;читаются сквозь весь ряд.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div style="display:flex; gap:var(--space-3); align-items:flex-start;">
+            <div class="mini-card" style="flex:1;"><p class="meta">backlog · 4</p><h4 style="margin-top:12px;">semantik</h4></div>
+            <div class="mini-card" style="flex:1; padding-top:20px;"><h4>assista</h4><p class="meta" style="margin-top:6px;">review · 2</p></div>
+            <div class="mini-card" style="flex:1;"><h4>foundry</h4></div>
+          </div>
+        </div>
+        <p class="cap">В&nbsp;каждой карточке свой порядок и&nbsp;свои отметки: ряд заголовков не&nbsp;читается, глаз спотыкается.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div style="display:flex; gap:var(--space-3); align-items:stretch;">
+            <div class="mini-card" style="flex:1;"><h4>semantik</h4><p class="meta" style="margin-top:var(--space-1);">backlog · 4</p></div>
+            <div class="mini-card" style="flex:1;"><h4>assista</h4><p class="meta" style="margin-top:var(--space-1);">review · 2</p></div>
+            <div class="mini-card" style="flex:1;"><h4>foundry</h4><p class="meta" style="margin-top:var(--space-1);">done · 7</p></div>
+          </div>
+        </div>
+        <p class="cap">Одинаковая структура и&nbsp;высота: строка заголовков и&nbsp;строка меты читаются сквозь все три модуля.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Модульность отступов -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Модульность отступов</h3>
+      <span class="src">Горбунов, «Типографика и&nbsp;вёрстка», «Модули» · канон&nbsp;<a href="../docs/design/03-spacing.md">03</a></span>
+    </div>
+    <p class="statement">Все меры — из&nbsp;одной шкалы (у&nbsp;нас 4pt-сетка, соседние ступени различимы на&nbsp;шаг). Произвольное значение — не&nbsp;«на&nbsp;глаз получилось», а&nbsp;дыра в&nbsp;системе.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div class="mini-card" style="padding:13px 9px 17px 11px;">
+            <h4>Стадия design</h4>
+            <p class="meta" style="margin-top:7px;">ждёт ревью · луп&nbsp;2</p>
+            <div style="margin-top:18px;"><span class="btn">Открыть артефакт</span></div>
+          </div>
+        </div>
+        <p class="cap">13&nbsp;/ 9&nbsp;/ 17&nbsp;/ 7&nbsp;/ 18 — пять случайных мер в&nbsp;одной карточке; ничего ни&nbsp;с&nbsp;чем не&nbsp;согласовано.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <h4>Стадия design</h4>
+            <p class="meta" style="margin-top:var(--space-1);">ждёт ревью · луп&nbsp;2</p>
+            <div style="margin-top:var(--space-4);"><span class="btn">Открыть артефакт</span></div>
+          </div>
+        </div>
+        <p class="cap">12&nbsp;/ 4&nbsp;/ 16 из&nbsp;шкалы токенов: одинаковые по&nbsp;смыслу отступы совпадают на&nbsp;всех экранах автоматически.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Мера строки -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Мера строки 45–75&nbsp;знаков</h3>
+      <span class="src">Горбунов, «Формат. Длина строки и&nbsp;интерлиньяж» · канон&nbsp;<a href="../docs/design/04-typography.md">04&nbsp;§7</a></span>
+    </div>
+    <p class="statement">Бегущая проза не&nbsp;растягивается во&nbsp;всю ширину панели: оптимум ~66&nbsp;знаков. Чем длиннее строка, тем больше нужен интерлиньяж — проще ограничить меру.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <p>Снапшот артефакта устарел: стадия design была перезапущена после вашего последнего ревью, и&nbsp;часть комментариев может ссылаться на&nbsp;строки, которых больше нет в&nbsp;текущей версии документа.</p>
+        </div>
+        <p class="cap">Строка на&nbsp;всю панель — 120+ знаков: глаз теряет начало следующей строки.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <p style="max-width:38ch;">Снапшот артефакта устарел: стадия design была перезапущена после вашего последнего ревью. Комментарии могут ссылаться на&nbsp;строки, которых больше нет.</p>
+        </div>
+        <p class="cap">Колонка ограничена мерой — панель может быть любой ширины, текст остаётся читаемым.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Таблица -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Таблица: воздух и&nbsp;выравнивание вместо линеек</h3>
+      <span class="src">Советы бюро <a href="https://bureau.ru/bb/soviet/20150127/">о&nbsp;таблицах</a> · канон&nbsp;<a href="../docs/design/10-tables.md">10</a></span>
+    </div>
+    <p class="statement">Правильно выровненным данным линейки не&nbsp;нужны. Числа — вправо и&nbsp;табличными цифрами, текст — влево, заголовок выровнен как его колонка. Вертикальные линейки — почти всегда лишние.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <table style="border:1px solid var(--border-strong);">
+            <tr>
+              <th style="border:1px solid var(--border-strong); text-align:center;">Стадия</th>
+              <th style="border:1px solid var(--border-strong); text-align:center;">Лупы</th>
+              <th style="border:1px solid var(--border-strong); text-align:center;">Токены</th>
+            </tr>
+            <tr style="background:var(--bg-hover);">
+              <td style="border:1px solid var(--border-strong);">design</td>
+              <td style="border:1px solid var(--border-strong);">2</td>
+              <td style="border:1px solid var(--border-strong);">41 200</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid var(--border-strong);">implement</td>
+              <td style="border:1px solid var(--border-strong);">11</td>
+              <td style="border:1px solid var(--border-strong);">128 900</td>
+            </tr>
+          </table>
+        </div>
+        <p class="cap">Клетка из&nbsp;линеек, зебра поверх, числа влево, заголовки по&nbsp;центру — сравнивать колонку невозможно.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <table>
+            <tr><th>Стадия</th><th class="num">Лупы</th><th class="num">Токены</th></tr>
+            <tr style="border-top:1px solid var(--border-subtle);"><td>design</td><td class="num">2</td><td class="num">41 200</td></tr>
+            <tr style="border-top:1px solid var(--border-subtle);"><td>implement</td><td class="num">11</td><td class="num">128 900</td></tr>
+          </table>
+        </div>
+        <p class="cap">Только редкие горизонтали border.subtle; числа вправо, tabular — разряды стоят друг под&nbsp;другом.</p>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ══════════════════════════ 02 · Набор ══════════════════════════ -->
+<section class="section" id="type">
+  <h2>02 · Набор</h2>
+  <p class="section-lede">Типографика текста: знаки, выделения, отбивки. Почти всё здесь автоматизируется — «спорить о&nbsp;висячих союзах не&nbsp;надо, надо просто автоматизировать».</p>
+
+  <!-- Одно средство выделения -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Одно средство выделения за&nbsp;раз</h3>
+      <span class="src">Корпус бюро; Нозик <a href="https://bureau.ru/soviet/20190501/">о&nbsp;выделениях</a> · <a href="https://bureau.ru/soviet/20260311/">о&nbsp;капсе</a></span>
+    </div>
+    <p class="statement">Выделение работает контрастом, а&nbsp;контраст не&nbsp;складывается: жирный, капс, цвет и&nbsp;кегль одновременно не&nbsp;усиливают, а&nbsp;загромождают. Капс по&nbsp;умолчанию ухудшает читаемость.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <p><span style="font-weight:700; text-transform:uppercase; color:var(--sem-error); font-size:15px; letter-spacing:0.06em;">Снапшот устарел!</span> — комментарии могут ссылаться на&nbsp;старые строки.</p>
+        </div>
+        <p class="cap">Капс + жирный + цвет + кегль + восклицание: пять средств на&nbsp;один смысл.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <p><strong style="font-weight:var(--type-body-em-weight);">Снапшот устарел</strong> — комментарии могут ссылаться на&nbsp;старые строки.</p>
+        </div>
+        <p class="cap">Одно средство — вес. Цвет остаётся семантике статусов, капс — коротким техническим ярлыкам.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Тире и дефис -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Тире, дефис, минус — три разных знака</h3>
+      <span class="src">Бюро, <a href="https://bureau.ru/soviet/20220807/">«Короткое или длинное тире?»</a></span>
+    </div>
+    <p class="statement">В&nbsp;типографике бюро тире одно — длинное. Дефис — орфографический знак, минус — математический (−, по&nbsp;ширине равен плюсу). Диапазоны — тире без&nbsp;пробелов.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <p>Ревью - обязательный этап.<br>Лупы: 2 - 5.<br>Тренд: <span style="font-variant-numeric:tabular-nums;">-12%</span> за&nbsp;неделю.</p>
+        </div>
+        <p class="cap">Дефис в&nbsp;роли тире и&nbsp;в&nbsp;роли минуса: коротко, висит не&nbsp;на&nbsp;той высоте, диапазон разорван пробелами.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <p>Ревью&nbsp;— обязательный этап.<br>Лупы: 2—5.<br>Тренд: <span style="font-variant-numeric:tabular-nums;">−12%</span> за&nbsp;неделю.</p>
+        </div>
+        <p class="cap">Тире с&nbsp;неразрывным перед ним, диапазон тире без&nbsp;пробелов, минус — U+2212 по&nbsp;оси цифр.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Висячие предлоги -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Висячие предлоги и&nbsp;неразрывные пробелы</h3>
+      <span class="src">Бюро, <a href="https://bureau.ru/soviet/20160807/">«…это плохо»</a></span>
+    </div>
+    <p class="statement">Однобуквенный предлог в&nbsp;конце строки — «неряшливость, равносильная орфографической ошибке». Предлог клеится к&nbsp;следующему слову, число — к&nbsp;единице. Не&nbsp;спорить — автоматизировать.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <p style="max-width:24ch;">Изменения сохранены в<br>снапшот и&nbsp;отправлены на<br>ревью: 3 <br>файла</p>
+        </div>
+        <p class="cap">«в» и&nbsp;«на» повисли в&nbsp;концах строк; число оторвано от&nbsp;слова.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <p style="max-width:24ch;">Изменения сохранены в&nbsp;снапшот и&nbsp;отправлены на&nbsp;ревью: 3&nbsp;файла</p>
+        </div>
+        <p class="cap">U+00A0 после предлогов и&nbsp;между числом и&nbsp;словом — строки ломаются только в&nbsp;разрешённых местах.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Кавычки -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Ёлочки; латиница — без&nbsp;кавычек</h3>
+      <span class="src">Бюро: <a href="https://bureau.ru/soviet/20130804/">«ёлочки»</a> · <a href="https://bureau.ru/soviet/20101207/">латиница и&nbsp;аббревиатуры</a></span>
+    </div>
+    <p class="statement">Русский текст — кавычками-«ёлочками», вложенные — „лапками“. Латинские названия и&nbsp;аббревиатуры кавычек не&nbsp;требуют: написание само выделяет их из&nbsp;текста.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <p>Стадия "design" в "Foundry" завершена, артефакт — в "PDF".</p>
+        </div>
+        <p class="cap">Машинописные кавычки из&nbsp;кода — брак набора; латиница и&nbsp;аббревиатура закавычены зря.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <p>Стадия design в&nbsp;Foundry завершена, отчёт «Лупы за&nbsp;неделю» — в&nbsp;PDF.</p>
+        </div>
+        <p class="cap">Латиница и&nbsp;PDF — без&nbsp;кавычек; русское название — в&nbsp;ёлочках.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Заголовок 2:1 -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Заголовок ближе к&nbsp;своему тексту</h3>
+      <span class="src">Горбунов, «Типографика и&nbsp;вёрстка» (подзаголовки) · канон&nbsp;<a href="../docs/design/03-spacing.md">03</a></span>
+    </div>
+    <p class="statement">Отступ над&nbsp;подзаголовком примерно вдвое больше отступа под&nbsp;ним: заголовок принадлежит своему блоку, а&nbsp;не&nbsp;висит между чужими. Частный случай внутреннего и&nbsp;внешнего.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <p class="meta">…конец предыдущей секции лога.</p>
+          <h4 style="margin:16px 0;">Стадия implement</h4>
+          <p class="meta">Запущена в&nbsp;14:02, идёт 12-я минута…</p>
+        </div>
+        <p class="cap">Равные 16&nbsp;сверху и&nbsp;снизу: заголовок равноудалён от&nbsp;своего и&nbsp;чужого текста.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <p class="meta">…конец предыдущей секции лога.</p>
+          <h4 style="margin:var(--space-6) 0 var(--space-2);">Стадия implement</h4>
+          <p class="meta">Запущена в&nbsp;14:02, идёт 12-я минута…</p>
+        </div>
+        <p class="cap">32&nbsp;сверху, 8&nbsp;снизу: принадлежность читается прищуром, без чтения текста.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Числа и размерности -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Числа и&nbsp;размерности</h3>
+      <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20130401/">«Как писать размерность?»</a></span>
+    </div>
+    <p class="statement">Знаки — типографские, не&nbsp;машинописные: ×, а&nbsp;не&nbsp;x. Число не&nbsp;разлучается с&nbsp;единицей переносом; выбранный вариант отбивки — один на&nbsp;всё приложение.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <p>Экран: 1920x1080.<br>Диск: 4&nbsp;Гб свободно, занято 96 %.<br>Кэш: 51%.</p>
+        </div>
+        <p class="cap">Латинская x вместо знака умножения; «96&nbsp;%» и&nbsp;«51%» — два варианта отбивки в&nbsp;соседних строках.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <p>Экран: 1920×1080.<br>Диск: 4&nbsp;ГБ свободно, занято 96%.<br>Кэш: 51%.</p>
+        </div>
+        <p class="cap">Знак ×, число приклеено к&nbsp;единице, процент отбит одинаково везде.</p>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ══════════════════════════ 03 · Текст интерфейса ══════════════════════════ -->
+<section class="section" id="text">
+  <h2>03 · Текст интерфейса</h2>
+  <p class="section-lede">Интерфейс разговаривает: кнопки — реплики пользователя, тексты — человеческий язык с&nbsp;конкретикой. Главная операция редактуры — изъятие.</p>
+
+  <!-- Кнопка-глагол -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Кнопка отвечает на&nbsp;вопрос «Что сделать?»</h3>
+      <span class="src">Бирман, <a href="https://bureau.ru/bb/soviet/20170418/">«Как подписывать кнопки?»</a></span>
+    </div>
+    <p class="statement">Подпись кнопки — глагол совершенного вида, называющий именно то, что случится. Кнопки — реплики пользователя системе, не&nbsp;команды системы пользователю («Подтвердите» — «шизофрения»).</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <h4>Вы уверены?</h4>
+            <p class="meta" style="margin-top:var(--space-1);">Изменения будут потеряны.</p>
+            <div class="btn-row"><span class="btn">Нет</span><span class="btn btn-primary">Да</span></div>
+          </div>
+        </div>
+        <p class="cap">По&nbsp;кнопкам «Да/Нет» невозможно понять вопрос; что именно случится — неизвестно.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <h4>Закрыть ревью без&nbsp;отправки?</h4>
+            <p class="meta" style="margin-top:var(--space-1);">Черновики 3&nbsp;комментариев будут потеряны.</p>
+            <div class="btn-row"><span class="btn">Отмена</span><span class="btn btn-primary">Закрыть без&nbsp;отправки</span></div>
+          </div>
+        </div>
+        <p class="cap">Читая одни кнопки, понятно всё; порядок — платформенный, главная справа.</p>
+      </div>
+      <div class="frame better">
+        <div class="f-head"><span class="f-verdict">Лучше</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <h4>Ревью change/fsevents-race</h4>
+            <p class="meta" style="margin-top:var(--space-1);">Черновик: 3&nbsp;комментария · сохраняется сам</p>
+          </div>
+          <p class="meta" style="margin-top:var(--space-3);">Диалога нет вовсе: черновик переживает закрытие окна.</p>
+        </div>
+        <p class="cap">Лучший диалог — ненужный: сделать закрытие безопасным, и&nbsp;вопрос исчезает.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Вынести за скобки -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Вынести общее за&nbsp;скобки</h3>
+      <span class="src">Бирман, «Пользовательский интерфейс», гл. «Информативность»</span>
+    </div>
+    <p class="statement">Общая часть повторяющихся элементов выносится в&nbsp;заголовок группы: повторы не&nbsp;добавляют информации, а&nbsp;прячут различия — то&nbsp;единственное, что нужно читать.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div style="display:flex; flex-direction:column; gap:var(--space-2);">
+            <div>Настройки проекта semantik</div>
+            <div>Настройки проекта assista</div>
+            <div>Настройки проекта foundry</div>
+          </div>
+        </div>
+        <p class="cap">Три четверти каждой строки — повтор; различия тонут в&nbsp;одинаковом.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <p class="label" style="margin-bottom:var(--space-2);">Настройки проектов</p>
+          <div style="display:flex; flex-direction:column; gap:var(--space-2);">
+            <div>semantik</div>
+            <div>assista</div>
+            <div>foundry</div>
+          </div>
+        </div>
+        <p class="cap">Общее — один раз в&nbsp;заголовке; строки состоят только из&nbsp;различий.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Язык роботов -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Не&nbsp;говорить языком роботов</h3>
+      <span class="src">Бирман, <a href="https://bureau.ru/soviet/20161220/">стоп-слова</a> · <a href="https://bureau.ru/soviet/20160405/">про&nbsp;Аутлук</a></span>
+    </div>
+    <p class="statement">«Операция успешно выполнена» — шаблон, не&nbsp;предусмотренный сценарием. Человеческий текст называет конкретику: что случилось, с&nbsp;чем, что делать дальше.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div class="toast"><span>Произошла ошибка при&nbsp;выполнении операции</span></div>
+        </div>
+        <p class="cap">Ни&nbsp;что случилось, ни&nbsp;с&nbsp;чем, ни&nbsp;что теперь делать.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div class="toast"><span>Стадия research упала: foundry CLI не&nbsp;найден</span><span class="btn" style="height:var(--control-h-compact);">Указать путь</span></div>
+        </div>
+        <p class="cap">Что упало, почему и&nbsp;кнопка следующего шага — прямо в&nbsp;сообщении.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Проверка изъятием -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Проверка изъятием: не&nbsp;повторять сказанное</h3>
+      <span class="src">Бирман, «Информативность»; подборка <a href="https://bureau.ru/soviet/selected/robert-blinov/printsip-ubrat-vsyo-lishnee/">«Убрать всё лишнее»</a></span>
+    </div>
+    <p class="statement">Каждый элемент отвечает на&nbsp;вопрос «что нового он&nbsp;сообщает?». Строка, без&nbsp;которой смысл цел, — лишняя: она тратит внимание и&nbsp;прячет информативные элементы.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <h4>fix: гонка FSEvents</h4>
+            <p class="meta" style="margin-top:var(--space-1);">Статус: находится на&nbsp;этапе ревью</p>
+            <div class="btn-row" style="justify-content:flex-start;"><span class="btn btn-primary">Approve</span><span class="btn">Request changes</span></div>
+            <p class="meta" style="margin-top:var(--space-2);">Кнопки ревью доступны, так как change находится на&nbsp;ревью</p>
+          </div>
+        </div>
+        <p class="cap">Нижняя строка пересказывает то, что уже сказали статус и&nbsp;сами кнопки.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <h4>fix: гонка FSEvents</h4>
+            <p class="meta" style="margin-top:var(--space-1);">review · луп&nbsp;2</p>
+            <div class="btn-row" style="justify-content:flex-start;"><span class="btn btn-primary">Approve</span><span class="btn">Request changes</span></div>
+          </div>
+        </div>
+        <p class="cap">Изъяли — смысл цел, значит строка была лишней. Прогонять изъятие итерациями, пока убирается.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Пустое состояние -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Пустое состояние — взгляд новичка</h3>
+      <span class="src">Бирман, книга, гл. «Взгляд новичка»; курс — «пустые и&nbsp;заполненные состояния»</span>
+    </div>
+    <p class="statement">Нулевое, малое и&nbsp;переполненное состояния проектируются отдельно. Пустой экран объясняет, что здесь будет, и&nbsp;даёт первое действие — а&nbsp;не&nbsp;констатирует пустоту.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div style="height:120px; display:flex; align-items:center; justify-content:center;">
+            <p class="meta">Нет элементов для отображения</p>
+          </div>
+        </div>
+        <p class="cap">Язык роботов, ни&nbsp;объяснения, ни&nbsp;действия; текст провален в&nbsp;геометрический центр.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div style="height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--space-3); padding-bottom:var(--space-2);">
+            <p class="meta" style="max-width:30ch; text-align:center;">Здесь появится очередь ревью со&nbsp;всех проектов</p>
+            <span class="btn btn-primary">Добавить проект</span>
+          </div>
+        </div>
+        <p class="cap">Что будет + первое действие; блок поднят в&nbsp;визуальный центр (он выше геометрического).</p>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ══════════════════════════ 04 · Взаимодействие ══════════════════════════ -->
+<section class="section" id="interaction">
+  <h2>04 · Взаимодействие</h2>
+  <p class="section-lede">Принципы Бирмана: обратимость вместо вопросов, крупные близкие цели, видимое состояние, обратная связь — «непрерывная, нежная, наглядная и&nbsp;последовательная».</p>
+
+  <!-- Подтверждения vs undo -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Обратимое — отменять, не&nbsp;подтверждать</h3>
+      <span class="src">Бирман, <a href="https://bureau.ru/soviet/20240213/">о&nbsp;подтверждениях</a> · <a href="https://ilyabirman.ru/meanwhile/all/ui-book-section-1/">книга, разд.&nbsp;1</a></span>
+    </div>
+    <p class="statement">Окно подтверждения «вырабатывает привычку соглашаться не&nbsp;читая» и&nbsp;не&nbsp;защищает от&nbsp;ошибок. Защищает обратимость: сделать сразу и&nbsp;дать отменить. Подтверждение — только необратимому, и&nbsp;тогда с&nbsp;непривычным трением.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <h4>Вы уверены, что хотите удалить комментарий?</h4>
+            <div class="btn-row"><span class="btn">Отмена</span><span class="btn btn-primary">ОК</span></div>
+          </div>
+        </div>
+        <p class="cap">Вопрос на&nbsp;каждый чих: через неделю «ОК» прожимается на&nbsp;автомате — защиты ноль.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div class="toast"><span>Комментарий удалён</span><span class="btn" style="height:var(--control-h-compact);">Восстановить</span></div>
+        </div>
+        <p class="cap">Сделано сразу, отмена под&nbsp;рукой — ошибка исправляется, привычка не&nbsp;вырабатывается.</p>
+      </div>
+      <div class="frame better">
+        <div class="f-head"><span class="f-verdict">Лучше</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <h4>Удалить проект из&nbsp;Foundry?</h4>
+            <p class="meta" style="margin-top:var(--space-1);">История ревью и&nbsp;треды будут стёрты. Введите имя проекта:</p>
+            <div class="field" style="margin-top:var(--space-2);"><span class="ph">semantik</span></div>
+            <div class="btn-row"><span class="btn">Отмена</span><span class="btn" style="color:var(--sem-error); border-color:var(--sem-error-border);">Удалить проект</span></div>
+          </div>
+        </div>
+        <p class="cap">Инвентаризация: почти всё обратимо через undo; редкому необратимому — осмысленное трение, а&nbsp;не&nbsp;привычный «ОК».</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Фиттс -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Прицеливание: крупнее и&nbsp;ближе</h3>
+      <span class="src">Бирман, <a href="https://bureau.ru/soviet/20160517/">Фиттс, ч.&nbsp;1</a> · <a href="https://bureau.ru/soviet/20160524/">ч.&nbsp;2</a></span>
+    </div>
+    <p class="statement">Время попадания зависит от&nbsp;размера цели и&nbsp;расстояния до&nbsp;неё. Зона клика больше глифа (у&nbsp;нас минимум 24×24); действие живёт у&nbsp;своего объекта, а&nbsp;не&nbsp;в&nbsp;дальнем углу; кромка экрана — цель бесконечной глубины.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div class="mini-card" style="display:flex; align-items:center; justify-content:space-between;">
+            <span>тред: строка&nbsp;42</span>
+            <span style="width:12px; height:12px; display:inline-flex; align-items:center; justify-content:center; color:var(--text-tertiary); font-size:12px; line-height:1;">✕</span>
+          </div>
+          <p class="meta" style="margin-top:var(--space-2);">Кнопка закрытия треда — 12×12, кликается по&nbsp;пикселям глифа.</p>
+        </div>
+        <p class="cap">Микроцель: промахи, раздражение, случайные клики по&nbsp;соседям.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div class="mini-card" style="display:flex; align-items:center; justify-content:space-between;">
+            <span>тред: строка&nbsp;42</span>
+            <span style="width:var(--control-hit-min); height:var(--control-hit-min); display:inline-flex; align-items:center; justify-content:center; color:var(--text-secondary); border-radius:var(--radius-s); background:var(--bg-hover); font-size:12px; line-height:1;">✕</span>
+          </div>
+          <p class="meta" style="margin-top:var(--space-2);">Глиф тот&nbsp;же, зона клика — 24×24 у&nbsp;самого треда.</p>
+        </div>
+        <p class="cap">Цель крупнее глифа и&nbsp;рядом с&nbsp;объектом действия.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Неактивные кнопки -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Недоступное — показывать, не&nbsp;прятать</h3>
+      <span class="src">Бирман, <a href="https://bureau.ru/soviet/20240521/">неактивная кнопка</a> · <a href="https://ilyabirman.ru/meanwhile/all/buy-works/">«Купить всегда доступна»</a></span>
+    </div>
+    <p class="statement">Недоступный элемент остаётся на&nbsp;месте в&nbsp;явно неактивном виде — интерфейс не&nbsp;«дышит». Для&nbsp;неочевидных случаев — второй паттерн: главное действие всегда активно и&nbsp;по&nbsp;клику объясняет, чего не&nbsp;хватает.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <h4>Стадия design</h4>
+            <p class="meta" style="margin-top:var(--space-1);">Кнопка «Запустить стадию» появится, когда появится proposal.md</p>
+          </div>
+        </div>
+        <p class="cap">Действие исчезло из&nbsp;интерфейса — вместе со&nbsp;стабильностью; объяснение пришлось писать текстом.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <h4>Стадия design</h4>
+            <div class="btn-row" style="justify-content:flex-start;">
+              <span class="btn" style="color:var(--text-disabled);">Запустить стадию</span>
+            </div>
+          </div>
+        </div>
+        <p class="cap">Кнопка на&nbsp;месте, неактивность показана полупрозрачным текстом (не&nbsp;всей кнопкой); тултип называет причину.</p>
+      </div>
+      <div class="frame better">
+        <div class="f-head"><span class="f-verdict">Лучше</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <h4>Стадия design</h4>
+            <div class="btn-row" style="justify-content:flex-start;"><span class="btn btn-primary">Запустить стадию</span></div>
+            <p class="meta" style="margin-top:var(--space-2); color:var(--sem-warning);">Нет proposal.md — сначала стадия propose</p>
+          </div>
+        </div>
+        <p class="cap">Для&nbsp;неочевидной причины — активная кнопка: клик показывает, чего не&nbsp;хватает, и&nbsp;подсвечивает где.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Умолчания -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Умные умолчания</h3>
+      <span class="src">Бюро: <a href="https://bureau.ru/soviet/20140120/">помнить выбор</a> · <a href="https://bureau.ru/soviet/20130923/">предустановка → ошибки</a> · <a href="https://bureau.ru/soviet/20111027/">селект-заглушка</a></span>
+    </div>
+    <p class="statement">Безопасные параметры система помнит и&nbsp;подставляет; «— выберите значение&nbsp;—» — костыль. Но&nbsp;там, где ошибка дорога, предустановка вредна: пустота принуждает к&nbsp;осознанному выбору.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <p class="label" style="margin-bottom:var(--space-1);">Модель для&nbsp;стадии</p>
+          <div class="field" style="justify-content:space-between;"><span class="ph">— выберите значение —</span><span class="meta">▾</span></div>
+          <p class="meta" style="margin-top:var(--space-3);">Каждый запуск — заново, вчерашний выбор забыт.</p>
+        </div>
+        <p class="cap">Псевдопункт вместо значения; система не&nbsp;помнит то, что знает.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <p class="label" style="margin-bottom:var(--space-1);">Модель для&nbsp;стадии</p>
+          <div class="field" style="justify-content:space-between;"><span>opus — как в&nbsp;прошлый раз</span><span class="meta">▾</span></div>
+          <p class="meta" style="margin-top:var(--space-3);">Деструктивные выборы («перезаписать артефакт») — всегда пустые.</p>
+        </div>
+        <p class="cap">Помнит безопасное, не&nbsp;предустанавливает рискованное; дефолт всегда безопасный.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Плейсхолдер -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Плейсхолдер — не&nbsp;подпись</h3>
+      <span class="src">Бюро, <a href="https://bureau.ru/soviet/20150713/">совет</a> · <a href="https://bureau.ru/soviet/20180109/">подписи над&nbsp;полями</a></span>
+    </div>
+    <p class="statement">Подпись внутри поля исчезает при&nbsp;вводе — заполненную форму нельзя проверить. Подпись живёт снаружи (сверху или слева, но&nbsp;системно), плейсхолдер — только пример формата.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div style="display:flex; flex-direction:column; gap:var(--space-2);">
+            <div class="field"><span class="ph">Имя проекта</span></div>
+            <div class="field"><span>/Users/dmitriy/pet/semantik</span></div>
+          </div>
+        </div>
+        <p class="cap">Первое поле ещё подписано, второе уже нет: что в&nbsp;нём — вспоминай сам.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div style="display:flex; flex-direction:column; gap:var(--space-3);">
+            <div>
+              <p class="label" style="margin-bottom:var(--space-1);">Имя проекта</p>
+              <div class="field"><span class="ph">например, semantik</span></div>
+            </div>
+            <div>
+              <p class="label" style="margin-bottom:var(--space-1);">Каталог</p>
+              <div class="field"><span>/Users/dmitriy/pet/semantik</span></div>
+            </div>
+          </div>
+        </div>
+        <p class="cap">Подписи снаружи и&nbsp;переживают ввод; плейсхолдер показывает пример, а&nbsp;не&nbsp;называет поле.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Состояние видно -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Состояние системы видно всегда</h3>
+      <span class="src">Подборка <a href="https://bureau.ru/soviet/selected/konstantin-mozgovoy/pokazat-sostoyanie-v-interfeyse/">«Показать состояние»</a>; Бирман — обратная связь, ч.&nbsp;<a href="https://bureau.ru/soviet/20160823/">1</a>–<a href="https://bureau.ru/soviet/20160920/">3</a></span>
+    </div>
+    <p class="statement">Вид элемента отражает текущее состояние и&nbsp;то, что произойдёт по&nbsp;нажатию, — без&nbsp;двусмысленности «Вкл — это статус или команда?». Фоновые процессы показывают себя сами, не&nbsp;по&nbsp;запросу.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div class="mini-card" style="display:flex; align-items:center; justify-content:space-between;">
+            <span>Стадия implement</span>
+            <span class="btn">Вкл</span>
+          </div>
+          <p class="meta" style="margin-top:var(--space-2);">Идёт&nbsp;ли сейчас работа — узнаётся только из&nbsp;лога.</p>
+        </div>
+        <p class="cap">«Вкл» — статус или действие? Состояние процесса скрыто.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div class="mini-card" style="display:flex; align-items:center; justify-content:space-between; gap:var(--space-3);">
+            <span style="display:inline-flex; align-items:center; gap:var(--space-2);">
+              <span style="width:8px; height:8px; border-radius:var(--radius-full); background:var(--sem-info); box-shadow:var(--glow-live); flex:none;"></span>
+              <span>Claude пишет тесты — 12&nbsp;мин</span>
+            </span>
+            <span class="btn">Прервать</span>
+          </div>
+        </div>
+        <p class="cap">Статус (живая точка + текст) отделён от&nbsp;органа действия («Прервать»); видно и&nbsp;что идёт, и&nbsp;как остановить.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Hover -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Отклик на&nbsp;наведение</h3>
+      <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20120119/">о&nbsp;кнопках при&nbsp;наведении</a></span>
+    </div>
+    <p class="statement">Мышь менее точна, чем палец: hover — обратная связь прицеливания. Кликабельное отвечает на&nbsp;наведение; некликабельное не&nbsp;изображает кликабельность. Демо живое — наведите курсор.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div style="display:flex; flex-direction:column; gap:var(--space-2);">
+            <div style="padding:var(--space-2) var(--space-3);">fix: гонка FSEvents</div>
+            <div style="padding:var(--space-2) var(--space-3);">feat: канбан-доска</div>
+          </div>
+        </div>
+        <p class="cap">Строки списка кликабельны, но&nbsp;ничем это не&nbsp;выдают: ни&nbsp;ховера, ни&nbsp;курсора.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div style="display:flex; flex-direction:column; gap:var(--space-2);">
+            <div class="hover-row" style="padding:var(--space-2) var(--space-3); border-radius:var(--radius-m); cursor:pointer;">fix: гонка FSEvents</div>
+            <div class="hover-row" style="padding:var(--space-2) var(--space-3); border-radius:var(--radius-m); cursor:pointer;">feat: канбан-доска</div>
+          </div>
+          <style>.hover-row:hover { background: var(--bg-hover); }</style>
+        </div>
+        <p class="cap">Наведение подсвечивает цель до&nbsp;клика — прицеливание получает обратную связь.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- Модальность -->
+  <article class="rule">
+    <div class="rule-head">
+      <h3>Модальность — источник модальных ошибок</h3>
+      <span class="src">Бирман, <a href="https://bureau.ru/soviet/20160209/">ч.&nbsp;1</a> · <a href="https://bureau.ru/soviet/20160223/">ч.&nbsp;2</a> · <a href="https://bureau.ru/soviet/20160308/">ч.&nbsp;3</a></span>
+    </div>
+    <p class="statement">Модальный интерфейс — тот, где один жест значит разное в&nbsp;состояниях, которых человек не&nbsp;осознаёт: внимание направлено на&nbsp;задачу, не&nbsp;на&nbsp;режим. Жесты — с&nbsp;постоянным смыслом; режим — разве что квазирежим, пока держишь клавишу.</p>
+    <div class="demos">
+      <div class="frame bad">
+        <div class="f-head"><span class="f-verdict">Плохо</span></div>
+        <div class="demo">
+          <div class="mini-card">
+            <h4>Режим комментирования включён</h4>
+            <p class="meta" style="margin-top:var(--space-1);">Теперь клик по&nbsp;строке диффа создаёт комментарий. Выключите режим, чтобы снова выделять текст.</p>
+          </div>
+        </div>
+        <p class="cap">Один и&nbsp;тот&nbsp;же клик значит разное; включённый режим забудется — и&nbsp;жест сработает не&nbsp;так.</p>
+      </div>
+      <div class="frame good">
+        <div class="f-head"><span class="f-verdict">Хорошо</span></div>
+        <div class="demo">
+          <div class="mini-card" style="font-family:var(--font-mono); font-size:var(--type-mono-size); line-height:var(--type-mono-leading);">
+            <div style="display:flex; gap:var(--space-2); align-items:center;">
+              <span style="color:var(--code-linenum);">42</span>
+              <span style="width:16px; height:16px; border-radius:var(--radius-s); background:var(--bg-selected); color:var(--text-accent); display:inline-flex; align-items:center; justify-content:center; flex:none;">+</span>
+              <span style="background:var(--diff-added-bg); color:var(--diff-added-text); padding:0 var(--space-1);">let stream = subprocess.stdout</span>
+            </div>
+          </div>
+        </div>
+        <p class="cap">Без&nbsp;режима: комментарий — отдельная цель «+» в&nbsp;гаттере по&nbsp;ховеру, выделение текста — обычный клик. Жесты не&nbsp;пересекаются.</p>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ══════════════════════════ 05 · Одной строкой ══════════════════════════ -->
+<section class="section" id="digest">
+  <h2>05 · Одной строкой</h2>
+  <p class="section-lede">Правила без&nbsp;развёрнутого демо — но&nbsp;с&nbsp;тем&nbsp;же статусом закона. Формулировка и&nbsp;источник; нарушение узнаётся по&nbsp;описанию.</p>
+  <div class="digest">
+    <dl>
+      <dt>Визуальный центр выше геометрического</dt>
+      <dd>Центрируемое по&nbsp;вертикали содержимое поднимают чуть выше математической середины, иначе оно «проваливается». — Горбунов, книга</dd>
+      <dt>Круг — самая активная форма</dt>
+      <dd>Круги тянут внимание; россыпь кружков-бейджей спорит с&nbsp;якорями. Активность круга — целево: точка статуса, орб. — Горбунов, книга</dd>
+      <dt>Обтекание — не&nbsp;слева от&nbsp;текста</dt>
+      <dd>«Ничто не&nbsp;выглядит так уродливо, как обтекание иллюстрации текстом справа»: картинка — к&nbsp;правому краю, левая ось текста не&nbsp;ломается. — Горбунов, книга</dd>
+      <dt>Висячая пунктуация</dt>
+      <dd>Кавычки и&nbsp;маркеры свешиваются за&nbsp;левую кромку, ось выравнивается по&nbsp;буквам. — <a href="https://bureau.ru/soviet/20090618/">совет</a></dd>
+      <dt>Интерлиньяж 1,2–1,4</dt>
+      <dd>Плотнее — строки слипаются (внутреннее и&nbsp;внешнее), свободнее — абзац рассыпается. — Горбунов, книга</dd>
+      <dt>Подписи — без&nbsp;точки, двоеточия — системно</dt>
+      <dd>В&nbsp;конце подписей точка не&nbsp;ставится; двоеточия в&nbsp;лейблах — либо везде, либо (лучше) нигде. — Горбунов, книга</dd>
+      <dt>Предлоги и&nbsp;кавычки входят в&nbsp;ссылку</dt>
+      <dd>Линкуется смысловая фраза целиком: «прочитайте в&nbsp;документации», включая кавычки названия. — книга; <a href="https://bureau.ru/soviet/20100121/">Бирман</a></dd>
+      <dt>Миф о&nbsp;семи элементах</dt>
+      <dd>7±2 — про&nbsp;рабочую память, не&nbsp;про&nbsp;меню: списки не&nbsp;запоминают, по&nbsp;ним водят глазами. Структурировать порядком, не&nbsp;урезать. — Бирман, книга</dd>
+      <dt>Пусть потеет машина</dt>
+      <dd>Не&nbsp;просить у&nbsp;человека того, что машина умеет сама: форматы нормализуются, известное подставляется, вычислимое вычисляется. — Бирман, «Человечность»</dd>
+      <dt>Сначала данные, потом фильтры</dt>
+      <dd>Показать данные с&nbsp;разумным дефолтом сразу; фильтры уточняют видимое, а&nbsp;не&nbsp;стоят воротами перед ним. — Бирман, «Технозависимость»</dd>
+      <dt>Последовательное волшебство</dt>
+      <dd>Автоматика — с&nbsp;одним понятным законом, видимым результатом и&nbsp;лёгкой отменой; «иногда само форматирует, иногда нет» — хуже отсутствия автоматики. — Бирман, книга</dd>
+      <dt>Не&nbsp;терять и&nbsp;не&nbsp;портить ввод</dt>
+      <dd>Валидация — по&nbsp;уходу из&nbsp;поля, ошибка — у&nbsp;поля, данные при&nbsp;ошибке нетронуты, форматы принимаются любые разумные. — Бирман, курс</dd>
+      <dt>Прокрутка вместо псевдостраниц</dt>
+      <dd>Скролл — естественный немодальный способ работы с&nbsp;длинным; пагинация в&nbsp;настройках и&nbsp;карусели — дробление без&nbsp;выгоды. — Бирман, книга</dd>
+      <dt>Данным — чернила</dt>
+      <dd>Информационный мусор (рамки, фоны, сетки, легенды-словари) удаляется; мало точек — таблица или предложение вместо графика; сравнения — small multiples. — Бирман, курс; <a href="https://bureau.ru/soviet/20101221/">совет</a></dd>
+      <dt>Порядок кнопок — по&nbsp;платформе</dt>
+      <dd>На&nbsp;macOS главная кнопка справа; спор «слева или справа» вторичен, если кнопки называют действия. — <a href="https://bureau.ru/soviet/20240910/">Бирман</a></dd>
+    </dl>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>Страница — часть дизайн-системы foundry-desktop: значения — из&nbsp;<a href="tokens/tokens.json">tokens.json</a>, полный прогон перед сдачей экрана — <a href="../docs/design/14-checklist.md">канон&nbsp;14</a>. Сырые меры внутри демо «Плохо» поставлены намеренно: нарушение — экспонат.</p>
+</footer>
+
+</div>
