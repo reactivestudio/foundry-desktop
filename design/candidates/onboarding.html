@@ -589,9 +589,21 @@
     .ob-screen.on { animation: none; }
     .dots i { transition: none; }
   }
+/* ——— bare-режим: только экран, без прозы (встраивание в доску ?bare) ——— */
+html.bare .eyebrow, html.bare .page-title, html.bare .lede,
+html.bare .sec-head, html.bare .bench, html.bare .caption,
+html.bare .main-win, html.bare footer.note { display: none !important; }
+html.bare, html.bare body { padding: 0 !important; margin: 0 !important; background: transparent !important; }
+html.bare .page, html.bare .wrap { max-width: none !important; margin: 0 !important; padding: 0 !important; }
+html.bare .block { margin: 0 !important; padding: 0 !important; border: 0 !important; background: none !important; }
+html.bare .block ~ .block { display: none !important; }
+/* только окно настройки, в потоке — не 940px-сцена с абсолютным окном */
+html.bare .stage { height: auto !important; display: block !important; margin: 0 !important; }
+html.bare .ob-win { position: relative !important; margin: 0 auto !important; }
 </style>
 </head>
 <body>
+<script>if(location.search.indexOf('bare')>-1)document.documentElement.classList.add('bare')</script>
 <div class="page"><div class="wrap">
 
   <div class="eyebrow"><span class="dot"></span>foundry-desktop · первый запуск · живой прототип</div>

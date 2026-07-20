@@ -2046,7 +2046,7 @@ SCREEN_GROUPS = [
     },
     {
         "anchor": "screen-main", "title": "Главный экран", "kind": "iframe",
-        "src": "candidates/main-screen-sketch.html", "height": 15,
+        "src": "candidates/main-screen-sketch.html", "height": 12,
         "status": "кандидат · эскиз на утверждение",
         "blurb": "Рейл, сайдбар и плавающие панели: границу держит зазор, "
                  "а не линейка. Эскиз доводит §1 макета до того, что его "
@@ -2054,7 +2054,7 @@ SCREEN_GROUPS = [
     },
     {
         "anchor": "screen-notch", "title": "Нотч-хелпер", "kind": "iframe",
-        "src": "candidates/notch-helper-board.html", "height": 14,
+        "src": "candidates/notch-helper-board.html", "height": 9,
         "status": "кандидат · этап 1 принят рабоче",
         "blurb": "Чёлка макбука как амбиентный пульт пайплайна CRISPY. "
                  "Этап 1 (свёрнутая чёлка · ховер · раскрытие) принят рабоче; "
@@ -2122,9 +2122,17 @@ def board_screens(tokens):
             lines.append('    <img src="%s" alt="%s">'
                          % (escape(group["src"]), escape(group["title"])))
         else:
+            # Прототип/лист макетов — это самонарративная doc-страница: свой
+            # h1, своя проза, свои пульты и каптионы. В доску встраиваем её в
+            # bare-режиме (?bare) — только живую поверхность продукта, без
+            # второго слоя прозы поверх подписи доски. Полный нарратив живёт
+            # по ссылке «в своей вкладке» (без ?bare). Разделитель выбирается
+            # по тому, есть ли уже query в пути.
+            sep = "&" if "?" in group["src"] else "?"
+            src = group["src"] + sep + "bare=1"
             lines.append('    <iframe src="%s" style="height: calc(var(--space-10) * %d)" '
                          'loading="lazy" title="%s"></iframe>'
-                         % (escape(group["src"]), group["height"], escape(group["title"])))
+                         % (escape(src), group["height"], escape(group["title"])))
         lines.append("  </div>")
         note = ("Лист длинный — панель скроллится сама. " if group.get("external") else "")
         lines.append('  <p class="hint" style="margin-top: var(--space-3); color: var(--text-tertiary)">'
