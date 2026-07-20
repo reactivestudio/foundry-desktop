@@ -1395,33 +1395,35 @@ def contrast_block(tokens):
                             "посчитан браузером сейчас, при открытии страницы: "
                             "альфа-белый сперва кладётся на фон, потом берётся WCAG — "
                             "иначе цифра врёт"))
-    lines.append('  <div class="grid">')
-
-    lines.append('    <div class="col-8">')
-    lines.append('      <table class="matrix" id="matrix-inks">')
-    lines.append("        <thead><tr><th>Чернила</th></tr></thead>")
-    lines.append("        <tbody></tbody>")
-    lines.append("      </table>")
-    lines.append('      <p class="matrix-note">%s — WCAG 1.4.3 недоступное не нормирует: '
+    # Две матрицы стоят стопкой, не бок о бок: рядом они не влезали в колонку
+    # доски (сайдбар съел ширину) и наезжали друг на друга. Главная — чернила
+    # на поверхностях — во всю ширину; частный случай — что кладём на фирменную
+    # заливку — ниже, своей естественной шириной.
+    lines.append('  <div class="matrix-wrap">')
+    lines.append('    <table class="matrix" id="matrix-inks">')
+    lines.append("      <thead><tr><th>Чернила</th></tr></thead>")
+    lines.append("      <tbody></tbody>")
+    lines.append("    </table>")
+    lines.append("  </div>")
+    lines.append('  <p class="matrix-note">%s — WCAG 1.4.3 недоступное не нормирует: '
                  "порог %s к нему не применяется, и провалом это не помечено.</p>"
                  % (", ".join("<code>%s</code>" % escape(path) for path in sorted(CONTRAST_EXEMPT)),
                     format_number(CONTRAST_THRESHOLD)))
-    lines.append('      <p class="verdict-note">Ультрамарин <code>brand.ultramarine</code> даёт '
+    lines.append('  <p class="verdict-note">Ультрамарин <code>brand.ultramarine</code> даёт '
                  "<b>%.1f:1</b> на <code>bg.base</code> — порог 4.5 не взят, и это видно "
                  "в таблице, а не в примечании. Поэтому текстом всегда "
                  "<code>text.accent</code>. Правило, которое видно проваливающимся, "
                  "не нужно заучивать.</p>" % failure)
-    lines.append("    </div>")
 
-    lines.append('    <div class="col-4">')
-    lines.append('      <table class="matrix" id="matrix-accents">')
-    lines.append("        <thead><tr><th>Заливка</th></tr></thead>")
-    lines.append("        <tbody></tbody>")
-    lines.append("      </table>")
-    lines.append('      <p class="verdict-note">%s</p>'
-                 % escape(find_token(tokens, "text.on-accent").get("role", "")))
-    lines.append("    </div>")
+    lines.append('  <p class="sub-kicker">На фирменной заливке — что читается</p>')
+    lines.append('  <div class="matrix-wrap narrow">')
+    lines.append('    <table class="matrix" id="matrix-accents">')
+    lines.append("      <thead><tr><th>Заливка</th></tr></thead>")
+    lines.append("      <tbody></tbody>")
+    lines.append("    </table>")
     lines.append("  </div>")
+    lines.append('  <p class="verdict-note">%s</p>'
+                 % escape(find_token(tokens, "text.on-accent").get("role", "")))
 
     if drifted:
         lines.append('  <div class="finding">')
@@ -1639,18 +1641,23 @@ def layout_block(tokens):
 
     lines = ['<div class="block" id="layout-macro">']
     lines.append(block_head("Панели окна — макросетка",
-                            "ширины в натуральную величину, pt→px 1:1: "
-                            "панель — это «колонка» приложения (02 §8)"))
+                            "ширины в натуральную величину, pt→px 1:1: панель — это "
+                            "«колонка» приложения (02 §8). Окно шире колонки доски — "
+                            "прокручивается вбок"))
     # Окно в масштабе: сайдбар и инспектор — фиксированной ширины своим pt,
     # контент забирает остаток (min 480). Это не картинка окна, а окно в меру.
+    # Рамка-обёртка несёт затемнение у правой кромки — знак, что окно
+    # продолжается за прокруткой, а не обрезано.
+    lines.append('  <div class="win-frame">')
     lines.append('  <div class="win">')
     for panel in panels:
         default = panel["default"]
         if default is None:
-            # Контент/деталь: ∞, тянется и сжимается до остатка. min-width:0 —
-            # иначе минимум 480 распирает окно шире колонки доски и режет инспектор;
-            # честную ширину «мин 480pt» несёт подпись и легенда, а не распор.
-            style = "flex: 1 1 auto; min-width: 0"
+            # Контент/деталь: ∞, тянется. Держит свою минимальную ширину (480pt)
+            # и НЕ сжимается — раньше flex-shrink давил её в ноль, и подпись
+            # вылезала под инспектор. Теперь окно честно шире колонки доски и
+            # прокручивается вбок (.win overflow-x), сохраняя 1:1.
+            style = "flex: 1 0 %dpx" % panel["min"]
             width_label = "мин %dpt · ∞" % panel["min"]
         else:
             style = "flex: 0 0 %dpx" % default
@@ -1661,6 +1668,7 @@ def layout_block(tokens):
         lines.append('      <span class="w">%s</span>' % escape(width_label))
         lines.append("    </div>")
     lines.append("  </div>")
+    lines.append("  </div>")  # .win-frame
     # Легенда: мин / по умолчанию / макс и поведение при ресайзе — данные панели.
     lines.append('  <ul class="panels">')
     for panel in panels:
@@ -2208,9 +2216,12 @@ CANVAS_SCRIPT = """
     var td = document.createElement("td");
     td.className = fails ? "fail" : "pass";
     td.style.background = css(backgroundRgb);
+    // Образец — глиф «Аа» чернилами на поверхности (форма буквы и есть проба
+    // читаемости), рядом само число. Раньше в каждой из 40 ячеек стояло «Ждёт
+    // ревью» — это и распирало таблицу за колонку, и рябило повтором.
     td.innerHTML =
       '<span class="cell">' +
-      '<span class="sample" style="color:' + css(mixed) + '">Ждёт ревью</span>' +
+      '<span class="sample" style="color:' + css(mixed) + '">Аа</span>' +
       '<span class="ratio" style="color:' + css(meta) + '">' + value.toFixed(1) + ":1</span>" +
       '<span class="flag" style="color:' + css(meta) + '">✕</span></span>';
     return td;

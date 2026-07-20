@@ -509,10 +509,20 @@ a:hover { text-decoration: underline; }
    накладывается на фон, потом берётся WCAG. Числа тут не переписаны
    из таблицы — они посчитаны на глазах у читателя. */
 .matrix { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-/* Ниже расчётной колонки (--canvas-column) матрица шире своего трека. Скроллим её
-   внутри себя: перенос ячейки убил бы сравнение по вертикали, ради которого она и есть. */
-@media (max-width: 1280px) {
-  .matrix { display: block; overflow-x: auto; }
+/* Обёртка матрицы — сама скроллит по горизонтали, если таблица шире колонки
+   доски (рельс съедает ширину, и вьюпортный медиазапрос тут не срабатывал —
+   ловим по реальному месту). Перенос ячейки убил бы сравнение по вертикали,
+   ради которого матрица и есть, — поэтому скролл, а не wrap. */
+.matrix-wrap { overflow-x: auto; margin-top: var(--space-2); }
+.matrix-wrap.narrow { max-width: 460px; }
+/* Подзаголовок внутри блока — ступень между заголовком блока (title) и телом:
+   называет частный случай, не заводя новый блок. */
+.sub-kicker {
+  margin: var(--space-6) 0 var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+  font-weight: var(--type-body-em-weight);
 }
 .matrix th, .matrix td { padding: var(--space-2) var(--space-3); text-align: left; }
 .matrix thead th {
@@ -530,8 +540,8 @@ a:hover { text-decoration: underline; }
   white-space: nowrap;
 }
 .matrix td { border-radius: var(--radius-s); }
-/* Образец и цифра — одна строка на любой ширине: перенос «Ждёт / ревью» ломает
-   сравнение по вертикали, ради которого матрица и существует (11 §2.1). */
+/* Образец «Аа» и цифра — одна строка: перенос ломает сравнение по вертикали,
+   ради которого матрица и существует (11 §2.1). */
 .matrix .cell { display: flex; align-items: baseline; gap: var(--space-2); white-space: nowrap; }
 .matrix .sample { font-size: var(--type-body-size); font-weight: var(--type-body-em-weight); }
 .matrix .ratio { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-tertiary); }
@@ -1011,6 +1021,20 @@ details.more > p { margin: var(--space-2) 0 0; padding: 0; color: var(--text-ter
    Панели окна в натуральную величину (pt→px 1:1, как везде), контент забирает
    остаток. Не картинка окна, а окно в меру: сайдбар 240, инспектор 320 стоят
    ровно своей шириной. Гаттер между панелями — тонкий шов (внутреннее). */
+/* Рамка окна с растворением у правой кромки: окно шире колонки доски и едет
+   вбок; градиент — знак «продолжается за прокруткой», а не обрезано. */
+.win-frame { position: relative; }
+.win-frame::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  width: var(--space-10);
+  border-radius: 0 var(--radius-l) var(--radius-l) 0;
+  background: linear-gradient(90deg, transparent, var(--bg-base));
+  pointer-events: none;
+}
 .win {
   display: flex;
   gap: var(--space-2);

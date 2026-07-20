@@ -174,23 +174,22 @@
   </div>
   <div class="block" id="contrast">
     <div class="block-head"><h3>Контраст</h3><span class="hint">посчитан браузером сейчас, при открытии страницы: альфа-белый сперва кладётся на фон, потом берётся WCAG — иначе цифра врёт</span></div>
-    <div class="grid">
-      <div class="col-8">
-        <table class="matrix" id="matrix-inks">
-          <thead><tr><th>Чернила</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <p class="matrix-note"><code>text.disabled</code> — WCAG 1.4.3 недоступное не нормирует: порог 4.5 к нему не применяется, и провалом это не помечено.</p>
-        <p class="verdict-note">Ультрамарин <code>brand.ultramarine</code> даёт <b>4.0:1</b> на <code>bg.base</code> — порог 4.5 не взят, и это видно в таблице, а не в примечании. Поэтому текстом всегда <code>text.accent</code>. Правило, которое видно проваливающимся, не нужно заучивать.</p>
-      </div>
-      <div class="col-4">
-        <table class="matrix" id="matrix-accents">
-          <thead><tr><th>Заливка</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <p class="verdict-note">текст на ультрамарине (5.1:1); на пурпуре (4.2:1), мадженте (3.1:1) и янтаре (1.8:1) белый ЗАПРЕЩЁН — там тёмный bg.base</p>
-      </div>
+    <div class="matrix-wrap">
+      <table class="matrix" id="matrix-inks">
+        <thead><tr><th>Чернила</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
+    <p class="matrix-note"><code>text.disabled</code> — WCAG 1.4.3 недоступное не нормирует: порог 4.5 к нему не применяется, и провалом это не помечено.</p>
+    <p class="verdict-note">Ультрамарин <code>brand.ultramarine</code> даёт <b>4.0:1</b> на <code>bg.base</code> — порог 4.5 не взят, и это видно в таблице, а не в примечании. Поэтому текстом всегда <code>text.accent</code>. Правило, которое видно проваливающимся, не нужно заучивать.</p>
+    <p class="sub-kicker">На фирменной заливке — что читается</p>
+    <div class="matrix-wrap narrow">
+      <table class="matrix" id="matrix-accents">
+        <thead><tr><th>Заливка</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="verdict-note">текст на ультрамарине (5.1:1); на пурпуре (4.2:1), мадженте (3.1:1) и янтаре (1.8:1) белый ЗАПРЕЩЁН — там тёмный bg.base</p>
   </div>
   <div class="verdict">
     <div class="can">
@@ -345,7 +344,8 @@
   <div class="section-head"><span class="num">03</span><h2>Сетка</h2></div>
   <p class="section-lede">Модульная сетка на трёх уровнях: панели окна в натуральную величину, микросетка колонок с единым гаттером, колонка чтения ровно в меру — правило, которому подчинена и эта страница.</p>
   <div class="block" id="layout-macro">
-    <div class="block-head"><h3>Панели окна — макросетка</h3><span class="hint">ширины в натуральную величину, pt→px 1:1: панель — это «колонка» приложения (02 §8)</span></div>
+    <div class="block-head"><h3>Панели окна — макросетка</h3><span class="hint">ширины в натуральную величину, pt→px 1:1: панель — это «колонка» приложения (02 §8). Окно шире колонки доски — прокручивается вбок</span></div>
+    <div class="win-frame">
     <div class="win">
       <div class="win-panel" style="flex: 0 0 240px">
         <b>Сайдбар</b>
@@ -357,7 +357,7 @@
         <span class="role">master в ревью</span>
         <span class="w">300pt</span>
       </div>
-      <div class="win-panel" style="flex: 1 1 auto; min-width: 0">
+      <div class="win-panel" style="flex: 1 0 480px">
         <b>Контент / деталь</b>
         <span class="role">«работаю»: доска, ревью, лог</span>
         <span class="w">мин 480pt · ∞</span>
@@ -367,6 +367,7 @@
         <span class="role">«свойства выбранного»</span>
         <span class="w">320pt</span>
       </div>
+    </div>
     </div>
     <ul class="panels">
       <li><span class="t">Сайдбар</span><span class="n">200 / 240 / 320 pt</span><span class="g">фиксирован при ресайзе; схлопывается целиком (⌘⌥S)</span></li>
@@ -1475,9 +1476,12 @@
     var td = document.createElement("td");
     td.className = fails ? "fail" : "pass";
     td.style.background = css(backgroundRgb);
+    // Образец — глиф «Аа» чернилами на поверхности (форма буквы и есть проба
+    // читаемости), рядом само число. Раньше в каждой из 40 ячеек стояло «Ждёт
+    // ревью» — это и распирало таблицу за колонку, и рябило повтором.
     td.innerHTML =
       '<span class="cell">' +
-      '<span class="sample" style="color:' + css(mixed) + '">Ждёт ревью</span>' +
+      '<span class="sample" style="color:' + css(mixed) + '">Аа</span>' +
       '<span class="ratio" style="color:' + css(meta) + '">' + value.toFixed(1) + ":1</span>" +
       '<span class="flag" style="color:' + css(meta) + '">✕</span></span>';
     return td;
