@@ -31,12 +31,21 @@ body {
 a { color: var(--text-accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-.page {
-  max-width: var(--page-column);
-  margin: 0 auto;
+.layout {
+  display: grid;
+  grid-template-columns: 248px minmax(0, var(--page-column));
+  gap: 0 var(--space-8);
+  justify-content: center;
   padding: var(--space-10) var(--space-8);
 }
+.cover { grid-column: 1 / -1; }
+.content { min-width: 0; }
 
+.cover .eyebrow {
+  font: var(--type-caption-weight) var(--type-caption-size)/var(--type-caption-leading) var(--font-mono);
+  color: var(--text-tertiary);
+  margin: 0 0 var(--space-2);
+}
 .cover h1 {
   font: var(--type-display-weight) calc(var(--type-display-size) * 1.4)/1.2 var(--font-text);
   margin: 0 0 var(--space-3);
@@ -58,28 +67,62 @@ a:hover { text-decoration: underline; }
 }
 .cover .law strong { font-weight: var(--type-body-em-weight); }
 
-.rail {
+.sidenav {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: var(--space-10) var(--space-2) var(--space-8) 0;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+}
+.sidenav .nav-label {
+  font: var(--type-caption-weight) var(--type-caption-size)/var(--type-caption-leading) var(--font-mono);
+  color: var(--text-tertiary);
+  margin: 0;
+}
+.nav-group { margin-top: var(--space-5); }
+.nav-sub {
   display: flex;
-  flex-wrap: wrap;
+  align-items: baseline;
   gap: var(--space-2);
-  margin: var(--space-6) 0 0;
-}
-.rail a {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-l);
   color: var(--text-primary);
-  font-size: var(--type-heading-size);
-  line-height: var(--type-heading-leading);
+  font-weight: var(--type-body-em-weight);
 }
-.rail a:hover { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
-.rail .n {
+.nav-sub:hover { text-decoration: none; color: var(--text-accent); }
+.nav-sub .n {
   font: var(--type-caption-weight) var(--type-caption-size)/1 var(--font-mono);
   color: var(--text-tertiary);
+}
+.nav-sub .cnt {
+  margin-left: auto;
+  font: var(--type-caption-weight) var(--type-caption-size)/1 var(--font-mono);
+  color: var(--text-tertiary);
+}
+.nav-rules {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0 0 0 var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.nav-rules a {
+  display: block;
+  color: var(--text-tertiary);
+  text-wrap: balance;
+}
+.nav-rules a:hover { color: var(--text-primary); text-decoration: none; }
+.nav-rules a.active, .nav-sub.active { color: var(--text-accent); }
+
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .sidenav { position: static; max-height: none; padding: 0; }
+  .nav-rules { display: none; }
+  .nav-group { margin-top: var(--space-3); }
+  .content { margin-top: var(--space-6); }
 }
 
 .section { margin-top: var(--space-10); }
@@ -241,29 +284,133 @@ a:hover { text-decoration: underline; }
 }
 </style>
 
-<div class="page">
+<div class="layout">
 
 <header class="cover">
+  <p class="eyebrow">Справочник бюро · группа 01 · 8 подгрупп · 56 советов</p>
   <h1>Дизайн продуктов: самопроверка по&nbsp;бюро</h1>
   <p class="lede">Вторая страница справочника — о&nbsp;продуктах и&nbsp;системах: признаки успешного продукта FIRE, динамизация, лестница управляемости, разрешение противоречий, согласование и&nbsp;стратегии развития. Каждый совет Артёма Горбунова показан на&nbsp;фрагментах foundry-desktop: слева — как ломают, дальше — как чинят. Вёрстка и&nbsp;UI — на&nbsp;<a href="bureau-checklist.html">первой странице</a>; конспекты первоисточников с&nbsp;картинками — в&nbsp;<a href="https://github.com/reactivestudio/foundry-desktop/blob/claude/bureau-checklist-page/docs/design/research/bureau/README.md">docs/design/research/bureau</a>.</p>
   <p class="law"><strong>Закон:</strong> чек-лист прогоняется на&nbsp;каждой итерации дизайна до&nbsp;показа результата. «Почти» считается за&nbsp;«нет».</p>
-  <nav class="rail">
-    <a href="#fire"><span class="n">01</span>FIRE</a>
-    <a href="#dinamizatsiya"><span class="n">02</span>Динамизация</a>
-    <a href="#upravlenie"><span class="n">03</span>Управление</a>
-    <a href="#protivorechiya"><span class="n">04</span>Противоречия</a>
-    <a href="#soglasovanie"><span class="n">05</span>Согласование</a>
-    <a href="#zadachi"><span class="n">06</span>Решение задач</a>
-    <a href="#produkty"><span class="n">07</span>Развитие</a>
-    <a href="#yaponskie"><span class="n">08</span>Витрина</a>
-  </nav>
 </header>
+
+<nav class="sidenav" aria-label="Оглавление">
+  <p class="nav-label">Группа 01 · Дизайн продуктов</p>
+  <div class="nav-group">
+    <a class="nav-sub" href="#fire"><span class="n">01</span>FIRE<span class="cnt">10</span></a>
+    <ul class="nav-rules">
+      <li><a href="#fire-1">Успех решает система, а&nbsp;не&nbsp;полировка</a></li>
+      <li><a href="#fire-2">Интерфейс — трансмиссия, источник потерь</a></li>
+      <li><a href="#fire-3">FIRE: четыре признака работоспособности</a></li>
+      <li><a href="#fire-4">Без «потому что» не&nbsp;нажмётся ни&nbsp;одна кнопка</a></li>
+      <li><a href="#fire-5">Критический контур: цепь рвётся в&nbsp;слабом звене</a></li>
+      <li><a href="#fire-6">Топология — под объём ресурсов</a></li>
+      <li><a href="#fire-7">Образование гасит культурный разрыв</a></li>
+      <li><a href="#fire-8">Рекомендуем, потому что знаем</a></li>
+      <li><a href="#fire-9">Три визита — в&nbsp;один</a></li>
+      <li><a href="#fire-10">Говорить в&nbsp;мире клиента</a></li>
+    </ul>
+  </div>
+  <div class="nav-group">
+    <a class="nav-sub" href="#dinamizatsiya"><span class="n">02</span>Динамизация<span class="cnt">6</span></a>
+    <ul class="nav-rules">
+      <li><a href="#dinamizatsiya-1">Распилить и&nbsp;связать</a></li>
+      <li><a href="#dinamizatsiya-2">Предельное дробление</a></li>
+      <li><a href="#dinamizatsiya-3">Связи по&nbsp;необходимости</a></li>
+      <li><a href="#dinamizatsiya-4">От&nbsp;импульсов к&nbsp;плавной волне</a></li>
+      <li><a href="#dinamizatsiya-5">Две, много, бесконечно функций</a></li>
+      <li><a href="#dinamizatsiya-6">Сделать постоянное переменным</a></li>
+    </ul>
+  </div>
+  <div class="nav-group">
+    <a class="nav-sub" href="#upravlenie"><span class="n">03</span>Управление<span class="cnt">17</span></a>
+    <ul class="nav-rules">
+      <li><a href="#upravlenie-1">Формула управления: управляемый и&nbsp;пульт</a></li>
+      <li><a href="#upravlenie-2">Видоизменить элемент: прозрачность и&nbsp;метка</a></li>
+      <li><a href="#upravlenie-3">Добавить элемент: ручку, кнопку, насечку</a></li>
+      <li><a href="#upravlenie-4">Добавить энергию: без&nbsp;самодвижения нет управления</a></li>
+      <li><a href="#upravlenie-5">Подчинённая формула: вложенный контур управления</a></li>
+      <li><a href="#upravlenie-6">Параллельная формула: пульт рядом со&nbsp;старым управлением</a></li>
+      <li><a href="#upravlenie-7">Заменить взаимодействие — костыли отмирают</a></li>
+      <li><a href="#upravlenie-8">Спецэффекты природы: наука как приём</a></li>
+      <li><a href="#upravlenie-9">Спецэффекты человека: гештальт, ожидание, выбор</a></li>
+      <li><a href="#upravlenie-10">Двухстволка удобнее двух ружей</a></li>
+      <li><a href="#upravlenie-11">Берега вместо лебёдки</a></li>
+      <li><a href="#upravlenie-12">Сигнал вместо воздействия — но&nbsp;с&nbsp;потерями</a></li>
+      <li><a href="#upravlenie-13">Обратная связь — мгновенно и&nbsp;по&nbsp;ходу</a></li>
+      <li><a href="#upravlenie-14">Программа — управляющий из&nbsp;информации</a></li>
+      <li><a href="#upravlenie-15">Интерфейс — прослойка и&nbsp;источник потерь</a></li>
+      <li><a href="#upravlenie-16">Самоуправление: человек остаётся на&nbsp;гейтах</a></li>
+      <li><a href="#upravlenie-17">Экосистема: шина и&nbsp;рой вместо цепочки</a></li>
+    </ul>
+  </div>
+  <div class="nav-group">
+    <a class="nav-sub" href="#protivorechiya"><span class="n">04</span>Противоречия<span class="cnt">10</span></a>
+    <ul class="nav-rules">
+      <li><a href="#protivorechiya-1">Полезное действие — на&nbsp;максимум</a></li>
+      <li><a href="#protivorechiya-2">Конструкция стремится исчезнуть</a></li>
+      <li><a href="#protivorechiya-3">Противоречие — рутина, а&nbsp;не&nbsp;повод для войны</a></li>
+      <li><a href="#protivorechiya-4">Компромисс — самое слабое решение</a></li>
+      <li><a href="#protivorechiya-5">Нихт капитулирен: сначала цель, потом бревно</a></li>
+      <li><a href="#protivorechiya-6">Грубая сила работает, пока хватает ресурсов</a></li>
+      <li><a href="#protivorechiya-7">Парадокс сильного решения</a></li>
+      <li><a href="#protivorechiya-8">Пространство решений вместо калькулятора</a></li>
+      <li><a href="#protivorechiya-9">Сильное решение стремится быть бесплатным</a></li>
+      <li><a href="#protivorechiya-10">Сузить место и&nbsp;время противоречия</a></li>
+    </ul>
+  </div>
+  <div class="nav-group">
+    <a class="nav-sub" href="#soglasovanie"><span class="n">05</span>Согласование<span class="cnt">3</span></a>
+    <ul class="nav-rules">
+      <li><a href="#soglasovanie-1">Элементы «знают» друг о&nbsp;друге</a></li>
+      <li><a href="#soglasovanie-2">Сопутствующее заканчивается одновременно</a></li>
+      <li><a href="#soglasovanie-3">Вытащить скелет наружу</a></li>
+    </ul>
+  </div>
+  <div class="nav-group">
+    <a class="nav-sub" href="#zadachi"><span class="n">06</span>Решение задач<span class="cnt">2</span></a>
+    <ul class="nav-rules">
+      <li><a href="#zadachi-1">Вперёд, вверх или вниз — по&nbsp;матрице</a></li>
+      <li><a href="#zadachi-2">Анализ → модель → решение</a></li>
+    </ul>
+  </div>
+  <div class="nav-group">
+    <a class="nav-sub" href="#produkty"><span class="n">07</span>Развитие<span class="cnt">7</span></a>
+    <ul class="nav-rules">
+      <li><a href="#produkty-1">Запускайте сырую версию: чем раньше правда, тем дешевле</a></li>
+      <li><a href="#produkty-2">Перекраска яхты: микрореволюция хороша на&nbsp;готовом продукте</a></li>
+      <li><a href="#produkty-3">Изменения в&nbsp;штыки: обкатайте новое рядом — «Back to&nbsp;the&nbsp;Mac»</a></li>
+      <li><a href="#produkty-4">Волны эволюции: максимизация действия против минимизации конструкции</a></li>
+      <li><a href="#produkty-5">«Интерфейс — зло»: прослойка — источник потерь, а&nbsp;успех решает система</a></li>
+      <li><a href="#produkty-6">Революция при живой аудитории — пересадка головы</a></li>
+      <li><a href="#produkty-7">Стратегии безопасного редизайна: построить рядом, построить сверху, подготовить людей</a></li>
+    </ul>
+  </div>
+  <div class="nav-group">
+    <a class="nav-sub" href="#yaponskie"><span class="n">08</span>Витрина<span class="cnt">12</span></a>
+    <ul class="nav-rules">
+      <li><a href="#yaponskie-t1">Резинки-динозавры «Дино»</a></li>
+      <li><a href="#yaponskie-t2">Половник с&nbsp;дном «Тате Отама»</a></li>
+      <li><a href="#yaponskie-t3">Беруши-такса «Мими Пет»</a></li>
+      <li><a href="#yaponskie-t4">Модульный коврик «Шиба»</a></li>
+      <li><a href="#yaponskie-t5">Ластик «Эволюция»</a></li>
+      <li><a href="#yaponskie-t6">Плоские губки «Е попап спонж»</a></li>
+      <li><a href="#yaponskie-t7">Карандашницы «Вейви»</a></li>
+      <li><a href="#yaponskie-t8">Подставки под палочки «Хирагана»</a></li>
+      <li><a href="#yaponskie-t9">Лупа для снежинок «Юки-мегане»</a></li>
+      <li><a href="#yaponskie-t10">Надувные поросятки «Маммал»</a></li>
+      <li><a href="#yaponskie-t11">Пешеходный переход на&nbsp;Сотобори-дори</a></li>
+      <li><a href="#yaponskie-1">Тесно внутри — удвой систему</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="content">
 
 <section class="section" id="fire">
   <h2>01 · FIRE — признаки успешного продукта</h2>
   <p class="section-lede">Function, Integrity, Resources, Education: работоспособная формула с&nbsp;силой-мотивом, целостность критического контура, ресурсы под&nbsp;топологию и&nbsp;образование, гасящее культурный разрыв. Подборка: <a href="https://bureau.ru/soviet/selected/artem-gorbunov/fire/">FIRE</a>.</p>
 <!-- 20150720 · Хороший дизайн ≠ успешный продукт -->
-  <article class="rule">
+  <article class="rule" id="fire-1">
     <div class="rule-head">
       <h3>Успех решает система, а&nbsp;не&nbsp;полировка</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150720/">«От&nbsp;чего зависит успех продукта?»</a></span>
@@ -297,7 +444,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20150817 · Интерфейс — трансмиссия -->
-  <article class="rule">
+  <article class="rule" id="fire-2">
     <div class="rule-head">
       <h3>Интерфейс — трансмиссия, источник потерь</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150817/">«От&nbsp;чего зависит успех продукта? Продолжение»</a></span>
@@ -332,7 +479,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20150831 · Четыре признака FIRE -->
-  <article class="rule">
+  <article class="rule" id="fire-3">
     <div class="rule-head">
       <h3>FIRE: четыре признака работоспособности</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150831/">«Признаки работоспособной системы»</a></span>
@@ -373,7 +520,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20150914 · Формула с «потому что» -->
-  <article class="rule">
+  <article class="rule" id="fire-4">
     <div class="rule-head">
       <h3>Без «потому что» не&nbsp;нажмётся ни&nbsp;одна кнопка</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150914/">«Формула работоспособной системы»</a></span>
@@ -420,7 +567,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20151012 · Целостность и критический контур -->
-  <article class="rule">
+  <article class="rule" id="fire-5">
     <div class="rule-head">
       <h3>Критический контур: цепь рвётся в&nbsp;слабом звене</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20151012/">«Целостность работоспособной системы»</a></span>
@@ -468,7 +615,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20151026 · Ресурсы и топология -->
-  <article class="rule">
+  <article class="rule" id="fire-6">
     <div class="rule-head">
       <h3>Топология — под объём ресурсов</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20151026/">«Ресурсы работоспособной системы»</a></span>
@@ -517,7 +664,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20151109 · Образование -->
-  <article class="rule">
+  <article class="rule" id="fire-7">
     <div class="rule-head">
       <h3>Образование гасит культурный разрыв</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20151109/">«Образование в&nbsp;работоспособной системе»</a></span>
@@ -561,7 +708,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20151207 · FIRE на практике: знания как ресурс -->
-  <article class="rule">
+  <article class="rule" id="fire-8">
     <div class="rule-head">
       <h3>Рекомендуем, потому что знаем</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20151207/">«Как использовать FIRE вместе, ч.&nbsp;1»</a></span>
@@ -595,7 +742,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20151221 · FIRE на практике: целостность воронки -->
-  <article class="rule">
+  <article class="rule" id="fire-9">
     <div class="rule-head">
       <h3>Три визита — в&nbsp;один</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20151221/">«Как использовать FIRE вместе, ч.&nbsp;2»</a></span>
@@ -630,7 +777,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20160104 · FIRE на практике: язык клиента -->
-  <article class="rule">
+  <article class="rule" id="fire-10">
     <div class="rule-head">
       <h3>Говорить в&nbsp;мире клиента</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160104/">«Как использовать FIRE вместе, ч.&nbsp;3»</a></span>
@@ -686,7 +833,7 @@ a:hover { text-decoration: underline; }
   <h2>02 · Динамизация</h2>
   <p class="section-lede">Жёсткое проигрывает подвижному: распилить и&nbsp;связать, дробить до&nbsp;«жидкости», динамизировать связи и&nbsp;взаимодействия, делать постоянное переменным. Подборка: <a href="https://bureau.ru/soviet/selected/artem-gorbunov/dinamizatsiya-v-dizayne/">Динамизация в&nbsp;дизайне</a>.</p>
 <!-- Динамизация, ч. 1: распилить и связать -->
-<article class="rule">
+<article class="rule" id="dinamizatsiya-1">
   <div class="rule-head">
     <h3>Распилить и&nbsp;связать</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160411/">«Динамизация, ч.&nbsp;1: распилить и&nbsp;связать»</a></span>
@@ -730,7 +877,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- Динамизация, ч. 2: предельное дробление -->
-<article class="rule">
+<article class="rule" id="dinamizatsiya-2">
   <div class="rule-head">
     <h3>Предельное дробление</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160509/">«Динамизация, ч.&nbsp;2: предельное дробление»</a></span>
@@ -775,7 +922,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- Динамизация, ч. 3: динамизация связей -->
-<article class="rule">
+<article class="rule" id="dinamizatsiya-3">
   <div class="rule-head">
     <h3>Связи по&nbsp;необходимости</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160523/">«Динамизация, ч.&nbsp;3: динамизация связей»</a></span>
@@ -813,7 +960,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- Динамизация, ч. 4: динамизация взаимодействия -->
-<article class="rule">
+<article class="rule" id="dinamizatsiya-4">
   <div class="rule-head">
     <h3>От&nbsp;импульсов к&nbsp;плавной волне</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160627/">«Динамизация, ч.&nbsp;4: динамизация взаимодействия»</a></span>
@@ -857,7 +1004,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- Динамизация, ч. 5: динамизация функций -->
-<article class="rule">
+<article class="rule" id="dinamizatsiya-5">
   <div class="rule-head">
     <h3>Две, много, бесконечно функций</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160711/">«Динамизация, ч.&nbsp;5: динамизация функций»</a></span>
@@ -907,7 +1054,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- Динамизация, ч. 6: инструмент дизайнера -->
-<article class="rule">
+<article class="rule" id="dinamizatsiya-6">
   <div class="rule-head">
     <h3>Сделать постоянное переменным</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160725/">«Динамизация, ч.&nbsp;6: инструмент дизайнера»</a></span>
@@ -961,7 +1108,7 @@ a:hover { text-decoration: underline; }
   <h2>03 · Управление</h2>
   <p class="section-lede">Четвёртый закон развития дизайна — рост управляемости: от&nbsp;видоизменения элемента через сигнал, обратную связь и&nbsp;программу — к&nbsp;интерфейсу, самоуправлению и&nbsp;экосистеме. Подборка: <a href="https://bureau.ru/soviet/selected/yuriymazurskiy/upravlenie-v-dizayne/">Управление в&nbsp;дизайне</a>.</p>
 <!-- 20160822 · Управляющий и управляемый -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-1">
     <div class="rule-head">
       <h3>Формула управления: управляемый и&nbsp;пульт</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160822/">«Расскажите об&nbsp;управляемости. Часть первая»</a></span>
@@ -994,7 +1141,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20160905 · Видоизменить элемент -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-2">
     <div class="rule-head">
       <h3>Видоизменить элемент: прозрачность и&nbsp;метка</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160905/">«Часть вторая: видоизменить элемент»</a></span>
@@ -1038,7 +1185,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20160919 · Добавить элемент -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-3">
     <div class="rule-head">
       <h3>Добавить элемент: ручку, кнопку, насечку</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160919/">«Часть третья: добавить элемент»</a></span>
@@ -1082,7 +1229,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20161003 · Добавить взаимодействие -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-4">
     <div class="rule-head">
       <h3>Добавить энергию: без&nbsp;самодвижения нет управления</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20161003/">«Часть четвёртая: добавить взаимодействие»</a></span>
@@ -1127,7 +1274,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20161017 · Подчинённая формула -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-5">
     <div class="rule-head">
       <h3>Подчинённая формула: вложенный контур управления</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20161017/">«Часть пятая: подчинённая формула»</a></span>
@@ -1170,7 +1317,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20161031 · Параллельная формула -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-6">
     <div class="rule-head">
       <h3>Параллельная формула: пульт рядом со&nbsp;старым управлением</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20161031/">«Часть шестая: параллельная формула»</a></span>
@@ -1213,7 +1360,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20161114 · Замена взаимодействия -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-7">
     <div class="rule-head">
       <h3>Заменить взаимодействие — костыли отмирают</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20161114/">«Часть седьмая: замена взаимодействия»</a></span>
@@ -1256,7 +1403,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20161128 · Спецэффекты. Раз -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-8">
     <div class="rule-head">
       <h3>Спецэффекты природы: наука как приём</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20161128/">«Часть восьмая: использовать спецэффекты. Раз»</a></span>
@@ -1299,7 +1446,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20161212 · Спецэффекты. Два -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-9">
     <div class="rule-head">
       <h3>Спецэффекты человека: гештальт, ожидание, выбор</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20161212/">«Часть девятая: использовать спецэффекты. Два»</a></span>
@@ -1341,7 +1488,7 @@ a:hover { text-decoration: underline; }
     </div>
   </article>
 <!-- 20170123 · Динамизировать, согласовать, перейти к би-поли- -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-10">
     <div class="rule-head">
       <h3>Двухстволка удобнее двух ружей</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170123/">«Расскажите об&nbsp;управляемости, ч.&nbsp;10»</a></span>
@@ -1387,7 +1534,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20170306 · Воздействие -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-11">
     <div class="rule-head">
       <h3>Берега вместо лебёдки</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170306/">«Расскажите об&nbsp;управляемости, ч.&nbsp;11»</a></span>
@@ -1421,7 +1568,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20170320 · Сигнал -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-12">
     <div class="rule-head">
       <h3>Сигнал вместо воздействия — но&nbsp;с&nbsp;потерями</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170320/">«Расскажите об&nbsp;управляемости, ч.&nbsp;12»</a></span>
@@ -1472,7 +1619,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20170403 · Обратная связь -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-13">
     <div class="rule-head">
       <h3>Обратная связь — мгновенно и&nbsp;по&nbsp;ходу</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170403/">«Расскажите об&nbsp;управляемости, ч.&nbsp;13»</a></span>
@@ -1523,7 +1670,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20170417 · Программа -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-14">
     <div class="rule-head">
       <h3>Программа — управляющий из&nbsp;информации</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170417/">«Расскажите об&nbsp;управляемости, ч.&nbsp;14»</a></span>
@@ -1568,7 +1715,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20170529 · Интерфейс -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-15">
     <div class="rule-head">
       <h3>Интерфейс — прослойка и&nbsp;источник потерь</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170529/">«Расскажите об&nbsp;управляемости, ч.&nbsp;15»</a></span>
@@ -1612,7 +1759,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20170612 · Самоуправление -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-16">
     <div class="rule-head">
       <h3>Самоуправление: человек остаётся на&nbsp;гейтах</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170612/">«Расскажите об&nbsp;управляемости, ч.&nbsp;16»</a></span>
@@ -1661,7 +1808,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20170626 · Экосистема -->
-  <article class="rule">
+  <article class="rule" id="upravlenie-17">
     <div class="rule-head">
       <h3>Экосистема: шина и&nbsp;рой вместо цепочки</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170626/">«Расскажите об&nbsp;управляемости, ч.&nbsp;17»</a></span>
@@ -1715,7 +1862,7 @@ a:hover { text-decoration: underline; }
   <h2>04 · Противоречия</h2>
   <p class="section-lede">Дизайнерская задача — противоречие; компромисс — слабейшее решение. Сначала цель, потом бревно; сильное решение звучит парадоксально и&nbsp;берёт ресурсы даром. Подборка: <a href="https://bureau.ru/soviet/selected/evgeniy-lysyy/kak-razreshat-protivorechiya/">Как разрешать противоречия</a>.</p>
 <!-- 20150202 · Максимизация полезного действия -->
-<article class="rule">
+<article class="rule" id="protivorechiya-1">
   <div class="rule-head">
     <h3>Полезное действие — на&nbsp;максимум</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150202/">«Как решать дизайнерские задачи?»</a></span>
@@ -1755,7 +1902,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- 20150216 · Минимизация конструкции -->
-<article class="rule">
+<article class="rule" id="protivorechiya-2">
   <div class="rule-head">
     <h3>Конструкция стремится исчезнуть</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150216/">«Что такое минимизация конструкции?»</a></span>
@@ -1827,7 +1974,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- 20150302 · Диагностика противоречий -->
-<article class="rule">
+<article class="rule" id="protivorechiya-3">
   <div class="rule-head">
     <h3>Противоречие — рутина, а&nbsp;не&nbsp;повод для войны</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150302/">«Как разрешать противоречия?»</a></span>
@@ -1861,7 +2008,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- 20150316 · Компромисс -->
-<article class="rule">
+<article class="rule" id="protivorechiya-4">
   <div class="rule-head">
     <h3>Компромисс — самое слабое решение</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150316/">«Расскажите о&nbsp;компромиссах»</a></span>
@@ -1900,7 +2047,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- 20150330 · Нихт капитулирен -->
-<article class="rule">
+<article class="rule" id="protivorechiya-5">
   <div class="rule-head">
     <h3>Нихт капитулирен: сначала цель, потом бревно</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150330/">«Нихт капитулирен!»</a></span>
@@ -1936,7 +2083,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- 20150413 · Метод грубой силы -->
-<article class="rule">
+<article class="rule" id="protivorechiya-6">
   <div class="rule-head">
     <h3>Грубая сила работает, пока хватает ресурсов</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150413/">«Расскажите о&nbsp;методе грубой силы»</a></span>
@@ -1973,7 +2120,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- 20150427 · Сильное решение без компромиссов -->
-<article class="rule">
+<article class="rule" id="protivorechiya-7">
   <div class="rule-head">
     <h3>Парадокс сильного решения</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150427/">«Как разрешать противоречия без компромиссов?»</a></span>
@@ -2014,7 +2161,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- 20150525 · Пространство решений -->
-<article class="rule">
+<article class="rule" id="protivorechiya-8">
   <div class="rule-head">
     <h3>Пространство решений вместо калькулятора</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150525/">«…без компромиссов? Часть вторая»</a></span>
@@ -2083,7 +2230,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- 20150608 · Бесплатность -->
-<article class="rule">
+<article class="rule" id="protivorechiya-9">
   <div class="rule-head">
     <h3>Сильное решение стремится быть бесплатным</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150608/">«…без компромиссов? Часть третья»</a></span>
@@ -2116,7 +2263,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- 20150706 · Место и время -->
-<article class="rule">
+<article class="rule" id="protivorechiya-10">
   <div class="rule-head">
     <h3>Сузить место и&nbsp;время противоречия</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20150706/">«Как время и&nbsp;место связаны с&nbsp;разрешением противоречия?»</a></span>
@@ -2159,7 +2306,7 @@ a:hover { text-decoration: underline; }
 <!-- Подборка «Согласование в дизайне» (Дарья Чильцова) — 3 правила -->
 
 <!-- Согласование элементов -->
-<article class="rule">
+<article class="rule" id="soglasovanie-1">
   <div class="rule-head">
     <h3>Элементы «знают» друг о&nbsp;друге</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170724/">«Что такое согласование в&nbsp;дизайне?» ч.&nbsp;1</a></span>
@@ -2239,7 +2386,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- Согласование взаимодействия -->
-<article class="rule">
+<article class="rule" id="soglasovanie-2">
   <div class="rule-head">
     <h3>Сопутствующее заканчивается одновременно</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170807/">«Что такое согласование в&nbsp;дизайне?» ч.&nbsp;2</a></span>
@@ -2284,7 +2431,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- Структурирование -->
-<article class="rule">
+<article class="rule" id="soglasovanie-3">
   <div class="rule-head">
     <h3>Вытащить скелет наружу</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170904/">«Что такое согласование в&nbsp;дизайне?» ч.&nbsp;3</a></span>
@@ -2343,7 +2490,7 @@ a:hover { text-decoration: underline; }
 <!-- Подборка «Как решать задачи» (Наталия Тыжинова) — 2 уникальных правила -->
 
 <!-- Горизонтальное и вертикальное развитие -->
-<article class="rule">
+<article class="rule" id="zadachi-1">
   <div class="rule-head">
     <h3>Вперёд, вверх или вниз — по&nbsp;матрице</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20171023/">«Что такое горизонтальное и&nbsp;вертикальное развитие продуктов?»</a></span>
@@ -2401,7 +2548,7 @@ a:hover { text-decoration: underline; }
 </article>
 
 <!-- Этапы решения задачи -->
-<article class="rule">
+<article class="rule" id="zadachi-2">
   <div class="rule-head">
     <h3>Анализ → модель → решение</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20171211/">«Решение дизайнерской задачи: этапы»</a></span>
@@ -2455,7 +2602,7 @@ a:hover { text-decoration: underline; }
   <h2>07 · Развитие продуктов</h2>
   <p class="section-lede">Эволюция при&nbsp;живой аудитории: редизайн неудачен, если система теряет работоспособность; строить рядом или сверху, а&nbsp;не&nbsp;пересаживать голову. Подборка: <a href="https://bureau.ru/soviet/selected/vasiliy-polovnev/kak-razvivat-produkty/">Как развивать продукты</a>.</p>
 <!-- 20111007 · Ранний запуск несовершенной версии -->
-  <article class="rule">
+  <article class="rule" id="produkty-1">
     <div class="rule-head">
       <h3>Запускайте сырую версию: чем раньше правда, тем дешевле</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20111007/">«Заходят, разворачиваются и&nbsp;уходят»</a></span>
@@ -2502,7 +2649,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20111111 · Перекраска яхты перед спуском -->
-  <article class="rule">
+  <article class="rule" id="produkty-2">
     <div class="rule-head">
       <h3>Перекраска яхты: микрореволюция хороша на&nbsp;готовом продукте</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20111111/">«Переработать дизайн перед запуском»</a></span>
@@ -2547,7 +2694,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20120117 · Изменения в штыки: Back to the Mac -->
-  <article class="rule">
+  <article class="rule" id="produkty-3">
     <div class="rule-head">
       <h3>Изменения в&nbsp;штыки: обкатайте новое рядом — «Back to&nbsp;the&nbsp;Mac»</h3>
       <span class="src">Бирман, <a href="https://bureau.ru/soviet/20120117/">«Пользователи воспринимают изменения в&nbsp;штыки»</a></span>
@@ -2592,7 +2739,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20160328 · Волны: максимизация ↔ минимизация -->
-  <article class="rule">
+  <article class="rule" id="produkty-4">
     <div class="rule-head">
       <h3>Волны эволюции: максимизация действия против минимизации конструкции</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20160328/">«Как эволюционируют системы?»</a></span>
@@ -2640,7 +2787,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20170102 · «Интерфейс — зло»: трансмиссия и потери -->
-  <article class="rule">
+  <article class="rule" id="produkty-5">
     <div class="rule-head">
       <h3>«Интерфейс — зло»: прослойка — источник потерь, а&nbsp;успех решает система</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170102/">«А&nbsp;как же „интерфейс — зло“?»</a></span>
@@ -2685,7 +2832,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20170925 · Опасности революции -->
-  <article class="rule">
+  <article class="rule" id="produkty-6">
     <div class="rule-head">
       <h3>Революция при живой аудитории — пересадка головы</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170925/">«Эволюция и&nbsp;революция продуктов: опасности»</a></span>
@@ -2730,7 +2877,7 @@ a:hover { text-decoration: underline; }
   </article>
 
   <!-- 20171016 · Стратегии: построить рядом, построить сверху, подготовить -->
-  <article class="rule">
+  <article class="rule" id="produkty-7">
     <div class="rule-head">
       <h3>Стратегии безопасного редизайна: построить рядом, построить сверху, подготовить людей</h3>
       <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20171016/">«Эволюция и&nbsp;революция продуктов: стратегии»</a></span>
@@ -2782,43 +2929,43 @@ a:hover { text-decoration: underline; }
 
 <div class="digest">
   <dl>
-    <dt>Резинки-динозавры «Дино» → придать структуру</dt>
+    <dt id="yaponskie-t1">Резинки-динозавры «Дино» → придать структуру</dt>
     <dd>Канцелярские резинки, отлитые в&nbsp;силуэты динозавров: в&nbsp;работе — обычная резинка, без дела — зверинец на&nbsp;столе. Резинкам сто лет, и&nbsp;добавить им ценность можно уже только структурой: все части согласованы в&nbsp;форму животного. — <a href="https://bureau.ru/soviet/20170904/">совет о&nbsp;структурировании</a></dd>
 
-    <dt>Половник с&nbsp;дном «Тате Отама» → метод грубой силы и&nbsp;бесплатность</dt>
+    <dt id="yaponskie-t2">Половник с&nbsp;дном «Тате Отама» → метод грубой силы и&nbsp;бесплатность</dt>
     <dd>Половник с&nbsp;приплюснутым дном стоит на&nbsp;столе сам — без подставки и&nbsp;крючка. Колумбово яйцо в&nbsp;посуде: «священная» круглая форма оказалась чисто ментальным блоком, а&nbsp;новая функция получена даром, без единой добавленной детали. — советы <a href="https://bureau.ru/soviet/20150413/">о&nbsp;методе грубой силы</a> и&nbsp;<a href="https://bureau.ru/soviet/20150608/">о&nbsp;решениях без компромиссов</a></dd>
 
-    <dt>Беруши-такса «Мими Пет» → переход 1→2 и&nbsp;согласование элементов</dt>
+    <dt id="yaponskie-t3">Беруши-такса «Мими Пет» → переход 1→2 и&nbsp;согласование элементов</dt>
     <dd>Пара берушей — голова и&nbsp;хвост таксы, будто собака пролезает из&nbsp;уха в&nbsp;ухо. Не&nbsp;два предмета, а&nbsp;бисистема: одна половинка не&nbsp;имеет смысла без другой, и&nbsp;каждая «знает» о&nbsp;соседке — формы согласованы в&nbsp;одно животное. — советы <a href="https://bureau.ru/soviet/20170911/">о&nbsp;би- и&nbsp;полисистемах</a> и&nbsp;<a href="https://bureau.ru/soviet/20170724/">о&nbsp;согласовании элементов</a></dd>
 
-    <dt>Модульный коврик «Шиба» → переход 1→N и&nbsp;динамизация дроблением</dt>
+    <dt id="yaponskie-t4">Модульный коврик «Шиба» → переход 1→N и&nbsp;динамизация дроблением</dt>
     <dd>Квадратные модули соединяются в&nbsp;ковёр любой формы, размера и&nbsp;узора. Один ковёр стал поликовром из&nbsp;ковриков, а&nbsp;дробление дало приём «разделить и&nbsp;связать»: коврик ровно такой, какой нужен в&nbsp;этой комнате. — советы <a href="https://bureau.ru/soviet/20170911/">о&nbsp;полисистемах</a> и&nbsp;<a href="https://bureau.ru/soviet/20160509/">о&nbsp;динамизации дроблением</a></dd>
 
-    <dt>Ластик «Эволюция» → переход N→∞</dt>
+    <dt id="yaponskie-t5">Ластик «Эволюция» → переход N→∞</dt>
     <dd>Стираешь со&nbsp;стороны обезьяны — ластик постепенно «эволюционирует» в&nbsp;человека. Классическая картинка эволюции — полисистема из&nbsp;шести рисунков, а&nbsp;здесь фазы слились в&nbsp;непрерывный морфинг: дискретная шкала стала континуумом. — <a href="https://bureau.ru/soviet/20160509/">совет о&nbsp;предельном дроблении</a></dd>
 
-    <dt>Плоские губки «Е попап спонж» → динамизация функций</dt>
+    <dt id="yaponskie-t6">Плоские губки «Е попап спонж» → динамизация функций</dt>
     <dd>Губки спрессованы в&nbsp;плоские карточки с&nbsp;иллюстрациями; добавь воды — карточка вырастает в&nbsp;губку. Два состояния под две функции: плоская хранится и&nbsp;работает открыткой, объёмная моет посуду. — <a href="https://bureau.ru/soviet/20160711/">совет о&nbsp;динамизации функций</a></dd>
 
-    <dt>Карандашницы «Вейви» → переход 1→N и&nbsp;придать структуру</dt>
+    <dt id="yaponskie-t7">Карандашницы «Вейви» → переход 1→N и&nbsp;придать структуру</dt>
     <dd>Куски кожи сшиты так, что складки образуют соты — по&nbsp;ячейке на&nbsp;карандаш. Стаканчик для карандашей раздробился в&nbsp;полисистему, а&nbsp;соты дали мягкой коже свойства, которых у&nbsp;неё не&nbsp;было: держать форму и&nbsp;раскладывать предметы. — советы <a href="https://bureau.ru/soviet/20170911/">о&nbsp;полисистемах</a> и&nbsp;<a href="https://bureau.ru/soviet/20170904/">о&nbsp;структурировании</a></dd>
 
-    <dt>Подставки под палочки «Хирагана» → динамизация функций, N→∞ и&nbsp;маркетинговая динамизация</dt>
+    <dt id="yaponskie-t8">Подставки под палочки «Хирагана» → динамизация функций, N→∞ и&nbsp;маркетинговая динамизация</dt>
     <dd>Фарфоровая «лапша», изогнутая иероглифами хираганы: сразу столовый прибор, лапша и&nbsp;знак; не&nbsp;набор деталей, а&nbsp;«гибкий» непрерывный объект; из&nbsp;одного «теста» — целый ассортимент. «Красота не&nbsp;бывает слишком простой». — советы <a href="https://bureau.ru/soviet/20160711/">о&nbsp;динамизации функций</a>, <a href="https://bureau.ru/soviet/20160509/">о&nbsp;дроблении</a> и&nbsp;<a href="https://bureau.ru/soviet/20160725/">о&nbsp;маркетинговой динамизации</a></dd>
 
-    <dt>Лупа для снежинок «Юки-мегане» → образование (E в&nbsp;FIRE)</dt>
+    <dt id="yaponskie-t9">Лупа для снежинок «Юки-мегане» → образование (E в&nbsp;FIRE)</dt>
     <dd>Брелок с&nbsp;лупой, на&nbsp;коробке которого написано: «для снежинок». Всю ценность продукту дал текст на&nbsp;упаковке — надпись подсказывает идею, перед которой «не&nbsp;устоять»; обычно эту работу делают презентация, сайт и&nbsp;подсказки. — <a href="https://bureau.ru/soviet/20151109/">совет об&nbsp;образовании</a></dd>
 
-    <dt>Надувные поросятки «Маммал» → минимизация конструкции, структура, 1→2</dt>
+    <dt id="yaponskie-t10">Надувные поросятки «Маммал» → минимизация конструкции, структура, 1→2</dt>
     <dd>Каучуковые шарики-свинки с&nbsp;разным цветом снаружи и&nbsp;изнутри: одна оболочка работает как две, форма животного — структура, а&nbsp;пятачком служит завязанный конец шарика. Деталь, обязанная существовать, назначена мордой — ноль добавленных частей, максимум образа. — <a href="https://bureau.ru/soviet/20150216/">совет о&nbsp;минимизации конструкции</a></dd>
 
-    <dt>Пешеходный переход на&nbsp;Сотобори-дори → максимизировать пользу</dt>
+    <dt id="yaponskie-t11">Пешеходный переход на&nbsp;Сотобори-дори → максимизировать пользу</dt>
     <dd>Сверхширокий переход у&nbsp;станции Токио занимает больше полезной ширины улицы — и&nbsp;пропускает больший поток людей за&nbsp;меньшее время. Ресурс уже оплачен — пусть работает целиком. — <a href="https://bureau.ru/soviet/20150202/">совет о&nbsp;решении дизайнерских задач</a></dd>
   </dl>
 </div>
 
 <!-- Переход 1→2: би- и полисистемы -->
-<article class="rule">
+<article class="rule" id="yaponskie-1">
   <div class="rule-head">
     <h3>Тесно внутри — удвой систему</h3>
     <span class="src">Горбунов, <a href="https://bureau.ru/soviet/20170911/">«Расскажите о&nbsp;переходе к&nbsp;би- и&nbsp;полисистеме»</a></span>
@@ -2895,4 +3042,49 @@ a:hover { text-decoration: underline; }
   <p>Страница — часть дизайн-системы foundry-desktop: значения — из&nbsp;<a href="tokens/tokens.json">tokens.json</a>, сестра о&nbsp;вёрстке и&nbsp;UI — <a href="bureau-checklist.html">bureau-checklist</a>, конспекты первоисточников — <a href="https://github.com/reactivestudio/foundry-desktop/blob/claude/bureau-checklist-page/docs/design/research/bureau/README.md">research/bureau</a>. Сырые меры внутри демо «Плохо» поставлены намеренно: нарушение — экспонат.</p>
 </footer>
 
+</main>
+
 </div>
+
+<script>
+// Скролл-слежка: подсвечивает в боковой навигации текущий совет и его подгруппу.
+(function () {
+  var nav = document.querySelector('.sidenav');
+  if (!nav) return;
+  var links = Array.prototype.slice.call(nav.querySelectorAll('.nav-rules a'));
+  var subs = Array.prototype.slice.call(nav.querySelectorAll('.nav-sub'));
+  var byId = {};
+  links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var targets = links
+    .map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); })
+    .filter(Boolean);
+
+  var current = null;
+  function update() {
+    var line = window.scrollY + window.innerHeight * 0.25;
+    var active = null;
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i].getBoundingClientRect().top + window.scrollY <= line) active = targets[i];
+      else break;
+    }
+    if (active === current) return;
+    current = active;
+    links.forEach(function (a) { a.classList.remove('active'); });
+    subs.forEach(function (a) { a.classList.remove('active'); });
+    if (!active) return;
+    var link = byId[active.id];
+    link.classList.add('active');
+    var group = link.closest('.nav-group');
+    var sub = group && group.querySelector('.nav-sub');
+    if (sub) sub.classList.add('active');
+    link.scrollIntoView({ block: 'nearest' });
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { ticking = false; update(); });
+  }, { passive: true });
+  update();
+})();
+</script>
