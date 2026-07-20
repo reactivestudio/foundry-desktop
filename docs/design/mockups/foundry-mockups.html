@@ -346,9 +346,11 @@
   }
   .mini-bar { height: 22px; display: flex; align-items: center; gap: 5px; padding: 0 9px; border-bottom: 1px solid var(--b-subtle); background: rgba(255,255,255,0.04); }
   .mini-bar i { width: 7px; height: 7px; border-radius: var(--r-full); }
-  .variant h3 { font-size: 14px; font-weight: 600; margin: var(--s3) 0 4px; }
+  .variant h3 { font-size: 14px; font-weight: 600; margin: 2px 0 4px; }
   .variant p { font-size: 12px; color: var(--t-secondary); margin: 0; }
-  .variant .tag { font-size: 10px; font-family: var(--font-mono); color: var(--t-accent); }
+  /* бирка — часть составного заголовка (20150513): прижата к своему h3,
+     а от чужого мини-превью отбита внешним отступом — внутреннее < внешнего */
+  .variant .tag { display: block; font-size: 10px; font-family: var(--font-mono); color: var(--t-accent); margin-top: var(--s3); }
 
   /* мини-раскладки (схематичные) */
   .mini-body { display: flex; height: calc(100% - 22px); }
@@ -514,7 +516,10 @@
 
   .chips-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
 
-  .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s2); text-align: center; padding: var(--s4) 0; flex: 1; }
+  .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s1); text-align: center; padding: var(--s4) 0; flex: 1; }
+  /* заголовок ближе к своей подписи, чем к иллюстрации (20140224):
+     орб→заголовок 12px, заголовок→подпись 4px — контраст расстояний вместо равномерности */
+  .empty .big-orb, .empty .glyph { margin-bottom: var(--s2); }
   .empty .big-orb { width: 40px; height: 40px; border-radius: var(--r-full);
     background: radial-gradient(circle at 35% 30%, var(--brand-cyan), var(--brand-ultramarine) 45%, var(--brand-purple) 78%, var(--brand-magenta));
     box-shadow: 0 0 14px rgba(88,199,255,0.4), 0 0 30px rgba(139,92,246,0.3); }
@@ -921,7 +926,8 @@
   .hc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; margin-bottom: var(--s4); }
   .hc-title { font-size: 14px; font-weight: 600; }
   .hc-big { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; margin: 4px 0 2px; }
-  .hc-sub { font-size: 12px; color: var(--t-tertiary); }
+  /* +2px: подзаголовок не влезает в интерлиньяж заголовка (20191002) — отступ ≥ межстрочного просвета */
+  .hc-sub { font-size: 12px; color: var(--t-tertiary); margin-top: 2px; }
   .hero-chart svg { display: block; width: 100%; height: auto; }
 
   .analytics-two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); margin-top: var(--s4); }
@@ -1580,7 +1586,7 @@
             <h4>Design · токены тёмной темы</h4>
             <div class="kv">artifact.md · стадия Design · 214 строк</div>
             <p>Тема одна — тёмная. Elevation кодируется <b>светлотой</b>, не тенью: четыре поверхности <code>base → surface → raised → overlay</code> с шагом ΔL ≈ 0.03 в OKLCH.</p>
-            <p>Текст — альфа-белый (<code>92 / 70 / 50 / 38%</code>); ни один цвет палитры не идёт текстом — ссылки <code>#7C9AFF</code>.</p>
+            <p>Текст — альфа-белый (<code>92 / 70 / 50 / 38&#8239;%</code>); ни один цвет палитры не идёт текстом — ссылки <code>#7C9AFF</code>.</p>
             <ul>
               <li>request changes — <b>warning</b>, не error;</li>
               <li>«в работе» — циан, «ждёт ревью» — ультрамарин;</li>
@@ -1782,10 +1788,10 @@
         </svg>
       </div>
       <div class="kpi">
-        <div class="kpi-top"><span class="kpi-ic">◷</span><span class="delta-pill up">▼ 48с</span></div>
+        <div class="kpi-top"><span class="kpi-ic">◷</span><span class="delta-pill up">▼ 48&#8239;с</span></div>
         <div class="cap">Средняя длительность</div>
-        <div class="num">6<small>м</small> 12<small>с</small></div>
-        <div class="prev">Пред. неделя: 7м 00с</div>
+        <div class="num">6&#8239;<small>м</small> 12&#8239;<small>с</small></div>
+        <div class="prev">Пред. неделя: 7&#8239;м 00&#8239;с</div>
         <svg viewBox="0 0 120 34" preserveAspectRatio="none">
           <polygon points="0,10 20,12 40,11 60,16 80,15 100,20 120,24 120,34 0,34" fill="url(#g-green)"/>
           <polyline points="0,10 20,12 40,11 60,16 80,15 100,20 120,24" fill="none" stroke="#6B8CFF" stroke-width="1.5"/>
@@ -1794,10 +1800,10 @@
         </svg>
       </div>
       <div class="kpi">
-        <div class="kpi-top"><span class="kpi-ic">✓</span><span class="delta-pill up">▲ 4пп</span></div>
+        <div class="kpi-top"><span class="kpi-ic">✓</span><span class="delta-pill up">▲ 4&#8239;пп</span></div>
         <div class="cap">Авто-approve</div>
-        <div class="num">71<small>%</small></div>
-        <div class="prev">Пред. неделя: 67%</div>
+        <div class="num">71&#8239;<small>%</small></div>
+        <div class="prev">Пред. неделя: 67&#8239;%</div>
         <svg viewBox="0 0 120 34" preserveAspectRatio="none">
           <polygon points="0,22 20,20 40,21 60,16 80,17 100,13 120,11 120,34 0,34" fill="url(#g-cyan)"/>
           <polyline points="0,22 20,20 40,21 60,16 80,17 100,13 120,11" fill="none" stroke="#6B8CFF" stroke-width="1.5"/>
@@ -1878,11 +1884,11 @@
           <div class="prop-seg" style="width:16%;background-color:rgba(47,92,255,0.34)"></div>
         </div>
         <div class="prop-legend">
-          <div class="pl-row"><span class="pd" style="background:#FBBF24"></span><span class="pn">Implement</span><span class="pc">8</span><span class="pp">45%</span></div>
-          <div class="pl-row"><span class="pd" style="background:rgba(47,92,255,0.75)"></span><span class="pn">PR</span><span class="pc">3</span><span class="pp">17%</span></div>
-          <div class="pl-row"><span class="pd" style="background:rgba(47,92,255,0.6)"></span><span class="pn">Design</span><span class="pc">2</span><span class="pp">11%</span></div>
-          <div class="pl-row"><span class="pd" style="background:rgba(47,92,255,0.48)"></span><span class="pn">Questions</span><span class="pc">2</span><span class="pp">11%</span></div>
-          <div class="pl-row"><span class="pd" style="background:rgba(47,92,255,0.34)"></span><span class="pn">Research · Structure · Plan</span><span class="pc">3</span><span class="pp">16%</span></div>
+          <div class="pl-row"><span class="pd" style="background:#FBBF24"></span><span class="pn">Implement</span><span class="pc">8</span><span class="pp">45&#8239;%</span></div>
+          <div class="pl-row"><span class="pd" style="background:rgba(47,92,255,0.75)"></span><span class="pn">PR</span><span class="pc">3</span><span class="pp">17&#8239;%</span></div>
+          <div class="pl-row"><span class="pd" style="background:rgba(47,92,255,0.6)"></span><span class="pn">Design</span><span class="pc">2</span><span class="pp">11&#8239;%</span></div>
+          <div class="pl-row"><span class="pd" style="background:rgba(47,92,255,0.48)"></span><span class="pn">Questions</span><span class="pc">2</span><span class="pp">11&#8239;%</span></div>
+          <div class="pl-row"><span class="pd" style="background:rgba(47,92,255,0.34)"></span><span class="pn">Research · Structure · Plan</span><span class="pc">3</span><span class="pp">16&#8239;%</span></div>
         </div>
       </div>
 
@@ -1951,7 +1957,7 @@
       <div class="log-head">
         <span class="live"><i></i> live · feat/orb-loader</span>
         <div class="spacer" style="flex:1"></div>
-        <span style="font-size:11px;color:var(--t-tertiary)">стадия Implement · 3м 04с</span>
+        <span style="font-size:11px;color:var(--t-tertiary)">стадия Implement · 3&#8239;м 04&#8239;с</span>
       </div>
       <div class="log">
         <div class="l"><span class="ts">18:42:01</span><span class="dim">worktree</span><span>создан .worktrees/orb-loader</span></div>
@@ -1997,7 +2003,7 @@
           <div class="drow sel"><span class="sdot wait"></span><span class="dp">✦</span><span>Токены тёмной темы</span></div>
           <div class="drow focus"><span class="sdot live"></span><span class="dp">✦</span><span>Орб-лоадер</span></div>
         </div>
-        <div class="sc-note">Выбор — заливка ультрамарин 14%. Фокус клавиатуры — ринг 2px, offset 2px, всегда виден.</div>
+        <div class="sc-note">Выбор — заливка ультрамарин 14&#8239;%. Фокус клавиатуры — ринг 2px, offset 2px, всегда виден.</div>
       </div>
 
       <!-- поля и фокус -->
@@ -2236,7 +2242,7 @@
         </div>
       </div>
     </div>
-    <div class="caption"><b>Мак-нативность:</b> реальные окна (не имитация-панели) — своя позиция, свой полноэкранный режим, Mission Control видит оба; неактивное окно приглушено на 28%, активное держит тонкую ультрамарин-обводку; закрытие окна 2 не трогает очередь.</div>
+    <div class="caption"><b>Мак-нативность:</b> реальные окна (не имитация-панели) — своя позиция, свой полноэкранный режим, Mission Control видит оба; неактивное окно приглушено на 28&#8239;%, активное держит тонкую ультрамарин-обводку; закрытие окна 2 не трогает очередь.</div>
   </section>
 
   <!-- ——————————————————— §8 ОВЕРЛЕИ ——————————————————— -->
@@ -3266,7 +3272,7 @@
                 <div class="fb">старшему — 2 дня</div>
               </div>
               <div class="fct">
-                <div class="fn">6<span class="fu">дн</span></div>
+                <div class="fn">6&#8239;<span class="fu">дн</span></div>
                 <div class="fl">медиана change'а</div>
                 <div class="fb">в июне — 8 дн</div>
               </div>
@@ -3339,7 +3345,7 @@
         <div class="ins-main">
           <div class="skl-fact">
             <div class="fct">
-              <div class="fn warn">35<span class="fu">%</span></div>
+              <div class="fn warn">35&#8239;<span class="fu">%</span></div>
               <div class="fl">расхода — переделка</div>
               <div class="fb">в июне — 44 %</div>
             </div>

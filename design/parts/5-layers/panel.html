@@ -38,8 +38,13 @@
     border-radius: var(--radius-l);
     padding: var(--space-4);
     border: 1px solid transparent;   /* прозрачна в покое; место под бордер-состояние, чтобы размер не прыгал */
-    display: flex; flex-direction: column; gap: var(--space-3);
+    display: flex; flex-direction: column;
   }
+  /* Вертикаль — контрастом расстояний, а не равными отступами (Нозик 20211020):
+     подзаголовок прижат к заголовку и работает с ним одним объектом (20140224),
+     тело отделено заметно бо́льшим внешним. */
+  .p-panel .panel > * + * { margin-top: var(--space-3); }
+  .p-panel .panel .h + .sub { margin-top: var(--space-1); }
   .p-panel .panel .h {
     font-size: var(--type-heading-size); line-height: var(--type-heading-leading);
     font-weight: var(--type-heading-weight); color: var(--text-primary);

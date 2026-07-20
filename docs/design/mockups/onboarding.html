@@ -276,7 +276,10 @@
   .ob-screen > .grow { flex: 1; min-height: 0; }
   .ob-cta { margin-top: var(--s5); display: flex; align-items: center; gap: var(--s3); }
   /* Зазор над кнопкой шире межблочного s5: решение (кнопка) отделено от описания
-     сильнее, чем строки описания друг от друга, — кнопка сидит ниже текста. */
+     сильнее, чем строки описания друг от друга, — кнопка сидит ниже текста.
+     Но кнопка принадлежит своему экрану, а не пагинации: остаток высоты (.grow)
+     уходит ПОД неё, иначе до чужих точек оставалось 24px, а до своего блока —
+     вся свободная высота (близость: кнопка ближе к своему, чем к чужому). */
   .ob-screen.welcome .ob-cta { justify-content: center; margin-top: var(--s6); }
 
   .btn {
@@ -407,7 +410,9 @@
   .ob-screen.agent { justify-content: flex-end; align-items: center; }
   /* лид — две строки по формуле приветствия: факт, затем короткое действие */
   .ob-screen.agent .ob-sub { text-align: center; }
-  .rows { display: flex; flex-direction: column; gap: var(--s2); }
+  /* Зазор между строками ≥ их вертикального паддинга 10 (Бирман: внутреннее ≤
+     внешнего — тот же закон, что держит зазор сетки карточек Agent = паддингу). */
+  .rows { display: flex; flex-direction: column; gap: var(--s3); }
   /* Грид не тянется во всю ширину окна: квадрат при колонке в треть окна
      вырастал в 310px и съедал рой. 660 — три квадрата по ~212: конструкция
      компактнее, композиция центральная — как у приветствия. */
@@ -732,7 +737,7 @@
               </div>
               <div class="crow install">
                 <span class="cname">foundry-cli</span>
-                <span class="cstate new">→ we’ll install<br>v0.4.1 · 8 MB</span>
+                <span class="cstate new">→ we’ll install<br>v0.4.1 · 8&#8239;MB</span>
                 <span class="crole">Worktrees, file layout, git. No agent involved — that’s what makes it reproducible.</span>
                 <span class="cwhere">/usr/local/bin/foundry · already in PATH</span>
               </div>
@@ -752,8 +757,8 @@
 <span class="pm">~</span> <span class="pf">CLAUDE.md</span>              <span class="pk">block appended, your text above untouched</span>
 <span class="pk">·</span> <span class="pk">skills/my-notes</span>        <span class="pk">yours — untouched</span>
 <span class="pk">·</span> <span class="pk">settings.json</span>          <span class="pk">yours — untouched</span></div>
-            <div class="grow"></div>
             <div class="ob-cta"><button class="btn primary large" data-go="3">Install and link <kbd>⌘⏎</kbd></button></div>
+            <div class="grow"></div>
           </div>
 
           <!-- 4 · стор и доступ -->
@@ -790,8 +795,8 @@
               <span class="perm-ic">○</span><span class="perm-what">Keychain</span>
               <span class="perm-why">Keep the agent token in Keychain, not in a file next to the code.</span>
             </div>
-            <div class="grow"></div>
             <div class="ob-cta"><button class="btn primary large" data-go="4">Create the store <kbd>⌘⏎</kbd></button></div>
+            <div class="grow"></div>
           </div>
 
           <!-- 5 · первый проект -->
@@ -824,8 +829,8 @@
               <div class="pipe"><span class="pn">Hotfix</span><span class="bar"><i></i><i></i><i></i></span><span class="ps">3 · repro → fix → ship</span></div>
               <div class="pipe"><span class="pn">Incident</span><span class="bar"><i></i><i></i><i></i><i></i></span><span class="ps">4 · triage → mitigate → RCA</span></div>
             </div>
-            <div class="grow"></div>
             <div class="ob-cta"><button class="btn primary large" data-go="5">Connect the project <kbd>⌘⏎</kbd></button></div>
+            <div class="grow"></div>
           </div>
 
           <!-- 6 · готово -->
