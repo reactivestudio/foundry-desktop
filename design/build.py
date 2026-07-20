@@ -1729,7 +1729,9 @@ def motion_block(tokens):
         lines.append('    <span class="d">%s</span>' % escape(value))
         lines.append('    <span class="motion-track"><i class="motion-dot %s"></i></span>' % escape(name))
         lines.append("  </div>")
-        lines.append('  <p class="hint" style="padding-bottom: var(--space-3); '
+        # Роль жмётся к своей дорожке (внутреннее), разрыв к следующему токену
+        # даёт margin-top .motion-row (внешнее) — воздух группирует, не линейка.
+        lines.append('  <p class="hint" style="margin: var(--space-1) 0 0; '
                      'color: var(--text-tertiary)">%s</p>' % escape(token.get("role", "")))
     lines.append('  <p class="verdict-note" style="border-left-color: var(--sem-warning); '
                  'background: var(--sem-warning-fill)"><code>motion.live</code> — состояние, '
@@ -2568,11 +2570,14 @@ def board_icons(tokens, section, law_parts, candidate_parts):
                             "токен-цвет (§6)"))
     lines.append('  <ul class="icon-statuses">')
     for status, glyph, color_path in ICON_STATUSES:
+        # Двухстрочная плитка: имя статуса сверху, «глиф · токен-цвет» строкой
+        # ниже. Раньше всё жалось в одну строку и длинные глифы переносились,
+        # налезая на соседний ряд; стек делает высоту рядов ровной.
         lines.append('    <li data-token="%s">' % escape(color_path))
         lines.append('      <i class="dot" style="background: var(%s)"></i>' % variable_name(color_path))
         lines.append('      <span class="t">%s</span>' % escape(status))
-        lines.append('      <span class="g"><code>%s</code></span>' % escape(glyph))
-        lines.append('      <span class="c">%s</span>' % escape(color_path))
+        lines.append('      <span class="m"><code>%s</code><span class="c">%s</span></span>'
+                     % (escape(glyph), escape(color_path)))
         lines.append("    </li>")
     lines.append("  </ul>")
     lines.append("</div>")

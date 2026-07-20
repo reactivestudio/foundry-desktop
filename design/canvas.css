@@ -242,9 +242,12 @@ a:hover { text-decoration: underline; }
 /* ——— Секция ——— */
 
 /* Секции разделяет ВОЗДУХ, не линейка (Горбунов: близость и пустота группируют
-   лучше рамок). Большой разрыв сверху + крупный титул сами делают границу. */
-.section { scroll-margin-top: var(--space-6); padding-top: var(--space-10); }
-.section + .section { padding-top: calc(var(--space-10) + var(--space-8)); }
+   лучше рамок). Разрыв сверху + крупный призрачный номер и титул сами делают
+   границу — линейка не нужна, а лишний воздух только разгоняет доску вширь.
+   64 (space.10) — верхняя ступень ритма: заметно больше вердикта (48), но не
+   пропасть. */
+.section { scroll-margin-top: var(--space-6); padding-top: var(--space-8); }
+.section + .section { padding-top: var(--space-10); }
 
 .section-head {
   display: flex;
@@ -277,7 +280,7 @@ a:hover { text-decoration: underline; }
    заголовок и две строки; всё, что длиннее, уезжает в «Можно / Нельзя»
    в конец секции. */
 .section-lede {
-  margin: 0 0 var(--space-8);
+  margin: 0 0 var(--space-6);
   max-width: 72ch;
   font-size: var(--type-heading-size);
   line-height: var(--type-heading-leading);
@@ -285,9 +288,13 @@ a:hover { text-decoration: underline; }
   text-wrap: pretty;
 }
 
-/* ——— Блок внутри секции ——— */
-
-.block { margin-bottom: var(--space-8); scroll-margin-top: var(--space-10); }
+/* ——— Блок внутри секции ———
+   Вертикальный ритм доски — одна модульная лестница 16 → 32 → 48 → 64
+   (кратно space.4, отношение 1:2:3:4). Каждый структурный уровень отбит
+   своим шагом, и внутреннее всегда меньше внешнего (Горбунов):
+   шапка→контент 16 (space.4) < блок→блок 32 (space.6) <
+   вердикт-закрытие 48 (space.8) < секция→секция 64 (space.10). */
+.block { margin-bottom: var(--space-6); scroll-margin-top: var(--space-10); }
 .block-head {
   display: flex;
   align-items: baseline;
@@ -700,14 +707,18 @@ a:hover { text-decoration: underline; }
 /* ——— 01 · Движение ———
    Живые образцы: длительность и кривая — те самые токены. Переход
    запускается по интервалу, потому что переход — это переход, а не цикл. */
+/* Ни одной черты между токенами: та же болезнь, что лечили в лестнице кеглей.
+   Хайрлайн тут ещё и стоял неверно — резал токен от ЕГО ЖЕ роли-подписи.
+   Теперь группа «дорожка + роль» жмётся вплотную (внутреннее), а от соседней
+   группы её отбивает воздух (внешнее, space.5). */
 .motion-row {
   display: grid;
   grid-template-columns: 14ch 16ch 1fr;
   align-items: center;
   gap: var(--space-4);
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--border-subtle);
+  margin-top: var(--space-5);
 }
+.motion-row:first-of-type { margin-top: var(--space-2); }
 .motion-row .t { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-primary); }
 .motion-row .d {
   font-family: var(--font-mono);
@@ -1137,12 +1148,16 @@ details.more > p { margin: var(--space-2) 0 0; padding: 0; color: var(--text-ter
 .icon-map td:last-child { color: var(--text-secondary); max-width: 46ch; text-wrap: pretty; }
 
 /* Статусы: цвет из токена + форма именем глифа. Цвет и имя рядом, а не вместо. */
-.icon-statuses { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2) var(--space-6); }
+/* Статусы — плитка в две строки: цветная точка + имя сверху, «глиф · токен»
+   моношрифтом снизу. Ряд-гэп space.4 (не space.2): даже если моно-строка
+   когда-нибудь перенесётся, она не сольётся со следующим рядом. */
+.icon-statuses { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4) var(--space-6); }
 @media (max-width: 1000px) { .icon-statuses { grid-template-columns: 1fr; } }
-.icon-statuses li { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-1) 0; }
-.icon-statuses .dot { align-self: center; width: var(--space-3); height: var(--space-3); border-radius: var(--radius-full); }
-.icon-statuses .t { font-weight: var(--type-body-em-weight); min-width: 12ch; }
-.icon-statuses .g code { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-accent); }
+.icon-statuses li { display: grid; grid-template-columns: auto 1fr; column-gap: var(--space-2); row-gap: 1px; align-items: baseline; }
+.icon-statuses .dot { grid-column: 1; grid-row: 1; align-self: center; width: var(--space-3); height: var(--space-3); border-radius: var(--radius-full); }
+.icon-statuses .t { grid-column: 2; grid-row: 1; font-weight: var(--type-body-em-weight); }
+.icon-statuses .m { grid-column: 2; grid-row: 2; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--space-2); }
+.icon-statuses .m code { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-accent); }
 .icon-statuses .c { font-family: var(--font-mono); font-size: var(--type-mono-s-size); color: var(--text-tertiary); }
 
 /* ——— Экраны · подкатегории ——— */
