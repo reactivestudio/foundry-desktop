@@ -1181,9 +1181,17 @@ def board_cover(tokens, law_parts, candidate_parts, sidecars, rejected):
         "Все значения — цвета, кегли, отступы, радиусы — приезжают из "
         "<code>tokens.json</code> при сборке (это и есть дизайн-токены); поменяется "
         "значение в источнике — поменяется эта страница."))
+    # Строка данных линуется гамма-спектром: пять чисел красятся сквозным ходом
+    # ультрамарин→маджента — тем же, что и номера секций ниже. Число-состояние
+    # системы становится и входом в её цветовую систему; обложка перестаёт быть
+    # серой. Спектр-полоса над строкой (см. .cover-facts::before) — та же гамма
+    # линией, оправдание правой пустоты мастхеда фирменным знаком.
     lines.append('  <div class="cover-facts">')
-    for number, caption in facts:
-        lines.append('    <div class="cover-fact"><b>%d</b><span>%s</span></div>' % (number, escape(caption)))
+    total = max(1, len(facts) - 1)
+    for index, (number, caption) in enumerate(facts):
+        color = section_accent(tokens, index / total)
+        lines.append('    <div class="cover-fact"><b style="color: %s">%d</b><span>%s</span></div>'
+                     % (color, number, escape(caption)))
     lines.append("  </div>")
     lines.append("</section>")
     return lines
@@ -2634,6 +2642,26 @@ def board_icons(tokens, section, law_parts, candidate_parts):
 # Сборка доски
 # --------------------------------------------------------------------------
 
+def section_accent(tokens, frac):
+    """Цвет призрачного номера секции — точка на фирменной гамме.
+
+    Номера секций идут вниз страницы сквозным ходом ультрамарин → пурпур →
+    маджента (та же смежная аналоговая гамма, что и у бренда: OKLCH hue
+    266 → 293 → 316°). Цвет становится живым индексом: он разбивает
+    монотонность одинаковых шапок и поднимает контраст номера над почти-чёрным,
+    не заводя ни одного нового токена — только интерполяция между тремя
+    фирменными. `frac` ∈ [0,1] — доля пути по странице сверху вниз."""
+    def rgb(path):
+        return resolve_rgb(tokens, find_token(tokens, path), path)
+    ultramarine, purple, magenta = rgb("brand.ultramarine"), rgb("brand.purple"), rgb("brand.magenta")
+    if frac <= 0.5:
+        low, high, local = ultramarine, purple, frac * 2
+    else:
+        low, high, local = purple, magenta, (frac - 0.5) * 2
+    mixed = tuple(low[i] + (high[i] - low[i]) * local for i in range(3))
+    return "rgb(%d, %d, %d)" % tuple(round(value) for value in mixed)
+
+
 def generate_showcase(tokens):
     """Доска, а не вики.
 
@@ -2664,6 +2692,7 @@ def generate_showcase(tokens):
                         and record["specimen"].rsplit("/", 1)[-1] in SCREEN_SIDECAR_FILES)]
 
     sections = []
+    numbered = len(BOARD_SECTIONS)
     for index, section in enumerate(BOARD_SECTIONS, start=1):
         if section["kind"] == "foundation":
             body = board_foundation(tokens, section)
@@ -2673,11 +2702,13 @@ def generate_showcase(tokens):
             body = board_icons(tokens, section, law_parts, candidate_parts)
         else:
             body = board_section_parts(section, law_parts, candidate_parts)
+        frac = (index - 1) / max(1, numbered - 1)
         sections.append({
             "num": "%02d" % index,
             "anchor": section["anchor"],
             "title": section["title"],
             "lede": section["lede"],
+            "accent": section_accent(tokens, frac),
             "body": body,
         })
 
@@ -2718,8 +2749,12 @@ def generate_showcase(tokens):
     lines.append('<nav class="rail" aria-label="Разделы доски">')
     lines.append('  <div class="rail-in">')
     for section in sections:
-        lines.append('    <a href="#%s"><span class="n">%s</span><span class="t">%s</span></a>'
-                     % (escape(section["anchor"]), escape(section["num"]), escape(section["title"])))
+        # --sec: цвет секции на гамме; активный пункт красит им риску и номер,
+        # так рельс всё время «того же тона», что и раздел под курсором.
+        accent = section.get("accent")
+        style = ' style="--sec: %s"' % accent if accent else ""
+        lines.append('    <a href="#%s"%s><span class="n">%s</span><span class="t">%s</span></a>'
+                     % (escape(section["anchor"]), style, escape(section["num"]), escape(section["title"])))
     lines.append("  </div>")
     lines.append("</nav>")
 
@@ -2728,8 +2763,10 @@ def generate_showcase(tokens):
 
     for section in sections:
         lines.append('<section class="section" id="%s">' % escape(section["anchor"]))
-        lines.append('  <div class="section-head"><span class="num">%s</span><h2>%s</h2></div>'
-                     % (escape(section["num"]), escape(section["title"])))
+        accent = section.get("accent")
+        num_style = ' style="color: %s"' % accent if accent else ""
+        lines.append('  <div class="section-head"><span class="num"%s>%s</span><h2>%s</h2></div>'
+                     % (num_style, escape(section["num"]), escape(section["title"])))
         if section["lede"]:
             lines.append('  <p class="section-lede">%s</p>' % typo(escape(section["lede"])))
         lines.extend("  " + line for line in section["body"])

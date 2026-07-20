@@ -11,20 +11,20 @@
 <div class="shell">
 <nav class="rail" aria-label="Разделы доски">
   <div class="rail-in">
-    <a href="#colors"><span class="n">01</span><span class="t">Цвета</span></a>
-    <a href="#typography"><span class="n">02</span><span class="t">Типографика</span></a>
-    <a href="#layout"><span class="n">03</span><span class="t">Сетка</span></a>
-    <a href="#spacing"><span class="n">04</span><span class="t">Отступы</span></a>
-    <a href="#radius"><span class="n">05</span><span class="t">Скругления</span></a>
-    <a href="#buttons"><span class="n">06</span><span class="t">Кнопки</span></a>
-    <a href="#tabs"><span class="n">07</span><span class="t">Табы</span></a>
-    <a href="#labels"><span class="n">08</span><span class="t">Лейблы</span></a>
-    <a href="#panels"><span class="n">09</span><span class="t">Панели</span></a>
-    <a href="#blocks"><span class="n">10</span><span class="t">Блоки</span></a>
-    <a href="#icons"><span class="n">11</span><span class="t">Иконки</span></a>
-    <a href="#logo"><span class="n">12</span><span class="t">Логотип</span></a>
-    <a href="#animation"><span class="n">13</span><span class="t">Анимации</span></a>
-    <a href="#screens"><span class="n">14</span><span class="t">Экраны</span></a>
+    <a href="#colors" style="--sec: rgb(47, 92, 255)"><span class="n">01</span><span class="t">Цвета</span></a>
+    <a href="#typography" style="--sec: rgb(61, 92, 254)"><span class="n">02</span><span class="t">Типографика</span></a>
+    <a href="#layout" style="--sec: rgb(75, 92, 252)"><span class="n">03</span><span class="t">Сетка</span></a>
+    <a href="#spacing" style="--sec: rgb(89, 92, 251)"><span class="n">04</span><span class="t">Отступы</span></a>
+    <a href="#radius" style="--sec: rgb(104, 92, 249)"><span class="n">05</span><span class="t">Скругления</span></a>
+    <a href="#buttons" style="--sec: rgb(118, 92, 248)"><span class="n">06</span><span class="t">Кнопки</span></a>
+    <a href="#tabs" style="--sec: rgb(132, 92, 247)"><span class="n">07</span><span class="t">Табы</span></a>
+    <a href="#labels" style="--sec: rgb(145, 92, 247)"><span class="n">08</span><span class="t">Лейблы</span></a>
+    <a href="#panels" style="--sec: rgb(156, 92, 248)"><span class="n">09</span><span class="t">Панели</span></a>
+    <a href="#blocks" style="--sec: rgb(168, 92, 249)"><span class="n">10</span><span class="t">Блоки</span></a>
+    <a href="#icons" style="--sec: rgb(179, 92, 251)"><span class="n">11</span><span class="t">Иконки</span></a>
+    <a href="#logo" style="--sec: rgb(191, 92, 252)"><span class="n">12</span><span class="t">Логотип</span></a>
+    <a href="#animation" style="--sec: rgb(202, 92, 254)"><span class="n">13</span><span class="t">Анимации</span></a>
+    <a href="#screens" style="--sec: rgb(214, 92, 255)"><span class="n">14</span><span class="t">Экраны</span></a>
     <a href="#candidates"><span class="n">—</span><span class="t">Приёмная</span></a>
     <a href="#rejected"><span class="n">—</span><span class="t">Отвергнуто</span></a>
   </div>
@@ -35,15 +35,15 @@
   <h1>Design System</h1>
   <p class="lede">Не описание системы, а сама система, собранная в одном месте: каждая ступень цвета, кегль и отступ ниже — <b>не картинка решения, а решение</b>. Все значения — цвета, кегли, отступы, радиусы — приезжают из <code>tokens.json</code> при сборке (это и есть дизайн-токены); поменяется значение в источнике — поменяется эта страница.</p>
   <div class="cover-facts">
-    <div class="cover-fact"><b>90</b><span>дизайн-токенов в источнике</span></div>
-    <div class="cover-fact"><b>6</b><span>принятых компонентов</span></div>
-    <div class="cover-fact"><b>5</b><span>на утверждении</span></div>
-    <div class="cover-fact"><b>1</b><span>в приёмной</span></div>
-    <div class="cover-fact"><b>17</b><span>отклонено, с причиной</span></div>
+    <div class="cover-fact"><b style="color: rgb(47, 92, 255)">90</b><span>дизайн-токенов в источнике</span></div>
+    <div class="cover-fact"><b style="color: rgb(93, 92, 250)">6</b><span>принятых компонентов</span></div>
+    <div class="cover-fact"><b style="color: rgb(139, 92, 246)">5</b><span>на утверждении</span></div>
+    <div class="cover-fact"><b style="color: rgb(176, 92, 250)">1</b><span>в приёмной</span></div>
+    <div class="cover-fact"><b style="color: rgb(214, 92, 255)">17</b><span>отклонено, с причиной</span></div>
   </div>
 </section>
 <section class="section" id="colors">
-  <div class="section-head"><span class="num">01</span><h2>Цвета</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(47, 92, 255)">01</span><h2>Цвета</h2></div>
   <p class="section-lede">Это значения, а не картинки: каждая ступень, состояние и контраст нарисованы из tokens.json — поменяется хекс в источнике, поменяется эта секция. Контраст доска считает при читателе.</p>
   <div class="block" id="ramp-bg">
     <div class="block-head"><h3>Поверхности — лестница светлоты</h3><span class="hint">четыре ступени, а не четыре цвета: у каждой своя работа, и шаг между ними обязан быть равным</span></div>
@@ -218,7 +218,7 @@
   </div>
 </section>
 <section class="section" id="typography">
-  <div class="section-head"><span class="num">02</span><h2>Типографика</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(61, 92, 254)">02</span><h2>Типографика</h2></div>
   <p class="section-lede">Лестница кеглей в натуральную величину, на реальных строках продукта — на lorem не видно ни длины, ни кириллицы.</p>
   <div class="block" id="type">
     <div class="ladder">
@@ -341,7 +341,7 @@
   </div>
 </section>
 <section class="section" id="layout">
-  <div class="section-head"><span class="num">03</span><h2>Сетка</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(75, 92, 252)">03</span><h2>Сетка</h2></div>
   <p class="section-lede">Модульная сетка на трёх уровнях: панели окна в натуральную величину, микросетка колонок с единым гаттером, колонка чтения ровно в меру — правило, которому подчинена и эта страница.</p>
   <div class="block" id="layout-macro">
     <div class="block-head"><h3>Панели окна — макросетка</h3><span class="hint">ширины в натуральную величину, pt→px 1:1: панель — это «колонка» приложения (02 §8). Окно шире колонки доски — прокручивается вбок</span></div>
@@ -422,7 +422,7 @@
   </div>
 </section>
 <section class="section" id="spacing">
-  <div class="section-head"><span class="num">04</span><h2>Отступы</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(89, 92, 251)">04</span><h2>Отступы</h2></div>
   <p class="section-lede">Шкала, измеряющая сама себя: столбик длиной ровно в свой токен, 1:1 — линейка, а не таблица; рядом — инвариант Бирмана «внутреннее ≤ внешнее», нарисованный.</p>
   <div class="block" id="space">
     <div class="grid">
@@ -515,7 +515,7 @@
   </div>
 </section>
 <section class="section" id="radius">
-  <div class="section-head"><span class="num">05</span><h2>Скругления</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(104, 92, 249)">05</span><h2>Скругления</h2></div>
   <p class="section-lede">Концентрика, нарисованная и заодно проверенная: вложенный радиус = внешний − паддинг, и шкала попадает шагом в один space.1 ровно в следующий токен.</p>
   <div class="block" id="radius">
     <div class="grid">
@@ -551,7 +551,7 @@
   </div>
 </section>
 <section class="section" id="buttons">
-  <div class="section-head"><span class="num">06</span><h2>Кнопки</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(118, 92, 248)">06</span><h2>Кнопки</h2></div>
   <p class="section-lede">Базовый элемент действия: сам по себе смысла не несёт и о предметной области не знает.</p>
   <div class="grid">
     <div class="col-12">
@@ -619,7 +619,7 @@
   </div>
 </section>
 <section class="section" id="tabs">
-  <div class="section-head"><span class="num">07</span><h2>Табы</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(132, 92, 247)">07</span><h2>Табы</h2></div>
   <p class="section-lede">Переключение вида: один активный, остальные ждут.</p>
   <div class="grid">
     <div class="col-12">
@@ -683,7 +683,7 @@
   </div>
 </section>
 <section class="section" id="labels">
-  <div class="section-head"><span class="num">08</span><h2>Лейблы</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(145, 92, 247)">08</span><h2>Лейблы</h2></div>
   <p class="section-lede">Метки состояния и принадлежности: бейдж, точка статуса, чип, лейбл проекта.</p>
   <div class="grid">
     <div class="col-12">
@@ -846,7 +846,7 @@
   </div>
 </section>
 <section class="section" id="panels">
-  <div class="section-head"><span class="num">09</span><h2>Панели</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(156, 92, 248)">09</span><h2>Панели</h2></div>
   <p class="section-lede">Контейнер для другого: панель как слой поверх фона.</p>
   <div class="grid">
     <div class="col-12">
@@ -904,7 +904,7 @@
   </div>
 </section>
 <section class="section" id="blocks">
-  <div class="section-head"><span class="num">10</span><h2>Блоки</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(168, 92, 249)">10</span><h2>Блоки</h2></div>
   <p class="section-lede">Доменный компонент — знает про предметную область: строка диффа, стадия, change.</p>
   <div class="grid">
     <div class="col-12">
@@ -961,7 +961,7 @@
   </div>
 </section>
 <section class="section" id="icons">
-  <div class="section-head"><span class="num">11</span><h2>Иконки</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(179, 92, 251)">11</span><h2>Иконки</h2></div>
   <p class="section-lede">Система, а не ряд картинок: размеры из токенов, закреплённый словарь доменных метафор на SF Symbols, статусы «глиф + цвет» — и опознавательные марки продукта «Восход» и орб.</p>
   <div class="block" id="icon-sizes">
     <div class="block-head"><h3>Размеры</h3><span class="hint">в натуральную величину из icon.*; кегль иконки = кегль соседнего текста (§2.1)</span></div>
@@ -1120,7 +1120,7 @@
   </div>
 </section>
 <section class="section" id="logo">
-  <div class="section-head"><span class="num">12</span><h2>Логотип</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(191, 92, 252)">12</span><h2>Логотип</h2></div>
   <p class="section-lede">Вордмарк «Foundry AI» — знак неделим.</p>
   <div class="grid">
     <div class="col-12">
@@ -1165,7 +1165,7 @@
   </div>
 </section>
 <section class="section" id="animation">
-  <div class="section-head"><span class="num">13</span><h2>Анимации</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(202, 92, 254)">13</span><h2>Анимации</h2></div>
   <p class="section-lede">Движение и свечение показываются собой — переход переходом, свет светом; при prefers-reduced-motion молчат.</p>
   <div class="block" id="motion">
     <div class="block-head"><h3>Движение</h3><span class="hint">живьём, теми самыми токенами; при <code>prefers-reduced-motion</code> — молчит</span></div>
@@ -1244,7 +1244,7 @@
   </div>
 </section>
 <section class="section" id="screens">
-  <div class="section-head"><span class="num">14</span><h2>Экраны</h2></div>
+  <div class="section-head"><span class="num" style="color: rgb(214, 92, 255)">14</span><h2>Экраны</h2></div>
   <p class="section-lede">Вся система разом, собранная обратно в экраны — единственное место, где её видно в работе.</p>
   <nav class="subrail">
     <a href="#screen-onboarding">Онбординг</a>

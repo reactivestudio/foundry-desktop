@@ -148,13 +148,19 @@ a:hover { text-decoration: underline; }
    левофлаговым мастхедом идёт полноширинная строка данных — она держит
    правую половину обложки и оправдывает линейку во всю ширь над собой
    (иначе линейка тянется в пустоту, к которой ничего не привязано). */
+/* Строку данных венчает не линейка, а полоса фирменного спектра: гамма
+   ультрамарин→пурпур→маджента (та же, что красит номера секций и эти числа),
+   проведённая во всю ширь колонки. Одна декоративная черта на всю доску —
+   и та несёт фирменный знак, а не просто делит. */
 .cover-facts {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: var(--space-6);
   margin-top: var(--space-10);
-  padding-top: var(--space-5);
-  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-6);
+  border-image: linear-gradient(90deg,
+    var(--brand-ultramarine), var(--brand-purple), var(--brand-magenta)) 1;
+  border-top: 2px solid transparent;
 }
 @media (max-width: 700px) { .cover-facts { grid-template-columns: repeat(2, 1fr); } }
 .cover-fact { display: flex; flex-direction: column; gap: var(--space-1); }
@@ -231,9 +237,9 @@ a:hover { text-decoration: underline; }
   width: 3px;
   height: 1.1em;
   border-radius: var(--radius-full);
-  background: var(--brand-ultramarine);
+  background: var(--sec, var(--brand-ultramarine));
 }
-.rail a.active .n { color: var(--text-accent); }
+.rail a.active .n { color: var(--sec, var(--text-accent)); }
 @media (prefers-reduced-motion: reduce) { .rail a { transition: none; } }
 /* На узком экране рельс перестаёт быть колонкой — прячем: якорей там нет,
    но и облака пилюль над контентом мы больше не городим. */
