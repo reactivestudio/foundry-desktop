@@ -1,0 +1,100 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Строка диффа — foundry-desktop</title>
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../specimen.css">
+
+<script type="application/json" id="card">
+{
+  "name": "Строка диффа",
+  "slug": "diff-line",
+  "status": "принят",
+  "height": 434,
+  "why": "Атом ревью: два номера строк, знак ± и фон @12% дают «что изменилось» тремя независимыми каналами, а подсветка слова показывает, что именно, не заставляя сличать строки глазами.",
+  "never": "Не применять без знаков + и − в теле строки: фон обязан дублироваться знаком и позицией — при дейтеранопии зелёный и красный неразличимы, и цвет остаётся лишь ускорением (06 §3.3). Не применять для показа кода без изменений: две колонки номеров и рейл ± там — пустая нотация, это панель кода (code.bg), а не дифф. Не красить строку ничем, кроме diff.*: фон строки занят семантикой изменения — статус, стадия и выделение обязаны найти другой канал, иначе панель становится светофором (06). Не переносить строку по словам: строка диффа не переносится принципиально (white-space: pre) — номер обязан отвечать за одну экранную строку; проза и спека, которые надо читать целиком, требуют диффа словами, а не строками (§12 макета). Не путать со строкой таблицы: колонка номеров — это гаттер моноширинного кода, а не данные, и правила 10-tables (зебра, линейки, выравнивание) к ней не применяются. Не подсвечивать словами всю строку: word-level имеет смысл, только когда изменилось меньше половины строки, иначе подсветка съедает фон и перестаёт указывать. Не растить сюда подсветку синтаксиса: тема токенов кода — отдельная часть, она живёт в §3 макета одна и по правилу двух ещё не элемент.",
+  "tokens": ["space.2", "space.3", "space.8", "radius.s", "type.mono", "type.mono-s", "font.mono", "code.bg", "code.linenum", "text.secondary", "text.disabled", "diff.added-bg", "diff.added-text", "diff.added-word", "diff.removed-bg", "diff.removed-text", "diff.removed-word"],
+  "canon": ["06-color.md", "10-tables.md", "04-typography.md"],
+  "swift": null,
+  "lineage": "Выделена из foundry-mockups.html §3 (строки 1689–1706, дифф Swift-кода в панели ревью) и §7 (строки 2220–2223, тот же дифф markdown-таблицы токенов в отдельном окне) — встретилась дважды, анатомия в обоих местах совпала побайтно. Класс макета — .dline (CSS строки 380–389); модификаторы add · rem, внутренности .ln (номер), .code (тело), .gutter (контекст), .w (подсветка слова). Значения переложены на токены: 12px mono → type.mono, номера → type.mono-s + code.linenum, фон панели → code.bg, фоны и подсветки слов → diff.*-bg / diff.*-word (у макета совпали точно: @12% и @25%). Цвет текста изменённых строк макета (#b9f5cf и #f6c0c0) токена не имеет — взят diff.added-text / diff.removed-text, то есть sem.success и sem.error: tokens.json уже назначил этим строкам ровно эти цвета, макет от собственного закона отклонился. Гаттер 44+44px токена не имеет — взят space.8 (48pt) дважды: колонка стала шире макета на 4pt каждая. Подсветка синтаксиса (.tok-kw/.tok-ty/.tok-str/.tok-fn/.tok-num) в часть не перенесена: она живёт только в §3 и правило двух не прошла."
+}
+</script>
+
+<style>
+  .p-diff-line {
+    display: flex; flex-direction: column; gap: var(--space-5);
+    font-family: var(--font-text);
+  }
+  .p-diff-line .group { display: flex; flex-direction: column; gap: var(--space-3); }
+
+  /* ——— панель диффа: §3 макета (CSS строки 379–389) ——— */
+  .p-diff-line .diff {
+    font-family: var(--font-mono);
+    font-size: var(--type-mono-size);
+    line-height: var(--type-mono-leading);
+    background: var(--code-bg);
+    border-radius: var(--radius-s);
+    overflow-x: auto;
+  }
+  /* гаттер 44+44 → space.8 ×2 (ДОЛГ: ширины колонки номеров в токенах нет) */
+  .p-diff-line .dline { display: grid; grid-template-columns: var(--space-8) var(--space-8) 1fr; }
+  .p-diff-line .dline .ln {
+    text-align: right; padding-right: var(--space-2);
+    font-size: var(--type-mono-s-size);
+    color: var(--code-linenum);
+    font-variant-numeric: tabular-nums;   /* цифры одной ширины — 10 §108 */
+    user-select: none;
+  }
+  .p-diff-line .dline .code { padding-left: var(--space-3); white-space: pre; color: var(--text-secondary); }
+  .p-diff-line .dline .gutter { color: var(--text-disabled); }
+
+  /* добавлено: фон @12% + знак + + текст sem.success (06 §3.3 — три канала) */
+  .p-diff-line .dline.add { background: var(--diff-added-bg); }
+  .p-diff-line .dline.add .code { color: var(--diff-added-text); }
+  .p-diff-line .dline.add .code .w { background: var(--diff-added-word); border-radius: var(--radius-s); }
+
+  /* удалено: фон @12% + знак − + текст sem.error */
+  .p-diff-line .dline.rem { background: var(--diff-removed-bg); }
+  .p-diff-line .dline.rem .code { color: var(--diff-removed-text); }
+  .p-diff-line .dline.rem .code .w { background: var(--diff-removed-word); border-radius: var(--radius-s); }
+
+  /* самотест 06 §3.3: без цвета смысл обязан остаться на знаках ± и позиции */
+  .p-diff-line .desat { filter: grayscale(1); }
+</style>
+
+<div class="specimen p-diff-line">
+
+  <!-- все состояния строки подряд, как они и живут в панели -->
+  <div class="group">
+    <span class="state-label">состояния строки · контекст · удалено · добавлено · подсветка слова</span>
+    <div class="diff">
+      <div class="dline"><span class="ln">42</span><span class="ln">42</span><span class="code gutter">  private var pulse: Double = 1.0</span></div>
+      <div class="dline rem"><span class="ln">43</span><span class="ln"></span><span class="code">-    let ring = Circle().stroke(<span class="w">Color.cyan</span>, lineWidth: 2)</span></div>
+      <div class="dline add"><span class="ln"></span><span class="ln">43</span><span class="code">+    let ring = Circle().stroke(<span class="w">Color(.brandCyan)</span>, lineWidth: 2)</span></div>
+      <div class="dline add"><span class="ln"></span><span class="ln">44</span><span class="code">+      .shadow(color: .glowLive, radius: 10)</span></div>
+      <div class="dline"><span class="ln">44</span><span class="ln">45</span><span class="code gutter">  </span></div>
+      <div class="dline"><span class="ln">45</span><span class="ln">46</span><span class="code gutter">    var body: some View {</span></div>
+    </div>
+  </div>
+
+  <!-- тот же дифф обесцвечен: знаки ± и позиция обязаны нести смысл в одиночку -->
+  <div class="group">
+    <span class="state-label">тот же дифф без цвета · знаки ± держат смысл сами (06 §3.3)</span>
+    <div class="diff desat">
+      <div class="dline"><span class="ln">42</span><span class="ln">42</span><span class="code gutter">  private var pulse: Double = 1.0</span></div>
+      <div class="dline rem"><span class="ln">43</span><span class="ln"></span><span class="code">-    let ring = Circle().stroke(<span class="w">Color.cyan</span>, lineWidth: 2)</span></div>
+      <div class="dline add"><span class="ln"></span><span class="ln">43</span><span class="code">+    let ring = Circle().stroke(<span class="w">Color(.brandCyan)</span>, lineWidth: 2)</span></div>
+    </div>
+  </div>
+
+  <!-- второе место применения: дифф не-кода, §7 макета -->
+  <div class="group">
+    <span class="state-label">не-код · та же строка на таблице токенов (§7 макета)</span>
+    <div class="diff">
+      <div class="dline"><span class="ln">54</span><span class="ln">54</span><span class="code gutter">  | `bg.hover` | white @ 6% | hover строк |</span></div>
+      <div class="dline rem"><span class="ln">55</span><span class="ln"></span><span class="code">-  | `bg.selected` | <span class="w">#1a2a55</span> | выбор |</span></div>
+      <div class="dline add"><span class="ln"></span><span class="ln">55</span><span class="code">+  | `bg.selected` | <span class="w">ultramarine @ 14%</span> | выбор |</span></div>
+      <div class="dline add"><span class="ln"></span><span class="ln">56</span><span class="code">+  | `scrim` | black @ 50% | подложка модалок |</span></div>
+    </div>
+  </div>
+
+</div>

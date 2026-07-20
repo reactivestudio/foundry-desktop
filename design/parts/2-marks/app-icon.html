@@ -1,0 +1,89 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Иконка приложения «Восход» — foundry-desktop</title>
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../specimen.css">
+
+<script type="application/json" id="card">
+{
+  "name": "Иконка приложения «Восход»",
+  "slug": "app-icon",
+  "status": "принят",
+  "height": 428,
+  "why": "Знак продукта там, где до продукта ещё не дошли: Dock, Finder, DMG. Показан лестницей натуральных размеров — иконка живёт или умирает на 16, и один крупный рендер это прячет.",
+  "never": "Не перерисовывать знак плоской графикой — CSS-градиентами, SVG, чистыми заливками: отвергнуто дословно («второсортно, дёшево, будто ребёнок рисовал»), материал даёт только canvas2d-конвейер → rejected/flat-vector-graphics.md. Не предлагать иконку из роя частиц: отвергнута целиком, все три итерации, файлы удалены по просьбе пользователя → rejected/swarm-icon.md. Не возвращать отвергнутые трактовки: яркое центральное пятно-блик (источник света вынесен ЗА канвас, внутри сферы его нет), толстый/белый/навязчивый серп, направленный motion-blur с гостингом, любой блюр или свечение СПРАВА от центра (правая половина — единственная чёткая), 2× супер-семпл всего канваса (лечит бандинг ценой мягкой кромки — лечить его надо densify, 160 стопов Catmull-Rom) → rejected/sunrise-icon-treatments.md. Не переоткрывать выбор варианта: A — финал, B отброшен окончательно; paper-cut и огненный сквиркл закрыты → rejected/icon-variant-b.md, rejected/icon-alternatives-paper-cut-and-fire.md. Не ставить плитку в край: поля входят в саму картинку, macOS их НЕ добавляет — иконка без полей стоит в Dock крупнее соседей, и это уже ловили. Не скруглять угол дугой окружности и не подбирать радиус: угол — суперэллипс Ламе n=4, L = 0.4042 ТЕЛА (дуга промахивается на 4.97px против 0.49px у суперэллипса при плитке 204); заодно не путать CSS corner-shape: superellipse(4) — это n=16, squircle — это n=4. Не получать мелкий размер ресайзом крупного: маска считается формулой под каждый размер отдельно, пересемпл альфы и чёрная кайма от ресайза RGBA по прозрачному фону — измеренные потери кромки (до −85 по сумме RGB), а не теория. Не считать правку артворка законченной без прогона make-appiconset.py — на этом конвейер разъезжался ДВАЖДЫ, и приложение месяц шипило иконку без двух одобренных доработок. Не брать палитру иконки за палитру системы: Void/Navy/Violet/Indigo/Sky/Halo — отдельный webphone-ход, снятый пипеткой с референса; токенов у него нет и быть не должно.",
+  "tokens": ["space.1", "space.5"],
+  "canon": ["12-icons.md"],
+  "swift": null,
+  "lineage": "«Восход», вариант A — финал на master (memory/foundry-desktop-visual-direction.md: «Иконка «Восход» ФИНАЛ (вариант A)»), подтверждён ещё раз при отказе от иконки-роя 2026-07-17: «иконка остаётся одна». Конвейер и все числа — parts/2-marks/production.md; PR #5, #6 (пурпур в центре тела), #18 (единственный источник), #21 (суперэллипс с референса, маска формулой). Образец не рисует ничего сам: он показывает те самые файлы, которые шипятся, — App/Assets.xcassets/AppIcon.appiconset/*, и раскладывает их ровно так, как это делает Contents.json (srcset 1x/2x). Поэтому на Retina каждая ступень показывает свой 2×-ассет, и через четыре ступени видны все семь канвасов набора, кроме icon_1024 (он 2× пятисотого; отдельной ступени 512 в образце нет — её доля тела та же 0.8047, что у 256, и знание она не добавляет, а высоту карточки удваивает). Таблица полей снята с 95 системных иконок (icns → iconutil -c iconset, только симметричные squircle-плитки, согласие большинства по канвасу) — доля тела НЕ постоянна: на 16 и 32 Apple намеренно оставляет меньше полей (0.875 против 0.8047), иначе мелкая иконка теряет то, чем читается. Токенов система здесь ест только два, и оба — на раскладку образца: иконка — растр, у неё нет ни цвета, ни радиуса, которые можно было бы взять var(--…), а её палитра и геометрия угла — производственные значения конвейера, не решения дизайн-системы. Долг НЕ этой части, но названный честно: канон 12 §9 описывает иконку как «сферу с внутренним свечением ультрамарин→пурпур», а шипится сфера в webphone-ходе, освещённая источником ЗА верхне-правым лимбом — глава отстала от знака. DMG (второе место, где знак живёт крупно) в этом дереве отсутствует: он на ветке дистрибуции."
+}
+</script>
+
+<style>
+  /* Образец — лестница натуральных размеров. Никакой своей графики: <img> на
+     файлы набора, который забирает сборка приложения. Единственный источник —
+     App/Assets.xcassets/AppIcon.appiconset/, рядом с мастером набора не держим.
+
+     Сырых значений здесь нет вовсе: размеры ступеней стоят в атрибутах
+     width/height, потому что это размеры КАРТИНКИ (и их же читает srcset),
+     а не отступы вёрстки. Единственные значения CSS — токены. */
+
+  .p-app-icon { flex-direction: column; align-items: flex-start; }
+  .p-app-icon .group { display: flex; flex-direction: column; gap: var(--space-1); }
+
+  /* Ступени выровнены по низу: так лестница читается лестницей, а подписи
+     встают в одну строку. */
+  .p-app-icon .ladder { display: flex; align-items: flex-end; gap: var(--space-5); }
+  .p-app-icon .rung { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); }
+  .p-app-icon .rung img { display: block; }
+  .p-app-icon .rung .state-label { text-align: center; white-space: nowrap; }
+</style>
+
+<div class="specimen p-app-icon">
+
+  <div class="group">
+    <span class="state-label">лестница macOS · каждая ступень в натуральную величину;<br>2× подставляет система по srcset — это и есть Contents.json набора</span>
+    <span class="state-label">под ступенью: поле / тело · доля тела<br>доля не постоянна: на 16 и 32 полей намеренно меньше —<br>иначе мелкая иконка теряет то, чем читается</span>
+
+    <div class="ladder">
+
+      <div class="rung">
+        <img alt="Иконка Foundry, 16pt"
+             src="../../../App/Assets.xcassets/AppIcon.appiconset/icon_16.png"
+             srcset="../../../App/Assets.xcassets/AppIcon.appiconset/icon_16.png 1x,
+                     ../../../App/Assets.xcassets/AppIcon.appiconset/icon_32.png 2x"
+             width="16" height="16">
+        <span class="state-label">16 pt<br>1 / 14<br>0.8750</span>
+      </div>
+
+      <div class="rung">
+        <img alt="Иконка Foundry, 32pt"
+             src="../../../App/Assets.xcassets/AppIcon.appiconset/icon_32.png"
+             srcset="../../../App/Assets.xcassets/AppIcon.appiconset/icon_32.png 1x,
+                     ../../../App/Assets.xcassets/AppIcon.appiconset/icon_64.png 2x"
+             width="32" height="32">
+        <span class="state-label">32 pt<br>2 / 28<br>0.8750</span>
+      </div>
+
+      <div class="rung">
+        <img alt="Иконка Foundry, 128pt"
+             src="../../../App/Assets.xcassets/AppIcon.appiconset/icon_128.png"
+             srcset="../../../App/Assets.xcassets/AppIcon.appiconset/icon_128.png 1x,
+                     ../../../App/Assets.xcassets/AppIcon.appiconset/icon_256.png 2x"
+             width="128" height="128">
+        <span class="state-label">128 pt<br>12 / 104<br>0.8125</span>
+      </div>
+
+      <div class="rung">
+        <img alt="Иконка Foundry, 256pt"
+             src="../../../App/Assets.xcassets/AppIcon.appiconset/icon_256.png"
+             srcset="../../../App/Assets.xcassets/AppIcon.appiconset/icon_256.png 1x,
+                     ../../../App/Assets.xcassets/AppIcon.appiconset/icon_512.png 2x"
+             width="256" height="256">
+        <span class="state-label">256 pt<br>25 / 206<br>0.8047</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>

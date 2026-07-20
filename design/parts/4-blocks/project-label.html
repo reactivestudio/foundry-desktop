@@ -1,0 +1,112 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Лейбл проекта — foundry-desktop</title>
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../specimen.css">
+
+<script type="application/json" id="card">
+{
+  "name": "Лейбл проекта",
+  "slug": "project-label",
+  "status": "принят",
+  "height": 297,
+  "why": "Отвечает «чей это change» там, где на экране сразу несколько сервисов: категорию несёт форма, имя — текст, и на цвет не тратится ничего.",
+  "never": "Не красить: отказ от цвета — суть этой части, а не её недоделка. Категорию несёт форма (▣ инфра · ◆ утилита · ● бизнес) именно потому, что цвет в системе дефицитен и занят значимым — статусом и действием; радуга лейблов гасит и то и другое (06, «цвет только на значимом»). Не применять там, где проект уже известен: внутри экрана одного проекта лейбл на каждой строке повторяет заголовок и превращается в шум (Бирман). Не носить лейблом статус, стадию или тип change'а: это badge и status-dot — здесь цвет и семантика, там форма и постоянная величина. Не ставить второй лейбл на одну карточку: change живёт в одном сервисе; если сервисов правда несколько — это не лейбл, а колонка таблицы (10-tables). Не заводить седьмую категорию под форму: алфавит из трёх фигур запоминается, из семи — читается по легенде, а легенда означает, что нотация не работает (12 §6, «одноразовое исключение не стоит нового элемента языка»). Не растягивать под длинное имя: лейбл усекает многоточием и остаётся узким — если имя обязано читаться целиком, ему нужна колонка, а не лейбл.",
+  "tokens": ["space.1", "space.2", "radius.s", "type.caption2", "font.text", "text.tertiary", "text.disabled", "bg.hover", "border.subtle"],
+  "canon": ["06-color.md", "12-icons.md", "10-tables.md"],
+  "swift": null,
+  "lineage": "Выделен из foundry-mockups.html §6 (строки 2136–2171, лейбл сервиса на карточках канбана) и §11 (строка 2514, якорь change'а при зуме в задачи) — встретился дважды и далее в §12 (2579), §13 (2654) и §14 (2725–2760, колонка сквозной таблицы задач): пять секций, самая переиспользуемая плашка макета. Класс макета — .plbl (CSS строки 585–588) с внутренностями .lcat (категория формой) и .lsvc (имя сервиса текстом); анатомия во всех пяти местах совпала. Алфавит категорий взят из комментария макета над правилом (строки 583–584): ▣ инфра · ◆ утилита · ● бизнес, и там же зафиксирована причина отказа от цвета. Значения переложены на токены: кегль 9px и 8px токена не имеют — взят type.caption2 (10pt, самый мелкий в шкале), паддинг 1px 5px → space.1 / space.2, фон @5% → bg.hover (@6%). 4-blocks, а не 3-elements: часть знает слова «проект» и «сервис» и несёт таксономию роутера (§18 макета) — в одиночку у неё есть смысл, и применить её больше не к чему."
+}
+</script>
+
+<style>
+  .p-project-label {
+    display: flex; flex-direction: column; gap: var(--space-5);
+    font-family: var(--font-text);
+  }
+  .p-project-label .group { display: flex; flex-direction: column; gap: var(--space-3); }
+  .p-project-label .multiples { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; }
+  .p-project-label .cell { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; }
+
+  /* ——— тело: §6 макета (CSS строки 585–588) ———
+     кегль 9/8px → type.caption2 (10pt — пол шкалы; ДОЛГ: ниже него токенов нет)
+     паддинг 1px 5px → space.1 / space.2 · фон @5% → bg.hover (@6%) */
+  .p-project-label .plbl {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-s);
+    font-family: var(--font-text);
+    font-size: var(--type-caption2-size);
+    line-height: var(--type-caption2-leading);
+    color: var(--text-tertiary);
+    background: var(--bg-hover);
+    border: 1px solid var(--border-subtle);   /* ДОЛГ: ширины линии в токенах нет */
+    min-width: 0; flex: none;
+  }
+  /* категория — ФОРМОЙ: цвет не расходуется, он занят статусом и действием (06) */
+  .p-project-label .plbl .lcat { color: var(--text-disabled); font-size: var(--type-caption2-size); flex: none; }
+  .p-project-label .plbl .lsvc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* демонстрация усечения: лейбл узкий по определению */
+  .p-project-label .narrow { max-width: var(--space-10); }
+
+  /* самотест: обесцвеченный ряд обязан читаться так же — цвета в нём нет */
+  .p-project-label .desat { filter: grayscale(1); }
+</style>
+
+<div class="specimen p-project-label">
+
+  <!-- три категории рядом: алфавит целиком, различаются формой без цвета -->
+  <div class="group">
+    <span class="state-label">три категории · различие формой, не цветом</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">▣ инфраструктура</span>
+        <span class="plbl"><span class="lcat">▣</span><span class="lsvc">crispy-core</span></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">◆ утилита</span>
+        <span class="plbl"><span class="lcat">◆</span><span class="lsvc">memory-vault</span></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">● бизнес</span>
+        <span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- тот же ряд обесцвечен: смысл не пострадал — цвета в нём и не было -->
+  <div class="group">
+    <span class="state-label">без цвета · ряд не изменился, потому что цвета здесь нет</span>
+    <div class="multiples desat">
+      <div class="cell">
+        <span class="state-label">▣</span>
+        <span class="plbl"><span class="lcat">▣</span><span class="lsvc">crispy-core</span></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">◆</span>
+        <span class="plbl"><span class="lcat">◆</span><span class="lsvc">memory-vault</span></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">●</span>
+        <span class="plbl"><span class="lcat">●</span><span class="lsvc">foundry-desktop</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- граница: длинное имя усекается, лейбл не растёт -->
+  <div class="group">
+    <span class="state-label">граница · длинное имя усекается многоточием, лейбл не растёт</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">умещается</span>
+        <span class="plbl"><span class="lcat">▣</span><span class="lsvc">crispy-core</span></span>
+      </div>
+      <div class="cell">
+        <span class="state-label">не умещается</span>
+        <span class="plbl narrow"><span class="lcat">◆</span><span class="lsvc">memory-vault-experimental-index</span></span>
+      </div>
+    </div>
+  </div>
+
+</div>

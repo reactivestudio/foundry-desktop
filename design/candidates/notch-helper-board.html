@@ -1,4 +1,5 @@
 <title>Foundry · нотч-хелпер — эскиз</title>
+<script>if(location.search.indexOf('bare')>-1)document.documentElement.classList.add('bare')</script>
 <style>
   /* ══ Токены — только из docs/design/13-tokens.md ══ */
   :root{
@@ -389,6 +390,17 @@
   @media (max-width:760px){
     .screen{height:560px}
   }
+  /* ——— bare-режим: только экран, без прозы (встраивание в доску ?bare) ———
+     .pg НЕ гасим глобально: так же назван тамбнейл файла на рабочем столе
+     внутри .screen; шапка-.pg живёт внутри .col и гаснет вместе с ним */
+  html.bare .col, html.bare .controls,
+  html.bare .legend, html.bare .note { display: none !important; }
+  html.bare, html.bare body { padding: 0 !important; margin: 0 !important; background: transparent !important; }
+  html.bare .colw, html.bare .simwrap { margin: 0 !important; padding: 0 !important; }
+  /* высота экрана детерминирована — не зависит от того, по какую сторону
+     брейкпоинта 760 оказалась колонка доски (иначе плитка то с пустотой,
+     то с обрезкой) */
+  html.bare .screen { height: 560px !important; }
 </style>
 
 <div class="col">

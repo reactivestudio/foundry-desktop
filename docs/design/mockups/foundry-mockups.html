@@ -1,4 +1,5 @@
 <title>foundry-desktop · UI макеты (тёмная тема)</title>
+<script>if(location.search.indexOf('bare')>-1)document.documentElement.classList.add('bare')</script>
 <style>
   :root {
     /* — палитра (13-tokens.md, единственный источник) — */
@@ -8,10 +9,10 @@
     --brand-cyan: #58C7FF;
 
     /* поверхности: elevation светлотой */
-    --bg-base: #07060B;
-    --bg-surface: #0D0C14;
-    --bg-raised: #14121E;
-    --bg-overlay: #1B1828;
+    --bg-base: #05030D;
+    --bg-surface: #0B0717;
+    --bg-raised: #120B23;
+    --bg-overlay: #1A1030;
 
     /* текст: альфа-белый */
     --t-primary: rgba(255,255,255,0.96);
@@ -1345,6 +1346,12 @@
     .win, .variant, .kpi, .small-mult { animation: rise 0.5s ease-out both; }
     @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   }
+  /* ——— bare-режим: только поверхности, без прозы (встраивание в доску ?bare) ——— */
+  html.bare .eyebrow, html.bare .page-title, html.bare .lede, html.bare .legend,
+  html.bare .sec-head, html.bare .caption, html.bare footer.note { display: none !important; }
+  html.bare, html.bare body { padding: 0 !important; margin: 0 !important; background: transparent !important; }
+  html.bare .page, html.bare .wrap { max-width: none !important; margin: 0 !important; padding: 0 !important; }
+  html.bare .block { margin: 0 0 var(--space-6, 24px) !important; padding: 0 !important; border: 0 !important; background: none !important; }
 </style>
 
 <div class="page">
@@ -1362,10 +1369,10 @@
     <div class="legend-group">
       <span class="cap">Поверхности · elevation светлотой</span>
       <div class="swatches">
-        <span class="swatch"><i style="background:#07060B"></i>base</span>
-        <span class="swatch"><i style="background:#0D0C14"></i>surface</span>
-        <span class="swatch"><i style="background:#14121E"></i>raised</span>
-        <span class="swatch"><i style="background:#1B1828"></i>overlay</span>
+        <span class="swatch"><i style="background:#05030D"></i>base</span>
+        <span class="swatch"><i style="background:#0B0717"></i>surface</span>
+        <span class="swatch"><i style="background:#120B23"></i>raised</span>
+        <span class="swatch"><i style="background:#1A1030"></i>overlay</span>
       </div>
     </div>
     <div class="legend-group">
@@ -1846,7 +1853,7 @@
         <line x1="530" y1="20" x2="530" y2="175" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
         <circle cx="530" cy="32" r="3.5" fill="#58C7FF"/>
         <g>
-          <rect x="470" y="6" width="132" height="24" rx="6" fill="#14121E" stroke="rgba(255,255,255,0.12)"/>
+          <rect x="470" y="6" width="132" height="24" rx="6" fill="#120B23" stroke="rgba(255,255,255,0.12)"/>
           <text x="482" y="22" fill="rgba(255,255,255,0.92)" font-size="11" font-family="ui-monospace,Menlo,monospace">ср 12.07 · 9 лупов</text>
         </g>
         <!-- эндпоинт -->
@@ -2440,8 +2447,8 @@
             <div class="theme-row">
               <div class="tcard sel">
                 <div class="tc-win">
-                  <div class="tc-bar" style="background:#0D0C14"><i style="background:#F87171"></i><i style="background:#FBBF24"></i><i style="background:#4ADE80"></i></div>
-                  <div class="tc-body" style="background:#07060B"><div class="tc-orb"></div></div>
+                  <div class="tc-bar" style="background:#0B0717"><i style="background:#F87171"></i><i style="background:#FBBF24"></i><i style="background:#4ADE80"></i></div>
+                  <div class="tc-body" style="background:#05030D"><div class="tc-orb"></div></div>
                 </div>
                 <div class="tc-name"><span>Тёмная · канон</span><span class="dc-radio" style="width:14px;height:14px;border-color:var(--brand-ultramarine);background:radial-gradient(circle,var(--brand-ultramarine) 0 40%,transparent 46%)"></span></div>
               </div>
@@ -2487,7 +2494,7 @@
         </div>
       </div>
     </div>
-    <div class="caption"><b>Приёмы:</b> пресет = мини-превью реального шага отступов и стек поверхностей #07060B→#0D0C14→#14121E с орбом — видно результат до выбора (Untitled UI); светлая тема заперта 🔒 — канон один, тёмный; тумблеры утвердительны (Бирман, запрет отрицаний); выбор — один акцент-ультрамарин на весь экран; орб-превью — единственный glow.</div>
+    <div class="caption"><b>Приёмы:</b> пресет = мини-превью реального шага отступов и стек поверхностей #05030D→#0B0717→#120B23 с орбом — видно результат до выбора (Untitled UI); светлая тема заперта 🔒 — канон один, тёмный; тумблеры утвердительны (Бирман, запрет отрицаний); выбор — один акцент-ультрамарин на весь экран; орб-превью — единственный glow.</div>
   </section>
 
   <!-- ——————————————————— §11 ЗУМ В CHANGE → АТОМАРНЫЕ TASKS ——————————————————— -->
@@ -2889,8 +2896,8 @@
             <div class="ahead">
               <span class="alogo"><svg width="36" height="36" viewBox="0 0 64 64" aria-label="GitHub Copilot">
                   <path d="M12 25 C12 25 16 14 24 14 C29 14 31 17 32 19 C33 17 35 14 40 14 C48 14 52 25 52 25 C55 27 56 31 56 35 C56 47 46 55 32 55 C18 55 8 47 8 35 C8 31 9 27 12 25 Z" fill="#FFFFFF"/>
-                  <ellipse cx="24" cy="37" rx="4.2" ry="6" fill="#0D0C14"/>
-                  <ellipse cx="40" cy="37" rx="4.2" ry="6" fill="#0D0C14"/></svg></span>
+                  <ellipse cx="24" cy="37" rx="4.2" ry="6" fill="#0B0717"/>
+                  <ellipse cx="40" cy="37" rx="4.2" ry="6" fill="#0B0717"/></svg></span>
               <div class="atitle"><div class="avendor">Coding agent · GitHub</div><div class="agent-name">GitHub Copilot</div></div>
               <div class="ahead-r"><span class="asoon">скоро</span><span class="akey">5</span></div>
             </div>

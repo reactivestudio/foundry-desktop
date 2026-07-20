@@ -1,0 +1,31 @@
+/* Сцена для образца части — и ничего сверх сцены.
+   Кнопки, карточки, плашки и прочие вещи стилизует сама часть: то, что
+   попало сюда, молча растечётся по всей системе и перестанет быть чьим-то
+   решением. Значения — только из tokens.css. */
+
+body {
+  margin: var(--space-5);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-text);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-leading);
+  font-weight: var(--type-body-weight);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Все состояния рядом, чтобы сравнивались глазом, а не по памяти
+   (small multiples, Тафти). */
+.specimen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-5);
+}
+
+/* Подпись под состоянием в наборе: без неё набор — загадка. */
+.state-label {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-leading);
+  color: var(--text-tertiary);
+}
