@@ -22,12 +22,17 @@
 
    Всё остальное сырьё — ошибка, а не исключение. */
 
-.canvas {
+.shell {
   /* Исключение 1 — см. шапку. */
-  --canvas-column: 1280px;
-  /* Обложка и заголовки секций — производные от type.display (исключение 2). */
+  --canvas-column: 1180px;
+  --rail-width: 236px;
+  /* Обложка, титул секции и её призрачный номер — производные от type.display
+     (исключение 2). Множители разведены сильно: иерархия — это контраст
+     РАЗМЕРОВ, а не только веса (Горбунов), а 36 против 16 читались одним
+     уровнем. */
   --canvas-cover: calc(var(--type-display-size) * 2.5);
-  --canvas-section: calc(var(--type-display-size) * 1.4);
+  --canvas-section: calc(var(--type-display-size) * 1.85);
+  --canvas-numeral: calc(var(--type-display-size) * 1.55);
   /* Мера чтения (исключение 4): бегущая проза не растягивается во всю колонку. */
   --measure: 66ch;
 }
@@ -48,11 +53,22 @@ body {
 a { color: var(--text-accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-.canvas {
+/* Оболочка — макросетка доски: липкий рельс слева, контент справа. Ровно
+   тот приём, что канон предписывает приложению (02 §8: сайдбар — «колонка»),
+   применённый к документу о нём. */
+.shell {
+  display: grid;
+  grid-template-columns: var(--rail-width) minmax(0, 1fr);
+  gap: var(--space-10);
   max-width: var(--canvas-column);
   margin: 0 auto;
   padding: 0 var(--space-8);
 }
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; gap: 0; }
+}
+
+.canvas { min-width: 0; padding-top: var(--space-10); }
 
 /* Сетка доски — 12 колонок, единый гаттер (02 §4.1). Блоки занимают целое
    число колонок; ничего не висит между. */
@@ -154,93 +170,106 @@ a:hover { text-decoration: underline; }
   color: var(--text-tertiary);
 }
 
-/* ——— Рельс ——— */
+/* ——— Рельс — липкий левый сайдбар ——— */
 
-.rail {
+.rail { grid-row: 1 / -1; }
+.rail-in {
   position: sticky;
   top: 0;
-  z-index: 3;
   display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: var(--space-2);
-  margin: 0 calc(-1 * var(--space-3)) var(--space-10);
-  padding: var(--space-4) var(--space-3);
-  background: var(--bg-base);
-  border-bottom: 1px solid var(--border-subtle);
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-10) 0;
+  /* Ограничить высоту вьюпортом и скроллить сам рельс — иначе длинный список
+     на низком экране обрежется. */
+  max-height: 100vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
-/* Табы категорий: настоящая цель по Фиттсу — крупный клик (кегль heading,
-   паддинг панели), фон, рамка, различимые ховер и активное состояние, а не
-   бледная строчка ссылок. Высота ≈44px: палец и курсор попадают не целясь. */
+/* Пункт навигации: цель во всю ширину рельса. Активная стадия несёт цвет
+   заливкой и вертикальной риской слева (форма + цвет, как статусы канона);
+   номер — тихий моно-индекс, не спорит с именем. */
 .rail a {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-l);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  font-size: var(--type-heading-size);
-  line-height: 1;
-  white-space: nowrap;
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.4ch 1fr;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-m);
+  color: var(--text-tertiary);
+  line-height: 1.2;
   transition: background-color var(--motion-fast-duration) var(--motion-fast-easing),
-              border-color var(--motion-fast-duration) var(--motion-fast-easing),
               color var(--motion-fast-duration) var(--motion-fast-easing);
+}
+.rail a .n {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono-s-size);
+  color: var(--text-disabled);
+  font-variant-numeric: tabular-nums;
+}
+.rail a .t {
+  font-size: var(--type-body-size);
+  font-weight: var(--type-body-em-weight);
+  letter-spacing: -0.01em;
 }
 .rail a:hover {
   background: var(--bg-hover);
-  border-color: var(--border-default);
   color: var(--text-primary);
   text-decoration: none;
 }
 .rail a.active {
   background: var(--bg-selected);
-  border-color: var(--brand-ultramarine);
   color: var(--text-primary);
 }
-.rail a .n {
-  font-family: var(--font-mono);
-  font-size: var(--type-mono-size);
-  color: var(--text-disabled);
-  font-variant-numeric: tabular-nums;
-  transition: color var(--motion-fast-duration) var(--motion-fast-easing);
+.rail a.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 1.1em;
+  border-radius: var(--radius-full);
+  background: var(--brand-ultramarine);
 }
-.rail a:hover .n { color: var(--text-tertiary); }
 .rail a.active .n { color: var(--text-accent); }
-@media (prefers-reduced-motion: reduce) {
-  .rail a, .rail a .n { transition: none; }
-}
+@media (prefers-reduced-motion: reduce) { .rail a { transition: none; } }
+/* На узком экране рельс перестаёт быть колонкой — прячем: якорей там нет,
+   но и облака пилюль над контентом мы больше не городим. */
+@media (max-width: 900px) { .rail { display: none; } }
 
 /* ——— Секция ——— */
 
-.section { margin-bottom: var(--space-10); scroll-margin-top: var(--space-10); }
+/* Секции разделяет ВОЗДУХ, не линейка (Горбунов: близость и пустота группируют
+   лучше рамок). Большой разрыв сверху + крупный титул сами делают границу. */
+.section { scroll-margin-top: var(--space-6); padding-top: var(--space-10); }
+.section + .section { padding-top: calc(var(--space-10) + var(--space-8)); }
 
 .section-head {
   display: flex;
   align-items: baseline;
   gap: var(--space-5);
-  margin-bottom: var(--space-2);
-  padding-top: var(--space-6);
-  border-top: 1px solid var(--border-default);
+  margin-bottom: var(--space-5);
 }
 .section-head .num {
-  /* Фикс-ширина в два моно-знака: заголовки секций начинаются с одной
-     вертикали независимо от того, «01» там или «—» (иначе левый край
-     титулов дрожит между нумерованными и служебными секциями). */
-  min-width: 2ch;
+  /* Крупный призрачный номер — якорь ритма при скролле, а не подпись. Фикс-
+     ширина держит левый край титулов на одной вертикали (нумерованные и
+     служебные «—» секции). */
+  min-width: 3ch;
   font-family: var(--font-mono);
-  font-size: var(--type-display-size);
-  line-height: var(--canvas-section);
+  font-size: var(--canvas-numeral);
+  line-height: 0.9;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
   color: var(--text-disabled);
 }
 .section-head h2 {
   margin: 0;
   font-size: var(--canvas-section);
-  line-height: var(--canvas-section);
+  line-height: 0.98;
   font-weight: var(--type-display-weight);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   text-wrap: balance;
 }
 
@@ -354,6 +383,10 @@ a:hover { text-decoration: underline; }
   min-height: calc(var(--space-10) * 2);
   padding: var(--space-3);
 }
+/* Янтарь — одна знаковая плашка, не лестница: полоса во всю ширину и в две
+   высоты для одного цвета — перерасход. Уже и ниже. */
+#ramp-brand-amber .ramp-band { max-width: 340px; }
+#ramp-brand-amber .ramp-cell { min-height: calc(var(--space-10) * 1.5); }
 .ramp-cell b {
   font-size: var(--type-body-em-size);
   line-height: var(--type-body-em-leading);
@@ -399,11 +432,13 @@ a:hover { text-decoration: underline; }
   white-space: nowrap;
 }
 
-/* Роли — то самое «какую работу делает ступень». Одна строка на ступень. */
-.roles { margin: var(--space-5) 0 0; padding: 0; list-style: none; }
+/* Роли — то самое «какую работу делает ступень». Одна строка на ступень.
+   Ширина списка ограничена мерой чтения: иначе короткое описание висит у
+   левого края, а справа — река пустоты во всю ширину канвы (Горбунов). */
+.roles { margin: var(--space-5) 0 0; padding: 0; list-style: none; max-width: 78ch; }
 .roles li {
   display: grid;
-  grid-template-columns: var(--space-4) 19ch 1fr;
+  grid-template-columns: var(--space-4) 18ch minmax(0, 1fr);
   align-items: baseline;
   gap: var(--space-3);
   padding: var(--space-1) 0;
@@ -539,14 +574,16 @@ a:hover { text-decoration: underline; }
 /* ——— 01 · Типографика ———
    Лестница в натуральную величину: таблица чисел не показывает кегль,
    она о нём рассказывает. Образцы — реальные строки продукта. */
-.ladder { border-top: 1px solid var(--border-subtle); }
+/* Ни одной нарисованной черты между ступенями: строки держит ряд и воздух,
+   а не заборчик хайрлайнов (Бирман — близость вместо линеек). Флаговый шов
+   между мерой и образцом — единственный вертикаль, и он намеренный. */
+.ladder { margin-top: var(--space-2); }
 .ladder-rung {
   display: grid;
-  grid-template-columns: 22ch 1fr;
-  gap: var(--space-5);
+  grid-template-columns: 26ch 1fr;
+  gap: var(--space-6);
   align-items: baseline;
-  padding: var(--space-4) 0;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: var(--space-5) 0;
 }
 .ladder-meta { display: flex; flex-direction: column; gap: var(--space-1); }
 .ladder-meta .t {
@@ -841,8 +878,9 @@ a:hover { text-decoration: underline; }
   grid-template-columns: 1fr 1fr;
   gap: var(--space-5);
   margin-top: var(--space-8);
-  padding-top: var(--space-5);
-  border-top: 1px solid var(--border-default);
+  padding: var(--space-6);
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
 }
 @media (max-width: 1000px) { .verdict { grid-template-columns: 1fr; } }
 .verdict h3 {

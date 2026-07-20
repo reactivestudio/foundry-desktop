@@ -2694,15 +2694,21 @@ def generate_showcase(tokens):
              "<title>Дизайн-система Foundry</title>",
              '<link rel="stylesheet" href="tokens/tokens.css">',
              '<link rel="stylesheet" href="canvas.css">',
-             "</head>", "<body>", '<div class="canvas">']
+             "</head>", "<body>", '<div class="shell">']
 
-    lines.extend(board_cover(tokens, law_parts, candidate_parts, sidecars, rejected))
-
-    lines.append('<nav class="rail">')
+    # Навигация — липкий левый сайдбар, а не облако пилюль над контентом.
+    # Вертикальный список: каждая цель во всю ширину рельса (Фиттс — ширина
+    # тоже размер), ничего не переносится, порядок читается сверху вниз.
+    lines.append('<nav class="rail" aria-label="Разделы доски">')
+    lines.append('  <div class="rail-in">')
     for section in sections:
-        lines.append('  <a href="#%s"><span class="n">%s</span>%s</a>'
+        lines.append('    <a href="#%s"><span class="n">%s</span><span class="t">%s</span></a>'
                      % (escape(section["anchor"]), escape(section["num"]), escape(section["title"])))
+    lines.append("  </div>")
     lines.append("</nav>")
+
+    lines.append('<div class="canvas">')
+    lines.extend(board_cover(tokens, law_parts, candidate_parts, sidecars, rejected))
 
     for section in sections:
         lines.append('<section class="section" id="%s">' % escape(section["anchor"]))
@@ -2717,7 +2723,8 @@ def generate_showcase(tokens):
                  "tokens.json</a> скриптом <code>design/build.py</code>. Своего содержимого "
                  "не имеет: правка руками теряется при следующей сборке. Договор о формате "
                  'компонента — <a href="parts/README.md">design/parts/README.md</a>.</footer>')
-    lines.append("</div>")
+    lines.append("</div>")  # .canvas
+    lines.append("</div>")  # .shell
     lines.append('<script type="application/json" id="canvas-data">%s</script>'
                  % json.dumps(contrast_payload(tokens), ensure_ascii=False))
     lines.append("<script>%s</script>" % CANVAS_SCRIPT)
