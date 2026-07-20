@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Foundry AI — логотип</title>
+<style>
+  /* ЭТАЛОН ЛОГОТИПА «Foundry AI» — снят с приветствия онбординга в момент,
+     когда знак был сформирован и принят (2026-07-17). Источник правды по
+     построению — этот файл + подписи борда онбординга; значения токенов — копии
+     из docs/design/13-tokens.md и долгов онбординга (brand.amber токеном ещё
+     не заведён).
+
+     Знак неделим: вордмарк «Foundry» + лейбл «AI» на янтарной плашке.
+     Все внутренние меры — в em от --logo-size: на базовом кегле 34px они
+     попиксельно совпадают с настроенными значениями, на любом другом знак
+     масштабируется целиком, без перенастройки полей. Использование:
+       <span class="logo">Foundry<span class="mark-ai">AI</span></span>
+     и при необходимости --logo-size — больше ничего. */
+  :root {
+    --brand-ultramarine: #2F5CFF;
+    --brand-amber: #FFB020;   /* цвет плашки; L 0.81 · C 0.16 · H 75°, литеры на ней 11.2:1 */
+    --bg-base: #05030D;
+  }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg-base); color: rgba(255,255,255,0.92);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+    display: grid; place-items: center;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ——— компонент ——— */
+  .logo {
+    display: inline-flex; align-items: flex-start; gap: calc(9em / 34);
+    font-size: var(--logo-size, 34px); font-weight: 700; letter-spacing: -0.02em;
+    line-height: calc(40 / 34);
+  }
+  /* Лейбл: плашка залита янтарём, литеры — цветом bg.base (окно, просвечивающее
+     сквозь вырез, — чернота обязана ездить вместе с фоном). Поля посчитаны из
+     замера краски по СРЕДНИМ расстояниям (на 34px: 2 сверху / 2.75 снизу,
+     4.5 слева / 5 справа; бока раздвинуты на +2px решением), радиус 6 = r-m,
+     сдвиг к верхней линии литер 5. Тело — градиент по янтарю: макушка светлее,
+     низ глубже и на 6° в оранжевое. Сверху внутри — блик в полпикселя.
+     Литеры вдавлены в плашку: под ними 1px света без размытия (text-shadow) —
+     освещённая нижняя губка выреза, «AI» выбито в янтаре. */
+  .mark-ai {
+    font-size: calc(10em / 34); line-height: 1; font-weight: 700; letter-spacing: 0.06em;
+    color: var(--bg-base); border-radius: 0.6em;
+    padding: 0.2em calc(0.5em - 0.06em) 0.275em 0.45em;
+    margin-top: 0.5em; flex: none;
+    background: linear-gradient(180deg,
+      oklch(from var(--brand-amber) calc(l + 0.035) c h) 0%,
+      var(--brand-amber) 55%,
+      oklch(from var(--brand-amber) calc(l - 0.03) c calc(h - 6)) 100%);
+    box-shadow: inset 0 0.05em 0 rgba(255,255,255,0.45);
+    text-shadow: 0 0.1em 0 rgba(255,255,255,0.35);
+  }
+</style>
+</head>
+<body>
+  <h1 class="logo" style="margin:0">Foundry<span class="mark-ai">AI</span></h1>
+</body>
+</html>
