@@ -4,7 +4,9 @@
    решением. Значения — только из tokens.css. */
 
 body {
-  margin: var(--space-5);
+  /* Поля формата не равны (20140908): формат образца широкий — угловой
+     прямоугольник горизонтальный (верх меньше бока), низ не меньше бока. */
+  margin: var(--space-4) var(--space-5) var(--space-5);
   background: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-text);
