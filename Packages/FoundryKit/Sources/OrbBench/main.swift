@@ -145,3 +145,49 @@ if CommandLine.arguments.contains("--dump") {
         }
     }
 }
+
+// ── Лоадеры для мелких размеров ──────────────────────────────────────────────
+// Рендерит именованные пресеты из кода (Loader.px32/px64) — проверяем ровно то,
+// что зашито, а не отдельные числа. Крупность и число частиц там развязаны.
+if CommandLine.arguments.contains("--loaders") {
+    let dir = URL(fileURLWithPath: "/tmp/orbshots")
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    // Восемь фаз цикла: лоадер крутится, и красота — это весь цикл, не один кадр.
+    let times: [Float] = stride(from: Float(0), to: 54, by: 6.75).map { $0 }
+
+    print("")
+    print("=== лоадеры ===")
+    print(
+        pad("пресет", 10) + rpad("N", 7) + rpad("SS", 5)
+            + rpad("точка", 8) + rpad("част/px", 9) + rpad("порог", 7) + "  вердикт")
+    for loader in OrbSwarmConfig.Loader.allCases {
+        let cfg = OrbSwarmConfig(loader: loader, scale: scale)
+        let r = try OrbSwarmRenderer(device: device, config: cfg, outputFormat: .rgba8Unorm)
+        let d = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .rgba8Unorm, width: cfg.output, height: cfg.output, mipmapped: false)
+        d.usage = [.renderTarget, .shaderRead]
+        d.storageMode = .shared
+        guard let out = device.makeTexture(descriptor: d) else { continue }
+
+        for t in times {
+            guard let cb = r.makeCommandBuffer() else { continue }
+            r.encode(into: cb, output: out, time: t)
+            cb.commit()
+            cb.waitUntilCompleted()
+            let count = cfg.output * cfg.output * 4
+            var bytes = [UInt8](repeating: 0, count: count)
+            out.getBytes(
+                &bytes, bytesPerRow: cfg.output * 4,
+                from: MTLRegionMake2D(0, 0, cfg.output, cfg.output), mipmapLevel: 0)
+            let name = "loader-\(loader.rawValue)-t\(Int(t)).raw"
+            try Data(bytes).write(to: dir.appendingPathComponent(name))
+        }
+        var warn = cfg.unreadable ? "  ⚠ пятно" : "ок"
+        if cfg.flickers { warn += " ⚠ мельтешит" }
+        print(
+            pad(loader.rawValue, 10) + rpad("\(cfg.count)", 7) + rpad("×\(cfg.supersample)", 5)
+                + rpad(String(format: "%.2f", cfg.pointSizeOnScreen), 8)
+                + rpad(String(format: "%.2f", cfg.particlesPerPixel), 9)
+                + rpad("\(cfg.minimumFramesPerSecond)", 7) + "  " + warn)
+    }
+}

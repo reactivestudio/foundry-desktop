@@ -1,0 +1,179 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Вкладки — foundry-desktop</title>
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../specimen.css">
+
+<script type="application/json" id="card">
+{
+  "name": "Вкладки",
+  "slug": "tabs",
+  "status": "кандидат",
+  "height": 335,
+  "why": "Переключают режим вида одного контента, держа все варианты на глазах: сегмент — когда у каждого вида своя сводка (счётчик, длина), подчёркивание — когда виды однородны и важен только выбранный.",
+  "never": "Не применять как переход между разными экранами: вкладки меняют вид одного контента, а не ведут в другое место — для навигации по разделам есть сайдбар (08 §9, «сегмент как вкладки разных экранов — нет»). Не прятать во вкладки то, что помещается рядом: вкладка скрывает невыбранное, а при 2–5 однородных видах прятать нечего — Хик не наказывает за короткий список. Не заливать полосу вкладок фоном и обводкой: полоса переключателя — строка контекста, а не панель, и в покое её держат воздух и выравнивание (rejected/panel-borders.md; сняты заливка и обводка с «вкладок Insights, переключателя пайплайнов»). Обводка у выбранной вкладки-сегмента — это состояние «выбран», а не оформление: у невыбранных её нет. Не выражать выбор одним цветом текста без второго канала: выбранная вкладка держится заливкой/подчёркиванием, а не только тем, что буква ярче — периферийным зрением разница «tertiary → primary» не читается (08 §7.3). Не ставить вкладку-сегмент и вкладку-подчёркивание в одном экране: два языка одного действия сбивают; выбор вида — один на приложение. Не делать вкладок больше пяти: шестая — это уже дропдаун или сайдбар (08 §9, §10).",
+  "tokens": ["space.1", "space.2", "space.3", "space.4", "space.5", "radius.m", "border.subtle", "border.strong", "border.focus", "border.focus-width", "border.focus-offset", "bg.surface", "bg.selected", "brand.ultramarine", "text.primary", "text.secondary", "text.tertiary", "text.disabled", "text.accent", "type.body", "type.caption", "type.caption2", "font.text", "motion.fast"],
+  "canon": ["08-controls.md", "09-surfaces.md", "02-composition.md"],
+  "swift": null,
+  "lineage": "КАНДИДАТ — не проходил приёмку как часть. Сведена из двух разошедшихся видов вкладок макета, и это сведение требует чьего-то решения. Выделена из foundry-mockups.html §7 (переключатель пайплайнов .pipe-tab, разметка строки 2101–2122, CSS 540–552) и §14 (вкладки аналитики .ins-tab, разметка 3324–3329, CSS 1178–1180) — встретилась дважды в разных местах и в двух разных обликах: сегмент-карточка (pipe) и подчёркивание (ins). Оба облика оставлены как варианты, потому что в макете они делают разное: pipe несёт у каждого вида свою сводку (пиктограмма типа + счётчик + длина пайплайна) — переключатель-виджет (Superpedestrian); ins — плоский выбор однородных аналитических видов. Значения переложены на токены с долгами: (1) padding pipe 7px 11px и ins 7px 13px → space.2 / space.3 (8/12) — шагов 7 и 11/13 в шкале нет; (2) кегль ярлыка 12px → type.body (13) как канонный дефолт UI-текста (04) — токена 12px для текста нет, ближайшие 11 и 13; pipe-meta 10px лёг на type.caption2 без остатка; (3) min-width 150px у pipe снят — это ширина полосы, а не суть вкладки, в изоляции ярлык сам задаёт ширину; (4) выбранный сегмент по 09 §7.3 = заливка ультрамарин 14% (bg.selected) + бордер ультрамарин @50% — но токена ультрамарин-с-альфой для бордера в системе НЕТ; бордер нарисован border.focus (сплошной ультрамарин, роль — фокус-ринг): видимый долг, лечится токеном border.selected; (5) подчёркивание выбранного ins — 2px; ширин линии в токенах нет ни одной (тот же долг, что у button.html), взят border.focus-width (2px, роль — фокус) как единственная двойка. Полоса вкладок оставлена БЕЗ заливки и обводки по rejected/panel-borders.md; у ins-ряда сохранён нижний волосок border.subtle как граница зон «вкладки | контент» (09 §10 — линейка на реальном стыке зон, а не рамка-оформление). Фокус-ринг добавлен по 08 §4.1 (контрол без прорисованных состояний — недоделанный)."
+}
+</script>
+
+<style>
+  .p-tabs {
+    display: flex; flex-direction: column; gap: var(--space-5);
+    font-family: var(--font-text);
+  }
+  .p-tabs .group { display: flex; flex-direction: column; gap: var(--space-3); }
+  .p-tabs .multiples { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; }
+  .p-tabs .cell { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; }
+
+  /* ——— сегмент-карточка: §7 макета (.pipe-tab, CSS 540–552) ———
+     padding 7/11 → space.2/space.3 · min-width 150 снят (ширина полосы, не вкладки) */
+  .p-tabs .seg {
+    display: flex; flex-direction: column; gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-m);
+    border: 1px solid var(--border-subtle);   /* 1px разрешён линтом; ширины-токена нет */
+    background: var(--bg-surface);             /* карточка на base = surface + кромка (09 §7.3) */
+    white-space: nowrap; cursor: default;
+    transition: border-color var(--motion-fast-duration) var(--motion-fast-easing);
+  }
+  .p-tabs .seg .seg-name {
+    display: flex; align-items: center; gap: var(--space-2);
+    font-size: var(--type-body-size);
+    line-height: var(--type-body-leading);
+    font-weight: var(--type-body-em-weight);
+    color: var(--text-secondary);
+  }
+  .p-tabs .seg .seg-pict { color: var(--text-tertiary); font-size: var(--type-caption-size); }
+  .p-tabs .seg .seg-count {
+    margin-left: auto; padding-left: var(--space-3);
+    font-size: var(--type-caption-size); color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+  .p-tabs .seg .seg-meta {
+    font-size: var(--type-caption2-size); line-height: var(--type-caption2-leading);
+    color: var(--text-tertiary);
+  }
+
+  /* hover — кромка усиливается (08 §1.3, border.strong = «hover-контур») */
+  .p-tabs .seg.is-hover { border-color: var(--border-strong); }
+
+  /* selected — заливка 14% + бордер (09 §7.3); бордер = border.focus (стенд-ин для ультрамарин @50%, долг) */
+  .p-tabs .seg.is-selected {
+    background: var(--bg-selected);
+    border-color: var(--border-focus);
+  }
+  .p-tabs .seg.is-selected .seg-name { color: var(--text-primary); }
+  .p-tabs .seg.is-selected .seg-count { color: var(--text-accent); }
+
+  /* disabled — не прятать, а выключить (08 §4.3): текст на disabled, кромка снята */
+  .p-tabs .seg.is-disabled {
+    background: transparent; border-color: transparent;
+  }
+  .p-tabs .seg.is-disabled .seg-name,
+  .p-tabs .seg.is-disabled .seg-pict,
+  .p-tabs .seg.is-disabled .seg-count,
+  .p-tabs .seg.is-disabled .seg-meta { color: var(--text-disabled); }
+
+  /* фокус клавиатуры — 08 §4.1 / §7.3 */
+  .p-tabs .seg:focus-visible,
+  .p-tabs .seg.is-focus {
+    outline: var(--border-focus-width) solid var(--border-focus);
+    outline-offset: var(--border-focus-offset);
+  }
+
+  /* ——— подчёркивание: §14 макета (.ins-tab, CSS 1178–1180) ———
+     полоса — строка контекста без заливки; нижний волосок = граница зон вкладки|контент (09 §10) */
+  .p-tabs .rail {
+    display: flex; gap: var(--space-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .p-tabs .und {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--type-body-size); line-height: var(--type-body-leading);
+    color: var(--text-tertiary);
+    border-bottom: var(--border-focus-width) solid transparent;  /* 2px — долг ширины-токена, см. lineage */
+    margin-bottom: -1px;                                          /* −1px разрешён (1px) */
+    cursor: default;
+    transition: color var(--motion-fast-duration) var(--motion-fast-easing);
+  }
+  .p-tabs .und.is-hover { color: var(--text-secondary); }
+  .p-tabs .und.is-selected { color: var(--text-primary); border-bottom-color: var(--brand-ultramarine); }
+  .p-tabs .und.is-disabled { color: var(--text-disabled); }
+  .p-tabs .und:focus-visible,
+  .p-tabs .und.is-focus {
+    outline: var(--border-focus-width) solid var(--border-focus);
+    outline-offset: var(--border-focus-offset);
+  }
+</style>
+
+<div class="specimen p-tabs">
+
+  <!-- сегмент (pipe): у каждого вида своя сводка; состояния рядом -->
+  <div class="group">
+    <span class="state-label">сегмент · переключатель со сводкой (§7 макета) · состояния</span>
+    <div class="multiples">
+      <div class="cell">
+        <span class="state-label">rest</span>
+        <span class="seg">
+          <span class="seg-name"><span class="seg-pict">✦</span>Фича · один сервис<span class="seg-count">5</span></span>
+          <span class="seg-meta">CRISPY · 8 стадий</span>
+        </span>
+      </div>
+      <div class="cell">
+        <span class="state-label">hover</span>
+        <span class="seg is-hover">
+          <span class="seg-name"><span class="seg-pict">⚑</span>Баг<span class="seg-count">3</span></span>
+          <span class="seg-meta">Repro → PR · 5 стадий</span>
+        </span>
+      </div>
+      <div class="cell">
+        <span class="state-label">selected</span>
+        <span class="seg is-selected">
+          <span class="seg-name"><span class="seg-pict">✦</span>Фича · один сервис<span class="seg-count">5</span></span>
+          <span class="seg-meta">CRISPY · 8 стадий</span>
+        </span>
+      </div>
+      <div class="cell">
+        <span class="state-label">focus</span>
+        <span class="seg is-focus">
+          <span class="seg-name"><span class="seg-pict">⚡</span>Хотфикс<span class="seg-count">1</span></span>
+          <span class="seg-meta">Repro → Ship · 3 стадии</span>
+        </span>
+      </div>
+      <div class="cell">
+        <span class="state-label">disabled · пусто</span>
+        <span class="seg is-disabled">
+          <span class="seg-name"><span class="seg-pict">▲</span>Инцидент<span class="seg-count">0</span></span>
+          <span class="seg-meta">Triage → Postmortem · 4 стадии</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- подчёркивание (ins): однородные виды, важен только выбранный; в реальном ряду -->
+  <div class="group">
+    <span class="state-label">подчёркивание · однородные виды (§14 макета) · выбранный держит подчёркивание</span>
+    <div class="rail">
+      <span class="und is-selected">Переделка</span>
+      <span class="und">Расход</span>
+      <span class="und is-hover">Скиллы</span>
+      <span class="und is-disabled">Пропускная</span>
+    </div>
+  </div>
+
+  <!-- те же состояния подчёркивания порознь, подписаны -->
+  <div class="group">
+    <span class="state-label">подчёркивание · состояния порознь</span>
+    <div class="multiples">
+      <div class="cell"><span class="state-label">rest</span><div class="rail"><span class="und">Расход</span></div></div>
+      <div class="cell"><span class="state-label">hover</span><div class="rail"><span class="und is-hover">Расход</span></div></div>
+      <div class="cell"><span class="state-label">selected</span><div class="rail"><span class="und is-selected">Расход</span></div></div>
+      <div class="cell"><span class="state-label">focus</span><div class="rail"><span class="und is-focus">Расход</span></div></div>
+      <div class="cell"><span class="state-label">disabled</span><div class="rail"><span class="und is-disabled">Расход</span></div></div>
+    </div>
+  </div>
+
+</div>

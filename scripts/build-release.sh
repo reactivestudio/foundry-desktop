@@ -61,23 +61,26 @@ xcodebuild archive \
 test -d "$APP_BUNDLE" || { echo "!! archive не содержит .app: $APP_BUNDLE" >&2; exit 1; }
 
 echo "==> DMG"
-# create-dmg выходит с кодом 2, когда не нашёл identity для подписи DMG — у нас его
-# нет никогда, и это ожидаемо: сам DMG при этом создаётся валидным. Любой другой
-# ненулевой код — настоящая ошибка.
-dmg_exit=0
-npx --yes create-dmg "$APP_BUNDLE" "$DIST_DIR" || dmg_exit=$?
-if [[ "$dmg_exit" -ne 0 && "$dmg_exit" -ne 2 ]]; then
-    echo "!! create-dmg упал с кодом $dmg_exit" >&2
-    exit "$dmg_exit"
-fi
-
-# create-dmg именует файл "Foundry 0.1.0.dmg" — пробел в имени ассета релиза
-# ломает ссылки для скачивания, переименовываем.
-produced_dmg="$(find "$DIST_DIR" -maxdepth 1 -name '*.dmg' -print -quit)"
-test -n "$produced_dmg" || { echo "!! DMG не создан" >&2; exit 1; }
-if [[ "$produced_dmg" != "$DIST_DIR/Foundry-$VERSION.dmg" ]]; then
-    mv "$produced_dmg" "$DIST_DIR/Foundry-$VERSION.dmg"
-fi
+# appdmg вместо create-dmg: у него настраиваются фон, размер окна и позиции
+# иконок — DMG собирается по утверждённому эскизу (design/dmg/, генератор
+# generate-background.py). Пару background.png + background@2x.png appdmg
+# склеивает в ретина-TIFF сам. Координаты — центры иконок в pt от левого
+# верха контентной области, те же константы, что в генераторе фона.
+DMG_CONFIG=".build/appdmg.json"
+cat > "$DMG_CONFIG" <<JSON
+{
+  "title": "Foundry",
+  "background": "$PWD/design/dmg/background.png",
+  "icon-size": 128,
+  "format": "ULFO",
+  "window": { "size": { "width": 704, "height": 400 } },
+  "contents": [
+    { "x": 208, "y": 176, "type": "file", "path": "$PWD/$APP_BUNDLE" },
+    { "x": 496, "y": 176, "type": "link", "path": "/Applications" }
+  ]
+}
+JSON
+npx --yes appdmg "$DMG_CONFIG" "$DIST_DIR/Foundry-$VERSION.dmg"
 
 echo "==> Проверка дистрибутива"
 codesign --verify --strict "$APP_BUNDLE"

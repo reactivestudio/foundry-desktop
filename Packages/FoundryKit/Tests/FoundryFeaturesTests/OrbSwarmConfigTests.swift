@@ -88,6 +88,52 @@ struct OrbSwarmConfigTests {
         }
     }
 
+    // ── Лоадеры ──────────────────────────────────────────────────────────────
+    // У логотипа число частиц и крупность СВЯЗАНЫ заполненностью. У лоадера —
+    // развязаны: сменив только число, крупность не трогаем. Это и даёт просветы
+    // вместо того же тела крупнее. Тест доказывает саму развязку.
+    @Test("Лоадер: число частиц и крупность независимы")
+    func loaderDecouplesCountFromGrain() {
+        let sparse = OrbSwarmConfig(particlesPerPixel: 0.1, pointScreen: 1.0, size: 64, scale: 2)
+        let dense = OrbSwarmConfig(particlesPerPixel: 0.3, pointScreen: 1.0, size: 64, scale: 2)
+        // Втрое больше частиц (± округление доли до целой частицы)…
+        #expect(abs(dense.count - sparse.count * 3) <= 2)
+        // …при ТОЙ ЖЕ крупности на экране. У логотипа так нельзя: больше частиц
+        // означало бы мельче зерно.
+        #expect(abs(sparse.pointSizeOnScreen - dense.pointSizeOnScreen) < 0.001)
+    }
+
+    // Числа пресетов подобраны на глаз на живом стенде и прибиты сюда: 64 реже
+    // (0.05), 32 плотнее (0.13), точка у обоих мелкая — 1 px экрана.
+    @Test("Пресеты лоадеров дают утверждённые числа")
+    func loaderPresetNumbers() {
+        let l32 = OrbSwarmConfig(loader: .px32, scale: 2)
+        let l64 = OrbSwarmConfig(loader: .px64, scale: 2)
+        #expect(l32.count == 532)
+        #expect(l64.count == 819)
+        #expect(abs(l32.pointSizeOnScreen - 1.0) < 0.01)
+        #expect(abs(l64.pointSizeOnScreen - 1.0) < 0.01)
+        // Мелкая редкая точка — не пятно и не мельтешит.
+        for l in [l32, l64] {
+            #expect(!l.unreadable)
+            #expect(!l.flickers)
+            #expect(l.supersample == 4, "крупность 1px сглаживается ×4")
+        }
+        // Пороги низкие: 32 около 7 fps, 64 около 13 — оба берутся 60 Гц.
+        #expect(l32.minimumFramesPerSecond <= 10)
+        #expect(l64.minimumFramesPerSecond <= 20)
+    }
+
+    // Порог fps теперь свойство конфига (из зерна), а не таблица в Preset. Формула
+    // обязана давать те же 41/82, иначе логотип и лоадер жили бы по разным законам.
+    @Test("Порог fps конфига совпадает с таблицей пресета")
+    func frameFloorFormulaMatchesPresetTable() {
+        let std = OrbSwarmConfig(preset: .standard, size: 512, scale: 2)
+        let fin = OrbSwarmConfig(preset: .fine, size: 512, scale: 2)
+        #expect(std.minimumFramesPerSecond == OrbSwarmConfig.Preset.standard.minimumFramesPerSecond)
+        #expect(fin.minimumFramesPerSecond == OrbSwarmConfig.Preset.fine.minimumFramesPerSecond)
+    }
+
     // Третье ограничение, помимо flickers и unreadable: экран. Оно не про
     // размер, а про то, сколько кадров железо вообще даёт.
     @Test("fine недостижим на 60 Гц: ему нужно 82 fps")
