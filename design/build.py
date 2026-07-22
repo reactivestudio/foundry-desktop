@@ -7,7 +7,7 @@
 переписывает то, что из него выводится:
 
   design/tokens/tokens.css   — переменные для макетов и частей;
-  design/tokens/Tokens.swift — константы для приложения;
+  Packages/FoundryKit/Sources/FoundryFeatures/DesignTokens.swift — константы для приложения;
   docs/design/13-tokens.md   — таблицы значений канона (только между маркерами,
                                проза главы не трогается);
   design/index.html          — витрину, собранную из частей.
@@ -27,7 +27,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 TOKENS_JSON = ROOT / "design" / "tokens" / "tokens.json"
 TOKENS_CSS = ROOT / "design" / "tokens" / "tokens.css"
-TOKENS_SWIFT = ROOT / "design" / "tokens" / "Tokens.swift"
+TOKENS_SWIFT = (
+    ROOT / "Packages" / "FoundryKit" / "Sources" / "FoundryFeatures" / "DesignTokens.swift"
+)
 CANON = ROOT / "docs" / "design" / "13-tokens.md"
 SHOWCASE = ROOT / "design" / "index.html"
 PARTS_DIR = ROOT / "design" / "parts"
@@ -373,7 +375,7 @@ def generate_tokens_css(tokens):
 
 
 # --------------------------------------------------------------------------
-# (b) design/tokens/Tokens.swift
+# (b) Packages/FoundryKit/Sources/FoundryFeatures/DesignTokens.swift
 # --------------------------------------------------------------------------
 
 # Имена пространств Swift. «font» развёрнут в FontStack, чтобы не затенять

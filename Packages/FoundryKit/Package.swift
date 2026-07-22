@@ -25,7 +25,10 @@ let package = Package(
         .target(
             name: "FoundryFeatures",
             dependencies: ["FoundryCore", "FoundryCLI"],
-            resources: [.process("Orb/OrbSwarm.metal")]
+            resources: [
+                .process("Orb/OrbSwarm.metal"),
+                .process("Onboarding/OnboardingSwarm.metal"),
+            ]
         ),
         .executableTarget(name: "OrbBench", dependencies: ["FoundryFeatures"]),
         .testTarget(name: "FoundryCoreTests", dependencies: ["FoundryCore"]),
