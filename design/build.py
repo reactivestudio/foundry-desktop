@@ -575,7 +575,10 @@ extension Color {
 
 
 def generate_tokens_swift(tokens):
-    lines = ["// %s" % HEADER]
+    # Файл лежит в Packages/.../Sources и попадает под swift-format lint (CI).
+    # Свёрстан по своим правилам (широкие строки значений) — исключаем его из
+    # форматтера целиком, иначе каждая регенерация ломает форматтерную проверку.
+    lines = ["// swift-format-ignore-file", "// %s" % HEADER]
     root_note = tokens.get("_")
     if root_note:
         lines.append("// %s" % root_note)

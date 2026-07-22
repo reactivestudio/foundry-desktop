@@ -30,7 +30,12 @@ final class OnboardingModel {
     var installingExt: String?
 
     // настройки
-    struct Setting: Identifiable { let id: String; let name: String; let desc: String; var on: Bool }
+    struct Setting: Identifiable {
+        let id: String
+        let name: String
+        let desc: String
+        var on: Bool
+    }
     var settings: [Setting] = [
         .init(id: "notch", name: "Notch mode", desc: "Stage progress around the notch", on: true),
         .init(id: "notif", name: "Notifications", desc: "When a stage finishes or fails", on: true),
@@ -40,9 +45,15 @@ final class OnboardingModel {
     ]
 
     // разрешения macOS
-    struct Permission: Identifiable { let id: String; let name: String; let desc: String; var granted: Bool }
+    struct Permission: Identifiable {
+        let id: String
+        let name: String
+        let desc: String
+        var granted: Bool
+    }
     var permissions: [Permission] = [
-        .init(id: "notif", name: "Notifications", desc: "A stage finished or needs your review", granted: false),
+        .init(
+            id: "notif", name: "Notifications", desc: "A stage finished or needs your review", granted: false),
         .init(id: "a11y", name: "Accessibility", desc: "Global ⌥ Space and the notch panel", granted: false),
     ]
 
@@ -66,8 +77,8 @@ final class OnboardingModel {
     /// экраны на чистом фоне. Кросс-фейд между состояниями рисует контейнер.
     enum VeilState { case none, standard, low }
     var veilState: VeilState {
-        if step == 0 || step == stepCount - 1 { return .none }   // hero-full
-        if step == 1 { return .low }                             // veil-low (Agent)
+        if step == 0 || step == stepCount - 1 { return .none }  // hero-full
+        if step == 1 { return .low }  // veil-low (Agent)
         return .standard
     }
 
@@ -87,28 +98,33 @@ final class OnboardingModel {
             Color(red: r / 255, green: g / 255, blue: b / 255).opacity(0.14)
         }
         agents = [
-            OBCard(id: "claude", glyph: .claude, bare: false, tint: tint(217, 119, 87),
-                   vendor: "Anthropic", name: "Claude Code",
-                   newFact: "Pro / Max plan or API key", secondFact: "Max plan · Opus 4.8",
-                   signed: "v2.1.4 · signed in", showsInstall: true),
-            OBCard(id: "codex", glyph: .openai, bare: false, tint: nil,
-                   vendor: "OpenAI", name: "Codex CLI",
-                   newFact: "ChatGPT plan or API key", secondFact: "ChatGPT Pro · GPT-5.2",
-                   signed: "v0.9.2 · signed in", showsInstall: true),
-            OBCard(id: "gemini", glyph: .gemini, bare: false, tint: tint(66, 133, 244),
-                   vendor: "Google", name: "Gemini CLI",
-                   newFact: "Google account · free tier", secondFact: "Google account · free tier",
-                   signed: "v0.8.0 · signed in", showsInstall: true),
+            OBCard(
+                id: "claude", glyph: .claude, bare: false, tint: tint(217, 119, 87),
+                vendor: "Anthropic", name: "Claude Code",
+                newFact: "Pro / Max plan or API key", secondFact: "Max plan · Opus 4.8",
+                signed: "v2.1.4 · signed in", showsInstall: true),
+            OBCard(
+                id: "codex", glyph: .openai, bare: false, tint: nil,
+                vendor: "OpenAI", name: "Codex CLI",
+                newFact: "ChatGPT plan or API key", secondFact: "ChatGPT Pro · GPT-5.2",
+                signed: "v0.9.2 · signed in", showsInstall: true),
+            OBCard(
+                id: "gemini", glyph: .gemini, bare: false, tint: tint(66, 133, 244),
+                vendor: "Google", name: "Gemini CLI",
+                newFact: "Google account · free tier", secondFact: "Google account · free tier",
+                signed: "v0.8.0 · signed in", showsInstall: true),
         ]
         exts = [
-            OBCard(id: "plugin", glyph: .plugin, bare: true, tint: nil,
-                   vendor: "Foundry", name: "Claude Plugin",
-                   newFact: "7 skills · 4 agents", secondFact: nil,
-                   signed: "in ~/.claude", showsInstall: true),
-            OBCard(id: "cli", glyph: .cli, bare: true, tint: nil,
-                   vendor: "Foundry", name: "CLI",
-                   newFact: "stage runner · worktrees", secondFact: nil,
-                   signed: "/usr/local/bin/foundry", showsInstall: true),
+            OBCard(
+                id: "plugin", glyph: .plugin, bare: true, tint: nil,
+                vendor: "Foundry", name: "Claude Plugin",
+                newFact: "7 skills · 4 agents", secondFact: nil,
+                signed: "in ~/.claude", showsInstall: true),
+            OBCard(
+                id: "cli", glyph: .cli, bare: true, tint: nil,
+                vendor: "Foundry", name: "CLI",
+                newFact: "stage runner · worktrees", secondFact: nil,
+                signed: "/usr/local/bin/foundry", showsInstall: true),
         ]
     }
 
@@ -184,12 +200,18 @@ final class OnboardingModel {
     func finish() {
         guard !bursting else { return }
         bursting = true
-        withAnimation(OB.easeReal(0.15)) { contentOpacity = 0 }   // stage гаснет
+        withAnimation(OB.easeReal(0.15)) { contentOpacity = 0 }  // stage гаснет
     }
 
     /// Прогресс разлёта от OnboardingSwarmView.
     func burstProgress(_ p: Double) {
-        if p >= 0.55 && !didReveal { didReveal = true; onReveal() }
-        if p >= 0.999 && !didFinish { didFinish = true; onFinished() }
+        if p >= 0.55 && !didReveal {
+            didReveal = true
+            onReveal()
+        }
+        if p >= 0.999 && !didFinish {
+            didFinish = true
+            onFinished()
+        }
     }
 }

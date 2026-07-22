@@ -9,17 +9,22 @@ import SwiftUI
 /// Дуга SVG (равные радиусы, без поворота оси) кубическими сегментами. Конвертит
 /// endpoint-параметризацию в центр и сэмплит по ≤90 градусов — так исключена
 /// путаница флага clockwise у Path.addArc в y-вниз системе.
-private func appendSVGArc(_ path: inout Path, from p0: CGPoint, to p1: CGPoint,
-                          r radius: CGFloat, largeArc: Bool, sweep: Bool) {
-    let dx = p1.x - p0.x, dy = p1.y - p0.y
+private func appendSVGArc(
+    _ path: inout Path, from p0: CGPoint, to p1: CGPoint,
+    r radius: CGFloat, largeArc: Bool, sweep: Bool
+) {
+    let dx = p1.x - p0.x
+    let dy = p1.y - p0.y
     let d = (dx * dx + dy * dy).squareRoot()
     guard d > 0 else { return }
-    var r = max(radius, d / 2)                       // clamp: радиус не меньше полухорды
+    var r = max(radius, d / 2)  // clamp: радиус не меньше полухорды
     let half = d / 2
     let h = (r * r - half * half).squareRoot()
     let mid = CGPoint(x: (p0.x + p1.x) / 2, y: (p0.y + p1.y) / 2)
-    let ux = dx / d, uy = dy / d                     // единичный вдоль хорды
-    let px = -uy, py = ux                            // перпендикуляр
+    let ux = dx / d
+    let uy = dy / d  // единичный вдоль хорды
+    let px = -uy
+    let py = ux  // перпендикуляр
     let sign: CGFloat = (largeArc != sweep) ? 1 : -1
     let c = CGPoint(x: mid.x + sign * h * px, y: mid.y + sign * h * py)
     r = ((p0.x - c.x) * (p0.x - c.x) + (p0.y - c.y) * (p0.y - c.y)).squareRoot()
@@ -32,15 +37,15 @@ private func appendSVGArc(_ path: inout Path, from p0: CGPoint, to p1: CGPoint,
 
     let steps = max(1, Int(ceil(abs(delta) / (.pi / 2))))
     let seg = delta / CGFloat(steps)
-    let k = (4.0 / 3.0) * tan(seg / 4)               // длина ручки кубика
+    let k = (4.0 / 3.0) * tan(seg / 4)  // длина ручки кубика
     var ang = a0
     for _ in 0..<steps {
         let n = ang + seg
-        let p_a = CGPoint(x: c.x + r * cos(ang), y: c.y + r * sin(ang))
-        let p_b = CGPoint(x: c.x + r * cos(n), y: c.y + r * sin(n))
-        let c1 = CGPoint(x: p_a.x - k * r * sin(ang), y: p_a.y + k * r * cos(ang))
-        let c2 = CGPoint(x: p_b.x + k * r * sin(n), y: p_b.y - k * r * cos(n))
-        path.addCurve(to: p_b, control1: c1, control2: c2)
+        let pA = CGPoint(x: c.x + r * cos(ang), y: c.y + r * sin(ang))
+        let pB = CGPoint(x: c.x + r * cos(n), y: c.y + r * sin(n))
+        let c1 = CGPoint(x: pA.x - k * r * sin(ang), y: pA.y + k * r * cos(ang))
+        let c2 = CGPoint(x: pB.x + k * r * sin(n), y: pB.y - k * r * cos(n))
+        path.addCurve(to: pB, control1: c1, control2: c2)
         ang = n
     }
 }
@@ -68,8 +73,9 @@ struct ClaudeGlyph: View {
                 p.move(to: CGPoint(x: x1 * s, y: y1 * s))
                 p.addLine(to: CGPoint(x: x2 * s, y: y2 * s))
             }
-            ctx.stroke(p, with: .color(Color(hexValue: 0xD97757)),
-                       style: StrokeStyle(lineWidth: 5.4 * s, lineCap: .round))
+            ctx.stroke(
+                p, with: .color(Color(hexValue: 0xD97757)),
+                style: StrokeStyle(lineWidth: 5.4 * s, lineCap: .round))
         }
         .frame(width: size, height: size)
     }
@@ -82,8 +88,10 @@ struct OpenAIGlyph: View {
         Canvas { ctx, sz in
             let s = sz.width / 64
             for deg in [0.0, 60.0, 120.0] {
-                var e = Path(ellipseIn: CGRect(x: -10.5 * s, y: -24 * s,
-                                               width: 21 * s, height: 48 * s))
+                var e = Path(
+                    ellipseIn: CGRect(
+                        x: -10.5 * s, y: -24 * s,
+                        width: 21 * s, height: 48 * s))
                 e = e.applying(CGAffineTransform(rotationAngle: deg * .pi / 180))
                 e = e.applying(CGAffineTransform(translationX: 32 * s, y: 32 * s))
                 ctx.stroke(e, with: .color(.white), style: StrokeStyle(lineWidth: 4.2 * s))
@@ -107,13 +115,15 @@ struct GeminiGlyph: View {
             p.addCurve(to: pt(5, 32), control1: pt(30.4, 45), control2: pt(19, 33.6))
             p.addCurve(to: pt(32, 5), control1: pt(19, 30.4), control2: pt(30.4, 19))
             p.closeSubpath()
-            ctx.fill(p, with: .linearGradient(
-                Gradient(stops: [
-                    .init(color: Color(hexValue: 0x4285F4), location: 0),
-                    .init(color: Color(hexValue: 0x9B72CB), location: 0.55),
-                    .init(color: Color(hexValue: 0xD96570), location: 1),
-                ]),
-                startPoint: .zero, endPoint: CGPoint(x: sz.width, y: sz.height)))
+            ctx.fill(
+                p,
+                with: .linearGradient(
+                    Gradient(stops: [
+                        .init(color: Color(hexValue: 0x4285F4), location: 0),
+                        .init(color: Color(hexValue: 0x9B72CB), location: 0.55),
+                        .init(color: Color(hexValue: 0xD96570), location: 1),
+                    ]),
+                    startPoint: .zero, endPoint: CGPoint(x: sz.width, y: sz.height)))
         }
         .frame(width: size, height: size)
     }
@@ -143,8 +153,9 @@ struct PluginGlyph: View {
             p.addLine(to: pt(6, 8))
             appendSVGArc(&p, from: pt(6, 8), to: pt(8, 6), r: 2 * s, largeArc: false, sweep: true)
             p.closeSubpath()
-            ctx.stroke(p, with: .color(.white.opacity(0.9)),
-                       style: StrokeStyle(lineWidth: 1.25 * s, lineCap: .round, lineJoin: .round))
+            ctx.stroke(
+                p, with: .color(.white.opacity(0.9)),
+                style: StrokeStyle(lineWidth: 1.25 * s, lineCap: .round, lineJoin: .round))
         }
         .frame(width: size, height: size)
     }
@@ -158,10 +169,14 @@ struct CLIGlyph: View {
             let s = sz.width / 24
             func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: x * s, y: y * s) }
             var p = Path()
-            p.move(to: pt(5.2, 7.2)); p.addLine(to: pt(10.8, 12)); p.addLine(to: pt(5.2, 16.8))
-            p.move(to: pt(13.2, 16.8)); p.addLine(to: pt(18.8, 16.8))
-            ctx.stroke(p, with: .color(.white.opacity(0.9)),
-                       style: StrokeStyle(lineWidth: 1.25 * s, lineCap: .round, lineJoin: .round))
+            p.move(to: pt(5.2, 7.2))
+            p.addLine(to: pt(10.8, 12))
+            p.addLine(to: pt(5.2, 16.8))
+            p.move(to: pt(13.2, 16.8))
+            p.addLine(to: pt(18.8, 16.8))
+            ctx.stroke(
+                p, with: .color(.white.opacity(0.9)),
+                style: StrokeStyle(lineWidth: 1.25 * s, lineCap: .round, lineJoin: .round))
         }
         .frame(width: size, height: size)
     }

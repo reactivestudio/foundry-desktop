@@ -11,30 +11,30 @@ enum OB {
     static let bg = Token.Background.base
 
     // primary-кнопка: плоский ультрамарин; hover/pressed — вглубь и в пурпур
-    static let ultramarine = Token.Brand.ultramarine                 // #2F5CFF
-    static let ultraHover = Color(hexValue: 0x4E44F1)                // oklch l-0.035 h+10
-    static let ultraPressed = Color(hexValue: 0x4330DF)              // oklch l-0.085 h+10
+    static let ultramarine = Token.Brand.ultramarine  // #2F5CFF
+    static let ultraHover = Color(hexValue: 0x4E44F1)  // oklch l-0.035 h+10
+    static let ultraPressed = Color(hexValue: 0x4330DF)  // oklch l-0.085 h+10
 
     // янтарная плашка лейбла «AI» — градиент по OKLCH
-    static let amberTop = Color(hexValue: 0xFFBB34)                  // l+0.035
-    static let amberMid = Token.Brand.amber                         // #FFB020
-    static let amberBottom = Color(hexValue: 0xFBA21B)              // l-0.03 h-6
+    static let amberTop = Color(hexValue: 0xFFBB34)  // l+0.035
+    static let amberMid = Token.Brand.amber  // #FFB020
+    static let amberBottom = Color(hexValue: 0xFBA21B)  // l-0.03 h-6
 
     // текст
     static let tPrimary = Color(white: 1, opacity: 0.96)
-    static let tSecondary = Token.Text.secondary                    // 0.70
-    static let tTertiary = Token.Text.tertiary                      // 0.50
-    static let tDisabled = Token.Text.disabled                      // 0.38
-    static let tAccent = Token.Text.accent                          // #7C9AFF
+    static let tSecondary = Token.Text.secondary  // 0.70
+    static let tTertiary = Token.Text.tertiary  // 0.50
+    static let tDisabled = Token.Text.disabled  // 0.38
+    static let tAccent = Token.Text.accent  // #7C9AFF
 
-    static let success = Token.Semantic.success                     // #4ADE80
+    static let success = Token.Semantic.success  // #4ADE80
 
     // нейтральная плашка карточек/панелей: свет сверху вниз
     static let cardFillTop = Color(white: 1, opacity: 0.07)
     static let cardFillBottom = Color(white: 1, opacity: 0.03)
 
-    static let borderSubtle = Token.Border.subtle                   // 0.08
-    static let borderDefault = Token.Border.default                 // 0.12
+    static let borderSubtle = Token.Border.subtle  // 0.08
+    static let borderDefault = Token.Border.default  // 0.12
 
     // движение: «настоящая» кривая макета cubic-bezier(0.2,0,0,1)
     static func easeReal(_ d: Double) -> Animation { .timingCurve(0.2, 0, 0, 1, duration: d) }
@@ -57,7 +57,10 @@ struct Squircle: InsettableShape {
         let r = rect.insetBy(dx: insetAmount, dy: insetAmount)
         let rad = max(0, min(cornerRadius - insetAmount, min(r.width, r.height) / 2))
         guard rad > 0 else { return Path(r) }
-        let x0 = r.minX, y0 = r.minY, x1 = r.maxX, y1 = r.maxY
+        let x0 = r.minX
+        let y0 = r.minY
+        let x1 = r.maxX
+        let y1 = r.maxY
         let seg = 16
         func se(_ i: Int) -> (CGFloat, CGFloat) {
             let t = (.pi / 2) * CGFloat(i) / CGFloat(seg)
@@ -66,23 +69,33 @@ struct Squircle: InsettableShape {
         var p = Path()
         p.move(to: CGPoint(x: x0 + rad, y: y0))
         p.addLine(to: CGPoint(x: x1 - rad, y: y0))
-        for i in 0...seg { let (c, s) = se(i)                 // верх-право
-            p.addLine(to: CGPoint(x: x1 - rad + rad * s, y: y0 + rad - rad * c)) }
+        for i in 0...seg {
+            let (c, s) = se(i)  // верх-право
+            p.addLine(to: CGPoint(x: x1 - rad + rad * s, y: y0 + rad - rad * c))
+        }
         p.addLine(to: CGPoint(x: x1, y: y1 - rad))
-        for i in 0...seg { let (c, s) = se(i)                 // низ-право
-            p.addLine(to: CGPoint(x: x1 - rad + rad * c, y: y1 - rad + rad * s)) }
+        for i in 0...seg {
+            let (c, s) = se(i)  // низ-право
+            p.addLine(to: CGPoint(x: x1 - rad + rad * c, y: y1 - rad + rad * s))
+        }
         p.addLine(to: CGPoint(x: x0 + rad, y: y1))
-        for i in 0...seg { let (c, s) = se(i)                 // низ-лево
-            p.addLine(to: CGPoint(x: x0 + rad - rad * s, y: y1 - rad + rad * c)) }
+        for i in 0...seg {
+            let (c, s) = se(i)  // низ-лево
+            p.addLine(to: CGPoint(x: x0 + rad - rad * s, y: y1 - rad + rad * c))
+        }
         p.addLine(to: CGPoint(x: x0, y: y0 + rad))
-        for i in 0...seg { let (c, s) = se(i)                 // верх-лево
-            p.addLine(to: CGPoint(x: x0 + rad - rad * c, y: y0 + rad - rad * s)) }
+        for i in 0...seg {
+            let (c, s) = se(i)  // верх-лево
+            p.addLine(to: CGPoint(x: x0 + rad - rad * c, y: y0 + rad - rad * s))
+        }
         p.closeSubpath()
         return p
     }
 
     func inset(by amount: CGFloat) -> Squircle {
-        var s = self; s.insetAmount += amount; return s
+        var s = self
+        s.insetAmount += amount
+        return s
     }
 }
 
@@ -153,15 +166,18 @@ struct CheckTick: View {
             let s = sz.width
             let lw = s * 1.75 / 24
             var circle = Path()
-            circle.addEllipse(in: CGRect(x: s * (12 - 9.2) / 24, y: s * (12 - 9.2) / 24,
-                                         width: s * 18.4 / 24, height: s * 18.4 / 24))
+            circle.addEllipse(
+                in: CGRect(
+                    x: s * (12 - 9.2) / 24, y: s * (12 - 9.2) / 24,
+                    width: s * 18.4 / 24, height: s * 18.4 / 24))
             ctx.stroke(circle, with: .color(color), style: StrokeStyle(lineWidth: lw))
             var check = Path()
             check.move(to: CGPoint(x: s * 9 / 24, y: s * 12.3 / 24))
             check.addLine(to: CGPoint(x: s * 11 / 24, y: s * 14.3 / 24))
             check.addLine(to: CGPoint(x: s * 15.2 / 24, y: s * 9.6 / 24))
-            ctx.stroke(check, with: .color(color),
-                       style: StrokeStyle(lineWidth: lw, lineCap: .round, lineJoin: .round))
+            ctx.stroke(
+                check, with: .color(color),
+                style: StrokeStyle(lineWidth: lw, lineCap: .round, lineJoin: .round))
         }
         .frame(width: size, height: size)
     }
@@ -190,8 +206,9 @@ struct OBPrimaryButton: View {
                         .foregroundStyle(Color.white.opacity(0.70))
                         .padding(.horizontal, 5).padding(.top, 3).padding(.bottom, 2)
                         .background(OB.squircle(4).fill(Color.black.opacity(0.22)))
-                        .overlay(OB.squircle(4).strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
-                            .mask(Rectangle().padding(.bottom, 12)))
+                        .overlay(
+                            OB.squircle(4).strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
+                                .mask(Rectangle().padding(.bottom, 12)))
                 }
             }
             .font(.system(size: 14, weight: .medium))
@@ -207,8 +224,10 @@ struct OBPrimaryButton: View {
                     // микрорельеф кромок: свет сверху, подрезка снизу
                     .overlay(
                         OB.squircle(18).strokeBorder(
-                            LinearGradient(colors: [.white.opacity(0.22), .clear, .black.opacity(0.44)],
-                                           startPoint: .top, endPoint: .bottom), lineWidth: 1))
+                            LinearGradient(
+                                colors: [.white.opacity(0.22), .clear, .black.opacity(0.44)],
+                                startPoint: .top, endPoint: .bottom), lineWidth: 1)
+                    )
                     // как в макете: --shadow-soft (4 плотных контактных слоя) + широкий
                     // мягкий 0 6/18. Радиус SwiftUI ≈ CSS-блюр/2. Кнопка «садится» на
                     // поверхность, а не парит.

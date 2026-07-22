@@ -37,11 +37,13 @@ struct WelcomeScreen: View {
         VStack(spacing: 0) {
             FoundryWordmark(logoSize: 34)
                 .padding(.bottom, 8)
-            Text("A delivery layer for changes: from task to\u{00a0}production\nAgents do routines, you review")
-                .font(.system(size: 13))
-                .lineSpacing(5)
-                .multilineTextAlignment(.center)
-                .foregroundStyle(OB.tSecondary)
+            Text(
+                "A delivery layer for changes: from task to\u{00a0}production\nAgents do routines, you review"
+            )
+            .font(.system(size: 13))
+            .lineSpacing(5)
+            .multilineTextAlignment(.center)
+            .foregroundStyle(OB.tSecondary)
             OBPrimaryButton(title: "Start setup", action: onStart)
                 .padding(.top, 32)
         }
@@ -98,8 +100,10 @@ struct SettingsScreen: View {
             VStack(spacing: 0) {
                 SetPanel {
                     ForEach(model.settings) { s in
-                        SettingRow(name: s.name, desc: s.desc,
-                                   tappable: true, onTap: { model.toggle(s.id) }) {
+                        SettingRow(
+                            name: s.name, desc: s.desc,
+                            tappable: true, onTap: { model.toggle(s.id) }
+                        ) {
                             OBToggle(on: s.on)
                         }
                     }

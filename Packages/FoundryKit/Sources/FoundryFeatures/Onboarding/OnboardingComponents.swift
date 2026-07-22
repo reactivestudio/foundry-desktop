@@ -23,18 +23,20 @@ struct FoundryWordmark: View {
     }
 
     private var aiLabel: some View {
-        let s: CGFloat = 10 * em                          // кегль лейбла
+        let s: CGFloat = 10 * em  // кегль лейбла
         let radius: CGFloat = 0.6 * s
-        let insets = EdgeInsets(top: 0.2 * s, leading: 0.45 * s,
-                                bottom: 0.275 * s, trailing: (0.5 - 0.06) * s)
+        let insets = EdgeInsets(
+            top: 0.2 * s, leading: 0.45 * s,
+            bottom: 0.275 * s, trailing: (0.5 - 0.06) * s)
         let plateGradient = LinearGradient(
             stops: [
                 .init(color: OB.amberTop, location: 0),
                 .init(color: OB.amberMid, location: 0.55),
                 .init(color: OB.amberBottom, location: 1),
             ], startPoint: .top, endPoint: .bottom)
-        let highlight = LinearGradient(colors: [.white.opacity(0.45), .clear],
-                                       startPoint: .top, endPoint: .bottom)
+        let highlight = LinearGradient(
+            colors: [.white.opacity(0.45), .clear],
+            startPoint: .top, endPoint: .bottom)
         let plate = OB.squircle(radius)
             .fill(plateGradient)
             .overlay(
@@ -86,12 +88,14 @@ struct OnboardingDots: View {
         ZStack(alignment: .leading) {
             HStack(spacing: 0) {
                 ForEach(0..<count, id: \.self) { i in
-                    DotHit(size: dot, height: height,
-                           passed: i < current, active: i == current)
-                        .frame(width: slotWidth(i), height: height)
-                        .contentShape(Rectangle())
-                        .onTapGesture { onTap(i) }
-                        .clickCursor()
+                    DotHit(
+                        size: dot, height: height,
+                        passed: i < current, active: i == current
+                    )
+                    .frame(width: slotWidth(i), height: height)
+                    .contentShape(Rectangle())
+                    .onTapGesture { onTap(i) }
+                    .clickCursor()
                 }
             }
             // капля-индикатор активной точки; `.ind` в макете pointer-events:none —
@@ -118,9 +122,11 @@ struct OnboardingDots: View {
                 .fill(active ? .clear : Color.white.opacity(passed ? 0.38 : 0.20))
                 .frame(width: size, height: size)
                 .scaleEffect(hovering && !active ? 1.5 : 1)
-                .overlay { if hovering && !active {
-                    Circle().fill(OB.ultramarine).frame(width: size, height: size).scaleEffect(1.5)
-                } }
+                .overlay {
+                    if hovering && !active {
+                        Circle().fill(OB.ultramarine).frame(width: size, height: size).scaleEffect(1.5)
+                    }
+                }
                 .animation(OB.easeReal(0.22), value: hovering)
                 .onHover { hovering = $0 }
         }
@@ -136,13 +142,13 @@ struct OBCard: Identifiable {
     let id: String
     let glyph: OBGlyph
     let bare: Bool
-    let tint: Color?             // vtint подложки тайла
+    let tint: Color?  // vtint подложки тайла
     let vendor: String
     let name: String
-    let newFact: String         // факт/требование в состоянии «не установлено»
-    let secondFact: String?     // вторая строка фактов у установленного (план и т.п.)
-    let signed: String          // строка «✓ … signed in» после установки
-    let showsInstall: Bool      // есть ли кнопка Install (у Claude в стенде уже стоит)
+    let newFact: String  // факт/требование в состоянии «не установлено»
+    let secondFact: String?  // вторая строка фактов у установленного (план и т.п.)
+    let signed: String  // строка «✓ … signed in» после установки
+    let showsInstall: Bool  // есть ли кнопка Install (у Claude в стенде уже стоит)
 }
 
 struct AgentCard: View {
@@ -253,8 +259,9 @@ struct AgentCard: View {
     // нейтральная плашка (0.07→0.03); у выбранной добавлена синяя подкраска 0.06
     private var cardFill: some View {
         ZStack {
-            LinearGradient(colors: [OB.cardFillTop, OB.cardFillBottom],
-                           startPoint: .top, endPoint: .bottom)
+            LinearGradient(
+                colors: [OB.cardFillTop, OB.cardFillBottom],
+                startPoint: .top, endPoint: .bottom)
             if selected { OB.ultramarine.opacity(0.06) }
         }
     }
@@ -267,8 +274,9 @@ struct AgentCard: View {
 
     private var reliefOverlay: some View {
         OB.squircle(22).strokeBorder(
-            LinearGradient(colors: [.white.opacity(0.05), .clear, .clear, .black.opacity(0.14)],
-                           startPoint: .top, endPoint: .bottom),
+            LinearGradient(
+                colors: [.white.opacity(0.05), .clear, .clear, .black.opacity(0.14)],
+                startPoint: .top, endPoint: .bottom),
             lineWidth: 1)
     }
 }
@@ -286,12 +294,18 @@ struct SetPanel<Content: View>: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .frame(maxWidth: maxWidth)
-            .background(LinearGradient(colors: [OB.cardFillTop, OB.cardFillBottom],
-                                       startPoint: .top, endPoint: .bottom))
+            .background(
+                LinearGradient(
+                    colors: [OB.cardFillTop, OB.cardFillBottom],
+                    startPoint: .top, endPoint: .bottom)
+            )
             .clipShape(OB.squircle(22))
-            .overlay(OB.squircle(22).strokeBorder(
-                LinearGradient(colors: [.white.opacity(0.05), .clear, .clear, .black.opacity(0.14)],
-                               startPoint: .top, endPoint: .bottom), lineWidth: 1))
+            .overlay(
+                OB.squircle(22).strokeBorder(
+                    LinearGradient(
+                        colors: [.white.opacity(0.05), .clear, .clear, .black.opacity(0.14)],
+                        startPoint: .top, endPoint: .bottom), lineWidth: 1)
+            )
             .floatShadow(22)
     }
 }
@@ -342,12 +356,15 @@ struct OBToggle: View {
             Capsule()
                 .fill(on ? OB.ultramarine : Color.white.opacity(0.11))
                 .overlay(Capsule().strokeBorder(.white.opacity(0.05), lineWidth: 0.5))
-                .overlay(                                    // канавка вдавлена сверху
+                .overlay(  // канавка вдавлена сверху
                     Capsule().stroke(.black.opacity(0.5), lineWidth: 1.5)
                         .blur(radius: 0.5).mask(Capsule().padding(.bottom, 8)))
             Circle()
-                .fill(LinearGradient(colors: [.white, Color(hexValue: 0xE9EBEF)],
-                                     startPoint: .top, endPoint: .bottom))
+                .fill(
+                    LinearGradient(
+                        colors: [.white, Color(hexValue: 0xE9EBEF)],
+                        startPoint: .top, endPoint: .bottom)
+                )
                 .frame(width: 14, height: 14)
                 .shadow(color: .black.opacity(0.55), radius: 1, y: 1)
                 .padding(2)
@@ -364,9 +381,12 @@ struct GrantButton: View {
     @State private var hovering = false
     var body: some View {
         if granted {
-            HStack(spacing: 4) { CheckTick(size: 13); Text("Granted") }
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(OB.success)
+            HStack(spacing: 4) {
+                CheckTick(size: 13)
+                Text("Granted")
+            }
+            .font(.system(size: 12, weight: .medium))
+            .foregroundStyle(OB.success)
         } else {
             Button(action: action) {
                 Text("Allow")

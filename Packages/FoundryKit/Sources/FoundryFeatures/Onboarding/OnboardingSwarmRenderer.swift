@@ -95,7 +95,8 @@ final class OnboardingSwarmRenderer {
         dn.depthCompareFunction = .less
         dn.isDepthWriteEnabled = false
         guard let dws = device.makeDepthStencilState(descriptor: dw),
-              let dns = device.makeDepthStencilState(descriptor: dn) else {
+            let dns = device.makeDepthStencilState(descriptor: dn)
+        else {
             throw SetupError.noLibrary("нет состояния глубины")
         }
         depthWrite = dws
@@ -111,10 +112,12 @@ final class OnboardingSwarmRenderer {
             throw SetupError.noLibrary("в бандле нет ни default.metallib с ройем, ни OnboardingSwarm.metal")
         }
         let source: String
-        do { source = try String(contentsOf: url, encoding: .utf8) }
-        catch { throw SetupError.noLibrary("не читается OnboardingSwarm.metal: \(error)") }
-        do { return try device.makeLibrary(source: source, options: nil) }
-        catch { throw SetupError.noLibrary("не компилируется OnboardingSwarm.metal: \(error)") }
+        do { source = try String(contentsOf: url, encoding: .utf8) } catch {
+            throw SetupError.noLibrary("не читается OnboardingSwarm.metal: \(error)")
+        }
+        do { return try device.makeLibrary(source: source, options: nil) } catch {
+            throw SetupError.noLibrary("не компилируется OnboardingSwarm.metal: \(error)")
+        }
     }
 
     /// Перевыделить буферы под новый размер (в пикселях буфера).

@@ -27,7 +27,8 @@ public struct FoundryRootView: View {
                         }
                     },
                     onFinished: { done = true },
-                    onSkip: { done = true })
+                    onSkip: { done = true }
+                )
                 .opacity(winOpacity)
                 .scaleEffect(winScale)
                 .transition(.opacity)
@@ -52,10 +53,12 @@ struct OnboardingContainer: View {
             OB.bg.ignoresSafeArea()
 
             // рой — во всю рабочую зону под титлбаром (референсный кадр 836)
-            OnboardingSwarmView(bursting: model.bursting,
-                                onBurstProgress: { model.burstProgress($0) })
-                .padding(.top, titlebar)
-                .ignoresSafeArea()
+            OnboardingSwarmView(
+                bursting: model.bursting,
+                onBurstProgress: { model.burstProgress($0) }
+            )
+            .padding(.top, titlebar)
+            .ignoresSafeArea()
 
             // завеса `.ob-veil`: гасит рой к низу, чтобы решение экрана читалось
             // на чистом фоне, а не на частицах. Три состояния кросс-фейдятся 640ms.
@@ -71,7 +74,7 @@ struct OnboardingContainer: View {
             // Верх/низ экрана — по макету: приветствие/Agent/Готово к низу
             // (flex-end), рабочие экраны к верху (padding-top 130).
             VStack(spacing: 0) {
-                Color.clear.frame(height: titlebar)     // резерв под титлбар
+                Color.clear.frame(height: titlebar)  // резерв под титлбар
                 stageRegion
                 footer
                     .padding(.horizontal, 24)
@@ -100,8 +103,9 @@ struct OnboardingContainer: View {
     /// расчищает нативный «светофор». Кнопки окна рисует система поверх.
     private var titlebarBar: some View {
         ZStack(alignment: .leading) {
-            LinearGradient(colors: [.white.opacity(0.05), .white.opacity(0.015)],
-                           startPoint: .top, endPoint: .bottom)
+            LinearGradient(
+                colors: [.white.opacity(0.05), .white.opacity(0.015)],
+                startPoint: .top, endPoint: .bottom)
             Text("Foundry — Setup")
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(OB.tTertiary)
@@ -130,14 +134,14 @@ struct OnboardingContainer: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
             } else {
                 VStack(spacing: 0) {
-                    Color.clear.frame(height: 130)      // .ob-stage padding-top
+                    Color.clear.frame(height: 130)  // .ob-stage padding-top
                     screenContent
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
         }
-        .padding(.horizontal, 24)                        // .ob-stage боковой s5
-        .padding(.bottom, 24)                            // .ob-stage нижний s5
+        .padding(.horizontal, 24)  // .ob-stage боковой s5
+        .padding(.bottom, 24)  // .ob-stage нижний s5
     }
 
     /// Экран с анимацией входа/выхода (двухтактный переход): гашение прозрачности
@@ -193,9 +197,11 @@ struct OnboardingContainer: View {
 
     private var footer: some View {
         ZStack {
-            OnboardingDots(count: model.stepCount, current: model.step,
-                           onTap: { model.go(to: $0) })
-                .frame(maxWidth: .infinity)
+            OnboardingDots(
+                count: model.stepCount, current: model.step,
+                onTap: { model.go(to: $0) }
+            )
+            .frame(maxWidth: .infinity)
             HStack {
                 Spacer()
                 SkipButton(action: onSkip)
@@ -219,8 +225,12 @@ private struct KeyCatcher: NSViewRepresentable {
         let v = NSView()
         context.coordinator.monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             switch event.keyCode {
-            case 123: onLeft(); return nil
-            case 124: onRight(); return nil
+            case 123:
+                onLeft()
+                return nil
+            case 124:
+                onRight()
+                return nil
             default: return event
             }
         }

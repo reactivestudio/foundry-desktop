@@ -18,10 +18,10 @@ struct OnboardingSwarmView: NSViewRepresentable {
     static let orb: Float = 0.21
     static let zoom: Float = 2.4
     static let taper: Float = 0.5
-    static let grain: Float = 0.00504                                   // эталон «a»
-    static let grainLoader: Float = (2.6 * 2.4 / 900) / (orb * 2.4)     // 1.376%
+    static let grain: Float = 0.00504  // эталон «a»
+    static let grainLoader: Float = (2.6 * 2.4 / 900) / (orb * 2.4)  // 1.376%
     static let coverage: Float = 6000 * grainLoader * grainLoader
-    static let count = Int((coverage / (grain * grain)).rounded())      // 44 701
+    static let count = Int((coverage / (grain * grain)).rounded())  // 44 701
     static let refHeight: Float = 836
     static let minPoint: Float = 1.8
     static let maxSupersample = 8
@@ -141,18 +141,19 @@ struct OnboardingSwarmView: NSViewRepresentable {
             let w = max(1, Int(pixelSize.width.rounded()))
             let h = max(1, Int(pixelSize.height.rounded()))
 
-            let G = OnboardingSwarmView.self
+            let geo = OnboardingSwarmView.self
             var ss = 1
-            while ss < G.maxSupersample,
-                  G.grain * G.orb * G.zoom * G.refHeight * dpr * Float(ss) < G.minPoint {
+            while ss < geo.maxSupersample,
+                geo.grain * geo.orb * geo.zoom * geo.refHeight * dpr * Float(ss) < geo.minPoint
+            {
                 ss *= 2
             }
             supersample = ss
             bufW = w * ss
             bufH = h * ss
-            pt = G.grain * G.orb * G.zoom * G.refHeight * dpr * Float(ss)
+            pt = geo.grain * geo.orb * geo.zoom * geo.refHeight * dpr * Float(ss)
             // референсный кадр в device-px: refHeight(CSS)·dpr, делим на факт. высоту
-            kfit = (G.refHeight * dpr) / Float(h)
+            kfit = (geo.refHeight * dpr) / Float(h)
             aspect = Float(w) / Float(h)
             renderer?.resize(bufW: bufW, bufH: bufH)
         }
@@ -163,9 +164,9 @@ struct OnboardingSwarmView: NSViewRepresentable {
 
         func draw(in view: MTKView) {
             guard let renderer,
-                  bufW > 0, bufH > 0,
-                  let drawable = view.currentDrawable,
-                  let cb = renderer.makeCommandBuffer()
+                bufW > 0, bufH > 0,
+                let drawable = view.currentDrawable,
+                let cb = renderer.makeCommandBuffer()
             else { return }
 
             let now = CACurrentMediaTime()
@@ -184,19 +185,22 @@ struct OnboardingSwarmView: NSViewRepresentable {
 
             // заморозка внутренней жизни на старте рывка (uT0)
             if burst > 0.08 {
-                if !burstT0Set { burstT0 = sec; burstT0Set = true }
+                if !burstT0Set {
+                    burstT0 = sec
+                    burstT0Set = true
+                }
             } else {
                 burstT0Set = false
             }
 
-            let G = OnboardingSwarmView.self
+            let geo = OnboardingSwarmView.self
             var u = OnboardingSwarmRenderer.SwarmUniforms()
             u.time = reduceMotion && !bursting ? 0 : sec
-            u.count = Float(G.count)
+            u.count = Float(geo.count)
             u.res = SIMD2<Float>(Float(bufW), Float(bufH))
-            u.zoom = G.zoom
+            u.zoom = geo.zoom
             u.pt = pt
-            u.taper = G.taper
+            u.taper = geo.taper
             u.aspect = aspect
             // позиция орба в NDC референсного кадра, пересчёт в фактический:
             // y' = 1 − (1 − y)·KFIT; по x орб центрован.
