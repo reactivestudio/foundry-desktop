@@ -49,7 +49,8 @@ struct FoundryWordmark: View {
         // ПОКАЗАТЕЛЕМ суперэллипса: n=3 вместо канонных 4 — угол ближе к дуге
         // окружности, размеры плашки при этом не меняются.
         let shape = Squircle(cornerRadius: radius, exponent: 3)
-        let plate = shape
+        let plate =
+            shape
             .fill(plateGradient)
             .overlay(shape.strokeBorder(highlight, lineWidth: max(0.5, 0.05 * s)))
 
@@ -116,7 +117,9 @@ struct OnboardingDots: View {
                 // onTapGesture ховер и курсор ПРОВАЛИВАЛИСЬ сквозь ряд в консоль под
                 // мастером (RunConsoleView) — оттого и курсор поля ввода (I-beam).
                 // Кнопка перекрывает провал; ← / → всё равно ведёт KeyCatcher-монитор.
-                Button { onTap(i) } label: {
+                Button {
+                    onTap(i)
+                } label: {
                     DotSlot(
                         width: slot, height: hitHeight, dot: dot, bottomPad: bottomPad,
                         passed: i < current, active: i == current,
@@ -156,7 +159,7 @@ struct OnboardingDots: View {
         var fi: CGFloat
         let slot: CGFloat
         let pill: CGFloat  // длина индикатора в покое
-        let dot: CGFloat   // толщина (= диаметру серых точек)
+        let dot: CGFloat  // толщина (= диаметру серых точек)
         let y: CGFloat
 
         var animatableData: CGFloat {
@@ -168,7 +171,8 @@ struct OnboardingDots: View {
             let lower = fi.rounded(.towardZero)
             let frac = fi - lower
             func cx(_ i: CGFloat) -> CGFloat { slot * i + slot / 2 }
-            let x0 = cx(lower), x1 = cx(lower + 1)
+            let x0 = cx(lower)
+            let x1 = cx(lower + 1)
             // задняя долька отстаёт от передней — перетекание, а не жёсткий сдвиг
             // (сильнее разводим/утончаем — длиннее нить, ярче ртутный разлёт)
             let headP = min(1, frac * 1.9)
@@ -234,8 +238,11 @@ struct OnboardingDots: View {
             ZStack(alignment: .bottom) {
                 Color.clear
                 Circle()
-                    .fill(active ? .clear
-                        : (hovering ? OB.ultramarine : Color.white.opacity(passed ? 0.38 : 0.20)))
+                    .fill(
+                        active
+                            ? .clear
+                            : (hovering ? OB.ultramarine : Color.white.opacity(passed ? 0.38 : 0.20))
+                    )
                     .frame(width: dot, height: dot)
                     .padding(.bottom, bottomPad)
             }

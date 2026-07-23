@@ -87,11 +87,11 @@ struct OnboardingContainer: View {
             // (flex-end), рабочие экраны к верху (padding-top 130).
             VStack(spacing: 0) {
                 stageRegion
+                // Подвал БЕЗ нижнего отступа: мишень точек тянется до самой нижней
+                // кромки окна («область под кружками до самого низа»). Видимая точка
+                // стоит на прежней высоте — её держит bottomPad внутри ряда.
                 footer
                     .padding(.horizontal, 24)
-                    // БЕЗ нижнего отступа: мишень точек тянется до самой нижней кромки
-                    // окна («область под кружками до самого низа»). Видимая точка
-                    // стоит на прежней высоте — её держит bottomPad внутри ряда.
             }
             // Верхней плашки нет вовсе: по просьбе — только нативный «светофор»
             // плавает над роем, никакого бара и подписи «Foundry — Setup».
@@ -251,7 +251,9 @@ private struct WindowConfigurator: NSViewRepresentable {
         // титлбар системным серым и возвращает непрозрачный фон — переустанавливаем
         // безрамочный конфиг на каждое такое событие, иначе «сначала норм, потом серо».
         var chromeObservers: [NSObjectProtocol] = []
-        deinit { chromeObservers.forEach { NotificationCenter.default.removeObserver($0) } }
+        deinit {
+            for observer in chromeObservers { NotificationCenter.default.removeObserver(observer) }
+        }
     }
     func makeCoordinator() -> Coordinator { Coordinator() }
 
@@ -358,7 +360,9 @@ private struct WindowConfigurator: NSViewRepresentable {
             }
         } else {
             // обычное окно: непрозрачное, без скругления и без наблюдателей
-            coordinator.chromeObservers.forEach { NotificationCenter.default.removeObserver($0) }
+            for observer in coordinator.chromeObservers {
+                NotificationCenter.default.removeObserver(observer)
+            }
             coordinator.chromeObservers.removeAll()
             window.isOpaque = true
             window.backgroundColor = NSColor(srgbRed: 14 / 255, green: 11 / 255, blue: 20 / 255, alpha: 1)

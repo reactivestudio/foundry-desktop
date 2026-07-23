@@ -1,6 +1,6 @@
 import AppKit
-import SwiftUI
 import CoreGraphics
+import SwiftUI
 
 /// Онбординговые константы стиля — то, чего нет в `DesignTokens.swift`, но что
 /// принято в макете (docs/design/mockups/onboarding.html): производные OKLCH
@@ -129,7 +129,7 @@ enum OBNoise {
     private static func make() -> CGImage {
         let n = tile
         var px = [UInt8](repeating: 0, count: n * n * 4)
-        var seed: UInt64 = 0x9E3779B97F4A7C15  // детерминированный xorshift — стабилен между запусками
+        var seed: UInt64 = 0x9E37_79B9_7F4A_7C15  // детерминированный xorshift — стабилен между запусками
         func rnd() -> Int {
             seed ^= seed << 13
             seed ^= seed >> 7
@@ -222,7 +222,8 @@ struct FloatShadowLayer<Content: View>: View {
                             .fill(OBShadow.color)
                             .frame(
                                 width: rect.width + 2 * OBShadow.spread,
-                                height: rect.height + 2 * OBShadow.spread)
+                                height: rect.height + 2 * OBShadow.spread
+                            )
                             .position(x: rect.midX, y: rect.midY)
                     }
                 }
