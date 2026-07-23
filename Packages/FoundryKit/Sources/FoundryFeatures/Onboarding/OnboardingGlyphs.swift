@@ -58,7 +58,7 @@ private func scaled(_ pts: [CGPoint], _ box: CGFloat, _ size: CGFloat) -> [CGPoi
 
 // MARK: - Знаки агентов (viewBox 64, показываются 30)
 
-/// Астериск Claude — шесть лучей, монолиния #D97757.
+/// Астериск Claude — шесть лучей, монолиния белым (вендор-знаки однотонны).
 struct ClaudeGlyph: View {
     var size: CGFloat = 30
     var body: some View {
@@ -74,7 +74,7 @@ struct ClaudeGlyph: View {
                 p.addLine(to: CGPoint(x: x2 * s, y: y2 * s))
             }
             ctx.stroke(
-                p, with: .color(Color(hexValue: 0xD97757)),
+                p, with: .color(.white.opacity(0.9)),
                 style: StrokeStyle(lineWidth: 5.4 * s, lineCap: .round))
         }
         .frame(width: size, height: size)
@@ -101,7 +101,7 @@ struct OpenAIGlyph: View {
     }
 }
 
-/// Четырёхлучевая звезда Gemini, заливка диагональным градиентом.
+/// Четырёхлучевая звезда Gemini, заливка белым (вендор-знаки однотонны).
 struct GeminiGlyph: View {
     var size: CGFloat = 30
     var body: some View {
@@ -115,15 +115,7 @@ struct GeminiGlyph: View {
             p.addCurve(to: pt(5, 32), control1: pt(30.4, 45), control2: pt(19, 33.6))
             p.addCurve(to: pt(32, 5), control1: pt(19, 30.4), control2: pt(30.4, 19))
             p.closeSubpath()
-            ctx.fill(
-                p,
-                with: .linearGradient(
-                    Gradient(stops: [
-                        .init(color: Color(hexValue: 0x4285F4), location: 0),
-                        .init(color: Color(hexValue: 0x9B72CB), location: 0.55),
-                        .init(color: Color(hexValue: 0xD96570), location: 1),
-                    ]),
-                    startPoint: .zero, endPoint: CGPoint(x: sz.width, y: sz.height)))
+            ctx.fill(p, with: .color(.white.opacity(0.9)))
         }
         .frame(width: size, height: size)
     }

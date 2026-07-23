@@ -20,8 +20,8 @@ private struct OBSub: View {
     let text: String
     var body: some View {
         Text(text)
-            .font(.system(size: 13))
-            .lineSpacing(5)
+            .font(.system(size: 12))
+            .lineSpacing(4.5)
             .multilineTextAlignment(.center)
             .foregroundStyle(OB.tSecondary)
             .shadow(color: OB.bg.opacity(0.85), radius: 6)
@@ -40,8 +40,8 @@ struct WelcomeScreen: View {
             Text(
                 "A delivery layer for changes: from task to\u{00a0}production\nAgents do routines, you review"
             )
-            .font(.system(size: 13))
-            .lineSpacing(5)
+            .font(.system(size: 12))
+            .lineSpacing(4.5)
             .multilineTextAlignment(.center)
             .foregroundStyle(OB.tSecondary)
             OBPrimaryButton(title: "Start setup", action: onStart)

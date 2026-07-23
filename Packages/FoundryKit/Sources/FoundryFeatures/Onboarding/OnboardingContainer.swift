@@ -14,9 +14,17 @@ public struct FoundryRootView: View {
 
     public var body: some View {
         ZStack {
-            // главное окно всегда под мастером — разлёт открывает его
+            // главное окно всегда под мастером — разлёт открывает его. Пока идёт
+            // онбординг, консоль ПОЛНОСТЬЮ инертна: её TextEditor промпта —
+            // нативный NSTextView со своим I-beam-курсором на уровне AppKit, и
+            // z-порядок SwiftUI его не перебивает. Сквозь прозрачные зоны мастера
+            // этот курсор проступал над точками пагинации («поле ввода»), и ни
+            // ховер, ни палец до ряда не доходили. disabled+allowsHitTesting(false)
+            // убирают консоль из событий и разрешения курсора на время мастера.
             RunConsoleView()
                 .environment(store)
+                .disabled(!done)
+                .allowsHitTesting(done)
 
             if !done {
                 OnboardingContainer(
@@ -31,6 +39,15 @@ public struct FoundryRootView: View {
                 )
                 .opacity(winOpacity)
                 .scaleEffect(winScale)
+                // Растянуть под титлбар на УРОВНЕ инстанса (не только внутри
+                // контейнера): внутренний .ignoresSafeArea() контейнера сквозь
+                // обёртки opacity/scaleEffect/transition под бар не пробивал —
+                // верхние 28pt оставались непокрытыми, и туда проступал фон
+                // ГЛАВНОГО окна (RunConsoleView, OB.bg #05030D) плоской «плашкой».
+                // Здесь ignoresSafeArea тянет весь составной вид к y=0, как это и
+                // так делает RunConsoleView-сосед → рой и FonBackground доходят до
+                // кромки, «плашки по цвету» больше нет.
+                .ignoresSafeArea()
                 .transition(.opacity)
             }
         }
@@ -46,49 +63,46 @@ struct OnboardingContainer: View {
 
     @State private var model = OnboardingModel()
 
-    private let titlebar: CGFloat = 44
-
     var body: some View {
         ZStack(alignment: .top) {
-            OB.bg.ignoresSafeArea()
+            FonBackground().ignoresSafeArea()
 
-            // рой — во всю рабочую зону под титлбаром (референсный кадр 836)
+            // рой во всю высоту окна (кромка вида на y=0). Само облако опущено на
+            // ~20pt в рендерере (heroDropPt), поэтому частицы не доходят до верхней
+            // кромки; клип masksToBounds режет сверху пустой fon — линии среза нет.
             OnboardingSwarmView(
                 bursting: model.bursting,
                 onBurstProgress: { model.burstProgress($0) }
             )
-            .padding(.top, titlebar)
             .ignoresSafeArea()
 
-            // завеса `.ob-veil`: гасит рой к низу, чтобы решение экрана читалось
-            // на чистом фоне, а не на частицах. Три состояния кросс-фейдятся 640ms.
-            // Без неё рабочие экраны висели прямо на рое — главный отличавший их от
-            // макета изъян и источник «рендерящихся после» теней (карточкам нужна
-            // сплошная тёмная подложка сзади).
-            veil
-                .ignoresSafeArea()
-                .allowsHitTesting(false)
-                .opacity(model.bursting ? 0 : 1)
+            // Завесы больше нет: рой заземляют сами карточки и панели — каждая
+            // сидит в собственной парящей тени (единый слой под всеми телами:
+            // CardShadowRow под рядом карточек, floatShadow под панелью), а не под
+            // сплошным градиентом во всю ширину. Заголовки живут прямо на рое со
+            // своим тёмным ореолом, как на приветствии.
 
             // контент: ob-stage (flex:1) между титлбаром и подвалом + подвал.
             // Верх/низ экрана — по макету: приветствие/Agent/Готово к низу
             // (flex-end), рабочие экраны к верху (padding-top 130).
             VStack(spacing: 0) {
-                Color.clear.frame(height: titlebar)  // резерв под титлбар
                 stageRegion
                 footer
                     .padding(.horizontal, 24)
-                    // подвал прижат к низу как .ob-foot: margin снизу s5 = 24
-                    .padding(.bottom, 24)
+                    // БЕЗ нижнего отступа: мишень точек тянется до самой нижней кромки
+                    // окна («область под кружками до самого низа»). Видимая точка
+                    // стоит на прежней высоте — её держит bottomPad внутри ряда.
             }
-
-            // свой титлбар как в макете: тонкий подъём + нижняя волосина, имя
-            // слева после «светофора» (нативный центрированный титул скрыт)
-            titlebarBar
+            // Верхней плашки нет вовсе: по просьбе — только нативный «светофор»
+            // плавает над роем, никакого бара и подписи «Foundry — Setup».
         }
         // окно жёстко 720×880 (ставит WindowConfigurator); содержимое заполняет
-        // весь кадр, включая 44px под титлбаром (fullSizeContentView)
+        // весь кадр, включая титлбар (fullSizeContentView)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+        // Скругление окна — в SwiftUI (окно прозрачное). Углы контента прозрачны →
+        // видно скруглённое окно. «Светофор» — вне контента, не обрезается.
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         // пагинация с клавиатуры: ← назад, → вперёд (монитор надёжнее onKeyPress,
         // которому нужен фокус — его перехватывает кнопка экрана)
         .background(KeyCatcher(onLeft: { model.goPrev() }, onRight: { model.goNext() }))
@@ -98,48 +112,17 @@ struct OnboardingContainer: View {
         }
     }
 
-    /// Полоса титлбара 44px: градиент-подъём (белый 0.05→0.015), нижняя волосина
-    /// border.subtle, имя «Foundry — Setup» 12/500 третичным слева — отступ 80
-    /// расчищает нативный «светофор». Кнопки окна рисует система поверх.
-    private var titlebarBar: some View {
-        ZStack(alignment: .leading) {
-            LinearGradient(
-                colors: [.white.opacity(0.05), .white.opacity(0.015)],
-                startPoint: .top, endPoint: .bottom)
-            Text("Foundry — Setup")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(OB.tTertiary)
-                .padding(.leading, 80)
-        }
-        .frame(height: titlebar)
-        .overlay(alignment: .bottom) {
-            Rectangle().fill(.white.opacity(0.08)).frame(height: 1)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .ignoresSafeArea()
-    }
-
-    /// Рабочая зона `.ob-stage` (flex:1) между титлбаром и подвалом. Экран внутри
-    /// прижимается к низу или к верху ровно как в макете; боковой отступ s5=24 и
-    /// нижний s5=24 — общие для всех экранов, доп. нижний воздух даёт screenPadBottom.
+    /// Рабочая зона `.ob-stage` (flex:1) между роем и подвалом. ВСЕ экраны прижаты
+    /// к низу: нижний элемент (кнопка / ряд карточек / панель) встаёт на ЕДИНОМ
+    /// зазоре до пагинации — screenPadBottom (эталон приветствия) + нижний s5=24.
+    /// Верх у экранов разной высоты плавает (короткие садятся ниже, как приветствие) —
+    /// якорь композиции у пагинации, а не у титульной кромки; так экраны не скачут.
     private var stageRegion: some View {
-        Group {
-            if model.bottomPinned {
-                VStack(spacing: 0) {
-                    screenContent
-                    if model.screenPadBottom > 0 {
-                        Color.clear.frame(height: model.screenPadBottom)
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-            } else {
-                VStack(spacing: 0) {
-                    Color.clear.frame(height: 130)  // .ob-stage padding-top
-                    screenContent
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            }
+        VStack(spacing: 0) {
+            screenContent
+            Color.clear.frame(height: model.screenPadBottom)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         .padding(.horizontal, 24)  // .ob-stage боковой s5
         .padding(.bottom, 24)  // .ob-stage нижний s5
     }
@@ -147,42 +130,20 @@ struct OnboardingContainer: View {
     /// Экран с анимацией входа/выхода (двухтактный переход): гашение прозрачности
     /// и доезд снизу на 22px; на время движения контент запекается в текстуру.
     private var screenContent: some View {
-        screen
+        // FloatShadowLayer собирает рамки всех карточек/панелей экрана и рисует их
+        // тени ОДНИМ слоем под всем контентом (заголовки, тексты, кнопки — выше).
+        //
+        // БЕЗ `.flattenWhileMoving`: drawingGroup на переходе растеризовал контент
+        // вместе со слоем теней, а тени собираются через preference (anchor-рамки),
+        // который на входе нового экрана заполняется не за один кадр — drawingGroup
+        // снимал кадры, где тени ещё не все встали → «тень появлялась по частям».
+        // Раньше он был нужен ради перфа (9 блюров/кадр); блюра больше нет, тени
+        // дешёвые — переход композитит нативно (CALayer), атомарно и гладко.
+        FloatShadowLayer { screen }
             .frame(maxWidth: .infinity)
-            .flattenWhileMoving(model.animating)
             .opacity(model.contentOpacity)
             .offset(y: model.contentOffset)
     }
-
-    /// Завеса поверх роя (`.ob-veil`): два градиента-слоя, кросс-фейд по состоянию.
-    /// standard — солид с 22% высоты (рабочие экраны); low — солид с 67% (Agent,
-    /// затемнение только под карточками). На hero-full оба слоя сняты.
-    private var veil: some View {
-        ZStack {
-            LinearGradient(stops: Self.veilStandard, startPoint: .top, endPoint: .bottom)
-                .opacity(model.veilState == .standard ? 1 : 0)
-            LinearGradient(stops: Self.veilLow, startPoint: .top, endPoint: .bottom)
-                .opacity(model.veilState == .low ? 1 : 0)
-        }
-        .animation(.timingCurve(0.33, 0, 0.67, 1, duration: 0.64), value: model.veilState)
-    }
-
-    // Доли высоты полного окна (880). bg с нулевой альфой → рой виден; сплошной
-    // bg → рой погашен. Совпадает с CSS-градиентами .ob-veil::before / ::after.
-    private static let veilStandard: [Gradient.Stop] = [
-        .init(color: OB.bg.opacity(0), location: 0),
-        .init(color: OB.bg.opacity(0), location: 0.07),
-        .init(color: OB.bg.opacity(0.80), location: 0.16),
-        .init(color: OB.bg, location: 0.22),
-        .init(color: OB.bg, location: 1),
-    ]
-    private static let veilLow: [Gradient.Stop] = [
-        .init(color: OB.bg.opacity(0), location: 0),
-        .init(color: OB.bg.opacity(0), location: 0.54),
-        .init(color: OB.bg.opacity(0.80), location: 0.63),
-        .init(color: OB.bg, location: 0.67),
-        .init(color: OB.bg, location: 1),
-    ]
 
     @ViewBuilder private var screen: some View {
         switch model.step {
@@ -196,17 +157,26 @@ struct OnboardingContainer: View {
     }
 
     private var footer: some View {
+        // Точки и Skip — на ОДНОЙ линии. Обе в полосе высотой hitHeight (низ полосы =
+        // нижняя кромка окна). Точки внутри своей мишени сидят у низа (центр на
+        // dotCenterFromBottom от низа), а Skip центрируется в полосе и смещается вниз
+        // ровно на разницу «центр полосы − центр точки» — так его вертикальный центр
+        // ложится точно на линию точек, а не висит выше. Значение считается из
+        // геометрии ряда (не магическое число), поэтому не разъедется при правках.
         ZStack {
             OnboardingDots(
                 count: model.stepCount, current: model.step,
                 onTap: { model.go(to: $0) }
             )
             .frame(maxWidth: .infinity)
+
             HStack {
                 Spacer()
                 SkipButton(action: onSkip)
             }
+            .offset(y: OnboardingDots.hitHeight / 2 - OnboardingDots.dotCenterFromBottom)
         }
+        .frame(height: OnboardingDots.hitHeight)
         .opacity(model.bursting ? 0 : 1)
         .animation(OB.easeReal(0.15), value: model.bursting)
     }
@@ -262,7 +232,7 @@ private struct SkipButton: View {
         }
         .buttonStyle(.plain)
         .clickCursor()
-        .animation(OB.easeReal(0.15), value: hovering)
+        .animation(OB.hoverAnim(hovering), value: hovering)
         .onHover { hovering = $0 }
     }
 }
@@ -275,7 +245,14 @@ private struct SkipButton: View {
 private struct WindowConfigurator: NSViewRepresentable {
     let onboarding: Bool
 
-    final class Coordinator { var positioned = false }
+    final class Coordinator {
+        var positioned = false
+        // Наблюдатели за сменой фокуса окна: AppKit на resign-key перекрашивает
+        // титлбар системным серым и возвращает непрозрачный фон — переустанавливаем
+        // безрамочный конфиг на каждое такое событие, иначе «сначала норм, потом серо».
+        var chromeObservers: [NSObjectProtocol] = []
+        deinit { chromeObservers.forEach { NotificationCenter.default.removeObserver($0) } }
+    }
     func makeCoordinator() -> Coordinator { Coordinator() }
 
     func makeNSView(context: Context) -> NSView {
@@ -303,12 +280,7 @@ private struct WindowConfigurator: NSViewRepresentable {
 
     private func apply(to window: NSWindow?, coordinator: Coordinator) {
         guard let window else { return }
-        window.backgroundColor = NSColor(srgbRed: 5 / 255, green: 3 / 255, blue: 13 / 255, alpha: 1)
-        // непрозрачное окно: под прозрачным титлбаром иначе просвечивает
-        // вибрэнси-материал (в захвате читался как тёплая «полоса»/кайма сверху)
-        window.isOpaque = true
-        // тёмный титлбар как в макете (полоса #05030D под прозрачным баром), а не
-        // светло-серый материал системы
+        // тёмный титлбар как в макете (а не светло-серый материал системы)
         window.appearance = NSAppearance(named: .darkAqua)
         window.titlebarAppearsTransparent = true
         window.styleMask.insert(.fullSizeContentView)
@@ -320,10 +292,40 @@ private struct WindowConfigurator: NSViewRepresentable {
 
         if onboarding {
             window.title = "Foundry — Setup"
-            // свой титлбар рисуем в SwiftUI: прячем нативный титул и его волосину-
-            // разделитель (это была «странная полоска» сверху), «светофор» остаётся
-            window.titleVisibility = .hidden
-            window.titlebarSeparatorStyle = .none
+            // Безрамочный вид держим ПОСТОЯННО (см. enforceChrome): фон окна
+            // прозрачный + скруглённый и клиппированный рамочный вид (NSThemeFrame),
+            // чтобы срезать системную рамку и её углы. Один вызов не держится:
+            // на resign-key AppKit перекрашивает титлбар серым и возвращает
+            // непрозрачный фон — потому переустанавливаем на каждую смену фокуса.
+            Self.enforceChrome(window)
+            // Первый enforceChrome часто отрабатывает ДО того, как SwiftUI/AppKit
+            // достроят подвиды титлбара (серый материал, `_NSTitlebarDecorationView`,
+            // сам заголовок) — тогда прятать нечего, и «серая плашка с подписью и
+            // бордером» остаётся, а смены фокуса, чтобы переустановить, не случается
+            // (окно рождается ключевым). Догоняем несколькими отложенными тактами —
+            // как с центрированием: к 0.6с подвиды точно на месте и гасятся.
+            for delay in [0.05, 0.15, 0.35, 0.6, 1.0] {
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    Self.enforceChrome(window)
+                }
+            }
+            if coordinator.chromeObservers.isEmpty {
+                let names: [Notification.Name] = [
+                    NSWindow.didBecomeKeyNotification, NSWindow.didResignKeyNotification,
+                    NSWindow.didBecomeMainNotification, NSWindow.didResignMainNotification,
+                ]
+                for name in names {
+                    let obs = NotificationCenter.default.addObserver(
+                        forName: name, object: window, queue: .main
+                    ) { [weak window] _ in
+                        MainActor.assumeIsolated {
+                            guard let window else { return }
+                            Self.enforceChrome(window)
+                        }
+                    }
+                    coordinator.chromeObservers.append(obs)
+                }
+            }
             // Отвязать автосейв кадра: SwiftUI-WindowGroup вешает frameAutosaveName,
             // и macOS ВОССТАНАВЛИВАЕТ сохранённый кадр ПОСЛЕ нашего setFrame —
             // окно уезжало из центра туда, где стояло в прошлый раз (isRestorable
@@ -355,10 +357,60 @@ private struct WindowConfigurator: NSViewRepresentable {
                 window.setFrame(NSRect(origin: window.frame.origin, size: size), display: true)
             }
         } else {
+            // обычное окно: непрозрачное, без скругления и без наблюдателей
+            coordinator.chromeObservers.forEach { NotificationCenter.default.removeObserver($0) }
+            coordinator.chromeObservers.removeAll()
+            window.isOpaque = true
+            window.backgroundColor = NSColor(srgbRed: 14 / 255, green: 11 / 255, blue: 20 / 255, alpha: 1)
+            for view in [window.contentView, window.contentView?.superview] {
+                view?.layer?.cornerRadius = 0
+                view?.layer?.masksToBounds = false
+            }
             window.title = "Foundry"
             window.styleMask.insert(.resizable)
             window.standardWindowButton(.zoomButton)?.isEnabled = true
         }
+    }
+
+    /// Переустанавливаемый безрамочный вид окна онбординга. Зовётся при первичной
+    /// настройке и на каждую смену фокуса — иначе AppKit на resign-key вернёт
+    /// системный серый титлбар и непрозрачный фон, а рамка проступит обратно.
+    @MainActor private static func enforceChrome(_ window: NSWindow) {
+        window.appearance = NSAppearance(named: .darkAqua)
+        // БЕЗ БОРДЕРА: на этой macOS родной 1px-бордер titled-окна снимается только
+        // вместе с тенью — они один механизм. Делаем окно прозрачным и выключаем
+        // тень: сервер больше не обводит силуэт светлым кантом. Скругление углов —
+        // в SwiftUI (.clipShape). Цена — нет родной тени (её при желании рисуем сами).
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.hasShadow = false
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.titlebarSeparatorStyle = .none
+        // NSThemeFrame не клиппируем (даёт кант-артефакт). Гасим хром титлбара:
+        // серый материал и линию-накладку — «светофор» (NSButton) остаётся.
+        if let frameView = window.contentView?.superview {
+            frameView.layer?.cornerRadius = 0
+            frameView.layer?.masksToBounds = false
+            frameView.layer?.borderWidth = 0
+            hideTitlebarChrome(in: frameView)
+        }
+    }
+
+    /// Гасит хром титлбара: системный материал (`NSVisualEffectView`, серый на
+    /// неактивном окне) и декоративную накладку (`_NSTitlebarDecorationView` — это
+    /// линия-разделитель под баром). Кнопки-«светофор» (`NSButton` в `NSTitlebarView`)
+    /// не трогаем — остаются видимыми и рабочими.
+    @MainActor private static func hideTitlebarChrome(in frameView: NSView) {
+        func walk(_ view: NSView, underTitlebar: Bool) {
+            let cls = String(describing: type(of: view))
+            let isTitlebar = underTitlebar || cls == "NSTitlebarContainerView"
+            if isTitlebar, view is NSVisualEffectView || cls == "_NSTitlebarDecorationView" {
+                view.isHidden = true
+            }
+            for sub in view.subviews { walk(sub, underTitlebar: isTitlebar) }
+        }
+        walk(frameView, underTitlebar: false)
     }
 
     /// Ставит окно по центру по горизонтали, прижав к верху рабочей зоны экрана.

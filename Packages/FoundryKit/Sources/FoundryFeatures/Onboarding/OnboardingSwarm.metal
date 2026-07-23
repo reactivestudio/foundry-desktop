@@ -97,7 +97,9 @@ static inline float3 warmColor(int i) {
     return float3(1.00, 0.69, 0.13);               // FFB020 янтарь       39°
 }
 
-constant float3 BG_LIN = float3(0.001518, 0.000911, 0.004025);
+// Фон роя (нижний видимый слой окна) — временно осветлён до #241E3B
+// (linear). Был bg.base #05030D (0.001518/0.000911/0.004025).
+constant float3 BG_LIN = float3(0.017764, 0.012983, 0.043735);
 
 vertex VOut swarmVertex(uint vid [[vertex_id]],
                         constant SwarmUniforms &U [[buffer(0)]]) {
@@ -280,18 +282,18 @@ fragment float4 swarmPostFragment(PostOut in [[stage_in]],
             else                 { nB++; }
         }
     }
-    float3 c;
     int lit = nC + nW;
-    if (lit == 0) {
-        c = BG_LIN;
-    } else {
-        bool warmWins = nW >= nC;
-        float3 avg = warmWins ? sumW / float(nW) : sumC / float(nC);
-        c = (avg * float(lit) + BG_LIN * float(nB)) / float(U.ss * U.ss);
-    }
-    c = pow(max(c, 0.0), float3(0.4545));
+    // Рой рисует ТОЛЬКО частицы. Фон — прозрачный: цвет даёт нижний SwiftUI-слой
+    // (OB.fon). Где нет частиц — alpha 0. Где есть — premultiplied-альфа = доля
+    // покрытия субпикселями (nB-субпиксели вносят прозрачность, не цвет фона).
+    if (lit == 0) return float4(0.0);
+    bool warmWins = nW >= nC;
+    float3 avg = warmWins ? sumW / float(nW) : sumC / float(nC);  // цвет семьи (linear)
+    float cov = float(lit) / float(U.ss * U.ss);
+    float3 c = pow(max(avg, 0.0), float3(0.4545));  // linear→sRGB
     float2 fc = in.position.xy;
     float n1 = fract(sin(dot(fc, float2(12.9898, 78.233)) + U.time * 0.017) * 43758.5453);
     float n2 = fract(sin(dot(fc, float2(93.9898, 67.345)) - U.time * 0.023) * 24634.6345);
-    return float4(c + (n1 + n2 - 1.0) * (2.0 / 255.0), 1.0);
+    c += (n1 + n2 - 1.0) * (2.0 / 255.0);
+    return float4(c * cov, cov);  // premultiplied alpha
 }

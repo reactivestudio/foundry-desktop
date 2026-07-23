@@ -159,8 +159,10 @@ final class OnboardingSwarmRenderer {
         pass.colorAttachments[0].loadAction = .clear
         pass.colorAttachments[0].storeAction = .store
         // Альфа 0.5 метит фон: сведение отличает по ней «пусто» от семьи.
+        // RGB = BG_LIN #241E3B (сведение всё равно берёт фон из BG_LIN в шейдере;
+        // держим в паре для корректного антиалиасинга кромок частиц о фон).
         pass.colorAttachments[0].clearColor = MTLClearColor(
-            red: 0.001518, green: 0.000911, blue: 0.004025, alpha: 0.5)
+            red: 0.017764, green: 0.012983, blue: 0.043735, alpha: 0.5)
         pass.depthAttachment.texture = depthTexture
         pass.depthAttachment.loadAction = .clear
         pass.depthAttachment.storeAction = .dontCare
