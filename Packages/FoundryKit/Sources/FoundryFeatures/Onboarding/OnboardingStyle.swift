@@ -145,10 +145,19 @@ enum OBNoise {
             px[i * 4 + 3] = 255
         }
         let cs = CGColorSpaceCreateDeviceRGB()
-        let ctx = CGContext(
-            data: &px, width: n, height: n, bitsPerComponent: 8, bytesPerRow: n * 4,
-            space: cs, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-        return ctx.makeImage()!
+        // Контекст И снимок — внутри withUnsafeMutableBytes. Указатель из `&px`
+        // действителен только на время самого вызова CGContext.init, а буфер
+        // читается позже, в makeImage() — снаружи это висячий указатель (массиву
+        // ничто не мешает освободиться сразу после init, он больше не нужен).
+        // makeImage() копирует байты, поэтому наружу уходит самостоятельный
+        // CGImage, не завязанный на время жизни массива.
+        return px.withUnsafeMutableBytes { buf in
+            let ctx = CGContext(
+                data: buf.baseAddress, width: n, height: n, bitsPerComponent: 8,
+                bytesPerRow: n * 4, space: cs,
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+            return ctx.makeImage()!
+        }
     }
 }
 

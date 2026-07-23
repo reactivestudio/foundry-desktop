@@ -251,6 +251,16 @@ private struct WindowConfigurator: NSViewRepresentable {
         // титлбар системным серым и возвращает непрозрачный фон — переустанавливаем
         // безрамочный конфиг на каждое такое событие, иначе «сначала норм, потом серо».
         var chromeObservers: [NSObjectProtocol] = []
+        // Поколение конфигурации: растёт на каждый apply. Отложенные такты
+        // (enforceChrome и centerTop) сверяют своё поколение с текущим и молчат,
+        // если оно устарело. Без этого Skip ломал главное окно: `done` переключается
+        // мгновенно, а такты, заказанные ещё мастером, догоняли уже обычное окно и
+        // возвращали ему безрамочный вид и размер 720×880.
+        var generation = 0
+        // Имя автосейва кадра, которое повесил SwiftUI. Мастер его снимает (иначе
+        // macOS восстанавливает старый кадр ПОСЛЕ центрирования) — возвращаем при
+        // выходе, чтобы главное окно снова помнило позицию.
+        var savedAutosaveName: NSWindow.FrameAutosaveName?
         deinit {
             for observer in chromeObservers { NotificationCenter.default.removeObserver(observer) }
         }
@@ -282,6 +292,9 @@ private struct WindowConfigurator: NSViewRepresentable {
 
     private func apply(to window: NSWindow?, coordinator: Coordinator) {
         guard let window else { return }
+        // Новая конфигурация обесценивает все отложенные такты прежней.
+        coordinator.generation &+= 1
+        let generation = coordinator.generation
         // тёмный титлбар как в макете (а не светло-серый материал системы)
         window.appearance = NSAppearance(named: .darkAqua)
         window.titlebarAppearsTransparent = true
@@ -308,6 +321,7 @@ private struct WindowConfigurator: NSViewRepresentable {
             // как с центрированием: к 0.6с подвиды точно на месте и гасятся.
             for delay in [0.05, 0.15, 0.35, 0.6, 1.0] {
                 DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    guard coordinator.generation == generation else { return }
                     Self.enforceChrome(window)
                 }
             }
@@ -333,6 +347,9 @@ private struct WindowConfigurator: NSViewRepresentable {
             // окно уезжало из центра туда, где стояло в прошлый раз (isRestorable
             // это не отменяет, это другой механизм). Пустое имя отключает автосейв,
             // и центрирование ниже держится.
+            if coordinator.savedAutosaveName == nil {
+                coordinator.savedAutosaveName = window.frameAutosaveName
+            }
             window.setFrameAutosaveName("")
             // размер — ПОЛНЫЙ кадр 720×880 (титлбар 44 внутри), как .ob-win в
             // макете. Не setContentSize: тот прибавлял 28px нативного бара. И не
@@ -351,6 +368,7 @@ private struct WindowConfigurator: NSViewRepresentable {
                 // окно в покое и его можно двигать.
                 for delay in [0.05, 0.15, 0.35, 0.6] {
                     DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                        guard coordinator.generation == generation else { return }
                         Self.centerTop(window, size: size)
                     }
                 }
@@ -359,16 +377,16 @@ private struct WindowConfigurator: NSViewRepresentable {
                 window.setFrame(NSRect(origin: window.frame.origin, size: size), display: true)
             }
         } else {
-            // обычное окно: непрозрачное, без скругления и без наблюдателей
+            // обычное окно: снимаем наблюдателей и разворачиваем ВЕСЬ безрамочный
+            // вид обратно (см. restoreChrome — зеркало enforceChrome).
             for observer in coordinator.chromeObservers {
                 NotificationCenter.default.removeObserver(observer)
             }
             coordinator.chromeObservers.removeAll()
-            window.isOpaque = true
-            window.backgroundColor = NSColor(srgbRed: 14 / 255, green: 11 / 255, blue: 20 / 255, alpha: 1)
-            for view in [window.contentView, window.contentView?.superview] {
-                view?.layer?.cornerRadius = 0
-                view?.layer?.masksToBounds = false
+            Self.restoreChrome(window)
+            if let saved = coordinator.savedAutosaveName {
+                window.setFrameAutosaveName(saved)
+                coordinator.savedAutosaveName = nil
             }
             window.title = "Foundry"
             window.styleMask.insert(.resizable)
@@ -397,20 +415,44 @@ private struct WindowConfigurator: NSViewRepresentable {
             frameView.layer?.cornerRadius = 0
             frameView.layer?.masksToBounds = false
             frameView.layer?.borderWidth = 0
-            hideTitlebarChrome(in: frameView)
+            setTitlebarChromeHidden(true, in: frameView)
         }
     }
 
-    /// Гасит хром титлбара: системный материал (`NSVisualEffectView`, серый на
-    /// неактивном окне) и декоративную накладку (`_NSTitlebarDecorationView` — это
-    /// линия-разделитель под баром). Кнопки-«светофор» (`NSButton` в `NSTitlebarView`)
-    /// не трогаем — остаются видимыми и рабочими.
-    @MainActor private static func hideTitlebarChrome(in frameView: NSView) {
+    /// Возврат обычного вида — ЗЕРКАЛО `enforceChrome`. Мастер и главное окно это
+    /// один и тот же NSWindow (`WindowConfigurator` висит на корне, `onboarding`
+    /// переключается на ходу), поэтому всё выключенное надо включить обратно: иначе
+    /// после Skip или финала главное окно до перезапуска оставалось без тени, без
+    /// заголовка и с погашенным хромом титлбара. Правило: любое поле, которое трогает
+    /// `enforceChrome`, обязано иметь строку здесь — кроме `appearance` и
+    /// `titlebarAppearsTransparent`, они одинаковы для ОБОИХ режимов и ставятся выше,
+    /// в общей части `apply`; возвращать тут нечего.
+    @MainActor private static func restoreChrome(_ window: NSWindow) {
+        window.isOpaque = true
+        window.backgroundColor = NSColor(srgbRed: 14 / 255, green: 11 / 255, blue: 20 / 255, alpha: 1)
+        window.hasShadow = true
+        window.titleVisibility = .visible
+        window.titlebarSeparatorStyle = .automatic
+        for view in [window.contentView, window.contentView?.superview] {
+            view?.layer?.cornerRadius = 0
+            view?.layer?.masksToBounds = false
+        }
+        if let frameView = window.contentView?.superview {
+            setTitlebarChromeHidden(false, in: frameView)
+        }
+    }
+
+    /// Гасит или возвращает хром титлбара: системный материал (`NSVisualEffectView`,
+    /// серый на неактивном окне) и декоративную накладку (`_NSTitlebarDecorationView` —
+    /// это линия-разделитель под баром). Кнопки-«светофор» (`NSButton` в
+    /// `NSTitlebarView`) не трогаем — остаются видимыми и рабочими. Один обход на оба
+    /// направления: так набор классов не разъедется между «спрятать» и «вернуть».
+    @MainActor private static func setTitlebarChromeHidden(_ hidden: Bool, in frameView: NSView) {
         func walk(_ view: NSView, underTitlebar: Bool) {
             let cls = String(describing: type(of: view))
             let isTitlebar = underTitlebar || cls == "NSTitlebarContainerView"
             if isTitlebar, view is NSVisualEffectView || cls == "_NSTitlebarDecorationView" {
-                view.isHidden = true
+                view.isHidden = hidden
             }
             for sub in view.subviews { walk(sub, underTitlebar: isTitlebar) }
         }
