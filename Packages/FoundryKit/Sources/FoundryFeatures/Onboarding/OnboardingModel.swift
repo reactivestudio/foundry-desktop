@@ -70,28 +70,14 @@ final class OnboardingModel {
 
     let stepCount = 6
 
-    // MARK: - Раскладка экрана (как в макете: hero-full / veil-low / standard)
+    // MARK: - Раскладка экрана (единый нижний зазор до пагинации)
 
-    /// Состояние завесы поверх роя (`.ob-veil`): none — рой целиком (приветствие,
-    /// Готово); low — затемнение утащено под карточки (Agent); standard — рабочие
-    /// экраны на чистом фоне. Кросс-фейд между состояниями рисует контейнер.
-    enum VeilState { case none, standard, low }
-    var veilState: VeilState {
-        if step == 0 || step == stepCount - 1 { return .none }  // hero-full
-        if step == 1 { return .low }  // veil-low (Agent)
-        return .standard
-    }
-
-    /// Полный орб без завесы — только там, где экран почти пуст (приветствие, Готово).
-    var isHeroFull: Bool { step == 0 || step == stepCount - 1 }
-
-    /// Контент прижат к низу (`justify-content: flex-end`) на приветствии, Agent и
-    /// Готово; на рабочих экранах (Extensions/Settings/Permissions) — к верху.
-    var bottomPinned: Bool { step == 0 || step == 1 || step == stepCount - 1 }
-
-    /// Доп. нижний отступ экрана (`.ob-screen padding-bottom`): приветствие и
-    /// Готово — s6 = 32 (воздух над пагинацией); Agent — 0.
-    var screenPadBottom: CGFloat { (step == 0 || step == stepCount - 1) ? 32 : 0 }
+    /// Единый нижний воздух экрана над пагинацией — эталон взят с приветствия (s6=32).
+    /// ОДИН на все шесть экранов: этим и «фиксируется» композиция — нижний элемент
+    /// любого экрана (кнопка / ряд карточек / панель) встаёт на равном расстоянии до
+    /// точек. Прежде рабочие экраны висели у верха, а Agent имел зазор 0 — расстояние
+    /// до пагинации скакало от экрана к экрану.
+    let screenPadBottom: CGFloat = 32
 
     init() {
         func tint(_ r: Double, _ g: Double, _ b: Double) -> Color {
@@ -128,25 +114,71 @@ final class OnboardingModel {
         ]
     }
 
-    // MARK: - Переходы (двухтактные: уход 320ms, свап на 300ms, вход 560/680ms)
+    // MARK: - Переходы (двухтактные: уход 300ms → свап → вход 640ms; плавно, без рывка)
+
+    // Куда переход держит курс. Быстрые нажатия НЕ плодят отдельные анимации и не
+    // снимаются рывком «в лоб» — они лишь двигают эту цель; текущий такт на своём
+    // стыке доедет сразу до самого свежего адреса. Так три быстрых стрелки = один
+    // плавный переход к финальному экрану, без мельтешения гашений.
+    private var pendingTarget: Int?
 
     func go(to next: Int) {
-        guard next != step, !animating, !bursting else { return }
+        guard next != step, !bursting else { return }
+        pendingTarget = next
+        if !animating { startTransition() }
+    }
+
+    /// Один такт перехода: увести текущий экран (гашение + лёгкий подъём) → на
+    /// стыке свапнуть на САМУЮ свежую цель (сжатые быстрые нажатия) → ввести новый.
+    /// Хвостом проверяем, не накопились ли ещё нажатия за время ввода — тогда
+    /// плавно продолжаем следующим тактом (без стыка кадров и рывка).
+    private func startTransition() {
+        guard let target = pendingTarget, target != step else {
+            pendingTarget = nil
+            animating = false
+            return
+        }
         animating = true
-        withAnimation(.timingCurve(0.33, 0, 0.67, 1, duration: 0.32)) { contentOpacity = 0 }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.30) { [self] in
-            step = next
-            contentOffset = 22
-            withAnimation(.timingCurve(0.33, 0, 0.67, 1, duration: 0.56)) { contentOpacity = 1 }
-            withAnimation(.timingCurve(0.33, 1, 0.68, 1, duration: 0.68)) { contentOffset = 0 }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.70) { self.animating = false }
+        // Уход: плавная кривая (разгон И затухание, control2 не в углу) — контент не
+        // обрывается на полной скорости, а мягко тает, поднимаясь. Дольше прежнего.
+        withAnimation(.timingCurve(0.35, 0, 0.35, 1, duration: 0.30)) {
+            contentOpacity = 0
+            contentOffset = -12
+        } completion: { [self] in
+            let dest = pendingTarget ?? target
+            pendingTarget = nil
+            step = dest
+            contentOffset = 14
+            // Вход: длинный дом-decel (0.2,0,0,1) — новый экран мягко доезжает снизу
+            // и проявляется, без рывка на старте.
+            withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 0.64)) {
+                contentOpacity = 1
+                contentOffset = 0
+            } completion: { [self] in
+                if let p = pendingTarget, p != step {
+                    startTransition()  // за время ввода докрутили ещё — продолжаем гладко
+                } else {
+                    pendingTarget = nil
+                    animating = false
+                }
+            }
         }
     }
 
     /// Навигация стрелками (как клик по точкам пагинации): вправо — дальше,
     /// влево — назад, в пределах [0, stepCount-1].
-    func goNext() { if step < stepCount - 1 { go(to: step + 1) } }
-    func goPrev() { if step > 0 { go(to: step - 1) } }
+    ///
+    /// Считаем от УЖЕ намеченной цели (`pendingTarget`), а не от `step` — тот в
+    /// разгар перехода ещё не сдвинулся, и два быстрых нажатия иначе целили бы в
+    /// один и тот же экран (+1, +1). Теперь второе нажатие честно даёт +2.
+    func goNext() {
+        let base = pendingTarget ?? step
+        if base < stepCount - 1 { go(to: base + 1) }
+    }
+    func goPrev() {
+        let base = pendingTarget ?? step
+        if base > 0 { go(to: base - 1) }
+    }
 
     // MARK: - Карточки
 

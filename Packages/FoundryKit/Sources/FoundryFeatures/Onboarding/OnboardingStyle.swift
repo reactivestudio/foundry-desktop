@@ -1,3 +1,5 @@
+import AppKit
+import CoreGraphics
 import SwiftUI
 
 /// Онбординговые константы стиля — то, чего нет в `DesignTokens.swift`, но что
@@ -7,7 +9,10 @@ import SwiftUI
 /// Значения кнопки/янтаря посчитаны из OKLCH единожды и зашиты как sRGB —
 /// SwiftUI не смешивает в OKLCH, а опорные точки макета фиксированы.
 enum OB {
-    // фон окна установки — bg.base #05030D
+    // fon — самый нижний слой окна установки (#0E0B14, почти чёрный с чуть
+    // фиолетовым тоном). Только фон окна; поверхности карточек/панелей — bg (ниже).
+    static let fon = Color(hexValue: 0x0E0B14)
+    // bg — тёмная поверхность карточек/панелей и их подложек (bg.base #05030D)
     static let bg = Token.Background.base
 
     // primary-кнопка: плоский ультрамарин; hover/pressed — вглубь и в пурпур
@@ -36,8 +41,13 @@ enum OB {
     static let borderSubtle = Token.Border.subtle  // 0.08
     static let borderDefault = Token.Border.default  // 0.12
 
-    // движение: «настоящая» кривая макета cubic-bezier(0.2,0,0,1)
-    static func easeReal(_ d: Double) -> Animation { .timingCurve(0.2, 0, 0, 1, duration: d) }
+    // движение: делегируем в общий AppMotion (единый источник законов движения на
+    // всё приложение). Здесь — лишь онбординговые алиасы, чтобы не трогать call-sites.
+    /// «Настоящая» кривая макета cubic-bezier(0.2,0,0,1). См. `AppMotion.ease`.
+    static func easeReal(_ d: Double) -> Animation { AppMotion.ease(d) }
+    /// ЗАКОН ховера (быстро на входе, заметно медленнее на уходе) — общий на всё
+    /// приложение. См. `AppMotion.hover`. Вешать как `.animation(OB.hoverAnim(h), value: h)`.
+    static func hoverAnim(_ hovering: Bool) -> Animation { AppMotion.hover(hovering) }
     static let mFast = 0.15
     static let mBase = 0.22
 
@@ -51,6 +61,10 @@ enum OB {
 /// параметризации 2/n = 0.5: точка четвертинки = (cos t)^0.5, (sin t)^0.5.
 struct Squircle: InsettableShape {
     var cornerRadius: CGFloat
+    /// Показатель суперэллипса |x|ⁿ+|y|ⁿ=1. Канон системы — 4 (CSS `corner-shape:
+    /// squircle`). Меньше — угол ближе к дуге окружности и читается круглее (n=2 —
+    /// ровно окружность); больше — угол площе, ближе к прямому.
+    var exponent: CGFloat = 4
     var insetAmount: CGFloat = 0
 
     func path(in rect: CGRect) -> Path {
@@ -62,9 +76,10 @@ struct Squircle: InsettableShape {
         let x1 = r.maxX
         let y1 = r.maxY
         let seg = 16
+        let e = 2 / exponent  // экспонента параметризации: n=4 → 0.5, n=2 → 1 (окружность)
         func se(_ i: Int) -> (CGFloat, CGFloat) {
             let t = (.pi / 2) * CGFloat(i) / CGFloat(seg)
-            return (pow(cos(t), 0.5), pow(sin(t), 0.5))
+            return (pow(cos(t), e), pow(sin(t), e))
         }
         var p = Path()
         p.move(to: CGPoint(x: x0 + rad, y: y0))
@@ -99,21 +114,133 @@ struct Squircle: InsettableShape {
     }
 }
 
-/// Парящая тень карточек и панелей мастера (--shadow-float): тёмное гало над
-/// роем. На голом bg.base невидима (нечего гасить) — работает лишь в полосе, где
-/// сзади яркий рой; глубину дублирует микрорельеф кромок. В SwiftUI радиус ≈
-/// блюр/2, слои сгущены к ядру. Живёт на непрозрачной bg.base-подложке под телом,
-/// чтобы рой не просвечивал и тень не темнила соседей.
-private struct FloatShadow: ViewModifier {
+/// Мелкодисперсный шум фона. Плоская заливка идеально однородна и оттого «мёртвая»;
+/// лёгкий шум микрооттенков (как дизеринг в прототипе) оживляет фон — глазу почти
+/// не виден, проступает лишь при увеличении. Тайл случайных значений вокруг
+/// нейтрального серого 128, блендится `.overlay` (серый = без сдвига, отклонения
+/// чуть светлят/темнят каждый пиксель; на тёмном фоне эффект пропорционально мал).
+enum OBNoise {
+    static let tile = 256  // сторона тайла, px (высокочастотный шум — швов не видно)
+    static let amp = 27  // размах отклонения от серого 128 (± amp), 0…127
+    static let opacity: Double = 0.7  // сила проявления (масштабирует отклонения)
+
+    static let image: CGImage = make()
+
+    private static func make() -> CGImage {
+        let n = tile
+        var px = [UInt8](repeating: 0, count: n * n * 4)
+        var seed: UInt64 = 0x9E37_79B9_7F4A_7C15  // детерминированный xorshift — стабилен между запусками
+        func rnd() -> Int {
+            seed ^= seed << 13
+            seed ^= seed >> 7
+            seed ^= seed << 17
+            return Int(truncatingIfNeeded: seed) & 0xFF
+        }
+        for i in 0..<(n * n) {
+            let v = 128 + (rnd() % (2 * amp + 1)) - amp
+            let g = UInt8(clamping: v)
+            px[i * 4 + 0] = g
+            px[i * 4 + 1] = g
+            px[i * 4 + 2] = g
+            px[i * 4 + 3] = 255
+        }
+        let cs = CGColorSpaceCreateDeviceRGB()
+        // Контекст И снимок — внутри withUnsafeMutableBytes. Указатель из `&px`
+        // действителен только на время самого вызова CGContext.init, а буфер
+        // читается позже, в makeImage() — снаружи это висячий указатель (массиву
+        // ничто не мешает освободиться сразу после init, он больше не нужен).
+        // makeImage() копирует байты, поэтому наружу уходит самостоятельный
+        // CGImage, не завязанный на время жизни массива.
+        return px.withUnsafeMutableBytes { buf in
+            let ctx = CGContext(
+                data: buf.baseAddress, width: n, height: n, bitsPerComponent: 8,
+                bytesPerRow: n * 4, space: cs,
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+            return ctx.makeImage()!
+        }
+    }
+}
+
+/// Фон окна установки: `OB.fon` с тонким шумом микрооттенков поверх (см. OBNoise).
+struct FonBackground: View {
+    var body: some View {
+        OB.fon.overlay(
+            // scale: 2 → один тексель шума = 1 физический пиксель на retina (самое
+            // мелкое зерно); при scale 1 тексель занимал 1 point = 2 px, было крупнее.
+            Image(decorative: OBNoise.image, scale: 2)
+                .resizable(resizingMode: .tile)
+                .blendMode(.overlay)
+                .opacity(OBNoise.opacity)
+        )
+        .compositingGroup()  // изолировать бленд шума на паре (fon+шум), не на рой ниже
+    }
+}
+
+/// Тюнер тени карточек/панелей. Модель «spread + blur»: залитый чёрный силуэт,
+/// вынесенный за кромку на `spread` px во все стороны, с размытием края на `blur` px.
+enum OBShadow {
+    static let spread: CGFloat = 80  // вынос за кромку во все стороны, px
+    static let blur: CGFloat = 80  // размытие края, px (0 = чёткая граница)
+    static let opacity: Double = 0.8  // прозрачность ВСЕГО слоя (после уплощения)
+    static let color = Color.black
+}
+
+/// Один блок, отбрасывающий парящую тень: его рамка (anchor в координатах слоя)
+/// и радиус угла. Собираются через preference и рисуются единым слоем.
+struct ShadowCaster {
+    let anchor: Anchor<CGRect>
     let radius: CGFloat
-    func body(content: Content) -> some View {
-        content
-            .background(
-                OB.squircle(radius).fill(OB.bg)
-                    .shadow(color: .black.opacity(0.80), radius: 48)
-                    .shadow(color: .black.opacity(0.42), radius: 105)
-                    .shadow(color: .black.opacity(0.18), radius: 200)
-            )
+}
+
+struct ShadowCastersKey: PreferenceKey {
+    static let defaultValue: [ShadowCaster] = []
+    static func reduce(value: inout [ShadowCaster], nextValue: () -> [ShadowCaster]) {
+        value.append(contentsOf: nextValue())
+    }
+}
+
+extension View {
+    /// Пометить блок (карточку, панель) как отбрасыватель парящей тени: регистрирует
+    /// его рамку в ближайшем `FloatShadowLayer`, а не рисует тень на месте. Так тень
+    /// уходит в слой ПОД всем контентом экрана — см. FloatShadowLayer.
+    func castsFloatShadow(_ radius: CGFloat) -> some View {
+        anchorPreference(key: ShadowCastersKey.self, value: .bounds) {
+            [ShadowCaster(anchor: $0, radius: radius)]
+        }
+    }
+}
+
+/// Единый слой парящих теней экрана. Собирает рамки всех `castsFloatShadow`
+/// блоков и рисует их тени ОДНИМ слоем ПОД всем содержимым (заголовки, тексты,
+/// карточки, панели, кнопки — всё рисуется выше). Поэтому тень одной карточки не
+/// может лечь ни на соседнюю, ни на заголовок/лид/кнопку: тени на слое n, тела на
+/// n+10. Раньше тень висела `.background`-ом ряда и, разрастаясь вверх, перекрывала
+/// заголовок и лид (они рисуются в VStack раньше ряда) — это и был дефект модели.
+struct FloatShadowLayer<Content: View>: View {
+    @ViewBuilder var content: Content
+    var body: some View {
+        content.backgroundPreferenceValue(ShadowCastersKey.self) { casters in
+            GeometryReader { proxy in
+                // Залитые НЕПРОЗРАЧНЫЕ силуэты на (size+2·spread) → compositingGroup
+                // (уплощает перекрытия в единое чёрное, без тёмных швов) → блюр края →
+                // прозрачность на ВЕСЬ уплощённый слой (равномерно, не по прямоугольнику).
+                ZStack {
+                    ForEach(casters.indices, id: \.self) { i in
+                        let rect = proxy[casters[i].anchor]
+                        RoundedRectangle(cornerRadius: casters[i].radius, style: .continuous)
+                            .fill(OBShadow.color)
+                            .frame(
+                                width: rect.width + 2 * OBShadow.spread,
+                                height: rect.height + 2 * OBShadow.spread
+                            )
+                            .position(x: rect.midX, y: rect.midY)
+                    }
+                }
+                .compositingGroup()
+                .blur(radius: OBShadow.blur)
+                .opacity(OBShadow.opacity)
+            }
+        }
     }
 }
 
@@ -144,7 +271,6 @@ private struct FlattenWhileMoving: ViewModifier {
 }
 
 extension View {
-    func floatShadow(_ radius: CGFloat) -> some View { modifier(FloatShadow(radius: radius)) }
     func edgeRelief(_ radius: CGFloat) -> some View { modifier(EdgeRelief(radius: radius)) }
     /// См. `FlattenWhileMoving`: `.drawingGroup()` только пока идёт переход.
     func flattenWhileMoving(_ active: Bool) -> some View {
@@ -152,7 +278,8 @@ extension View {
     }
     /// Курсор-рука на кликабельном. В макете (веб) у всего кликабельного
     /// `cursor: pointer`; в нативе по умолчанию курсор не меняется — вешаем
-    /// системный link-указатель на каждую мишень, чтобы паритет держался.
+    /// системный link-указатель. Работает на КЛЮЧЕВОМ окне; на неактивном окне
+    /// macOS свой курсор показывать почти не даёт — по договорённости не боремся.
     func clickCursor() -> some View { pointerStyle(.link) }
 }
 
@@ -240,7 +367,7 @@ struct OBPrimaryButton: View {
         }
         .buttonStyle(.plain)
         .clickCursor()
-        .animation(hovering ? OB.easeReal(0.15) : OB.easeReal(0.45), value: hovering)
+        .animation(OB.hoverAnim(hovering), value: hovering)
         .animation(OB.easeReal(0.12), value: pressed)
         .onHover { hovering = $0 }
         .onLongPressGesture(minimumDuration: 0, pressing: { pressed = $0 }, perform: {})
@@ -263,6 +390,7 @@ struct OBGhostButton: View {
         }
         .buttonStyle(.plain)
         .clickCursor()
+        .animation(OB.hoverAnim(hovering), value: hovering)
         .onHover { hovering = $0 }
     }
 }

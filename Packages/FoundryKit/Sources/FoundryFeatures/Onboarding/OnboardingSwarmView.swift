@@ -23,7 +23,14 @@ struct OnboardingSwarmView: NSViewRepresentable {
     static let coverage: Float = 6000 * grainLoader * grainLoader
     static let count = Int((coverage / (grain * grain)).rounded())  // 44 701
     static let refHeight: Float = 836
+    /// Насколько опустить облако вниз от позиции макета, в экранных точках. Верхняя
+    /// кромка вида остаётся на y=0, само облако ниже — частицы не доходят до кромки
+    /// окна (клип сверху режет пустой fon, без линии среза).
+    static let heroDropPt: Float = 20
     static let minPoint: Float = 1.8
+    /// Множитель размера частицы (1.0 = как было). Суперсэмпл выбирается по
+    /// неуменьшенному размеру, поэтому мельчить точку можно без потери резкости.
+    static let pointScale: Float = 0.85
     static let maxSupersample = 8
     /// Полный разлёт: сжатие ~190ms → расширение ~2.2s.
     static let burstDuration: Double = 2.370
@@ -43,7 +50,17 @@ struct OnboardingSwarmView: NSViewRepresentable {
         // рекурсивно дёргала делегат — переполнение стека), а пересчётом
         // производных из уже данного размера.
         view.autoResizeDrawable = true
-        view.layer?.isOpaque = true
+        // Рой прозрачен: resolve пишет premultiplied-альфу (частицы поверх пустоты),
+        // фон даёт нижний SwiftUI-слой OB.fon. Непрозрачный слой залил бы его.
+        view.layer?.isOpaque = false
+        view.clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
+        // Обрезать рой по форме окна: SwiftUI-`.clipShape` дровабл CAMetalLayer не
+        // режет — частицы квадратными углами вылезали за скруглённую кромку на обои.
+        // Маска по слою НЕ меняет размер/позицию роя (геометрия та же), только
+        // клиппит вывод. Радиус/кривая — как у окна (RoundedRectangle 12 .continuous).
+        view.layer?.cornerRadius = 12
+        view.layer?.cornerCurve = .continuous
+        view.layer?.masksToBounds = true
         view.delegate = context.coordinator
         context.coordinator.attach(view: view)
         return view
@@ -71,6 +88,7 @@ struct OnboardingSwarmView: NSViewRepresentable {
         private var pt: Float = 0
         private var kfit: Float = 1
         private var aspect: Float = 1
+        private var viewHeightPt: Float = 880  // высота вида в точках (для перевода px→NDC)
 
         // разлёт
         private var bursting = false
@@ -155,6 +173,7 @@ struct OnboardingSwarmView: NSViewRepresentable {
             // референсный кадр в device-px: refHeight(CSS)·dpr, делим на факт. высоту
             kfit = (geo.refHeight * dpr) / Float(h)
             aspect = Float(w) / Float(h)
+            viewHeightPt = Float(h) / dpr
             renderer?.resize(bufW: bufW, bufH: bufH)
         }
 
@@ -199,12 +218,14 @@ struct OnboardingSwarmView: NSViewRepresentable {
             u.count = Float(geo.count)
             u.res = SIMD2<Float>(Float(bufW), Float(bufH))
             u.zoom = geo.zoom
-            u.pt = pt
+            u.pt = pt * geo.pointScale
             u.taper = geo.taper
             u.aspect = aspect
             // позиция орба в NDC референсного кадра, пересчёт в фактический:
-            // y' = 1 − (1 − y)·KFIT; по x орб центрован.
-            u.center = SIMD2<Float>(0, 1 - (1 - heroY) * kfit)
+            // y' = 1 − (1 − y)·KFIT; по x орб центрован. Минус heroDropPt — опустить
+            // облако на N экранных точек (NDC 2.0 = viewHeightPt; +y вверх → вычитаем).
+            let dropNDC = geo.heroDropPt * 2 / viewHeightPt
+            u.center = SIMD2<Float>(0, (1 - (1 - heroY) * kfit) - dropNDC)
             // кинематографичный наезд камеры в момент рывка (+40% по кривой)
             let xg = max(0, (burst - 0.08) / 0.92)
             let gb = xg * xg * (1.4 - 0.4 * xg)
