@@ -4,6 +4,7 @@
 .build-dd/
 dist/
 DerivedData/
+scratchpad/
 xcuserdata/
 *.xcuserstate
 .swiftpm/

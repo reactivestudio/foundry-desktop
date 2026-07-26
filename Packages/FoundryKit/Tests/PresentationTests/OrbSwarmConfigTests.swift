@@ -1,0 +1,203 @@
+import Testing
+
+@testable import Presentation
+
+// Раскладка роя обязана совпадать с прототипом design/loader-logo.html число в
+// число. Прототип — источник истины; разойтись они могут молча, поэтому числа
+// прибиты тестом.
+@Suite("Раскладка роя")
+struct OrbSwarmConfigTests {
+
+    @Test("Зерно лоадера = 1.376% — из него считается всё остальное")
+    func loaderGrainIsSourceOfTruth() {
+        #expect(abs(OrbSwarmConfig.loaderGrain - 0.013757) < 0.000001)
+    }
+
+    @Test("Утверждённый рой: 6000 частиц при зерне лоадера")
+    func coverageMatchesApprovedSwarm() {
+        let derivedCount = OrbSwarmConfig.coverage / (OrbSwarmConfig.loaderGrain * OrbSwarmConfig.loaderGrain)
+        #expect(abs(derivedCount - 6000) < 1)
+    }
+
+    @Test("Пресеты дают числа прототипа: fine 44 701, standard 11 175")
+    func presetCounts() {
+        #expect(OrbSwarmConfig(preset: .fine, size: 512, scale: 1).particleCount == 44701)
+        #expect(OrbSwarmConfig(preset: .standard, size: 512, scale: 1).particleCount == 11175)
+    }
+
+    @Test("Число частиц от размера НЕ зависит: оно следствие зерна")
+    func countIndependentOfSize() {
+        let small = OrbSwarmConfig(preset: .standard, size: 64, scale: 2)
+        let large = OrbSwarmConfig(preset: .standard, size: 512, scale: 2)
+        #expect(small.particleCount == large.particleCount)
+    }
+
+    @Test("Точка 2.6 pt при 512, standard — то самое зерно, что выбрали глазом")
+    func pointSizeOnScreenAt512() {
+        let config = OrbSwarmConfig(preset: .standard, size: 512, scale: 2)
+        #expect(abs(config.pointSizeOnScreen - 2.6) < 0.01)
+    }
+
+    // Зерно безразмерно, поэтому Retina не должна менять НИ крупность на глаз,
+    // НИ число частиц. Ровно это и сломалось в прототипе: точка задавалась в
+    // физических пикселях и на Retina выходила вдвое мельче подписанной.
+    @Test("DPR не меняет ни зерно, ни крупность на глаз")
+    func scaleDoesNotChangeGrain() {
+        let atScale1 = OrbSwarmConfig(preset: .standard, size: 512, scale: 1)
+        let atScale2 = OrbSwarmConfig(preset: .standard, size: 512, scale: 2)
+        #expect(atScale1.particleCount == atScale2.particleCount)
+        #expect(abs(atScale1.pointSizeOnScreen - atScale2.pointSizeOnScreen) < 0.01)
+    }
+
+    @Test("Сведение включается там, где точка иначе мельче порога")
+    func supersampleKicksIn() {
+        // При 512 точка и так крупная — сводить нечего.
+        #expect(OrbSwarmConfig(preset: .standard, size: 512, scale: 2).supersample == 1)
+        // При 64 точка ушла бы под порог — сведение обязано включиться.
+        #expect(OrbSwarmConfig(preset: .standard, size: 64, scale: 2).supersample > 1)
+    }
+
+    // Два ограничения, которые легко перепутать — и я их перепутал.
+    // «Точка мельче порога» держит от МЕЛЬТЕШЕНИЯ на движении (время).
+    // «Частиц больше, чем пикселей» держит ЗЕРНО (пространство). Проверка
+    // только первого пропускала fine@64: точку он проходит, а зерна не даёт.
+    @Test("Рой вырождается в пятно там, где частиц больше, чем пикселей")
+    func unreadableWhenOversubscribed() {
+        // Орб в тулбаре 22 pt: 5.77 частиц на пиксель — пятно, а не рой.
+        let toolbar = OrbSwarmConfig(preset: .standard, size: 22, scale: 2)
+        #expect(toolbar.unreadable)
+        #expect(toolbar.particlesPerPixel > 5)
+
+        // fine при 64 порог точки ПРОХОДИТ, но зерна не даёт: 2.73 частиц/px.
+        let fineSmall = OrbSwarmConfig(preset: .fine, size: 64, scale: 2)
+        #expect(!fineSmall.flickers, "точку он проходит — ловушка была именно тут")
+        #expect(fineSmall.unreadable, "а зерна не даёт")
+    }
+
+    @Test("На своих размерах оба пресета читаются и не мельтешат")
+    func presetsWorkAtTheirSizes() {
+        for size in [Float(64), 128, 256, 512] {
+            let config = OrbSwarmConfig(preset: .standard, size: size, scale: 2)
+            #expect(!config.unreadable, "standard @ \(size) должен читаться зерном")
+            #expect(!config.flickers, "standard @ \(size) не должен мельтешить")
+        }
+        for size in [Float(128), 256, 512] {
+            let config = OrbSwarmConfig(preset: .fine, size: size, scale: 2)
+            #expect(!config.unreadable, "fine @ \(size) должен читаться зерном")
+            #expect(!config.flickers, "fine @ \(size) не должен мельтешить")
+        }
+    }
+
+    // ── Лоадеры ──────────────────────────────────────────────────────────────
+    // У логотипа число частиц и крупность СВЯЗАНЫ заполненностью. У лоадера —
+    // развязаны: сменив только число, крупность не трогаем. Это и даёт просветы
+    // вместо того же тела крупнее. Тест доказывает саму развязку.
+    @Test("Лоадер: число частиц и крупность независимы")
+    func loaderDecouplesCountFromGrain() {
+        let sparse = OrbSwarmConfig(particlesPerPixel: 0.1, pointSizeOnScreen: 1.0, size: 64, scale: 2)
+        let dense = OrbSwarmConfig(particlesPerPixel: 0.3, pointSizeOnScreen: 1.0, size: 64, scale: 2)
+        // Втрое больше частиц (± округление доли до целой частицы)…
+        #expect(abs(dense.particleCount - sparse.particleCount * 3) <= 2)
+        // …при ТОЙ ЖЕ крупности на экране. У логотипа так нельзя: больше частиц
+        // означало бы мельче зерно.
+        #expect(abs(sparse.pointSizeOnScreen - dense.pointSizeOnScreen) < 0.001)
+    }
+
+    // Числа пресетов подобраны на глаз на живом стенде и прибиты сюда: 64 реже
+    // (0.05), 32 плотнее (0.13), точка у обоих мелкая — 1 px экрана.
+    @Test("Пресеты лоадеров дают утверждённые числа")
+    func loaderPresetNumbers() {
+        let loader32 = OrbSwarmConfig(loader: .px32, scale: 2)
+        let loader64 = OrbSwarmConfig(loader: .px64, scale: 2)
+        #expect(loader32.particleCount == 532)
+        #expect(loader64.particleCount == 819)
+        #expect(abs(loader32.pointSizeOnScreen - 1.0) < 0.01)
+        #expect(abs(loader64.pointSizeOnScreen - 1.0) < 0.01)
+        // Мелкая редкая точка — не пятно и не мельтешит.
+        for loader in [loader32, loader64] {
+            #expect(!loader.unreadable)
+            #expect(!loader.flickers)
+            #expect(loader.supersample == 4, "крупность 1px сглаживается ×4")
+        }
+        // Пороги низкие: 32 около 7 fps, 64 около 13 — оба берутся 60 Гц.
+        #expect(loader32.minimumFramesPerSecond <= 10)
+        #expect(loader64.minimumFramesPerSecond <= 20)
+    }
+
+    // Порог fps теперь свойство конфига (из зерна), а не таблица в Preset. Формула
+    // обязана давать те же 41/82, иначе логотип и лоадер жили бы по разным законам.
+    @Test("Порог fps конфига совпадает с таблицей пресета")
+    func frameFloorFormulaMatchesPresetTable() {
+        let std = OrbSwarmConfig(preset: .standard, size: 512, scale: 2)
+        let fin = OrbSwarmConfig(preset: .fine, size: 512, scale: 2)
+        #expect(std.minimumFramesPerSecond == OrbSwarmConfig.Preset.standard.minimumFramesPerSecond)
+        #expect(fin.minimumFramesPerSecond == OrbSwarmConfig.Preset.fine.minimumFramesPerSecond)
+    }
+
+    // Третье ограничение, помимо flickers и unreadable: экран. Оно не про
+    // размер, а про то, сколько кадров железо вообще даёт.
+    @Test("fine недостижим на 60 Гц: ему нужно 82 fps")
+    func fineNeedsProMotion() {
+        #expect(OrbSwarmConfig.stutters(preset: .fine, displayHz: 60))
+        #expect(!OrbSwarmConfig.stutters(preset: .fine, displayHz: 120))
+        // standard проходит везде — потому он и стоит в пустом состоянии.
+        #expect(!OrbSwarmConfig.stutters(preset: .standard, displayHz: 60))
+        #expect(!OrbSwarmConfig.stutters(preset: .standard, displayHz: 120))
+    }
+
+    // Просить ровно порог нельзя: система выдаёт только делители частоты экрана,
+    // и запрос 41 на 60 Гц округлится ВНИЗ, до 30 — под порог. Ступень берём
+    // сверху.
+    @Test("Частота округляется вверх до достижимой, а не вниз под порог")
+    func frameRateRoundsUpToAchievableStep() {
+        // 41 на 60 Гц — ближайшая достижимая ступень сверху это 60, не 30.
+        #expect(OrbSwarmConfig.achievableFrameRate(preset: .standard, displayHz: 60) == 60)
+        // На ProMotion standard берёт 60 из 120: порог выполнен вдвое дешевле.
+        #expect(OrbSwarmConfig.achievableFrameRate(preset: .standard, displayHz: 120) == 60)
+        #expect(OrbSwarmConfig.achievableFrameRate(preset: .fine, displayHz: 120) == 120)
+        // Порог недостижим — выжимаем максимум экрана и ругаемся ассертом.
+        #expect(OrbSwarmConfig.achievableFrameRate(preset: .fine, displayHz: 60) == 60)
+    }
+
+    // Логотип в пустом состоянии: 128 pt, standard. Оба числа обязаны держаться
+    // за замеры, а не за вкус — тест ловит, если размер поедет.
+    @Test("Логотип пустого состояния читается и не шагает")
+    func emptyStateLogoHolds() {
+        let config = OrbSwarmConfig(preset: .standard, size: 128, scale: 2)
+        #expect(!config.unreadable)
+        #expect(!config.flickers)
+        #expect(!OrbSwarmConfig.stutters(preset: .standard, displayHz: 60))
+    }
+
+    // Онбординг-рой — отдельный рендерер с СОБСТВЕННЫМИ копиями чисел прототипа
+    // (он заморожен пиксельно, орб-лоадер ещё тюнится — связывать константы нельзя).
+    // Но сегодня физика у них общая, и разъехаться она может молча. Этот тест —
+    // единый источник истины вместо связки: чуть двинется любая сторона — упадёт CI.
+    @Test("Физика онбординг-роя совпадает с OrbSwarmConfig (иначе рои разъедутся молча)")
+    func onboardingSwarmMatchesOrbPhysics() {
+        #expect(OnboardingSwarmView.orbBodyFraction == OrbSwarmConfig.orbBodyFraction)
+        #expect(OnboardingSwarmView.zoom == OrbSwarmConfig.zoom)
+        #expect(OnboardingSwarmView.taper == OrbSwarmConfig.taper)
+        #expect(OnboardingSwarmView.loaderGrain == OrbSwarmConfig.loaderGrain)
+        #expect(OnboardingSwarmView.coverage == OrbSwarmConfig.coverage)
+        #expect(OnboardingSwarmView.minPointSize == OrbSwarmConfig.minPointSize)
+        #expect(OnboardingSwarmView.maxSupersample == OrbSwarmConfig.maxSupersample)
+        // Зерно онбординга — это зерно пресета fine; число частиц из него же.
+        #expect(OnboardingSwarmView.grain == OrbSwarmConfig.Preset.fine.grain)
+        #expect(
+            OnboardingSwarmView.particleCount
+                == OrbSwarmConfig(preset: .fine, size: 512, scale: 1).particleCount)
+    }
+
+    // У fine вчетверо больше частиц, значит его порог ровно вдвое дальше:
+    // частиц/px = N/выход², а выход растёт линейно.
+    @Test("Порог fine ровно вдвое дальше порога standard")
+    func fineFloorIsTwiceStandard() {
+        let standardFloor = OrbSwarmConfig.minimumReadableSize(preset: .standard, scale: 2)
+        let fineFloor = OrbSwarmConfig.minimumReadableSize(preset: .fine, scale: 2)
+        #expect(abs(fineFloor / standardFloor - 2) < 0.01)
+        // standard ≈ 53 pt, fine ≈ 106 pt — отсюда и «годен от 64 / от 128».
+        #expect(abs(standardFloor - 52.9) < 1)
+        #expect(abs(fineFloor - 105.7) < 1)
+    }
+}

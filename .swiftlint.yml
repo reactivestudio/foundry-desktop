@@ -1,0 +1,57 @@
+# SwiftLint — статический анализ стиля и сложности (аналог Checkstyle/SpotBugs).
+# Установка:  brew install swiftlint
+# Проверка:   swiftlint            (из корня репозитория)
+# Автофиксы:  swiftlint --fix
+#
+# Инвариант проекта: ноль визуальных изменений. Линт правит только исходники,
+# не поведение и не пиксели, но перед массовым --fix всё равно прогонять сборку.
+
+included:
+  - Packages/FoundryKit/Sources
+  - Packages/FoundryKit/Tests
+  - App
+
+excluded:
+  - .build
+  - Packages/FoundryKit/.build
+  - Packages/FoundryKit/scratchpad
+  # DesignTokens генерится из tokens.json — форматировать/линтить генерат нельзя.
+  - Packages/FoundryKit/Sources/FoundryFeatures/DesignTokens.swift
+
+opt_in_rules:
+  - empty_count
+  - explicit_init
+  - first_where
+  - redundant_nil_coalescing
+  - toggle_bool
+  - unneeded_parentheses_in_closure_argument
+  - closure_spacing
+  - contains_over_first_not_nil
+  - sorted_first_last
+
+line_length:
+  warning: 120
+  error: 160
+  ignores_comments: true
+  ignores_urls: true
+
+identifier_name:
+  min_length: 2
+  # Короткие имена уместны в математике/Metal (координаты, каналы цвета, индексы).
+  excluded: [x, y, z, w, r, g, b, a, id, dt, ok, i, j, n, s, f]
+
+type_name:
+  min_length: 2
+
+function_body_length:
+  warning: 60
+  error: 100
+
+type_body_length:
+  warning: 300
+  error: 450
+
+file_length:
+  warning: 400
+  error: 550
+  ignore_comment_only_lines: true
