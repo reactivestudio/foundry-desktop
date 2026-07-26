@@ -7,7 +7,7 @@
 переписывает то, что из него выводится:
 
   design/tokens/tokens.css   — переменные для макетов и частей;
-  Packages/FoundryKit/Sources/FoundryFeatures/DesignTokens.swift — константы для приложения;
+  Packages/FoundryKit/Sources/Presentation/DesignTokens.swift — константы для приложения;
   docs/design/13-tokens.md   — таблицы значений канона (только между маркерами,
                                проза главы не трогается);
   design/index.html          — витрину, собранную из частей.
@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent
 TOKENS_JSON = ROOT / "design" / "tokens" / "tokens.json"
 TOKENS_CSS = ROOT / "design" / "tokens" / "tokens.css"
 TOKENS_SWIFT = (
-    ROOT / "Packages" / "FoundryKit" / "Sources" / "FoundryFeatures" / "DesignTokens.swift"
+    ROOT / "Packages" / "FoundryKit" / "Sources" / "Presentation" / "DesignTokens.swift"
 )
 CANON = ROOT / "docs" / "design" / "13-tokens.md"
 SHOWCASE = ROOT / "design" / "index.html"
@@ -375,7 +375,7 @@ def generate_tokens_css(tokens):
 
 
 # --------------------------------------------------------------------------
-# (b) Packages/FoundryKit/Sources/FoundryFeatures/DesignTokens.swift
+# (b) Packages/FoundryKit/Sources/Presentation/DesignTokens.swift
 # --------------------------------------------------------------------------
 
 # Имена пространств Swift. «font» развёрнут в FontStack, чтобы не затенять
@@ -550,7 +550,7 @@ struct MotionToken {
 }
 
 /// Свечение — фирменная замена тени. Рецепт двухслойный: внутренний ореол
-/// blur 10 @ 40% и внешний blur 36 @ 15% цвета токена (06-color.md §5.6).
+/// blur 10 @ 40% и внешний blur 36 @ 15% цвета токена (06-color.md, раздел 5.6).
 struct GlowToken {
     let color: Color
     let innerRadius: CGFloat = 10

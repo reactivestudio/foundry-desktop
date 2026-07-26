@@ -1,0 +1,200 @@
+import Domain
+import SwiftUI
+
+/// Главный экран прототипа D0: проект → промпт → live-лента → результат.
+struct RunConsoleView: View {
+    @Environment(RunStore.self) private var store
+    @AppStorage("projectDirectory") private var projectDirectory = ""
+
+    init() {}
+
+    var body: some View {
+        @Bindable var store = store
+        VStack(spacing: 0) {
+            header
+            Divider().overlay(Token.Border.subtle)
+            feed
+            Divider().overlay(Token.Border.subtle)
+            promptArea
+        }
+        // Холст — общий с роем: логотип непрозрачен, и любой другой почти-чёрный
+        // проступил бы под ним квадратом.
+        .background(OrbSwarmView.canvas)
+        .preferredColorScheme(.dark)
+        .frame(minWidth: 640, minHeight: 480)
+    }
+
+    // MARK: - шапка
+
+    private var header: some View {
+        HStack(spacing: 12) {
+            Button {
+                pickProjectDirectory()
+            } label: {
+                Label(
+                    projectDirectory.isEmpty
+                        ? "Выбрать проект…"
+                        : (projectDirectory as NSString).abbreviatingWithTildeInPath,
+                    systemImage: "folder"
+                )
+                .lineLimit(1)
+                .truncationMode(.head)
+            }
+            .help("Каталог проекта — в нём запустится claude")
+
+            Spacer()
+
+            desktopViewerToggle
+
+            permissionPicker
+
+            OrbView(phase: store.phase)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+    }
+
+    private var desktopViewerToggle: some View {
+        @Bindable var store = store
+        return Toggle("в Claude Desktop", isOn: $store.opensSessionInViewer)
+            .toggleStyle(.checkbox)
+            .help("Импортировать сессию в Claude Code Desktop при старте рана — ход работы будет виден и там")
+    }
+
+    private var permissionPicker: some View {
+        @Bindable var store = store
+        return Picker("Права", selection: $store.permissionMode) {
+            Text("default").tag(PermissionMode.default)
+            Text("accept edits").tag(PermissionMode.acceptEdits)
+            Text("bypass").tag(PermissionMode.bypassPermissions)
+        }
+        .pickerStyle(.menu)
+        .fixedSize()
+        .disabled(store.phase.isRunning)
+        .help("Permission mode headless-рана")
+    }
+
+    // MARK: - лента
+
+    private var feed: some View {
+        ScrollView {
+            LazyVStack(spacing: 8) {
+                if store.feed.isEmpty && !store.phase.isRunning {
+                    emptyState
+                }
+                ForEach(store.feed) { item in
+                    FeedItemView(item: item)
+                }
+                if let result = store.result {
+                    ResultCardView(result: result, onOpenInDesktop: { store.openResultInDesktop() })
+                }
+                if case .failed(let message) = store.phase, store.result == nil {
+                    failureCard(message)
+                }
+            }
+            .padding(14)
+        }
+        .defaultScrollAnchor(.bottom)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// Пустое состояние — единственное место, где приложение представляется, и
+    /// потому единственное место логотипа. Рой тут живёт бесплатно: показывается
+    /// он ровно тогда, когда работы нет, и исчезает с первым же событием ленты.
+    ///
+    /// 128 pt и `.standard` — не вкус, а два замера. Порог читаемости standard —
+    /// 53 pt, так что 128 берёт его с запасом. А `.fine` при 128 тоже читался бы,
+    /// но требует 82 fps и на обычных 60 Гц заметно шагает: тонкий помол годен
+    /// в движении только на ProMotion.
+    private var emptyState: some View {
+        VStack(spacing: 18) {
+            OrbSwarmView(size: 128, preset: .standard)
+            Text(
+                "Выбери проект, напиши промпт — claude запустится в его каталоге.\nСессию можно продолжить: claude --resume <id> из каталога проекта."
+            )
+            .multilineTextAlignment(.center)
+            .foregroundStyle(.secondary)
+        }
+        .padding(.top, 72)
+    }
+
+    private func failureCard(_ message: String) -> some View {
+        Label(message, systemImage: "xmark.octagon.fill")
+            .foregroundStyle(.pink)
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RunPalette.cardFailure,
+                in: RoundedRectangle(cornerRadius: 10)
+            )
+    }
+
+    // MARK: - промпт
+
+    private var promptArea: some View {
+        @Bindable var store = store
+        return HStack(alignment: .bottom, spacing: 10) {
+            TextEditor(text: $store.prompt)
+                .font(.system(.body))
+                .scrollContentBackground(.hidden)
+                .padding(8)
+                .frame(height: 76)
+                .background(Token.Background.hover, in: RoundedRectangle(cornerRadius: 10))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        // 0.1 намеренно оставлен литералом: он не равен ни одному
+                        // токену Border (subtle 0.08 / default 0.12) — привязка к
+                        // Border.default сдвинула бы пиксели. Кандидат на дизайн-ревью.
+                        .stroke(.white.opacity(0.1))
+                )
+                .disabled(store.phase.isRunning)
+
+            VStack(spacing: 8) {
+                if store.phase.isRunning {
+                    Button(role: .cancel) {
+                        store.stop()
+                    } label: {
+                        Label("Стоп", systemImage: "stop.fill")
+                            .frame(width: 90)
+                    }
+                    .keyboardShortcut(".", modifiers: .command)
+                } else {
+                    Button {
+                        startRun()
+                    } label: {
+                        Label("Запустить", systemImage: "play.fill")
+                            .frame(width: 90)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.indigo)
+                    .keyboardShortcut(.return, modifiers: .command)
+                    .disabled(!canStart)
+                }
+            }
+        }
+        .padding(14)
+    }
+
+    private var canStart: Bool {
+        !projectDirectory.isEmpty
+            && !store.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    // MARK: - действия
+
+    func startRun() {
+        guard canStart, !store.phase.isRunning else { return }
+        store.start(projectDirectory: projectDirectory)
+    }
+
+    private func pickProjectDirectory() {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = false
+        panel.message = "Каталог проекта, в котором запустится claude"
+        if panel.runModal() == .OK, let url = panel.url {
+            projectDirectory = url.path
+        }
+    }
+}
