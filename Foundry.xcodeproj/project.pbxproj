@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FD0000012E100001 /* Presentation in Frameworks */ = {isa = PBXBuildFile; productRef = FD0000022E100002 /* Presentation */; };
 		FD0000202E100020 /* Configuration in Frameworks */ = {isa = PBXBuildFile; productRef = FD0000212E100021 /* Configuration */; };
 /* End PBXBuildFile section */
 
@@ -28,7 +27,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FD0000012E100001 /* Presentation in Frameworks */,
 				FD0000202E100020 /* Configuration in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -72,7 +70,6 @@
 			);
 			name = Foundry;
 			packageProductDependencies = (
-				FD0000022E100002 /* Presentation */,
 				FD0000212E100021 /* Configuration */,
 			);
 			productName = Foundry;
@@ -266,10 +263,6 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		FD0000022E100002 /* Presentation */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Presentation;
-		};
 		FD0000212E100021 /* Configuration */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Configuration;

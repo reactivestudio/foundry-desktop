@@ -1,19 +1,16 @@
 import Configuration
-import Presentation
 import SwiftUI
 
 @main
 struct FoundryApp: App {
-    // Корень композиции вынесен в Configuration (наш аналог Spring
-    // @Configuration): там Swinject связывает порты с реализациями. Здесь — только
-    // резолв готового стора и раздача его вниз через environment. App-слой не знает
-    // ни вендора, ни инфраструктуры — лишь абстракции.
-    @State private var store = AppContainer.shared.makeRunStore()
-
+    // Корень композиции — в Configuration (наш аналог Spring @Configuration): там
+    // Swinject связывает порты с реализациями и там же собран корневой вид
+    // `FoundryApplicationView` (резолв стора + сшивка контекстов). App-слой линкует
+    // ровно один продукт `Configuration` и не знает ни вендора, ни инфраструктуры,
+    // ни одного контекста поимённо.
     var body: some Scene {
         WindowGroup {
-            FoundryRootView()
-                .environment(store)
+            FoundryApplicationView()
         }
         .windowStyle(.automatic)
         // НЕ .contentSize: иначе окно = контент + нативный титлбар(28) сверх, и

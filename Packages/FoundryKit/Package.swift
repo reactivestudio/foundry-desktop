@@ -5,13 +5,10 @@ let package = Package(
     name: "FoundryKit",
     platforms: [.macOS(.v15)],
     products: [
-        .library(name: "Presentation", targets: ["Presentation"]),
-        // Configuration — корень сборки зависимостей (Swinject-контейнер). Это тот
-        // продукт, что линкует приложение: он один знает конкретные детали.
+        // Configuration — корень композиции (Swinject-контейнер + корневой вид). Это
+        // единственный продукт, что линкует приложение: он один знает конкретные
+        // детали и сшивает контексты между собой.
         .library(name: "Configuration", targets: ["Configuration"]),
-        // Infrastructure — реализации портов Domain/Application (детали).
-        // Вендор-адаптеры (Claude и др.), хранилища, файловые репозитории.
-        .library(name: "Infrastructure", targets: ["Infrastructure"]),
         // Замер роя на настоящей Metal-железке: swift run OrbBench
         .executable(name: "OrbBench", targets: ["OrbBench"]),
     ],
@@ -22,41 +19,73 @@ let package = Package(
         .package(url: "https://github.com/Swinject/Swinject", from: "2.9.1"),
     ],
     targets: [
-        // Domain — ядро: сущности, VO, доменные события, порты. Импортирует только Foundation.
-        .target(name: "Domain"),
-        // Application — use-cases (оркестрация) + граница транзакционности. Импортирует Domain.
-        .target(name: "Application", dependencies: ["Domain"]),
-        // Infrastructure — реализации портов. Импортирует Domain (при нужде Application).
+        // Верхний уровень модульности — bounded context (фича), а не технический
+        // слой. Внутри каждого контекста слои DDD живут папками
+        // (Domain/Application/Infrastructure/Presentation); граница КОНТЕКСТА
+        // (фича↔фича) сторожится компилятором через таргеты, граница слоёв внутри —
+        // дисциплина контекста. Растёт число контекстов — растёт число таргетов
+        // линейно; разжиревший контекст повышается до пофичевых под-таргетов.
+
+        // Core — ядро, справедливое для ВСЕХ контекстов: дизайн-система (токены,
+        // движение, брендовый рой) и платформенные хелперы (AppKit, лог). Не знает
+        // ни одного контекста.
         .target(
-            name: "Infrastructure",
+            name: "Core",
+            resources: [.process("DesignSystem/OrbSwarm.metal")]
+        ),
+
+        // Setting — supporting-субдомен пользовательских настроек (имя в
+        // единственном числе). Внутри — отдельные сущности: сегодня реальна одна,
+        // `Tool` (настройки агента и foundry cli), полным срезом слоёв (сущность +
+        // порт + сценарий + адаптер UserDefaults). Целевой состав сущностей —
+        // Profile, Notification, Tool, Appearance, Access, General: каждая
+        // добавляется своим файлом-срезом (Domain/<E>.swift + Application/<E>Service
+        // + Infrastructure/UserDefaults<E>Repository), когда у неё появляется
+        // реальное поле. Пустышек наперёд не заводим. Ни от кого не зависит, кроме
+        // системы.
+        .target(name: "Setting"),
+
+        // Run — core-контекст: запуск агент-сессии и лента транскрипта. Читает
+        // настройки через публичный контракт Setting; общее берёт из Core.
+        .target(
+            name: "Run",
             dependencies: [
-                "Domain",
+                "Core",
+                "Setting",
                 .product(name: "Subprocess", package: "swift-subprocess"),
             ]
         ),
-        // Presentation — views, тонкие сторы, DesignSystem/Orb/Onboarding. Импортирует Domain, Application.
+
+        // Onboarding — контекст первого запуска (Metal-имитация мастера). Чистая
+        // презентация; общее (движение, рой, лог) — из Core. Не знает Run/Setting.
         .target(
-            name: "Presentation",
-            dependencies: ["Domain", "Application"],
-            resources: [
-                .process("Orb/OrbSwarm.metal"),
-                .process("Onboarding/OnboardingSwarm.metal"),
-            ]
+            name: "Onboarding",
+            dependencies: ["Core"],
+            resources: [.process("Presentation/OnboardingSwarm.metal")]
         ),
-        // Configuration — Swinject Assembly + bootstrap. Импортирует всё.
+
+        // Configuration — корень композиции (наш аналог Spring @Configuration).
+        // Единственный, кто видит все контексты сразу: связывает порты с
+        // реализациями (Swinject) и сшивает корневые виды контекстов (гейт
+        // онбординга поверх консоли).
         .target(
             name: "Configuration",
             dependencies: [
-                "Domain",
-                "Application",
-                "Infrastructure",
-                "Presentation",
+                "Core",
+                "Setting",
+                "Run",
+                "Onboarding",
                 .product(name: "Swinject", package: "Swinject"),
             ]
         ),
-        .executableTarget(name: "OrbBench", dependencies: ["Presentation"]),
-        .testTarget(name: "DomainTests", dependencies: ["Domain"]),
-        .testTarget(name: "InfrastructureTests", dependencies: ["Infrastructure"]),
-        .testTarget(name: "PresentationTests", dependencies: ["Presentation"]),
+
+        .executableTarget(name: "OrbBench", dependencies: ["Core"]),
+
+        // Тесты — по контексту.
+        .testTarget(name: "RunTests", dependencies: ["Run", "Setting"]),
+        // Core в зависимостях — ради теста-паритета физики роёв, что сверяет
+        // внутренности Onboarding и Core разом (@testable обоих).
+        .testTarget(name: "OnboardingTests", dependencies: ["Onboarding", "Core"]),
+        .testTarget(name: "CoreTests", dependencies: ["Core"]),
     ]
 )
