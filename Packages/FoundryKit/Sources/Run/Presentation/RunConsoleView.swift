@@ -178,8 +178,7 @@ public struct RunConsoleView: View {
     }
 
     private var canStart: Bool {
-        !projectDirectory.isEmpty
-            && !store.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        store.canStart(projectDirectory: projectDirectory)
     }
 
     // MARK: - действия

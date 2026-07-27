@@ -83,6 +83,7 @@ let package = Package(
 
         // Тесты — по контексту.
         .testTarget(name: "RunTests", dependencies: ["Run", "Setting"]),
+        .testTarget(name: "SettingTests", dependencies: ["Setting"]),
         // Core в зависимостях — ради теста-паритета физики роёв, что сверяет
         // внутренности Onboarding и Core разом (@testable обоих).
         .testTarget(name: "OnboardingTests", dependencies: ["Onboarding", "Core"]),
