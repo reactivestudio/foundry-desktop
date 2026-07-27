@@ -5,4 +5,5 @@ import os
 /// Теперь такие сбои пишутся сюда на уровне `.fault`.
 public enum FeatureLog {
     public static let swarm = Logger(subsystem: "Foundry", category: "Swarm")
+    public static let domain = Logger(subsystem: "Foundry", category: "Domain")
 }
