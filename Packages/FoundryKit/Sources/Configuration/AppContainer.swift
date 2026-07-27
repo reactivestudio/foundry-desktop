@@ -1,3 +1,4 @@
+import Application
 import Domain
 import Infrastructure
 import Presentation
@@ -23,15 +24,16 @@ public final class AppContainer {
         resolver = assembler.resolver
     }
 
-    /// Собрать стор одного рана: резолвит порты из контейнера и строит доменный
-    /// `RunStore`. Force-unwrap намеренно: незарегистрированный порт — ошибка
-    /// конфигурации корня композиции, и падать надо сразу и громко.
+    /// Собрать стор одного рана: резолвит порты из контейнера, строит сценарий
+    /// `RunService` (на главном акторе — он `@MainActor`) и тонкий `RunStore`.
+    /// Force-unwrap намеренно: незарегистрированный порт — ошибка конфигурации
+    /// корня композиции, и падать надо сразу и громко.
     public func makeRunStore() -> RunStore {
-        RunStore(
+        let runService = RunService(
             runner: resolver.resolve(AgentRunner.self)!,
-            sessionOpener: resolver.resolve(AgentSessionOpening.self)!,
-            preferences: resolver.resolve(PreferenceStore.self)!
+            sessionOpener: resolver.resolve(AgentSessionOpening.self)!
         )
+        return RunStore(runService: runService, preferences: resolver.resolve(PreferenceStore.self)!)
     }
 }
 

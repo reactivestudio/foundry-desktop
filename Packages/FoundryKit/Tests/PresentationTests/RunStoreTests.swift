@@ -1,3 +1,4 @@
+import Application
 import Domain
 import Testing
 
@@ -51,12 +52,14 @@ struct RunStoreTests {
     func opensSessionThroughPortWhenEnabled() async {
         let opener = SpySessionOpener()
         let store = RunStore(
-            runner: ScriptedRunner(events: [
-                .sessionStarted(
-                    SessionStart(sessionID: "s1", model: "opus", projectDirectory: "/tmp/project")),
-                .finished(.ok()),
-            ]),
-            sessionOpener: opener,
+            runService: RunService(
+                runner: ScriptedRunner(events: [
+                    .sessionStarted(
+                        SessionStart(sessionID: "s1", model: "opus", projectDirectory: "/tmp/project")),
+                    .finished(.ok()),
+                ]),
+                sessionOpener: opener
+            ),
             preferences: InMemoryPreferences()
         )
         store.opensSessionInViewer = true
@@ -74,12 +77,14 @@ struct RunStoreTests {
     func doesNotOpenSessionWhenDisabled() async {
         let opener = SpySessionOpener()
         let store = RunStore(
-            runner: ScriptedRunner(events: [
-                .sessionStarted(
-                    SessionStart(sessionID: "s1", model: "opus", projectDirectory: "/tmp/project")),
-                .finished(.ok()),
-            ]),
-            sessionOpener: opener,
+            runService: RunService(
+                runner: ScriptedRunner(events: [
+                    .sessionStarted(
+                        SessionStart(sessionID: "s1", model: "opus", projectDirectory: "/tmp/project")),
+                    .finished(.ok()),
+                ]),
+                sessionOpener: opener
+            ),
             preferences: InMemoryPreferences()
         )
         store.opensSessionInViewer = false
@@ -95,12 +100,14 @@ struct RunStoreTests {
     func openResultInDesktopGoesThroughPort() async {
         let opener = SpySessionOpener()
         let store = RunStore(
-            runner: ScriptedRunner(events: [
-                .sessionStarted(
-                    SessionStart(sessionID: "s7", model: "opus", projectDirectory: "/tmp/project")),
-                .finished(.ok()),
-            ]),
-            sessionOpener: opener,
+            runService: RunService(
+                runner: ScriptedRunner(events: [
+                    .sessionStarted(
+                        SessionStart(sessionID: "s7", model: "opus", projectDirectory: "/tmp/project")),
+                    .finished(.ok()),
+                ]),
+                sessionOpener: opener
+            ),
             preferences: InMemoryPreferences()
         )
         store.opensSessionInViewer = false  // отсекаем автоимпорт — проверяем ручной
@@ -119,8 +126,10 @@ struct RunStoreTests {
     /// перестанет быть `.running` (с потолком, чтобы тест не завис).
     private func run(_ events: [AgentEvent], error: Error? = nil) async -> RunStore {
         let store = RunStore(
-            runner: ScriptedRunner(events: events, error: error),
-            sessionOpener: SpySessionOpener(),
+            runService: RunService(
+                runner: ScriptedRunner(events: events, error: error),
+                sessionOpener: SpySessionOpener()
+            ),
             preferences: InMemoryPreferences())
         store.opensSessionInViewer = false  // без побочного открытия сессии в CCD
         store.prompt = "промпт"
@@ -197,8 +206,10 @@ struct RunStoreTests {
     @Test("Пустой промпт не стартует ран")
     func emptyPromptDoesNotStart() {
         let store = RunStore(
-            runner: ScriptedRunner(events: []),
-            sessionOpener: SpySessionOpener(),
+            runService: RunService(
+                runner: ScriptedRunner(events: []),
+                sessionOpener: SpySessionOpener()
+            ),
             preferences: InMemoryPreferences())
         store.prompt = "   "
         store.start(projectDirectory: "/tmp/project")
@@ -208,8 +219,10 @@ struct RunStoreTests {
     @Test("Пустой каталог проекта не стартует ран")
     func emptyProjectDirectoryDoesNotStart() {
         let store = RunStore(
-            runner: ScriptedRunner(events: []),
-            sessionOpener: SpySessionOpener(),
+            runService: RunService(
+                runner: ScriptedRunner(events: []),
+                sessionOpener: SpySessionOpener()
+            ),
             preferences: InMemoryPreferences())
         store.prompt = "промпт"
         store.start(projectDirectory: "")
