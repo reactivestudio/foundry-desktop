@@ -3,6 +3,10 @@
 # Проверка:   swiftlint            (из корня репозитория)
 # Автофиксы:  swiftlint --fix
 #
+# Роль — ЛИНТ (сложность, длины тел/файлов), не форматтер: форматирование держит
+# Apple swift-format по .swift-format (его же гоняет CI). Второго форматтера в
+# проекте нет намеренно — два форматтера сразу это анти-пример (практики 07.1).
+#
 # Инвариант проекта: ноль визуальных изменений. Линт правит только исходники,
 # не поведение и не пиксели, но перед массовым --fix всё равно прогонять сборку.
 
@@ -16,7 +20,19 @@ excluded:
   - Packages/FoundryKit/.build
   - Packages/FoundryKit/scratchpad
   # DesignTokens генерится из tokens.json — форматировать/линтить генерат нельзя.
-  - Packages/FoundryKit/Sources/FoundryFeatures/DesignTokens.swift
+  # (SwiftLint не понимает шапку // swift-format-ignore-file — исключаем путём.)
+  - Packages/FoundryKit/Sources/Core/DesignSystem/DesignTokens.swift
+
+# Роль линтера — комплементарная форматтеру: он держит запятые и ширину строки,
+# линтер — сложность/длины/семантику. Поэтому глушим правила, которые (а) дублируют
+# и КОНФЛИКТУЮТ с swift-format, или (б) воюют с намеренными идиомами проекта.
+disabled_rules:
+  # Ширину и висячие запятые держит swift-format (.swift-format, lineLength 110):
+  # SwiftLint здесь только столкнул бы линтер с форматтером лбами.
+  - line_length
+  - trailing_comma
+  # SwiftUI-идиома: вью с onTap-замыканием + trailing-контентом (SettingRow(...) { ... }).
+  - multiple_closures_with_trailing_closure
 
 opt_in_rules:
   - empty_count
@@ -29,16 +45,17 @@ opt_in_rules:
   - contains_over_first_not_nil
   - sorted_first_last
 
-line_length:
-  warning: 120
-  error: 160
-  ignores_comments: true
-  ignores_urls: true
-
 identifier_name:
   min_length: 2
-  # Короткие имена уместны в математике/Metal (координаты, каналы цвета, индексы).
-  excluded: [x, y, z, w, r, g, b, a, id, dt, ok, i, j, n, s, f]
+  # Короткие имена уместны в математике/Metal/рисовании путей (координаты, каналы
+  # цвета, индексы, углы/параметры кривых, матрицы, точки Path).
+  excluded: [x, y, z, w, r, g, b, a, c, d, e, h, m, p, t, u, id, dt, ok, i, j, n, s, f]
+
+# Локальные координатные кортежи (x1,y1,x2,y2) в коде рисования — норма; правило
+# остаётся для настоящих god-кортежей (5+ членов → просят структуру).
+large_tuple:
+  warning: 4
+  error: 6
 
 type_name:
   min_length: 2
