@@ -88,33 +88,40 @@ public enum ClaudeEventDecoder {
         else { return [] }
 
         switch eventType {
-        case "content_block_start":
-            guard
-                let block = event["content_block"] as? [String: Any],
-                let blockType = block["type"] as? String
-            else { return [] }
-            switch blockType {
-            case "thinking": return [.blockStarted(.thinking)]
-            case "text": return [.blockStarted(.text)]
-            default: return []  // tool_use придёт целиком в assistant-сообщении
-            }
+        case "content_block_start": return decodeBlockStart(event)
+        case "content_block_delta": return decodeBlockDelta(event)
+        default: return []  // message_start/stop, ping — служебные
+        }
+    }
 
-        case "content_block_delta":
-            guard
-                let delta = event["delta"] as? [String: Any],
-                let deltaType = delta["type"] as? String
-            else { return [] }
-            switch deltaType {
-            case "thinking_delta":
-                return (delta["thinking"] as? String).map { [.thinkingDelta($0)] } ?? []
-            case "text_delta":
-                return (delta["text"] as? String).map { [.textDelta($0)] } ?? []
-            default:
-                return []  // input_json_delta и пр. — вход тула показываем целиком
-            }
+    /// Открытие блока: интересуют только thinking/text (tool_use придёт целиком в
+    /// assistant-сообщении).
+    private static func decodeBlockStart(_ event: [String: Any]) -> [AgentEvent] {
+        guard
+            let block = event["content_block"] as? [String: Any],
+            let blockType = block["type"] as? String
+        else { return [] }
+        switch blockType {
+        case "thinking": return [.blockStarted(.thinking)]
+        case "text": return [.blockStarted(.text)]
+        default: return []
+        }
+    }
 
+    /// Дельта блока: токен-приращения thinking/text (input_json_delta и пр. —
+    /// вход тула показываем целиком, не по дельтам).
+    private static func decodeBlockDelta(_ event: [String: Any]) -> [AgentEvent] {
+        guard
+            let delta = event["delta"] as? [String: Any],
+            let deltaType = delta["type"] as? String
+        else { return [] }
+        switch deltaType {
+        case "thinking_delta":
+            return (delta["thinking"] as? String).map { [.thinkingDelta($0)] } ?? []
+        case "text_delta":
+            return (delta["text"] as? String).map { [.textDelta($0)] } ?? []
         default:
-            return []  // message_start/stop, ping — служебные
+            return []
         }
     }
 
