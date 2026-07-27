@@ -11,17 +11,17 @@
 # не поведение и не пиксели, но перед массовым --fix всё равно прогонять сборку.
 
 included:
-  - Packages/FoundryKit/Sources
-  - Packages/FoundryKit/Tests
+  - Packages/Foundry/Sources
+  - Packages/Foundry/Tests
   - App
 
 excluded:
   - .build
-  - Packages/FoundryKit/.build
-  - Packages/FoundryKit/scratchpad
+  - Packages/Foundry/.build
+  - Packages/Foundry/scratchpad
   # DesignTokens генерится из tokens.json — форматировать/линтить генерат нельзя.
   # (SwiftLint не понимает шапку // swift-format-ignore-file — исключаем путём.)
-  - Packages/FoundryKit/Sources/Core/DesignSystem/DesignTokens.swift
+  - Packages/Foundry/Sources/Core/DesignSystem/DesignTokens.swift
 
 # Роль линтера — комплементарная форматтеру: он держит запятые и ширину строки,
 # линтер — сложность/длины/семантику. Поэтому глушим правила, которые (а) дублируют

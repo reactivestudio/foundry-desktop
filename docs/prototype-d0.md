@@ -47,7 +47,7 @@ notarization — за рамками прототипа).
   `@MainActor` by default, swift-subprocess (не `Process`), deployment target
   macOS 15.
 - **Структура** — тонкий `.xcodeproj` (buildable folders) + локальный SPM-пакет
-  `Packages/FoundryKit` (гл. 08 §1.3); зависимости строго
+  `Packages/Foundry` (гл. 08 §1.3); зависимости строго
   `FoundryFeatures → FoundryCore/FoundryCLI`, `FoundryCLI → FoundryCore`.
   Границы слоёв — по Clean Architecture (books): домен (события, модели ранов)
   не знает про subprocess и SwiftUI.

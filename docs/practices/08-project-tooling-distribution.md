@@ -74,12 +74,12 @@ Apple документирует этот паттерн («Organizing your code
 foundry-desktop/
 ├── Foundry.xcodeproj               # тонкий: app-таргет + UITests, buildable folder → App/
 ├── App/                            # buildable folder
-│   ├── FoundryApp.swift            # @main, wiring: собирает зависимости, отдаёт в FoundryKit
+│   ├── FoundryApp.swift            # @main, wiring: собирает зависимости, отдаёт в Foundry
 │   ├── Foundry.entitlements
 │   ├── Assets.xcassets
 │   └── Info-additions              # SUFeedURL, SUPublicEDKey и пр. (build settings / Info.plist keys)
 ├── Packages/
-│   └── FoundryKit/                 # ЕДИНСТВЕННЫЙ локальный пакет
+│   └── Foundry/                 # ЕДИНСТВЕННЫЙ локальный пакет
 │       ├── Package.swift
 │       ├── Sources/
 │       │   ├── FoundryCore/        # домен: модели, чистая логика; зависимостей — минимум
@@ -131,7 +131,7 @@ App-таргет импортирует `FoundryFeatures` и делает wiring
 1. **Inner loop (пакет)** — секунды, без подписи и Xcode-проекта:
 
 ```bash
-cd Packages/FoundryKit
+cd Packages/Foundry
 swift build
 swift test
 ```
@@ -184,7 +184,7 @@ xcrun xcresulttool get test-results tests   --path .build/Tests.xcresult
 **Правила.**
 
 1. **`Package.resolved` коммитится** — и пакетный
-   (`Packages/FoundryKit/Package.resolved`), и проектный
+   (`Packages/Foundry/Package.resolved`), и проектный
    (`Foundry.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`).
    Иначе CI и локальная машина резолвят разное.
 2. Пиннинг: `from: "X.Y.Z"` (up-to-next-major) для стабильных ≥1.0;
@@ -195,7 +195,7 @@ xcrun xcresulttool get test-results tests   --path .build/Tests.xcresult
    сопровождение; в PR обосновывается, почему нельзя обойтись stdlib/Apple-пакетом.
 
 ```swift
-// Packages/FoundryKit/Package.swift — фрагмент
+// Packages/Foundry/Package.swift — фрагмент
 dependencies: [
     .package(url: "https://github.com/groue/GRDB.swift", from: "7.11.0"),
     .package(url: "https://github.com/apple/swift-collections", from: "1.6.0"),
@@ -344,7 +344,7 @@ xcrun stapler staple .build/Foundry*.dmg           # staple к самому DMG
 - uses: actions/cache@v4
   with:
     path: |
-      Packages/FoundryKit/.build
+      Packages/Foundry/.build
       ~/Library/Caches/org.swift.swiftpm
     key: spm-${{ runner.os }}-${{ hashFiles('**/Package.resolved') }}
 ```

@@ -101,7 +101,7 @@
 			mainGroup = FD0000062E100006;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				FD00000E2E10000E /* XCLocalSwiftPackageReference "Packages/FoundryKit" */,
+				FD00000E2E10000E /* XCLocalSwiftPackageReference "Packages/Foundry" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FD0000072E100007 /* Products */;
@@ -256,9 +256,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		FD00000E2E10000E /* XCLocalSwiftPackageReference "Packages/FoundryKit" */ = {
+		FD00000E2E10000E /* XCLocalSwiftPackageReference "Packages/Foundry" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/FoundryKit;
+			relativePath = Packages/Foundry;
 		};
 /* End XCLocalSwiftPackageReference section */
 

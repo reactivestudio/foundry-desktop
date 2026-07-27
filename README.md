@@ -74,7 +74,7 @@
 Внутренняя петля — пакет, без Xcode-проекта:
 
 ```sh
-cd Packages/FoundryKit && swift test
+cd Packages/Foundry && swift test
 ```
 
 Приложение целиком:
