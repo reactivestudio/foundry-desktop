@@ -29,8 +29,6 @@ public final class RunStore: RunOutput {
 
     /// Живая лента элементов для вью.
     var feed: [TranscriptItem] { transcript.items }
-    /// Старт сессии текущего рана (nil до `sessionStarted`).
-    var session: SessionStart? { transcript.session }
     /// Финальный результат рана (nil до `finished`).
     var result: RunResult? { transcript.result }
 
@@ -73,10 +71,17 @@ public final class RunStore: RunOutput {
 
     // MARK: - интенты вью
 
+    /// Готов ли ран стартовать: есть каталог проекта и непустой (по сути) промпт.
+    /// Единый предикат пригодности — им гейтится кнопка старта во вью и защищается
+    /// сам старт здесь (defense-in-depth), чтобы правило жило в одном месте.
+    func canStart(projectDirectory: String) -> Bool {
+        !projectDirectory.isEmpty
+            && !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     func start(projectDirectory: String) {
-        guard !phase.isRunning else { return }
+        guard !phase.isRunning, canStart(projectDirectory: projectDirectory) else { return }
         let prompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !prompt.isEmpty, !projectDirectory.isEmpty else { return }
 
         phase = .running
         transcript.reset()

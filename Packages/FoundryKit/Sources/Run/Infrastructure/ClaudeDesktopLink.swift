@@ -1,8 +1,8 @@
 import AppKit
 
 /// Продакшн-адаптер порта `AgentSessionOpening` над `ClaudeDesktopLink` —
-/// связывает доменный `RunStore` с реальным открытием сессии в CCD. Публичен:
-/// его конструирует корень композиции (`Configuration`) и внедряет за порт.
+/// реальное открытие сессии в CCD за портом. Публичен: его конструирует корень
+/// композиции (`Configuration`) и внедряет за порт.
 public struct ClaudeDesktopSessionOpener: AgentSessionOpening {
     public init() {}
 
