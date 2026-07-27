@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent
 TOKENS_JSON = ROOT / "design" / "tokens" / "tokens.json"
 TOKENS_CSS = ROOT / "design" / "tokens" / "tokens.css"
 TOKENS_SWIFT = (
-    ROOT / "Packages" / "FoundryKit" / "Sources" / "Presentation" / "DesignTokens.swift"
+    ROOT / "Packages" / "FoundryKit" / "Sources" / "Core" / "DesignSystem" / "DesignTokens.swift"
 )
 CANON = ROOT / "docs" / "design" / "13-tokens.md"
 SHOWCASE = ROOT / "design" / "index.html"
@@ -435,7 +435,7 @@ def swift_declaration(tokens, group_name, token_name, token):
         lines.append("        /// %s" % role)
 
     if kind == "color":
-        lines.append("        static let %s = %s" % (member, swift_color_expression(tokens, token, path)))
+        lines.append("        public static let %s = %s" % (member, swift_color_expression(tokens, token, path)))
         return lines
 
     if kind == "gradient":
@@ -443,7 +443,7 @@ def swift_declaration(tokens, group_name, token_name, token):
         lines.append("        /// Интерполяция канона — %s; SwiftUI смешивает в своём"
                      % token.get("interpolation", "sRGB"))
         lines.append("        /// пространстве, поэтому опорные точки заданы явно.")
-        lines.append("        static let %s = LinearGradient(" % member)
+        lines.append("        public static let %s = LinearGradient(" % member)
         lines.append("            colors: [%s]," % stops)
         lines.append("            startPoint: .topLeading,")
         lines.append("            endPoint: .bottomTrailing")
@@ -451,12 +451,12 @@ def swift_declaration(tokens, group_name, token_name, token):
         return lines
 
     if kind in ("space", "radius", "size"):
-        lines.append("        static let %s: CGFloat = %s" % (member, format_number(token["pt"])))
+        lines.append("        public static let %s: CGFloat = %s" % (member, format_number(token["pt"])))
         return lines
 
     if kind == "font":
         names = ", ".join('"%s"' % name for name in token["stack"])
-        lines.append("        static let %s: [String] = [%s]" % (member, names))
+        lines.append("        public static let %s: [String] = [%s]" % (member, names))
         return lines
 
     if kind == "type":
@@ -470,7 +470,7 @@ def swift_declaration(tokens, group_name, token_name, token):
             arguments.append("isUppercased: true")
         if token.get("tracking"):
             arguments.append("tracking: %s" % format_number(parse_tracking(token["tracking"])))
-        lines.append("        static let %s = TypeToken(%s)" % (member, ", ".join(arguments)))
+        lines.append("        public static let %s = TypeToken(%s)" % (member, ", ".join(arguments)))
         return lines
 
     if kind == "motion":
@@ -480,7 +480,7 @@ def swift_declaration(tokens, group_name, token_name, token):
             # motion.live — непрерывное состояние, а не переход с длительностью.
             lines.append("        /// Непрерывное состояние, а не переход: длительности нет,")
             lines.append("        /// пульс задаёт сама сцена (%s)." % easing)
-            lines.append("        static let %s = MotionToken(duration: nil, animation: nil)" % member)
+            lines.append("        public static let %s = MotionToken(duration: nil, animation: nil)" % member)
             return lines
         duration = format_number(milliseconds / 1000.0)
         animation = EASING_SWIFT[easing]
@@ -488,7 +488,7 @@ def swift_declaration(tokens, group_name, token_name, token):
             animation = ".timingCurve(0.22, 1, 0.36, 1, duration: %s)" % duration
         else:
             animation = "%s(duration: %s)" % (EASING_SWIFT[easing], duration)
-        lines.append("        static let %s = MotionToken(duration: %s, animation: %s)"
+        lines.append("        public static let %s = MotionToken(duration: %s, animation: %s)"
                      % (member, duration, animation))
         return lines
 
@@ -498,7 +498,7 @@ def swift_declaration(tokens, group_name, token_name, token):
             lines.append("        /// Градиент, а не тень: заливка орба — %s." % token["ref"])
             lines.append("        /// Значения свечения здесь нет намеренно.")
             return lines
-        lines.append("        static let %s = GlowToken(color: %s)" % (member, swift_reference(token["ref"])))
+        lines.append("        public static let %s = GlowToken(color: %s)" % (member, swift_reference(token["ref"])))
         return lines
 
     raise ValueError("неизвестный kind «%s» у токена «%s»" % (kind, path))
@@ -507,24 +507,24 @@ def swift_declaration(tokens, group_name, token_name, token):
 SWIFT_PREAMBLE = '''import SwiftUI
 
 /// Семейство шрифта токена: интерфейсный текст или моноширинный.
-enum TokenFontFamily {
+public enum TokenFontFamily: Sendable {
     case text
     case mono
 }
 
 /// Типографский токен: кегль, интерлиньяж, вес, семейство.
-struct TypeToken {
-    let size: CGFloat
-    let leading: CGFloat
-    let weight: Font.Weight
-    let family: TokenFontFamily
+public struct TypeToken: Sendable {
+    public let size: CGFloat
+    public let leading: CGFloat
+    public let weight: Font.Weight
+    public let family: TokenFontFamily
     /// Прописные (лейблы секций сайдбара).
-    let isUppercased: Bool
+    public let isUppercased: Bool
     /// Трекинг долей кегля.
-    let tracking: CGFloat
+    public let tracking: CGFloat
 
-    init(size: CGFloat, leading: CGFloat, weight: Font.Weight, family: TokenFontFamily,
-         isUppercased: Bool = false, tracking: CGFloat = 0) {
+    public init(size: CGFloat, leading: CGFloat, weight: Font.Weight, family: TokenFontFamily,
+                isUppercased: Bool = false, tracking: CGFloat = 0) {
         self.size = size
         self.leading = leading
         self.weight = weight
@@ -533,35 +533,35 @@ struct TypeToken {
         self.tracking = tracking
     }
 
-    var font: Font {
+    public var font: Font {
         .system(size: size, weight: weight, design: family == .mono ? .monospaced : .default)
     }
 
     /// Насколько развести строки, чтобы получить интерлиньяж канона.
-    var lineSpacing: CGFloat {
+    public var lineSpacing: CGFloat {
         max(0, leading - size)
     }
 }
 
 /// Токен движения. duration == nil — непрерывное состояние, а не переход.
-struct MotionToken {
-    let duration: TimeInterval?
-    let animation: Animation?
+public struct MotionToken: Sendable {
+    public let duration: TimeInterval?
+    public let animation: Animation?
 }
 
 /// Свечение — фирменная замена тени. Рецепт двухслойный: внутренний ореол
 /// blur 10 @ 40% и внешний blur 36 @ 15% цвета токена (06-color.md, раздел 5.6).
-struct GlowToken {
-    let color: Color
-    let innerRadius: CGFloat = 10
-    let innerOpacity: Double = 0.4
-    let outerRadius: CGFloat = 36
-    let outerOpacity: Double = 0.15
+public struct GlowToken: Sendable {
+    public let color: Color
+    public let innerRadius: CGFloat = 10
+    public let innerOpacity: Double = 0.4
+    public let outerRadius: CGFloat = 36
+    public let outerOpacity: Double = 0.15
 }
 
 extension Color {
     /// Цвет из целого 0xRRGGBB — тем же написанием, что и в tokens.json.
-    init(hexValue: UInt32, opacity: Double = 1) {
+    public init(hexValue: UInt32, opacity: Double = 1) {
         self.init(
             .sRGB,
             red: Double((hexValue >> 16) & 0xFF) / 255,
@@ -584,7 +584,7 @@ def generate_tokens_swift(tokens):
         lines.append("// %s" % root_note)
     lines.append("")
     lines.append(SWIFT_PREAMBLE)
-    lines.append("enum Token {")
+    lines.append("public enum Token {")
 
     first = True
     for group_name, group in tokens.items():
@@ -596,7 +596,7 @@ def generate_tokens_swift(tokens):
         role = group.get("_role")
         if role:
             lines.append("    /// %s" % role)
-        lines.append("    enum %s {" % SWIFT_NAMESPACES[group_name])
+        lines.append("    public enum %s {" % SWIFT_NAMESPACES[group_name])
         for token_name, token in group.items():
             if is_documentation_key(token_name) or not isinstance(token, dict):
                 continue

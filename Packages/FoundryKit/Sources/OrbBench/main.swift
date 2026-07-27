@@ -1,6 +1,6 @@
+import Core
 import Foundation
 import Metal
-import Presentation
 
 // Замер роя на настоящей Metal-железке. Считает не «сколько кадров успеваем»,
 // а сколько ГПУ реально занят на кадр: gpuEndTime - gpuStartTime командного

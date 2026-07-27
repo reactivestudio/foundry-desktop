@@ -1,14 +1,12 @@
-import Application
-import Domain
-import Infrastructure
-import Presentation
+import Run
+import Setting
 import Swinject
 
 /// Корень композиции приложения — наш аналог Spring `@Configuration`. Единственный
-/// слой, который видит конкретные детали (вендор-адаптеры, инфраструктуру) и
-/// связывает их с портами `Domain` через Swinject-контейнер. Приложение
-/// линкует только этот продукт (+ `Presentation` ради корневого View) и не
-/// знает ни одной реализации портов.
+/// слой, который видит все контексты сразу: связывает их порты (`Run`, `Setting`)
+/// с конкретными реализациями через Swinject-контейнер. Приложение линкует только
+/// этот продукт (корневой вид `FoundryApplicationView` — здесь же) и не знает ни
+/// одной реализации портов, ни одного контекста поимённо.
 ///
 /// `@MainActor`: контейнер и резолв заперты на главном акторе — тот же актор, на
 /// котором живёт доменный `@MainActor RunStore`, так что сборка идёт без пересечения
@@ -33,7 +31,7 @@ public final class AppContainer {
             runner: resolver.resolve(AgentRunner.self)!,
             sessionOpener: resolver.resolve(AgentSessionOpening.self)!
         )
-        return RunStore(runService: runService, settings: resolver.resolve(SettingsService.self)!)
+        return RunStore(runService: runService, toolSetting: resolver.resolve(ToolService.self)!)
     }
 }
 
@@ -43,9 +41,9 @@ struct FoundryAssembly: Assembly {
     func assemble(container: Container) {
         container.register(AgentRunner.self) { _ in ClaudeRunner() }
         container.register(AgentSessionOpening.self) { _ in ClaudeDesktopSessionOpener() }
-        container.register(SettingsRepository.self) { _ in UserDefaultsSettingsRepository() }
-        container.register(SettingsService.self) { resolver in
-            SettingsService(repository: resolver.resolve(SettingsRepository.self)!)
+        container.register(ToolRepository.self) { _ in UserDefaultsToolRepository() }
+        container.register(ToolService.self) { resolver in
+            ToolService(repository: resolver.resolve(ToolRepository.self)!)
         }
     }
 }
