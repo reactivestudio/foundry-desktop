@@ -34,9 +34,12 @@ jobs:
             Packages/FoundryKit/Sources Packages/FoundryKit/Tests App
 
       # Линт комплементарен форматтеру: сложность/длины/семантика (.swiftlint.yml),
-      # а не форматирование. swiftlint предустановлен на образе macos раннера.
+      # а не форматирование. swiftlint на образе macos не предустановлен — ставим
+      # (guard: если будущий образ его включит, brew-шаг пропустится).
       - name: Линт (SwiftLint)
-        run: swiftlint lint --strict --quiet
+        run: |
+          command -v swiftlint >/dev/null || brew install swiftlint
+          swiftlint lint --strict --quiet
 
       - name: Прогнать тесты пакета
         working-directory: Packages/FoundryKit
