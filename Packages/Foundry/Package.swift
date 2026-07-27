@@ -43,7 +43,7 @@ let package = Package(
         // + Infrastructure/UserDefaults<E>Repository), когда у неё появляется
         // реальное поле. Пустышек наперёд не заводим. Ни от кого не зависит, кроме
         // системы.
-        .target(name: "Setting"),
+        .target(name: "Setting", dependencies: ["Core"]),
 
         // Run — core-контекст: запуск агент-сессии и лента транскрипта. Читает
         // настройки через публичный контракт Setting; общее берёт из Core.
@@ -82,8 +82,8 @@ let package = Package(
         .executableTarget(name: "OrbBench", dependencies: ["Core"]),
 
         // Тесты — по контексту.
+        .testTarget(name: "SettingTests", dependencies: ["Setting", "Core"]),
         .testTarget(name: "RunTests", dependencies: ["Run", "Setting"]),
-        .testTarget(name: "SettingTests", dependencies: ["Setting"]),
         // Core в зависимостях — ради теста-паритета физики роёв, что сверяет
         // внутренности Onboarding и Core разом (@testable обоих).
         .testTarget(name: "OnboardingTests", dependencies: ["Onboarding", "Core"]),
