@@ -1,14 +1,17 @@
+import Application
 import Domain
 import Foundation
 import Observation
 
 /// Стор одного рана: MV-паттерн, @Observable без ViewModel'ей (practices 03).
-/// Сборку ленты держит доменный агрегат `Transcript`; стор — тонкий слой между
-/// потоком событий раннера и вью: переводит транспортные события в мутации
-/// транскрипта, коалессирует токен-дельты с кадровой каденцией (~16 мс, одна
-/// SwiftUI-инвалидация на кадр — practices 06, пункт 2.5) и держит фазу рана.
+/// Тонкий: держит наблюдаемое состояние экрана (фаза + проекция транскрипта),
+/// принимает интенты вью и делегирует их сценарию `RunService`. Сборку ленты
+/// держит доменный агрегат `Transcript`; оркестрацию рана — `RunService`. Сам
+/// стор — это сток `RunOutput`: сценарий толкает сюда события и терминалы, а стор
+/// применяет их к транскрипту, коалессируя токен-дельты с кадровой каденцией
+/// (~16 мс — одна SwiftUI-инвалидация на кадр, practices 06, пункт 2.5).
 @MainActor @Observable
-public final class RunStore {
+public final class RunStore: RunOutput {
 
     enum Phase: Equatable {
         case idle
@@ -36,20 +39,16 @@ public final class RunStore {
     var permissionMode: PermissionMode = .acceptEdits
     /// Импортировать сессию во внешний просмотрщик рана (сегодня — Claude Code
     /// Desktop, deep link claude://resume — docs/ccd-visibility.md; какой именно
-    /// просмотрщик — деталь адаптера `AgentSessionOpening`). Пишется в
-    /// durable-настройки через порт, а не в `UserDefaults.standard` напрямую.
+    /// просмотрщик — деталь адаптера `AgentSessionOpening`). Изменение уходит в
+    /// durable-настройки через сценарий `SettingsService`, а не в
+    /// `UserDefaults.standard` напрямую.
     var opensSessionInViewer: Bool {
-        didSet { preferences.setBool(opensSessionInViewer, forKey: Self.viewerPreferenceKey) }
+        didSet { settings.setOpensSessionInViewer(opensSessionInViewer) }
     }
 
-    /// Строковый ключ настройки неизменен (persisted-значение — миграции нет),
-    /// хотя Swift-символ уже вендор-нейтрален.
-    private static let viewerPreferenceKey = "openInClaudeDesktop"
-
     // Зависимости, не состояние: из наблюдения исключены (практики 03).
-    @ObservationIgnored private let runner: AgentRunner
-    @ObservationIgnored private let sessionOpener: AgentSessionOpening
-    @ObservationIgnored private let preferences: PreferenceStore
+    @ObservationIgnored private let runService: RunService
+    @ObservationIgnored private let settings: SettingsService
     private var runTask: Task<Void, Never>?
 
     /// Кадровая каденция коалессинга дельт (~60 Гц): одна SwiftUI-инвалидация на
@@ -59,24 +58,21 @@ public final class RunStore {
     private var pendingDelta = ""
     private var flushScheduled = false
 
-    /// Все зависимости инъектируются корнем композиции (`Configuration`):
-    /// раннер, опенер сессии и хранилище настроек — это порты `Domain`, за
-    /// которыми стоят вендор/инфра-адаптеры. Конкретики-дефолтов НЕТ: UI-слой (этот
-    /// модуль) не знает ни одной реализации и зависит только от абстракций
-    /// (правило зависимостей). Тест подставляет фейки/шпионов.
-    public init(
-        runner: AgentRunner,
-        sessionOpener: AgentSessionOpening,
-        preferences: PreferenceStore
-    ) {
-        self.runner = runner
-        self.sessionOpener = sessionOpener
-        self.preferences = preferences
-        // Дефолт — включено: смысл фичи в наблюдении рана из просмотрщика.
-        // Инициализирующее присваивание не будит didSet — обратной записи дефолта
-        // в хранилище нет.
-        opensSessionInViewer = preferences.bool(forKey: Self.viewerPreferenceKey) ?? true
+    /// Все зависимости инъектируются корнем композиции (`Configuration`): сценарий
+    /// рана и служба настроек. Конкретики-дефолтов НЕТ: UI-слой (этот модуль) не
+    /// знает ни одной реализации портов и зависит только от абстракций (правило
+    /// зависимостей). Тест подставляет сценарий с фейковым раннером/шпионом и службу
+    /// с in-memory репозиторием настроек.
+    public init(runService: RunService, settings: SettingsService) {
+        self.runService = runService
+        self.settings = settings
+        // Начальное значение — снимок настроек (дефолт живёт в `Settings`).
+        // Инициализирующее присваивание не будит didSet — обратной записи в
+        // хранилище нет.
+        opensSessionInViewer = settings.current().opensSessionInViewer
     }
+
+    // MARK: - интенты вью
 
     func start(projectDirectory: String) {
         guard !phase.isRunning else { return }
@@ -87,56 +83,41 @@ public final class RunStore {
         transcript.reset()
         pendingDelta = ""
 
-        let stream = runner.stream(
-            prompt: prompt,
-            projectDirectory: projectDirectory,
-            permissionMode: permissionMode
+        runTask = runService.run(
+            RunCommand(
+                prompt: prompt,
+                projectDirectory: projectDirectory,
+                permissionMode: permissionMode,
+                opensSessionInViewer: opensSessionInViewer
+            ),
+            into: self
         )
-        runTask = Task { [weak self] in
-            do {
-                for try await event in stream {
-                    self?.ingest(event)
-                }
-                self?.finishIfStillRunning()
-            } catch is CancellationError {
-                self?.markStopped()
-            } catch {
-                self?.fail(error)
-            }
-        }
     }
 
     func stop() {
-        // Отмена consumer-задачи рвёт стрим → onTermination → SIGINT ребёнку.
+        // Отмена задачи потребления рвёт стрим → onTermination → SIGINT ребёнку.
         runTask?.cancel()
         runTask = nil
-        markStopped()
+        runCancelled()
     }
 
     /// Открыть завершённую сессию результата в Claude Code Desktop (кнопка на
-    /// карточке результата). Идёт через тот же порт, что и автоимпорт при старте, —
-    /// вью не знает про deep link, а инфраструктура остаётся за одной границей.
+    /// карточке результата) — через сценарий, вью не знает про deep link.
     func openResultInDesktop() {
         guard let sessionID = result?.sessionID else { return }
-        sessionOpener.openSessionNow(sessionID: sessionID)
+        runService.openResult(sessionID: sessionID)
     }
 
-    // MARK: - ingest
+    // MARK: - RunOutput: применение прогресса рана к транскрипту
 
-    /// Перевод одного транспортного события в мутации транскрипта плюс побочные
-    /// эффекты уровня стора (автоимпорт сессии, фаза). Бизнес-правил сборки здесь
-    /// нет — они в `Transcript`; текст записей чеканит `RunStrings`.
-    private func ingest(_ event: AgentEvent) {
+    /// Перевод одного события потока в мутации транскрипта плюс фаза. Бизнес-правил
+    /// сборки здесь нет — они в `Transcript`; текст записей чеканит `RunStrings`.
+    public func receive(_ event: AgentEvent) {
         switch event {
         case .sessionStarted(let start):
             transcript.beginSession(start)
-            transcript.append(.info, body: RunStrings.sessionStarted(id: start.sessionID, model: start.model))
-            if opensSessionInViewer {
-                Task { [sessionOpener] in
-                    await sessionOpener.openSession(
-                        sessionID: start.sessionID, projectDirectory: start.projectDirectory)
-                }
-            }
+            transcript.append(
+                .info, body: RunStrings.sessionStarted(id: start.sessionID, model: start.model))
 
         case .blockStarted(.thinking):
             flushPendingDelta()
@@ -169,7 +150,25 @@ public final class RunStore {
         }
     }
 
-    // MARK: - коалессинг дельт
+    public func runEndedWithoutResult() {
+        flushPendingDelta()
+        guard phase.isRunning else { return }
+        // Стрим закрылся без result-события — считаем ран прерванным.
+        phase = .failed(RunStrings.streamEndedWithoutResult)
+    }
+
+    public func runCancelled() {
+        flushPendingDelta()
+        guard phase.isRunning else { return }
+        phase = .failed(RunStrings.stopped)
+    }
+
+    public func runFailed(_ error: Error) {
+        flushPendingDelta()
+        phase = .failed(error.localizedDescription)
+    }
+
+    // MARK: - коалессинг дельт (кадровая каденция — забота UI-слоя)
 
     private func bufferDelta(_ delta: String) {
         pendingDelta += delta
@@ -186,25 +185,5 @@ public final class RunStore {
         guard !pendingDelta.isEmpty else { return }
         transcript.appendDelta(pendingDelta)
         pendingDelta = ""
-    }
-
-    // MARK: - завершение
-
-    private func finishIfStillRunning() {
-        flushPendingDelta()
-        guard phase.isRunning else { return }
-        // Стрим закрылся без result-события — считаем ран прерванным.
-        phase = .failed(RunStrings.streamEndedWithoutResult)
-    }
-
-    private func markStopped() {
-        flushPendingDelta()
-        guard phase.isRunning else { return }
-        phase = .failed(RunStrings.stopped)
-    }
-
-    private func fail(_ error: Error) {
-        flushPendingDelta()
-        phase = .failed(error.localizedDescription)
     }
 }

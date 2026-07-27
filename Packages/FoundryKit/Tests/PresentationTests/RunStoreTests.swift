@@ -1,3 +1,4 @@
+import Application
 import Domain
 import Testing
 
@@ -35,12 +36,12 @@ private final class SpySessionOpener: AgentSessionOpening {
     func openSessionNow(sessionID: String) { openedNowID = sessionID }
 }
 
-/// In-memory фейк порта настроек: тесты не трогают глобальный
-/// `UserDefaults.standard` — флаг живёт только в этом словаре.
-private final class InMemoryPreferences: PreferenceStore {
-    private var store: [String: Bool] = [:]
-    func bool(forKey key: String) -> Bool? { store[key] }
-    func setBool(_ value: Bool, forKey key: String) { store[key] = value }
+/// In-memory фейк репозитория настроек: тесты не трогают глобальный
+/// `UserDefaults.standard` — агрегат живёт только в этом поле.
+private final class InMemorySettingsRepository: SettingsRepository {
+    private var settings = Settings()
+    func load() -> Settings { settings }
+    func save(_ settings: Settings) { self.settings = settings }
 }
 
 @MainActor
@@ -51,13 +52,15 @@ struct RunStoreTests {
     func opensSessionThroughPortWhenEnabled() async {
         let opener = SpySessionOpener()
         let store = RunStore(
-            runner: ScriptedRunner(events: [
-                .sessionStarted(
-                    SessionStart(sessionID: "s1", model: "opus", projectDirectory: "/tmp/project")),
-                .finished(.ok()),
-            ]),
-            sessionOpener: opener,
-            preferences: InMemoryPreferences()
+            runService: RunService(
+                runner: ScriptedRunner(events: [
+                    .sessionStarted(
+                        SessionStart(sessionID: "s1", model: "opus", projectDirectory: "/tmp/project")),
+                    .finished(.ok()),
+                ]),
+                sessionOpener: opener
+            ),
+            settings: SettingsService(repository: InMemorySettingsRepository())
         )
         store.opensSessionInViewer = true
         store.prompt = "промпт"
@@ -74,13 +77,15 @@ struct RunStoreTests {
     func doesNotOpenSessionWhenDisabled() async {
         let opener = SpySessionOpener()
         let store = RunStore(
-            runner: ScriptedRunner(events: [
-                .sessionStarted(
-                    SessionStart(sessionID: "s1", model: "opus", projectDirectory: "/tmp/project")),
-                .finished(.ok()),
-            ]),
-            sessionOpener: opener,
-            preferences: InMemoryPreferences()
+            runService: RunService(
+                runner: ScriptedRunner(events: [
+                    .sessionStarted(
+                        SessionStart(sessionID: "s1", model: "opus", projectDirectory: "/tmp/project")),
+                    .finished(.ok()),
+                ]),
+                sessionOpener: opener
+            ),
+            settings: SettingsService(repository: InMemorySettingsRepository())
         )
         store.opensSessionInViewer = false
         store.prompt = "промпт"
@@ -95,13 +100,15 @@ struct RunStoreTests {
     func openResultInDesktopGoesThroughPort() async {
         let opener = SpySessionOpener()
         let store = RunStore(
-            runner: ScriptedRunner(events: [
-                .sessionStarted(
-                    SessionStart(sessionID: "s7", model: "opus", projectDirectory: "/tmp/project")),
-                .finished(.ok()),
-            ]),
-            sessionOpener: opener,
-            preferences: InMemoryPreferences()
+            runService: RunService(
+                runner: ScriptedRunner(events: [
+                    .sessionStarted(
+                        SessionStart(sessionID: "s7", model: "opus", projectDirectory: "/tmp/project")),
+                    .finished(.ok()),
+                ]),
+                sessionOpener: opener
+            ),
+            settings: SettingsService(repository: InMemorySettingsRepository())
         )
         store.opensSessionInViewer = false  // отсекаем автоимпорт — проверяем ручной
         store.prompt = "промпт"
@@ -119,9 +126,11 @@ struct RunStoreTests {
     /// перестанет быть `.running` (с потолком, чтобы тест не завис).
     private func run(_ events: [AgentEvent], error: Error? = nil) async -> RunStore {
         let store = RunStore(
-            runner: ScriptedRunner(events: events, error: error),
-            sessionOpener: SpySessionOpener(),
-            preferences: InMemoryPreferences())
+            runService: RunService(
+                runner: ScriptedRunner(events: events, error: error),
+                sessionOpener: SpySessionOpener()
+            ),
+            settings: SettingsService(repository: InMemorySettingsRepository()))
         store.opensSessionInViewer = false  // без побочного открытия сессии в CCD
         store.prompt = "промпт"
         store.start(projectDirectory: "/tmp/project")
@@ -197,9 +206,11 @@ struct RunStoreTests {
     @Test("Пустой промпт не стартует ран")
     func emptyPromptDoesNotStart() {
         let store = RunStore(
-            runner: ScriptedRunner(events: []),
-            sessionOpener: SpySessionOpener(),
-            preferences: InMemoryPreferences())
+            runService: RunService(
+                runner: ScriptedRunner(events: []),
+                sessionOpener: SpySessionOpener()
+            ),
+            settings: SettingsService(repository: InMemorySettingsRepository()))
         store.prompt = "   "
         store.start(projectDirectory: "/tmp/project")
         #expect(store.phase == .idle)
@@ -208,9 +219,11 @@ struct RunStoreTests {
     @Test("Пустой каталог проекта не стартует ран")
     func emptyProjectDirectoryDoesNotStart() {
         let store = RunStore(
-            runner: ScriptedRunner(events: []),
-            sessionOpener: SpySessionOpener(),
-            preferences: InMemoryPreferences())
+            runService: RunService(
+                runner: ScriptedRunner(events: []),
+                sessionOpener: SpySessionOpener()
+            ),
+            settings: SettingsService(repository: InMemorySettingsRepository()))
         store.prompt = "промпт"
         store.start(projectDirectory: "")
         #expect(store.phase == .idle)
