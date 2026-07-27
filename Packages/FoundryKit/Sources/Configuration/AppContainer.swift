@@ -33,7 +33,7 @@ public final class AppContainer {
             runner: resolver.resolve(AgentRunner.self)!,
             sessionOpener: resolver.resolve(AgentSessionOpening.self)!
         )
-        return RunStore(runService: runService, preferences: resolver.resolve(PreferenceStore.self)!)
+        return RunStore(runService: runService, settings: resolver.resolve(SettingsService.self)!)
     }
 }
 
@@ -43,6 +43,9 @@ struct FoundryAssembly: Assembly {
     func assemble(container: Container) {
         container.register(AgentRunner.self) { _ in ClaudeRunner() }
         container.register(AgentSessionOpening.self) { _ in ClaudeDesktopSessionOpener() }
-        container.register(PreferenceStore.self) { _ in UserDefaultsPreferenceStore() }
+        container.register(SettingsRepository.self) { _ in UserDefaultsSettingsRepository() }
+        container.register(SettingsService.self) { resolver in
+            SettingsService(repository: resolver.resolve(SettingsRepository.self)!)
+        }
     }
 }

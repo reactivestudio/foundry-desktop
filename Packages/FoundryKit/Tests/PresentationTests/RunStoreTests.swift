@@ -36,12 +36,12 @@ private final class SpySessionOpener: AgentSessionOpening {
     func openSessionNow(sessionID: String) { openedNowID = sessionID }
 }
 
-/// In-memory фейк порта настроек: тесты не трогают глобальный
-/// `UserDefaults.standard` — флаг живёт только в этом словаре.
-private final class InMemoryPreferences: PreferenceStore {
-    private var store: [String: Bool] = [:]
-    func bool(forKey key: String) -> Bool? { store[key] }
-    func setBool(_ value: Bool, forKey key: String) { store[key] = value }
+/// In-memory фейк репозитория настроек: тесты не трогают глобальный
+/// `UserDefaults.standard` — агрегат живёт только в этом поле.
+private final class InMemorySettingsRepository: SettingsRepository {
+    private var settings = Settings()
+    func load() -> Settings { settings }
+    func save(_ settings: Settings) { self.settings = settings }
 }
 
 @MainActor
@@ -60,7 +60,7 @@ struct RunStoreTests {
                 ]),
                 sessionOpener: opener
             ),
-            preferences: InMemoryPreferences()
+            settings: SettingsService(repository: InMemorySettingsRepository())
         )
         store.opensSessionInViewer = true
         store.prompt = "промпт"
@@ -85,7 +85,7 @@ struct RunStoreTests {
                 ]),
                 sessionOpener: opener
             ),
-            preferences: InMemoryPreferences()
+            settings: SettingsService(repository: InMemorySettingsRepository())
         )
         store.opensSessionInViewer = false
         store.prompt = "промпт"
@@ -108,7 +108,7 @@ struct RunStoreTests {
                 ]),
                 sessionOpener: opener
             ),
-            preferences: InMemoryPreferences()
+            settings: SettingsService(repository: InMemorySettingsRepository())
         )
         store.opensSessionInViewer = false  // отсекаем автоимпорт — проверяем ручной
         store.prompt = "промпт"
@@ -130,7 +130,7 @@ struct RunStoreTests {
                 runner: ScriptedRunner(events: events, error: error),
                 sessionOpener: SpySessionOpener()
             ),
-            preferences: InMemoryPreferences())
+            settings: SettingsService(repository: InMemorySettingsRepository()))
         store.opensSessionInViewer = false  // без побочного открытия сессии в CCD
         store.prompt = "промпт"
         store.start(projectDirectory: "/tmp/project")
@@ -210,7 +210,7 @@ struct RunStoreTests {
                 runner: ScriptedRunner(events: []),
                 sessionOpener: SpySessionOpener()
             ),
-            preferences: InMemoryPreferences())
+            settings: SettingsService(repository: InMemorySettingsRepository()))
         store.prompt = "   "
         store.start(projectDirectory: "/tmp/project")
         #expect(store.phase == .idle)
@@ -223,7 +223,7 @@ struct RunStoreTests {
                 runner: ScriptedRunner(events: []),
                 sessionOpener: SpySessionOpener()
             ),
-            preferences: InMemoryPreferences())
+            settings: SettingsService(repository: InMemorySettingsRepository()))
         store.prompt = "промпт"
         store.start(projectDirectory: "")
         #expect(store.phase == .idle)

@@ -39,19 +39,16 @@ public final class RunStore: RunOutput {
     var permissionMode: PermissionMode = .acceptEdits
     /// Импортировать сессию во внешний просмотрщик рана (сегодня — Claude Code
     /// Desktop, deep link claude://resume — docs/ccd-visibility.md; какой именно
-    /// просмотрщик — деталь адаптера `AgentSessionOpening`). Пишется в
-    /// durable-настройки через порт, а не в `UserDefaults.standard` напрямую.
+    /// просмотрщик — деталь адаптера `AgentSessionOpening`). Изменение уходит в
+    /// durable-настройки через сценарий `SettingsService`, а не в
+    /// `UserDefaults.standard` напрямую.
     var opensSessionInViewer: Bool {
-        didSet { preferences.setBool(opensSessionInViewer, forKey: Self.viewerPreferenceKey) }
+        didSet { settings.setOpensSessionInViewer(opensSessionInViewer) }
     }
-
-    /// Строковый ключ настройки неизменен (persisted-значение — миграции нет),
-    /// хотя Swift-символ уже вендор-нейтрален.
-    private static let viewerPreferenceKey = "openInClaudeDesktop"
 
     // Зависимости, не состояние: из наблюдения исключены (практики 03).
     @ObservationIgnored private let runService: RunService
-    @ObservationIgnored private let preferences: PreferenceStore
+    @ObservationIgnored private let settings: SettingsService
     private var runTask: Task<Void, Never>?
 
     /// Кадровая каденция коалессинга дельт (~60 Гц): одна SwiftUI-инвалидация на
@@ -62,16 +59,17 @@ public final class RunStore: RunOutput {
     private var flushScheduled = false
 
     /// Все зависимости инъектируются корнем композиции (`Configuration`): сценарий
-    /// рана и хранилище настроек. Конкретики-дефолтов НЕТ: UI-слой (этот модуль) не
+    /// рана и служба настроек. Конкретики-дефолтов НЕТ: UI-слой (этот модуль) не
     /// знает ни одной реализации портов и зависит только от абстракций (правило
-    /// зависимостей). Тест подставляет сценарий с фейковым раннером/шпионом.
-    public init(runService: RunService, preferences: PreferenceStore) {
+    /// зависимостей). Тест подставляет сценарий с фейковым раннером/шпионом и службу
+    /// с in-memory репозиторием настроек.
+    public init(runService: RunService, settings: SettingsService) {
         self.runService = runService
-        self.preferences = preferences
-        // Дефолт — включено: смысл фичи в наблюдении рана из просмотрщика.
-        // Инициализирующее присваивание не будит didSet — обратной записи дефолта
-        // в хранилище нет.
-        opensSessionInViewer = preferences.bool(forKey: Self.viewerPreferenceKey) ?? true
+        self.settings = settings
+        // Начальное значение — снимок настроек (дефолт живёт в `Settings`).
+        // Инициализирующее присваивание не будит didSet — обратной записи в
+        // хранилище нет.
+        opensSessionInViewer = settings.current().opensSessionInViewer
     }
 
     // MARK: - интенты вью
