@@ -60,13 +60,13 @@ jobs:
         uses: actions/cache@v6
         with:
           path: |
-            Packages/FoundryKit/.build
+            Packages/Foundry/.build
             ~/Library/Caches/org.swift.swiftpm
           key: spm-${{ runner.os }}-${{ hashFiles('**/Package.resolved') }}
           restore-keys: spm-${{ runner.os }}-
 
       - name: Прогнать тесты пакета
-        working-directory: Packages/FoundryKit
+        working-directory: Packages/Foundry
         run: swift test
 
       - name: Собрать дистрибутив

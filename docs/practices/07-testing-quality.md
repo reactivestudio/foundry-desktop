@@ -544,7 +544,7 @@ swift format lint --strict --recursive Packages App  # CI-гейт
 **Inner loop — секунды, гонять постоянно:**
 
 ```bash
-cd Packages/FoundryKit && swift test          # весь пакет, ~95% кода
+cd Packages/Foundry && swift test          # весь пакет, ~95% кода
 swift test --filter FoundryCLITests          # точечно
 ```
 

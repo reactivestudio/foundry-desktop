@@ -23,7 +23,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: |
-            Packages/FoundryKit/.build
+            Packages/Foundry/.build
             ~/Library/Caches/org.swift.swiftpm
           key: spm-${{ runner.os }}-${{ hashFiles('**/Package.resolved') }}
           restore-keys: spm-${{ runner.os }}-
@@ -31,7 +31,7 @@ jobs:
       - name: Проверить форматирование
         run: |
           swift format lint --strict --recursive \
-            Packages/FoundryKit/Sources Packages/FoundryKit/Tests App
+            Packages/Foundry/Sources Packages/Foundry/Tests App
 
       # Линт комплементарен форматтеру: сложность/длины/семантика (.swiftlint.yml),
       # а не форматирование. swiftlint на образе macos не предустановлен — ставим
@@ -42,7 +42,7 @@ jobs:
           swiftlint lint --strict --quiet
 
       - name: Прогнать тесты пакета
-        working-directory: Packages/FoundryKit
+        working-directory: Packages/Foundry
         run: swift test
 
       # Приложение собирается без подписи: проверяем, что xcodeproj + пакет

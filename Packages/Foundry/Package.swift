@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "FoundryKit",
+    name: "Foundry",
     platforms: [.macOS(.v15)],
     products: [
         // Configuration — корень композиции (Swinject-контейнер + корневой вид). Это
