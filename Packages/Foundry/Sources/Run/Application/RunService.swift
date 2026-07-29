@@ -27,13 +27,13 @@ public struct RunCommand: Sendable {
 @MainActor
 public protocol RunOutput: AnyObject {
     /// Очередное событие потока — применить к транскрипту.
-    func receive(_ event: AgentEvent)
+    func receive(event: AgentEvent)
     /// Поток закрылся без финального result-события.
     func runEndedWithoutResult()
     /// Ран отменён (задача потребления снята).
     func runCancelled()
     /// Поток упал ошибкой.
-    func runFailed(_ error: Error)
+    func runFailed(error: Error)
 }
 
 /// Сценарий запуска рана агента (use-case, слой Application). Оркестрирует порты
@@ -56,7 +56,7 @@ public final class RunService {
     /// потребления — вызывающий держит её и отменяет при остановке; отмена штатно
     /// рвёт стрим (в адаптере — SIGINT ребёнку). Задача напрямую итерирует поток
     /// раннера, без обёрток, поэтому семантика отмены не меняется.
-    public func run(_ command: RunCommand, into output: RunOutput) -> Task<Void, Never> {
+    public func run(command: RunCommand, into output: RunOutput) -> Task<Void, Never> {
         let stream = runner.stream(
             prompt: command.prompt,
             projectDirectory: command.projectDirectory,
@@ -73,13 +73,13 @@ public final class RunService {
                                 sessionID: start.sessionID, projectDirectory: start.projectDirectory)
                         }
                     }
-                    output?.receive(event)
+                    output?.receive(event: event)
                 }
                 output?.runEndedWithoutResult()
             } catch is CancellationError {
                 output?.runCancelled()
             } catch {
-                output?.runFailed(error)
+                output?.runFailed(error: error)
             }
         }
     }

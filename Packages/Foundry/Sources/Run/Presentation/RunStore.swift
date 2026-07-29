@@ -40,7 +40,7 @@ public final class RunStore: RunOutput {
     /// durable-настройки через сценарий `ToolService`, а не в
     /// `UserDefaults.standard` напрямую.
     var opensSessionInViewer: Bool {
-        didSet { toolSetting.setOpensSessionInViewer(opensSessionInViewer) }
+        didSet { toolSetting.setOpensSessionInViewer(enabled: opensSessionInViewer) }
     }
 
     // Зависимости, не состояние: из наблюдения исключены (практики 03).
@@ -55,7 +55,7 @@ public final class RunStore: RunOutput {
     private var pendingDelta = ""
     private var flushScheduled = false
 
-    /// Все зависимости инъектируются корнем композиции (`Configuration`): сценарий
+    /// Все зависимости инъектируются bootstrap'ом (`Bootstrap`): сценарий
     /// рана и служба настроек инструментов. Конкретики-дефолтов НЕТ: UI-слой (этот
     /// модуль) не знает ни одной реализации портов и зависит только от абстракций
     /// (правило зависимостей). Тест подставляет сценарий с фейковым раннером/шпионом
@@ -88,7 +88,7 @@ public final class RunStore: RunOutput {
         pendingDelta = ""
 
         runTask = runService.run(
-            RunCommand(
+            command: RunCommand(
                 prompt: prompt,
                 projectDirectory: projectDirectory,
                 permissionMode: permissionMode,
@@ -116,40 +116,40 @@ public final class RunStore: RunOutput {
 
     /// Перевод одного события потока в мутации транскрипта плюс фаза. Бизнес-правил
     /// сборки здесь нет — они в `Transcript`; текст записей чеканит `RunStrings`.
-    public func receive(_ event: AgentEvent) {
+    public func receive(event: AgentEvent) {
         switch event {
         case .sessionStarted(let start):
-            transcript.beginSession(start)
+            transcript.beginSession(start: start)
             transcript.append(
-                .info, body: RunStrings.sessionStarted(id: start.sessionID, model: start.model))
+                kind: .info, body: RunStrings.sessionStarted(id: start.sessionID, model: start.model))
 
         case .blockStarted(.thinking):
             flushPendingDelta()
-            transcript.append(.thinking, body: "")
+            transcript.append(kind: .thinking, body: "")
 
         case .blockStarted(.text):
             flushPendingDelta()
-            transcript.append(.text, body: "")
+            transcript.append(kind: .text, body: "")
 
         case .thinkingDelta(let delta), .textDelta(let delta):
             bufferDelta(delta)
 
         case .toolUse(let name, let inputSummary):
             flushPendingDelta()
-            transcript.append(.tool(name: name), body: inputSummary)
+            transcript.append(kind: .tool(name: name), body: inputSummary)
 
         case .toolResult(let summary, let isError):
             transcript.attachToolResult(
-                summary, isError: isError, emptyPlaceholder: RunStrings.emptyToolResult)
+                summary: summary, isError: isError, emptyPlaceholder: RunStrings.emptyToolResult)
 
         case .finished(let runResult):
             flushPendingDelta()
-            transcript.complete(runResult)
+            transcript.complete(runResult: runResult)
             phase = runResult.isError ? .failed(RunStrings.agentReturnedError) : .finished
 
         case .unknown(let type):
-            if transcript.noteUnknownType(type) {
-                transcript.append(.info, body: RunStrings.unknownEvent(type: type))
+            if transcript.noteUnknownType(type: type) {
+                transcript.append(kind: .info, body: RunStrings.unknownEvent(type: type))
             }
         }
     }
@@ -167,7 +167,7 @@ public final class RunStore: RunOutput {
         phase = .failed(RunStrings.stopped)
     }
 
-    public func runFailed(_ error: Error) {
+    public func runFailed(error: Error) {
         flushPendingDelta()
         phase = .failed(error.localizedDescription)
     }
@@ -187,7 +187,7 @@ public final class RunStore: RunOutput {
     private func flushPendingDelta() {
         flushScheduled = false
         guard !pendingDelta.isEmpty else { return }
-        transcript.appendDelta(pendingDelta)
+        transcript.appendDelta(delta: pendingDelta)
         pendingDelta = ""
     }
 }

@@ -1,8 +1,12 @@
 import AppKit
+import SwiftContext
 
 /// Продакшн-адаптер порта `AgentSessionOpening` над `ClaudeDesktopLink` —
-/// реальное открытие сессии в CCD за портом. Публичен: его конструирует корень
-/// композиции (`Configuration`) и внедряет за порт.
+/// реальное открытие сессии в CCD за портом. Публичен: его конструирует
+/// bootstrap (`Bootstrap`) и внедряет за порт.
+/// `@Component` — скан выведет закрываемый контракт из цепочки наследования
+/// (`ClaudeDesktopSessionOpener: AgentSessionOpening`) сам.
+@Component
 public struct ClaudeDesktopSessionOpener: AgentSessionOpening {
     public init() {}
 
