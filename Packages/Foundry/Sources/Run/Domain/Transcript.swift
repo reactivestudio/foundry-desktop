@@ -58,27 +58,27 @@ public struct Transcript: Sendable {
     }
 
     /// Запомнить старт сессии.
-    public mutating func beginSession(_ start: SessionStart) {
+    public mutating func beginSession(start: SessionStart) {
         session = start
     }
 
     /// Завершить транскрипт финальным результатом рана.
-    public mutating func complete(_ runResult: RunResult) {
+    public mutating func complete(runResult: RunResult) {
         result = runResult
     }
 
     /// Открыть новый элемент ленты заданного вида с готовым текстом.
-    public mutating func append(_ kind: TranscriptItem.Kind, body: String) {
+    public mutating func append(kind: TranscriptItem.Kind, body: String) {
         nextItemID += 1
         items.append(TranscriptItem(id: nextItemID, kind: kind, body: body))
     }
 
     /// Дописать накопленную дельту к последнему элементу; если лента пуста —
     /// открыть текстовый блок (дельта пришла раньше своего `blockStarted`).
-    public mutating func appendDelta(_ delta: String) {
+    public mutating func appendDelta(delta: String) {
         guard !delta.isEmpty else { return }
         if items.isEmpty {
-            append(.text, body: delta)
+            append(kind: .text, body: delta)
         } else {
             items[items.count - 1].body += delta
         }
@@ -86,7 +86,7 @@ public struct Transcript: Sendable {
 
     /// Привязать результат тула к последнему tool-элементу, у которого его ещё нет.
     /// Пустой результат замещается плейсхолдером (текст даёт Presentation).
-    public mutating func attachToolResult(_ summary: String, isError: Bool, emptyPlaceholder: String) {
+    public mutating func attachToolResult(summary: String, isError: Bool, emptyPlaceholder: String) {
         guard
             let index = items.lastIndex(where: {
                 if case .tool = $0.kind { return $0.toolResult == nil }
@@ -99,7 +99,7 @@ public struct Transcript: Sendable {
 
     /// Отметить неизвестный тип события. Возвращает `true`, если тип встречен
     /// впервые (значит, о нём стоит завести запись; повторы схлопываются).
-    public mutating func noteUnknownType(_ type: String) -> Bool {
+    public mutating func noteUnknownType(type: String) -> Bool {
         reportedUnknownTypes.insert(type).inserted
     }
 }

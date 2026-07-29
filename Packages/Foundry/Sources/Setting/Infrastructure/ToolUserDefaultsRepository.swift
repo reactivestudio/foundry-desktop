@@ -5,10 +5,12 @@ import Foundation
 /// нет), не менять. Отсутствие ключа = настройка не задавалась → домен применяет
 /// свой дефолт (см. `Tool`), поэтому `load` переопределяет поле только когда
 /// значение реально сохранено.
-public struct UserDefaultsToolRepository: ToolRepository {
+public struct ToolUserDefaultsRepository: ToolRepository {
     private let defaults: UserDefaults
 
-    public init(_ defaults: UserDefaults = .standard) { self.defaults = defaults }
+    public init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
 
     private static let opensSessionInViewerKey = "openInClaudeDesktop"
 
@@ -20,7 +22,7 @@ public struct UserDefaultsToolRepository: ToolRepository {
         return tool
     }
 
-    public func save(_ tool: Tool) {
+    public func save(tool: Tool) {
         defaults.set(tool.opensSessionInViewer, forKey: Self.opensSessionInViewerKey)
     }
 }

@@ -40,7 +40,7 @@ private final class SpySessionOpener: AgentSessionOpening {
 private final class InMemoryToolRepository: ToolRepository {
     private var tool = Tool()
     func load() -> Tool { tool }
-    func save(_ tool: Tool) { self.tool = tool }
+    func save(tool: Tool) { self.tool = tool }
 }
 
 @MainActor
@@ -123,7 +123,7 @@ struct RunStoreTests {
     /// Гоняет ран до терминальной фазы. Стрим отдаёт события синхронно, но
     /// потребляются они в отдельной Task — уступаем ей управление, пока фаза не
     /// перестанет быть `.running` (с потолком, чтобы тест не завис).
-    private func run(_ events: [AgentEvent], error: Error? = nil) async -> RunStore {
+    private func run(events: [AgentEvent], error: Error? = nil) async -> RunStore {
         let store = RunStore(
             runService: RunService(
                 runner: ScriptedRunner(events: events, error: error),
@@ -141,7 +141,7 @@ struct RunStoreTests {
 
     @Test("Дельты одного блока сшиваются в один элемент ленты")
     func coalescesDeltasIntoOneItem() async {
-        let store = await run([
+        let store = await run(events: [
             .blockStarted(.text), .textDelta("Прив"), .textDelta("ет"),
             .finished(.ok()),
         ])
@@ -152,7 +152,7 @@ struct RunStoreTests {
 
     @Test("Результат тула привязывается к последнему tool-элементу без результата")
     func attachesToolResult() async {
-        let store = await run([
+        let store = await run(events: [
             .toolUse(name: "Read", inputSummary: "file_path: /a"),
             .toolResult(summary: "ok", isError: false),
             .finished(.ok()),
@@ -164,7 +164,7 @@ struct RunStoreTests {
 
     @Test("Пустой результат тула помечается галочкой")
     func emptyToolResultBecomesCheck() async {
-        let store = await run([
+        let store = await run(events: [
             .toolUse(name: "Bash", inputSummary: "command: ls"),
             .toolResult(summary: "", isError: false),
             .finished(.ok()),
@@ -174,7 +174,7 @@ struct RunStoreTests {
 
     @Test("Неизвестные события одного типа схлопываются в один элемент")
     func deduplicatesUnknownTypes() async {
-        let store = await run([
+        let store = await run(events: [
             .unknown(type: "telemetry"), .unknown(type: "telemetry"),
             .unknown(type: "other"), .finished(.ok()),
         ])
@@ -184,21 +184,21 @@ struct RunStoreTests {
 
     @Test("result с is_error → фаза failed")
     func errorResultFailsPhase() async {
-        let store = await run([.finished(.error())])
+        let store = await run(events: [.finished(.error())])
         if case .failed = store.phase {} else { Issue.record("ожидалась .failed, а не \(store.phase)") }
         #expect(store.result?.isError == true)
     }
 
     @Test("Стрим закрылся без result-события → фаза failed")
     func streamWithoutResultFails() async {
-        let store = await run([.blockStarted(.text), .textDelta("хвост")])
+        let store = await run(events: [.blockStarted(.text), .textDelta("хвост")])
         if case .failed = store.phase {} else { Issue.record("ожидалась .failed, а не \(store.phase)") }
     }
 
     @Test("Ошибка стрима переводит ран в failed")
     func streamErrorFails() async {
         struct Boom: Error {}
-        let store = await run([], error: Boom())
+        let store = await run(events: [], error: Boom())
         if case .failed = store.phase {} else { Issue.record("ожидалась .failed, а не \(store.phase)") }
     }
 

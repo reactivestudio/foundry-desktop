@@ -8,5 +8,5 @@ public protocol ToolRepository {
     /// из `Tool`.
     func load() -> Tool
     /// Сохранить настройки инструментов целиком.
-    func save(_ tool: Tool)
+    func save(tool: Tool)
 }

@@ -7,7 +7,7 @@ import Testing
 private final class InMemoryToolRepository: ToolRepository {
     private var tool = Tool()
     func load() -> Tool { tool }
-    func save(_ tool: Tool) { self.tool = tool }
+    func save(tool: Tool) { self.tool = tool }
 }
 
 /// `ToolService` — граница согласованности настроек инструментов (слой Application).
@@ -25,9 +25,9 @@ struct ToolServiceTests {
     @Test("setOpensSessionInViewer сохраняет переход целиком")
     func setPersistsTransition() {
         let service = ToolService(repository: InMemoryToolRepository())
-        service.setOpensSessionInViewer(false)
+        service.setOpensSessionInViewer(enabled: false)
         #expect(service.current().opensSessionInViewer == false)
-        service.setOpensSessionInViewer(true)
+        service.setOpensSessionInViewer(enabled: true)
         #expect(service.current().opensSessionInViewer == true)
     }
 }

@@ -1,5 +1,6 @@
 import Foundation
 import Subprocess
+import SwiftContext
 
 #if canImport(System)
     import System
@@ -26,6 +27,9 @@ public enum ClaudeRunError: Error, LocalizedError {
 /// Запуск `claude -p` в каталоге проекта со стримом доменных событий.
 /// Практики 06, пункт 2: swift-subprocess, teardown SIGINT → graceful,
 /// конкурентный дренаж stderr, разбор полными NDJSON-строками.
+/// `@Component` — скан построит цепочку наследования сам (`ClaudeRunner: AgentRunner`) и соберёт
+/// адаптер в контейнер по ней (аналог `@Component` Spring), ручная ассембли не нужна.
+@Component
 public struct ClaudeRunner: AgentRunner {
 
     private enum Limit {
@@ -132,7 +136,7 @@ public struct ClaudeRunner: AgentRunner {
                         )
                         for try await line in lines {
                             guard !line.isEmpty else { continue }
-                            for event in ClaudeEventDecoder.decode(line) {
+                            for event in ClaudeEventDecoder.decode(line: line) {
                                 continuation.yield(event)
                             }
                         }

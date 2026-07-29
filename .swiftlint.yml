@@ -57,6 +57,19 @@ large_tuple:
   warning: 4
   error: 6
 
+# Соглашение BC: у метода/инициализатора ВСЕГДА явная внешняя метка — никаких `_`,
+# глушащих имя аргумента (метод читается фразой: change(theme:), write(dto:named:)).
+# Исключены UI-слои (Presentation/DesignSystem/OrbBench): там сигнатуры
+# Apple-протоколов (updateNSView(_:), mtkView(_:), dismantleNSView(_:)) обязаны нести
+# `_` — их не переписать. Замыкания ({ _ in }) правило не трогает: там нет метки.
+custom_rules:
+  no_underscore_argument_label:
+    name: "Underscore Argument Label"
+    regex: '(func\s+\w+|\binit)\s*\(_\s+\w+:'
+    message: "Глушить метку через `_` нельзя — дать явную внешнюю метку (соглашения BC)."
+    severity: warning
+    excluded: ".*/(Presentation|DesignSystem|OrbBench)/.*"
+
 type_name:
   min_length: 2
 
