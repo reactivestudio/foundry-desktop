@@ -18,7 +18,7 @@ let package = Package(
         // Spark — DI-контейнер, выросший из здешнего SwiftContext и вынесенный отдельной либой:
         // фреймворк общего назначения в репозитории продукта — чужой дом. Даёт и стереотипы
         // (@Component/@Configuration/@Bean), и скан-плагин; пре-1.0 — пиновать точно.
-        .package(url: "https://github.com/reactivestudio/spark", exact: "0.1.0"),
+        .package(url: "https://github.com/reactivestudio/spark", exact: "0.1.1"),
     ],
     targets: [
         // Верхний уровень модульности — bounded context (фича), а не технический
