@@ -1,13 +1,13 @@
 {
-  "originHash" : "d4007578f01cfad17d3a94d256cce3eef0389783d8893148ec0f3f14c73cc110",
+  "originHash" : "177f3dbe0e1979d8942ef0c545da9e1f122de065c666d1a68df150e53ccf3043",
   "pins" : [
     {
       "identity" : "spark",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reactivestudio/spark",
       "state" : {
-        "revision" : "71ecf17d2b7d24f42c313173ec1e6d498be8952e",
-        "version" : "0.1.0"
+        "revision" : "27253aae4c4d0ce6ad95d12ee0a684f48d028e4d",
+        "version" : "0.1.1"
       }
     },
     {

@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reactivestudio/spark",
       "state" : {
-        "revision" : "71ecf17d2b7d24f42c313173ec1e6d498be8952e",
-        "version" : "0.1.0"
+        "revision" : "27253aae4c4d0ce6ad95d12ee0a684f48d028e4d",
+        "version" : "0.1.1"
       }
     },
     {
