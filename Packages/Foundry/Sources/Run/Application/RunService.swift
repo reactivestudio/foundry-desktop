@@ -1,3 +1,5 @@
+import SwiftContext
+
 /// Валидированный ввод сценария запуска рана. Собирается на границе (тонким
 /// стором) из состояния экрана; сам сценарий считает поля уже пригодными.
 public struct RunCommand: Sendable {
@@ -36,13 +38,21 @@ public protocol RunOutput: AnyObject {
     func runFailed(error: Error)
 }
 
-/// Сценарий запуска рана агента (use-case, слой Application). Оркестрирует порты
+/// Прикладная служба рана агента (слой Application). Оркестрирует порты
 /// Domain: гоняет поток раннера и попутно выполняет политику автоимпорта сессии в
 /// просмотрщик. Бизнес-правил сборки ленты здесь НЕТ — они в доменном агрегате
 /// `Transcript`, куда события кладёт сток `RunOutput`.
 ///
-/// `@MainActor`: тот же актор, что у стора-стока и у `openSessionNow` (бьёт в AppKit).
+/// `@MainActor`: тот же актор, что у стора-стока и у `openSessionNow` (бьёт в AppKit). Как
+/// `@MainActor` его бин confined — вне жадной преинстанциации — и строится через
+/// `MainActor.assumeIsolated` при resolve на главном акторе.
+///
+/// `@ApplicationService`, а не `@UseCase`: сценариев тут ДВА (`run(command:into:)` и
+/// `openResult(sessionID:)`), а `@UseCase` — служба ровно с одной публичной операцией. Контейнер
+/// собирает её сам, внедряя порты `AgentRunner`/`AgentSessionOpening`; резолв по конкретному типу
+/// (порта у службы нет — `RunStore` зависит от `RunService` напрямую).
 @MainActor
+@ApplicationService
 public final class RunService {
     private let runner: AgentRunner
     private let sessionOpener: AgentSessionOpening

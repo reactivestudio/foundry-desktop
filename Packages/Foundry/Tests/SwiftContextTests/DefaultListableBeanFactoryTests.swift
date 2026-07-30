@@ -25,7 +25,7 @@ private final class Beta {}
 
 @Suite("DefaultListableBeanFactory")
 struct DefaultListableBeanFactoryTests {
-    private func dogDefinition(scope: BeanScope = .singleton) -> BeanDefinition {
+    private func dogDefinition(scope: Scope = .singleton) -> BeanDefinition {
         BeanDefinition(
             beanType: Dog.self,
             scope: scope,
@@ -202,6 +202,79 @@ struct DefaultListableBeanFactoryTests {
 
         #expect(throws: BeansException.self) {
             try context.preInstantiateSingletons()
+        }
+    }
+
+    @Test("Бин, требующий главного актора, в жадную сборку не идёт")
+    func preInstantiateSkipsMainActorConfined() throws {
+        let context = DefaultListableBeanFactory()
+        try context.registerBeanDefinition(
+            name: "dog",
+            beanDefinition: BeanDefinition(
+                beanType: Dog.self,
+                isMainActorConfined: true,
+                targetTypes: [Dog.self],
+                instanceSupplier: { _ in Dog() }
+            )
+        )
+
+        try context.preInstantiateSingletons()
+
+        // Не собран жадно — но по требованию (на своём акторе) собирается.
+        #expect(!context.containsSingleton(name: "dog"))
+        #expect(try context.getBean(ofType: Dog.self) is Dog)
+    }
+
+    @Test("Снятое определение уносит и собранный синглтон (реестр не расходится с кэшем)")
+    func removingDefinitionDestroysSingleton() throws {
+        let context = DefaultListableBeanFactory()
+        try context.registerBeanDefinition(name: "dog", beanDefinition: dogDefinition())
+        _ = try context.getBean(name: "dog")
+
+        try context.removeBeanDefinition(name: "dog")
+
+        #expect(!context.containsBean(name: "dog"))
+        #expect(!context.containsSingleton(name: "dog"))
+        #expect(context.getSingletonNames().isEmpty)
+        #expect(throws: BeansException.self) {
+            try context.getBean(name: "dog")
+        }
+    }
+
+    @Test("Псевдоним псевдонима ведёт к бину (цепочка разворачивается до конца)")
+    func aliasChainResolves() throws {
+        let context = DefaultListableBeanFactory()
+        try context.registerBeanDefinition(name: "dog", beanDefinition: dogDefinition())
+        context.registerAlias(name: "dog", alias: "pet")
+        context.registerAlias(name: "pet", alias: "goodBoy")
+
+        #expect(try context.getBean(name: "goodBoy") is Dog)
+        #expect(context.getAliases(name: "dog") == ["goodBoy", "pet"])
+    }
+
+    @Test("Цикл в псевдонимах не вешает резолв")
+    func aliasCycleTerminates() throws {
+        let context = DefaultListableBeanFactory()
+        context.registerAlias(name: "a", alias: "b")
+        context.registerAlias(name: "b", alias: "a")
+
+        #expect(!context.containsBean(name: "a"))
+    }
+
+    @Test("getBeans кидает, если targetTypes соврал про тип (а не отдаёт коллекцию с дырой)")
+    func getBeansThrowsOnLyingTargetTypes() throws {
+        let context = DefaultListableBeanFactory()
+        try context.registerBeanDefinition(
+            name: "impostor",
+            beanDefinition: BeanDefinition(
+                beanType: Dog.self,
+                targetTypes: [Engine.self], // ложь: Dog не Engine
+                instanceSupplier: { _ in Dog() }
+            )
+        )
+
+        #expect(throws: BeansException.self) {
+            _ = try context.getBeans(ofType: Engine.self)
         }
     }
 }
