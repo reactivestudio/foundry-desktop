@@ -1,75 +1,34 @@
-import AppKit
 import SwiftUI
 
-/// Гейт первого запуска — ЕДИНСТВЕННЫЙ публичный контракт контекста Onboarding.
-/// Показывает мастер поверх контента приложения, пока не пройден
-/// `didFinishOnboarding`; после разлёта уступает место контенту. Контент-под-
-/// мастером инъектируется корнем композиции (`@ViewBuilder mainContent`), поэтому
-/// Onboarding не знает ни про Run-консоль, ни про какой-либо другой контекст —
-/// внутренности мастера (`OnboardingContainer`, `WindowConfigurator`) остаются
-/// закрытыми.
-public struct OnboardingGateView<MainContent: View>: View {
-    @AppStorage("didFinishOnboarding") private var didFinishOnboarding = false
-    @State private var windowOpacity: Double = 1
-    @State private var windowScale: CGFloat = 1
+/**
+ Мастер первого запуска: рой на фоне рабочей зоны, экран поверх, подвал с точками и
+ выходом. ЕДИНСТВЕННЫЙ публичный вид презентационного слоя BC `Setting` — мастер это
+ не отдельный контекст, а пошаговый вид тех же настроек (позже к нему добавится окно
+ настроек приложения). Внутренности (экраны, модель, рой) остаются закрытыми.
 
-    private let mainContent: MainContent
-
-    public init(@ViewBuilder mainContent: () -> MainContent) {
-        self.mainContent = mainContent()
-    }
-
-    public var body: some View {
-        ZStack {
-            // контент приложения всегда под мастером — разлёт открывает его. Пока
-            // идёт онбординг, он ПОЛНОСТЬЮ инертен: TextEditor промпта консоли —
-            // нативный NSTextView со своим I-beam-курсором на уровне AppKit, и
-            // z-порядок SwiftUI его не перебивает. Сквозь прозрачные зоны мастера
-            // этот курсор проступал над точками пагинации («поле ввода»), и ни
-            // ховер, ни палец до ряда не доходили. disabled+allowsHitTesting(false)
-            // убирают контент из событий и разрешения курсора на время мастера.
-            mainContent
-                .disabled(!didFinishOnboarding)
-                .allowsHitTesting(didFinishOnboarding)
-
-            if !didFinishOnboarding {
-                OnboardingContainer(
-                    onReveal: {
-                        withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 0.6)) {
-                            windowOpacity = 0
-                            windowScale = 0.985
-                        }
-                    },
-                    onFinished: { didFinishOnboarding = true },
-                    onSkip: { didFinishOnboarding = true }
-                )
-                .opacity(windowOpacity)
-                .scaleEffect(windowScale)
-                // Растянуть под титлбар на УРОВНЕ инстанса (не только внутри
-                // контейнера): внутренний .ignoresSafeArea() контейнера сквозь
-                // обёртки opacity/scaleEffect/transition под бар не пробивал —
-                // верхние 28pt оставались непокрытыми, и туда проступал фон
-                // ГЛАВНОГО окна (RunConsoleView, OB.bg #05030D) плоской «плашкой».
-                // Здесь ignoresSafeArea тянет весь составной вид к y=0, как это и
-                // так делает RunConsoleView-сосед → рой и WindowBackdrop доходят до
-                // кромки, «плашки по цвету» больше нет.
-                .ignoresSafeArea()
-                .transition(.opacity)
-            }
-        }
-        .background(WindowConfigurator(isOnboarding: !didFinishOnboarding))
-    }
-}
-
-/// Мастер: рой на фоне рабочей зоны, экран поверх, подвал с точками и выходом.
-struct OnboardingContainer: View {
-    let onReveal: () -> Void
-    let onFinished: () -> Void
-    let onSkip: () -> Void
+ Мастер ничего не решает про своё место в приложении: показать ли его поверх контента,
+ каким сделать окно — забота корня композиции (`OnboardingGateView` в `Bootstrap`).
+ Отсюда наружу торчат лишь три исхода: раскрытие главного окна на середине разлёта,
+ конец разлёта и досрочный выход.
+ */
+public struct OnboardingView: View {
+    private let onReveal: () -> Void
+    private let onFinished: () -> Void
+    private let onSkip: () -> Void
 
     @State private var model = OnboardingModel()
 
-    var body: some View {
+    public init(
+        onReveal: @escaping () -> Void,
+        onFinished: @escaping () -> Void,
+        onSkip: @escaping () -> Void
+    ) {
+        self.onReveal = onReveal
+        self.onFinished = onFinished
+        self.onSkip = onSkip
+    }
+
+    public var body: some View {
         ZStack(alignment: .top) {
             WindowBackdrop().ignoresSafeArea()
 
@@ -78,7 +37,7 @@ struct OnboardingContainer: View {
             // кромки; клип masksToBounds режет сверху пустой fon — линии среза нет.
             OnboardingSwarmView(
                 isBursting: model.isBursting,
-                onBurstProgress: { model.burstProgress($0) }
+                onBurstProgress: { progress in model.burstProgress(progress) }
             )
             .ignoresSafeArea()
 
@@ -172,7 +131,9 @@ struct OnboardingContainer: View {
         ZStack {
             OnboardingDots(
                 count: model.stepCount, currentIndex: model.screen.rawValue,
-                onTap: { if let target = OnboardingModel.Screen(rawValue: $0) { model.go(to: target) } }
+                onTap: { index in
+                    if let target = OnboardingModel.Screen(rawValue: index) { model.go(to: target) }
+                }
             )
             .frame(maxWidth: .infinity)
 
@@ -185,64 +146,5 @@ struct OnboardingContainer: View {
         .frame(height: OnboardingDots.hitHeight)
         .opacity(model.isBursting ? 0 : 1)
         .animation(OB.easeReal(0.15), value: model.isBursting)
-    }
-}
-
-/// Ловит ← / → на уровне окна (локальный NSEvent-монитор) и ведёт пагинацию
-/// независимо от того, какой контрол держит фокус. Монитор снимается вместе с
-/// мастером (dismantle).
-private struct ArrowKeyMonitor: NSViewRepresentable {
-    // Аппаратные keyCode стрелок (независимы от раскладки).
-    private static let leftArrowKeyCode: UInt16 = 123
-    private static let rightArrowKeyCode: UInt16 = 124
-
-    let onLeft: () -> Void
-    let onRight: () -> Void
-
-    func makeCoordinator() -> Coordinator { Coordinator() }
-
-    func makeNSView(context: Context) -> NSView {
-        let containerView = NSView()
-        context.coordinator.monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            switch event.keyCode {
-            case Self.leftArrowKeyCode:
-                onLeft()
-                return nil
-            case Self.rightArrowKeyCode:
-                onRight()
-                return nil
-            default: return event
-            }
-        }
-        return containerView
-    }
-
-    func updateNSView(_ nsView: NSView, context: Context) {}
-
-    static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
-        if let monitor = coordinator.monitor { NSEvent.removeMonitor(monitor) }
-        coordinator.monitor = nil
-    }
-
-    final class Coordinator { var monitor: Any? }
-}
-
-/// «Skip for now» — при наведении цвет третичный → вторичный (макет
-/// `.ob-skip:hover`), увеличенная мишень по Фитсу за счёт паддинга.
-private struct SkipButton: View {
-    let action: () -> Void
-    @State private var isHovering = false
-    var body: some View {
-        Button(action: action) {
-            Text("Skip for now")
-                .font(.system(size: 11))
-                .foregroundStyle(isHovering ? OB.Text.secondary : OB.Text.tertiary)
-                .padding(.vertical, 6).padding(.horizontal, 4)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .clickCursor()
-        .animation(OB.hoverAnim(isHovering), value: isHovering)
-        .onHover { isHovering = $0 }
     }
 }

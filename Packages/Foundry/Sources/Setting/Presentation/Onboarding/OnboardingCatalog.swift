@@ -34,42 +34,25 @@ enum OnboardingCatalog {
             signedInLabel: "/usr/local/bin/foundry", showsInstall: true),
     ]
 
-    static let settings: [Setting] = [
-        Setting(id: "notch", name: "Notch mode", description: "Stage progress around the notch", isOn: true),
-        Setting(
+    static let settings: [ToggleRowModel] = [
+        ToggleRowModel(
+            id: "notch", name: "Notch mode", description: "Stage progress around the notch", isOn: true),
+        ToggleRowModel(
             id: "notif", name: "Notifications", description: "When a stage finishes or fails", isOn: true),
-        Setting(id: "keychain", name: "Keychain", description: "Tokens live there, not in files", isOn: true),
-        Setting(
+        ToggleRowModel(
+            id: "keychain", name: "Keychain", description: "Tokens live there, not in files", isOn: true),
+        ToggleRowModel(
             id: "login", name: "Launch at login", description: "Resumes stages after restart", isOn: false),
-        Setting(
+        ToggleRowModel(
             id: "review", name: "Merge review", description: "Nothing merges until you approve", isOn: true),
     ]
 
-    static let permissions: [Permission] = [
-        Permission(
+    static let permissions: [PermissionRowModel] = [
+        PermissionRowModel(
             id: "notif", name: "Notifications", description: "A stage finished or needs your review",
             isGranted: false),
-        Permission(
+        PermissionRowModel(
             id: "a11y", name: "Accessibility", description: "Global ⌥ Space and the notch panel",
             isGranted: false),
     ]
-}
-
-/// Настройка стенда первого запуска — переключаемая строка экрана Settings.
-/// Данные каталога (сид в `OnboardingCatalog.settings`); мутабельное состояние
-/// (`isOn`) держит `OnboardingModel`.
-struct Setting: Identifiable {
-    let id: String
-    let name: String
-    let description: String
-    var isOn: Bool
-}
-
-/// Разрешение macOS — строка экрана Permissions (сид в
-/// `OnboardingCatalog.permissions`; `isGranted` мутирует `OnboardingModel`).
-struct Permission: Identifiable {
-    let id: String
-    let name: String
-    let description: String
-    var isGranted: Bool
 }

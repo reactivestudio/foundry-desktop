@@ -37,10 +37,10 @@ final class OnboardingModel {
     var installingExtension: String?
 
     // настройки (сид — в OnboardingCatalog; здесь живёт лишь мутабельное состояние)
-    var settings: [Setting]
+    var settings: [ToggleRowModel]
 
     // разрешения macOS (сид — в OnboardingCatalog)
-    var permissions: [Permission]
+    var permissions: [PermissionRowModel]
 
     // разлёт
     var isBursting = false
