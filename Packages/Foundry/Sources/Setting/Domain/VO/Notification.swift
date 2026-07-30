@@ -18,7 +18,9 @@ public struct Notification: ValueObject {
     }
 
     /// По умолчанию включены все виды.
-    public static func of(enabledTypes: Set<NotificationType> = Set(NotificationType.allCases)) -> Notification {
+    public static func of(
+        enabledTypes: Set<NotificationType> = Set(NotificationType.allCases)
+    ) -> Notification {
         Notification(enabledTypes: enabledTypes)
     }
 

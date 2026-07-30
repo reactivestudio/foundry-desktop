@@ -6,5 +6,8 @@
   "lineLength" : 110,
   "respectsExistingLineBreaks" : true,
   "lineBreakBeforeEachArgument" : false,
-  "maximumBlankLines" : 1
+  "maximumBlankLines" : 1,
+  "rules" : {
+    "UseTripleSlashForDocumentationComments" : false
+  }
 }

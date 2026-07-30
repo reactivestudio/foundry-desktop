@@ -70,7 +70,7 @@ struct PreferenceTests {
         let same = try PreferenceId.of(value: "team")
         let one = Preference.of(id: same)
         let two = Preference.of(id: same)
-        one.change(theme: .dark) // поля разошлись, id тот же
+        one.change(theme: .dark)  // поля разошлись, id тот же
         #expect(one == two)
 
         let other = Preference.of(id: PreferenceId.default)
