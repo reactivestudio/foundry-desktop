@@ -43,6 +43,53 @@ struct PreferenceTests {
         #expect(preference.notification.allows(type: .reviewNeeded))
     }
 
+    @Test("Молчание гасит все виды разом, обратное включает их все")
+    func muteAndUnmuteNotifications() {
+        let preference = Preference.of()
+        preference.disableNotification(for: .reviewNeeded)
+
+        preference.muteNotifications()
+        #expect(preference.notification.isMuted)
+        #expect(preference.notification.allows(type: .stageFinished) == false)
+
+        // Обратная команда возвращает ВСЕ виды, а не то, что было до молчания.
+        preference.unmuteNotifications()
+        #expect(preference.notification.isMuted == false)
+        #expect(preference.notification.allows(type: .reviewNeeded))
+        #expect(preference.notification.allows(type: .stageFinished))
+    }
+
+    @Test("Импорт сессии в просмотрщик включён по умолчанию и переключается флипом")
+    func integrationCommands() {
+        let preference = Preference.of()
+        #expect(preference.integration.opensSessionInViewer)
+
+        preference.toggleOpensSessionInViewer()
+        #expect(preference.integration.opensSessionInViewer == false)
+    }
+
+    @Test("Выбор агента — настройка, а не факт о системе")
+    func agentSelectionCommand() {
+        let preference = Preference.of()
+        #expect(preference.agent.selected == nil)
+
+        preference.change(agent: .codexCli)
+        #expect(preference.agent.selected == ToolId.codexCli)
+
+        preference.change(agent: .claudeCode)
+        #expect(preference.agent.selected == ToolId.claudeCode)
+    }
+
+    @Test("Первичная настройка отмечается пройденной и повторный вызов ничего не меняет")
+    func setupIsFinishedIdempotently() {
+        let preference = Preference.of()
+        #expect(preference.setup.isFinished == false)
+
+        preference.finishSetup()
+        preference.finishSetup()
+        #expect(preference.setup.isFinished)
+    }
+
     @Test("Переименование меняет профиль, слишком длинное имя — ошибка")
     func renameCommand() throws {
         let preference = Preference.of()

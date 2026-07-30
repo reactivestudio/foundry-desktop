@@ -12,7 +12,7 @@ import SparkIoC
 /// (~16 мс — одна SwiftUI-инвалидация на кадр, practices 06, пункт 2.5).
 ///
 /// `@Store` — стереотип бина слоя Presentation (наш аналог `@Controller`): контейнер собирает стор
-/// сам, внедряя `RunService` и `ToolService`. Singleton (одно окно на процесс). Как `@MainActor` —
+/// сам, внедряя `RunService` и `PreferenceService`. Singleton (одно окно на процесс). Как `@MainActor` —
 /// ленив и строится через `MainActor.assumeIsolated` при resolve на главном акторе (в `FoundryApplication`).
 @MainActor
 @Observable
@@ -43,16 +43,16 @@ public final class RunStore: RunOutput {
     var permissionMode: PermissionMode = .acceptEdits
     /// Импортировать сессию во внешний просмотрщик рана (сегодня — Claude Code
     /// Desktop, deep link claude://resume — docs/ccd-visibility.md; какой именно
-    /// просмотрщик — деталь адаптера `AgentSessionOpening`). Изменение уходит в
-    /// durable-настройки через сценарий `ToolService`, а не в
-    /// `UserDefaults.standard` напрямую.
+    /// просмотрщик — деталь адаптера `AgentSessionOpening`). Это настройка чужого
+    /// контекста: изменение уходит в агрегат `Preference` через сценарий соседнего
+    /// BC, а не в `UserDefaults.standard` напрямую.
     var opensSessionInViewer: Bool {
-        didSet { toolSetting.setOpensSessionInViewer(enabled: opensSessionInViewer) }
+        didSet { preferenceService.setOpensSessionInViewer(enabled: opensSessionInViewer) }
     }
 
     // Зависимости, не состояние: из наблюдения исключены (практики 03).
     @ObservationIgnored private let runService: RunService
-    @ObservationIgnored private let toolSetting: ToolService
+    @ObservationIgnored private let preferenceService: PreferenceService
     private var runTask: Task<Void, Never>?
 
     /// Кадровая каденция коалессинга дельт (~60 Гц): одна SwiftUI-инвалидация на
@@ -62,18 +62,19 @@ public final class RunStore: RunOutput {
     private var pendingDelta = ""
     private var flushScheduled = false
 
-    /// Все зависимости инъектируются bootstrap'ом (`Bootstrap`): сценарий
-    /// рана и служба настроек инструментов. Конкретики-дефолтов НЕТ: UI-слой (этот
-    /// модуль) не знает ни одной реализации портов и зависит только от абстракций
-    /// (правило зависимостей). Тест подставляет сценарий с фейковым раннером/шпионом
-    /// и службу с in-memory репозиторием настроек.
-    public init(runService: RunService, toolSetting: ToolService) {
+    /// Все зависимости инъектируются bootstrap'ом (`Bootstrap`): сценарий рана и
+    /// сценарий настроек соседнего контекста. Зависим от его Application, а НЕ от его
+    /// стора: презентация одного контекста не должна цепляться за презентацию другого.
+    /// Конкретики-дефолтов НЕТ: UI-слой (этот модуль) не знает ни одной реализации портов
+    /// и зависит только от абстракций (правило зависимостей). Тест подставляет сценарий с
+    /// фейковым раннером/шпионом и настройки с in-memory репозиторием.
+    public init(runService: RunService, preferenceService: PreferenceService) {
         self.runService = runService
-        self.toolSetting = toolSetting
-        // Начальное значение — снимок настроек (дефолт живёт в `Tool`).
+        self.preferenceService = preferenceService
+        // Начальное значение — снимок настроек (дефолт живёт в группе `Integration`).
         // Инициализирующее присваивание не будит didSet — обратной записи в
         // хранилище нет.
-        opensSessionInViewer = toolSetting.current().opensSessionInViewer
+        opensSessionInViewer = preferenceService.current().integration.opensSessionInViewer
     }
 
     // MARK: - интенты вью

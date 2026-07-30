@@ -37,22 +37,24 @@ let package = Package(
         ),
 
         // Setting — supporting-субдомен пользовательских настроек (имя в
-        // единственном числе). Внутри — отдельные сущности: сегодня реальна одна,
-        // `Tool` (настройки агента и foundry cli), полным срезом слоёв (сущность +
-        // порт + сценарий + адаптер UserDefaults). Целевой состав сущностей —
-        // Profile, Notification, Tool, Appearance, Access, General: каждая
-        // добавляется своим файлом-срезом (Domain/<E>.swift + Application/<E>Service
-        // + Infrastructure/UserDefaults<E>Repository), когда у неё появляется
-        // реальное поле. Пустышек наперёд не заводим. Ни от кого не зависит, кроме
-        // системы.
+        // единственном числе): агрегат `Preference` с группами-VO, порт репозитория
+        // и plist-адаптер. Презентация контекста — папкой `Presentation/Onboarding`:
+        // мастер первого запуска это НЕ отдельный контекст, а пошаговый вид тех же
+        // настроек (экран в экран: агенты/расширения — будущий `Tool`, настройки —
+        // `Preference`, разрешения — порт-gateway к ОС). Позже рядом ляжет второй
+        // вид — окно настроек приложения. Ни от кого не зависит, кроме Core.
         .target(
             name: "Setting",
             dependencies: [
                 "Core",
+                // Адаптер связки с инструментами спрашивает у CLI версию — тем же
+                // swift-subprocess, что и раннер агента (практики 06).
+                .product(name: "Subprocess", package: "swift-subprocess"),
                 // Вся DI-поверхность контекста (@Component/@Configuration/@Bean) — маркеры из
                 // Spark; сборку по ним делает скан-плагин, самому контексту хватает SparkIoC.
                 .product(name: "SparkIoC", package: "spark"),
-            ]
+            ],
+            resources: [.process("Presentation/Onboarding/OnboardingSwarm.metal")]
         ),
 
         // Run — core-контекст: запуск агент-сессии и лента транскрипта. Читает
@@ -68,24 +70,17 @@ let package = Package(
             ]
         ),
 
-        // Onboarding — контекст первого запуска (Metal-имитация мастера). Чистая
-        // презентация; общее (движение, рой, лог) — из Core. Не знает Run/Setting.
-        .target(
-            name: "Onboarding",
-            dependencies: ["Core"],
-            resources: [.process("Presentation/OnboardingSwarm.metal")]
-        ),
-
         // Bootstrap — bootstrap приложения (наш аналог Spring Boot).
         // Единственный, кто видит все контексты сразу: собирает контекст из бинов и
-        // сшивает корневые виды контекстов (гейт онбординга поверх консоли).
+        // сшивает их корневые виды (гейт мастера настроек поверх консоли Run), а
+        // заодно держит хром окна (`WindowConfigurator`) — про окно приложения знает
+        // корень композиции, а не контекст.
         .target(
             name: "Bootstrap",
             dependencies: [
                 "Core",
                 "Setting",
                 "Run",
-                "Onboarding",
                 // Контекст/Environment живут в SparkIoC; bootstrap собирает контейнер.
                 .product(name: "SparkIoC", package: "spark"),
             ],
@@ -101,6 +96,9 @@ let package = Package(
             name: "SettingTests",
             dependencies: [
                 "Setting",
+                // Core — и ради тактического ядра домена, и ради теста-паритета физики роёв:
+                // он сверяет внутренности онбординг-роя (презентация Setting) и орб-лоадера
+                // (Core) разом, через @testable обоих.
                 "Core",
                 // Тест сборки контейнера: резолв бинов из SettingConfiguration + Environment.
                 .product(name: "SparkIoC", package: "spark"),
@@ -115,9 +113,6 @@ let package = Package(
             ]
         ),
         .testTarget(name: "RunTests", dependencies: ["Run", "Setting"]),
-        // Core в зависимостях — ради теста-паритета физики роёв, что сверяет
-        // внутренности Onboarding и Core разом (@testable обоих).
-        .testTarget(name: "OnboardingTests", dependencies: ["Onboarding", "Core"]),
         .testTarget(name: "CoreTests", dependencies: ["Core"]),
     ]
 )

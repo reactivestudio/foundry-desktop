@@ -34,6 +34,20 @@ public struct Notification: ValueObject {
         Notification(enabledTypes: enabledTypes.subtracting([type]))
     }
 
+    /// Молчать обо всём — новый VO с пустым множеством. Молчание это ОТСУТСТВИЕ
+    /// включённых видов, а не отдельный флаг «выключено»: иначе у настройки было бы
+    /// два источника истины и состояние «флаг выключен, но вид включён».
+    public func mute() -> Notification {
+        Notification(enabledTypes: [])
+    }
+
+    /// Вернуть звук — включаются ВСЕ виды. Какие были включены до `mute`, VO не
+    /// помнит намеренно: помнить их значило бы держать теневое состояние рядом с
+    /// настоящим. Нужен точный набор — его задают `enable(for:)`/`disable(for:)`.
+    public func unmute() -> Notification {
+        Notification(enabledTypes: Set(NotificationType.allCases))
+    }
+
     /// Уведомлять ли об этом виде.
     public func allows(type: NotificationType) -> Bool {
         enabledTypes.contains(type)

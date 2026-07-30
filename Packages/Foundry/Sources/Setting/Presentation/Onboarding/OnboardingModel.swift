@@ -1,11 +1,12 @@
 import SwiftUI
 
 /// Машина состояний мастера первого запуска: шесть экранов, двухтактные переходы,
-/// имитация установки (Install → Installing… → ✓, как в принятом прототипе),
 /// финальный разлёт с передачей управления главному окну.
 ///
-/// Установки визуально имитируются — экран верен прототипу пиксель-в-пиксель;
-/// реальные инсталляции агентов/расширений сюда не подключены.
+/// Состояния экранов у неё больше нет вовсе — ни настроек, ни разрешений, ни
+/// установленности инструментов: всё это живёт в сторах BC `Setting` (`PreferenceStore`,
+/// `PermissionStore`, `ToolStore`), то есть в агрегате и в самой системе. Мастеру
+/// осталось ровно то, чем он и является: порядок экранов и реакция на их исходы.
 @MainActor
 @Observable
 final class OnboardingModel {
@@ -25,22 +26,16 @@ final class OnboardingModel {
     /// такт доедет до самой свежей цели.
     private(set) var isAnimating = false
 
-    // агенты
-    let agents: [InstallCardModel]
-    var installedAgents: Set<String> = []
-    var installingAgent: String?
-    var selectedAgent: String?
+    // Ни каталога карточек, ни установленности здесь нет: карточки собирают сами
+    // экраны, а состояние установки приходит из `ToolStore` (порт к системе).
 
-    // расширения
-    let extensions: [InstallCardModel]
-    var installedExtensions: Set<String> = []
-    var installingExtension: String?
+    // Настроек здесь нет намеренно: экран настроек сидит прямо на агрегате
+    // `Preference` через `PreferenceStore` (см. `SettingsScreen`). Мастеру осталась
+    // только навигация по ним — второго состояния тех же тумблеров не заводим.
 
-    // настройки (сид — в OnboardingCatalog; здесь живёт лишь мутабельное состояние)
-    var settings: [Setting]
-
-    // разрешения macOS (сид — в OnboardingCatalog)
-    var permissions: [Permission]
+    // Разрешений macOS здесь тоже нет: их состояние принадлежит системе и живёт в
+    // `PermissionStore` (см. `PermissionsScreen`). Мастеру осталась реакция на исход —
+    // `permissionsGranted()`.
 
     // разлёт
     var isBursting = false
@@ -62,22 +57,17 @@ final class OnboardingModel {
     /// точек, и расстояние не скачет от экрана к экрану.
     let screenBottomPadding: CGFloat = 32
 
-    /// Тайминги имитации установки (как в принятом прототипе): пауза кнопки в
-    /// состоянии Installing… до галочки, затем пауза с готовой галочкой до
-    /// автоперехода на следующий экран.
-    private let installDuration: TimeInterval = 0.9
+    /// Пауза перед автопереходом (как в принятом прототипе): исход экрана должен
+    /// успеть прочитаться — галочка «✓ Granted», выбранная карточка, — и только потом
+    /// уезжает сам экран.
     private let advanceDelay: TimeInterval = 0.55
 
-    /// Планировщик задержек имитации установки. Дефолт — GCD (тайминги как были);
-    /// тест подставляет ручной, чтобы прокрутить шаги детерминированно.
+    /// Планировщик отложенных переходов. Дефолт — GCD (тайминги как были); тест
+    /// подставляет ручной, чтобы прокрутить шаги детерминированно.
     private let scheduler: OnboardingScheduler
 
     init(scheduler: OnboardingScheduler = MainQueueOnboardingScheduler()) {
         self.scheduler = scheduler
-        agents = OnboardingCatalog.agents
-        extensions = OnboardingCatalog.extensions
-        settings = OnboardingCatalog.settings
-        permissions = OnboardingCatalog.permissions
     }
 
     // MARK: - Переходы (двухтактные: уход 300ms → свап → вход 640ms; плавно, без рывка)
@@ -151,63 +141,24 @@ final class OnboardingModel {
         if let previous = Screen(rawValue: base.rawValue - 1) { go(to: previous) }
     }
 
-    // MARK: - Карточки
+    // MARK: - Исходы экранов
 
-    func tapAgent(_ id: String) {
-        if installedAgents.contains(id) {
-            selectedAgent = id
-            go(to: .extensions)
-            return
-        }
-        simulateInstall(id, installing: \.installingAgent, installed: \.installedAgents) { [self] in
-            selectedAgent = id
-            scheduler.schedule(after: advanceDelay) { self.go(to: .extensions) }
-        }
+    /// Агент выбран — дальше к частям Foundry. Без паузы: карточка уже установлена,
+    /// ждать нечего, и в прототипе клик по установленной вёл дальше сразу.
+    func agentChosen() {
+        go(to: .extensions)
     }
 
-    func tapExtension(_ id: String) {
-        if installedExtensions.contains(id) {
-            if installedExtensions.count == extensions.count { go(to: .settings) }
-            return
-        }
-        simulateInstall(id, installing: \.installingExtension, installed: \.installedExtensions) { [self] in
-            if installedExtensions.count == extensions.count {
-                scheduler.schedule(after: advanceDelay) { self.go(to: .settings) }
-            }
-        }
+    /// Обе части на месте — дальше к настройкам.
+    func extensionsReady() {
+        go(to: .settings)
     }
 
-    /// Общий каркас имитации установки карточки (как в принятом прототипе):
-    /// защёлка от повторного тапа во время установки → флаг Installing… → пауза →
-    /// снять флаг, пометить установленным → `onInstalled`. Различия агентов и
-    /// расширений (повторный тап уже установленной, выбор, условие автоперехода)
-    /// остаются явными у вызывающего; здесь — ровно общий протокол установки.
-    private func simulateInstall(
-        _ id: String,
-        installing installingKeyPath: ReferenceWritableKeyPath<OnboardingModel, String?>,
-        installed installedKeyPath: ReferenceWritableKeyPath<OnboardingModel, Set<String>>,
-        onInstalled: @escaping () -> Void
-    ) {
-        guard self[keyPath: installingKeyPath] == nil else { return }
-        self[keyPath: installingKeyPath] = id
-        scheduler.schedule(after: installDuration) { [self] in
-            self[keyPath: installingKeyPath] = nil
-            self[keyPath: installedKeyPath].insert(id)
-            onInstalled()
-        }
-    }
-
-    func toggle(_ id: String) {
-        guard let index = settings.firstIndex(where: { $0.id == id }) else { return }
-        withAnimation(OB.easeReal(0.30)) { settings[index].isOn.toggle() }
-    }
-
-    func grant(_ id: String) {
-        guard let index = permissions.firstIndex(where: { $0.id == id }) else { return }
-        permissions[index].isGranted = true
-        if permissions.allSatisfy(\.isGranted) {
-            scheduler.schedule(after: advanceDelay) { self.go(to: .ready) }
-        }
+    /// Система выдала все разрешения — уходим на финал тем же тактом, что и после
+    /// установки карточки: короткая пауза, чтобы «✓ Granted» успел прочитаться, затем
+    /// переход. Сам факт выдачи мастер не решает — о нём сообщает экран, спросивший ОС.
+    func permissionsGranted() {
+        scheduler.schedule(after: advanceDelay) { self.go(to: .ready) }
     }
 
     // MARK: - Финал
