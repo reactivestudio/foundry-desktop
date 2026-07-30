@@ -12,6 +12,16 @@ import SwiftUI
  конец разлёта и досрочный выход.
  */
 public struct OnboardingView: View {
+    /// Стор настроек — тот же инстанс, что у гейта и у будущего окна настроек: мастер
+    /// не заводит своей копии, иначе тумблеры экрана настроек жили бы отдельной жизнью.
+    private let preference: PreferenceStore
+    /// Стор разрешений ОС — второй контроллер того же слоя: настройки приложение хранит
+    /// само, а разрешения только читает у системы, и смешивать их в одном сторе значило
+    /// бы смешивать две разные истины.
+    private let permission: PermissionStore
+    /// Стор инструментов связки: установленность приходит с диска пользователя, а не из
+    /// каталога-заглушки.
+    private let tool: ToolStore
     private let onReveal: () -> Void
     private let onFinished: () -> Void
     private let onSkip: () -> Void
@@ -19,10 +29,16 @@ public struct OnboardingView: View {
     @State private var model = OnboardingModel()
 
     public init(
+        preference: PreferenceStore,
+        permission: PermissionStore,
+        tool: ToolStore,
         onReveal: @escaping () -> Void,
         onFinished: @escaping () -> Void,
         onSkip: @escaping () -> Void
     ) {
+        self.preference = preference
+        self.permission = permission
+        self.tool = tool
         self.onReveal = onReveal
         self.onFinished = onFinished
         self.onSkip = onSkip
@@ -113,10 +129,10 @@ public struct OnboardingView: View {
     @ViewBuilder private var screen: some View {
         switch model.screen {
         case .welcome: WelcomeScreen(onStart: { model.go(to: .agents) })
-        case .agents: AgentScreen(model: model)
-        case .extensions: ExtensionsScreen(model: model)
-        case .settings: SettingsScreen(model: model)
-        case .permissions: PermissionsScreen(model: model)
+        case .agents: AgentScreen(model: model, tool: tool, preference: preference)
+        case .extensions: ExtensionsScreen(model: model, tool: tool)
+        case .settings: SettingsScreen(model: model, preference: preference)
+        case .permissions: PermissionsScreen(model: model, permission: permission)
         case .ready: ReadyScreen(model: model)
         }
     }

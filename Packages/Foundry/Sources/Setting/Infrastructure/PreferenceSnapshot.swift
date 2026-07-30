@@ -40,6 +40,8 @@ public struct PreferenceSnapshot: Codable {
     var enabledNotificationTypes: [String]?
     // Связка с внешними инструментами.
     var opensSessionInViewer: Bool?
+    // Выбранный агент — id инструмента (значения id и есть контракт хранения).
+    var selectedAgent: String?
     // Первичная настройка.
     var setupFinished: Bool?
 
@@ -58,6 +60,7 @@ public struct PreferenceSnapshot: Codable {
         higherContrast = preference.accessibility.higherContrast
         enabledNotificationTypes = preference.notification.enabledTypes.map(Self.name(of:))
         opensSessionInViewer = preference.integration.opensSessionInViewer
+        selectedAgent = preference.agent.selected?.value
         setupFinished = preference.setup.isFinished
     }
 
@@ -75,6 +78,7 @@ public struct PreferenceSnapshot: Codable {
             general: general(),
             accessibility: accessibility(),
             integration: integration(),
+            agent: try agent(),
             setup: setup()
         )
     }
@@ -135,6 +139,17 @@ public struct PreferenceSnapshot: Codable {
         let defaults = Integration.of()
 
         return Integration.of(opensSessionInViewer: opensSessionInViewer ?? defaults.opensSessionInViewer)
+    }
+
+    /// Неизвестный id агента — не повод считать набор битым: инструмент могли
+    /// переименовать или выкинуть, а выбор — это всего лишь одна настройка. Пустое
+    /// значение фабрика id отвергнет, и вот это уже битый снимок.
+    private func agent() throws -> Agent {
+        guard let selectedAgent else {
+            return Agent.of()
+        }
+
+        return Agent.of(selected: try ToolId.of(value: selectedAgent))
     }
 
     private func setup() -> Setup {

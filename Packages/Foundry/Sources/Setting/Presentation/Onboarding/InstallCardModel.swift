@@ -1,13 +1,21 @@
-import SwiftUI
+/**
+ Карточка инструмента на экранах агентов и расширений: постоянные тексты (вендор, имя,
+ требование) и то, что ответила система, — установлен ли инструмент и какой он версии.
+ Собственного состояния у карточки нет: `isInstalled`/`installedLabel` приходят из
+ `ToolStore`, то есть с диска пользователя. Карточки собирают сами экраны.
 
-/// Данные карточки.
+ Состояния «Installing…» тут больше нет: приложение никого не устанавливает, кнопка
+ Install ведёт к инструкции вендора (порт `InstallInstructionOpening`), а установленность
+ замечается при следующем опросе системы.
+ */
 struct InstallCardModel: Identifiable {
-    let id: String
+    let id: ToolId
     let glyph: OBGlyph
     let vendor: String
     let name: String
-    let requirement: String  // факт/требование в состоянии «не установлено»
-    let installedDetail: String?  // вторая строка фактов у установленного (план и т.п.)
-    let signedInLabel: String  // строка «✓ … signed in» после установки
-    let showsInstall: Bool  // есть ли кнопка Install (у Claude в стенде уже стоит)
+    /// Факт-требование под именем: что нужно, чтобы инструментом пользоваться.
+    let requirement: String
+    let isInstalled: Bool
+    /// Строка рядом с галочкой у установленного: версия, если система её назвала.
+    let installedLabel: String
 }

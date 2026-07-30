@@ -40,7 +40,9 @@ public enum FoundryApplication {
     public static func rootView() -> some View {
         FoundryApplicationView(
             runStore: bean(ofType: RunStore.self),
-            preferenceStore: bean(ofType: PreferenceStore.self)
+            preferenceStore: bean(ofType: PreferenceStore.self),
+            permissionStore: bean(ofType: PermissionStore.self),
+            toolStore: bean(ofType: ToolStore.self)
         )
     }
 

@@ -15,14 +15,27 @@ struct FoundryApplicationView: View {
     // нужен здесь же, на гейте, — его передаём прямо.
     private let runStore: RunStore
     private let preferenceStore: PreferenceStore
+    private let permissionStore: PermissionStore
+    private let toolStore: ToolStore
 
-    init(runStore: RunStore, preferenceStore: PreferenceStore) {
+    init(
+        runStore: RunStore,
+        preferenceStore: PreferenceStore,
+        permissionStore: PermissionStore,
+        toolStore: ToolStore
+    ) {
         self.runStore = runStore
         self.preferenceStore = preferenceStore
+        self.permissionStore = permissionStore
+        self.toolStore = toolStore
     }
 
     var body: some View {
-        OnboardingGateView(preferenceStore: preferenceStore) {
+        OnboardingGateView(
+            preferenceStore: preferenceStore,
+            permissionStore: permissionStore,
+            toolStore: toolStore
+        ) {
             RunConsoleView()
         }
         .environment(runStore)

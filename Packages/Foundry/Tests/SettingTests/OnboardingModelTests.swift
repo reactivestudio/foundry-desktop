@@ -66,83 +66,49 @@ struct OnboardingModelTests {
         #expect(model.navigationTarget == .ready)  // с последнего вперёд некуда
     }
 
-    // ── Имитация установки ────────────────────────────────────────────────────
+    // ── Исходы экранов инструментов ───────────────────────────────────────────
 
-    @Test("Установка агента: Installing… → ✓ → выбор → переход к расширениям")
-    func agentInstallFlow() {
-        let scheduler = ManualOnboardingScheduler()
-        let model = OnboardingModel(scheduler: scheduler)
-        let id = model.agents[1].id  // codex — не предустановлен
+    // Имитации установки больше нет: установленность приходит из системы (`ToolStore`),
+    // а мастер знает лишь, куда идти после исхода экрана.
 
-        model.tapAgent(id)
-        #expect(model.installingAgent == id)  // сразу «Installing…»
-        #expect(!model.installedAgents.contains(id))
+    @Test("Выбранный агент уводит на экран расширений")
+    func chosenAgentAdvancesToExtensions() {
+        let model = OnboardingModel(scheduler: ManualOnboardingScheduler())
+        model.go(to: .agents)
 
-        scheduler.drain()  // прокрутить обе задержки (0.9 → установлено, 0.55 → переход)
-        #expect(model.installingAgent == nil)
-        #expect(model.installedAgents.contains(id))
-        #expect(model.selectedAgent == id)
-        #expect(model.navigationTarget == .extensions)  // ушли на экран расширений
+        model.agentChosen()
+
+        #expect(model.navigationTarget == .extensions)
     }
 
-    @Test("Повторный тап по установленному агенту не запускает установку заново")
-    func tappingInstalledAgentJustSelects() {
-        let scheduler = ManualOnboardingScheduler()
-        let model = OnboardingModel(scheduler: scheduler)
-        let id = model.agents[1].id
-        model.tapAgent(id)
-        scheduler.drain()
-        let countAfterInstall = scheduler.scheduledCount
-
-        model.tapAgent(id)  // уже установлен — только выбор + переход, без Installing
-        #expect(model.installingAgent == nil)
-        #expect(model.selectedAgent == id)
-        #expect(scheduler.scheduledCount == countAfterInstall)  // новых задержек нет
-    }
-
-    @Test("Экран расширений уводит дальше только когда установлены все")
-    func extensionsAdvanceOnlyWhenAllInstalled() {
-        let scheduler = ManualOnboardingScheduler()
-        let model = OnboardingModel(scheduler: scheduler)
+    @Test("Готовые расширения уводят к настройкам")
+    func readyExtensionsAdvanceToSettings() {
+        let model = OnboardingModel(scheduler: ManualOnboardingScheduler())
         model.go(to: .extensions)
 
-        model.tapExtension(model.extensions[0].id)
-        scheduler.drain()
-        #expect(model.installedExtensions.count == 1)
-        #expect(model.navigationTarget == .extensions)  // ещё не все — стоим на месте
+        model.extensionsReady()
 
-        model.tapExtension(model.extensions[1].id)
-        scheduler.drain()
-        #expect(model.installedExtensions.count == model.extensions.count)
-        #expect(model.navigationTarget == .settings)  // все установлены — вперёд
+        #expect(model.navigationTarget == .settings)
     }
 
-    // ── Настройки и разрешения ────────────────────────────────────────────────
+    // ── Разрешения ────────────────────────────────────────────────────────────
 
-    @Test("Тумблер настройки переключается")
-    func toggleFlipsSetting() {
-        let model = OnboardingModel(scheduler: ManualOnboardingScheduler())
-        let id = model.settings[0].id
-        let before = model.settings[0].isOn
-        model.toggle(id)
-        #expect(model.settings[0].isOn == !before)
-    }
+    // Ни тумблеров настроек, ни статусов разрешений у модели мастера больше нет: первые
+    // сидят на агрегате через `PreferenceStore`, вторые — на ОС через `PermissionStore`
+    // (их поведение проверяют `PreferenceStoreTests` и `PermissionStoreTests`). Мастеру
+    // осталась реакция на исход.
 
-    @Test("Когда выданы все разрешения — переход к финалу")
-    func grantingAllPermissionsAdvances() {
+    @Test("Когда система выдала все разрешения — переход к финалу")
+    func grantedPermissionsAdvanceToReady() {
         let scheduler = ManualOnboardingScheduler()
         let model = OnboardingModel(scheduler: scheduler)
         model.go(to: .permissions)
 
-        model.grant(model.permissions[0].id)
-        #expect(model.permissions[0].isGranted)
-        #expect(model.navigationTarget == .permissions)  // ещё не все
+        model.permissionsGranted()
+        #expect(model.navigationTarget == .permissions)  // пауза на «✓ Granted» ещё идёт
 
-        model.grant(model.permissions[1].id)
-        let allGranted = model.permissions.allSatisfy(\.isGranted)
-        #expect(allGranted)
         scheduler.drain()
-        #expect(model.navigationTarget == .ready)  // все выданы — на экран Ready
+        #expect(model.navigationTarget == .ready)
     }
 
     // ── Финал и разлёт ────────────────────────────────────────────────────────

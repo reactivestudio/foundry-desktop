@@ -74,6 +74,7 @@ struct PreferencePlistRepositoryTests {
         #expect(loaded.appearance.theme == .dark)
         #expect(loaded.general.launchAtLogin)
         #expect(loaded.integration.opensSessionInViewer)
+        #expect(loaded.agent.selected == nil)
         #expect(loaded.setup.isFinished == false)
         #expect(loaded.general.tokensInKeychain)
         #expect(loaded.notification.allows(type: .stageFinished))
@@ -87,11 +88,13 @@ struct PreferencePlistRepositoryTests {
 
         let preference = Preference.of()
         preference.toggleOpensSessionInViewer()
+        preference.change(agent: .geminiCli)
         preference.finishSetup()
         repository.save(entity: preference)
 
         let loaded = try #require(repository.find(id: .default))
         #expect(loaded.integration.opensSessionInViewer == false)
+        #expect(loaded.agent.selected == ToolId.geminiCli)
         #expect(loaded.setup.isFinished)
     }
 

@@ -17,10 +17,19 @@ struct OnboardingGateView<MainContent: View>: View {
     @State private var windowScale: CGFloat = 1
 
     private let preferenceStore: PreferenceStore
+    private let permissionStore: PermissionStore
+    private let toolStore: ToolStore
     private let mainContent: MainContent
 
-    init(preferenceStore: PreferenceStore, @ViewBuilder mainContent: () -> MainContent) {
+    init(
+        preferenceStore: PreferenceStore,
+        permissionStore: PermissionStore,
+        toolStore: ToolStore,
+        @ViewBuilder mainContent: () -> MainContent
+    ) {
         self.preferenceStore = preferenceStore
+        self.permissionStore = permissionStore
+        self.toolStore = toolStore
         self.mainContent = mainContent()
     }
 
@@ -42,6 +51,9 @@ struct OnboardingGateView<MainContent: View>: View {
 
             if !didFinishOnboarding {
                 OnboardingView(
+                    preference: preferenceStore,
+                    permission: permissionStore,
+                    tool: toolStore,
                     onReveal: {
                         withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 0.6)) {
                             windowOpacity = 0

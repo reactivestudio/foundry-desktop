@@ -47,6 +47,9 @@ let package = Package(
             name: "Setting",
             dependencies: [
                 "Core",
+                // Адаптер связки с инструментами спрашивает у CLI версию — тем же
+                // swift-subprocess, что и раннер агента (практики 06).
+                .product(name: "Subprocess", package: "swift-subprocess"),
                 // Вся DI-поверхность контекста (@Component/@Configuration/@Bean) — маркеры из
                 // Spark; сборку по ним делает скан-плагин, самому контексту хватает SparkIoC.
                 .product(name: "SparkIoC", package: "spark"),

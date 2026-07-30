@@ -47,6 +47,37 @@ struct PreferenceStoreTests {
         #expect(repository.find(id: .default)?.setup.isFinished == true)
     }
 
+    @Test("Единый тумблер уведомлений гасит всю группу и возвращает её целиком")
+    func notificationsToggleFoldsWholeGroup() {
+        let repository = InMemoryPreferenceRepository()
+        let store = makeStore(repository: repository)
+        #expect(store.notification.isMuted == false)
+
+        store.toggleNotifications()
+
+        #expect(store.notification.isMuted)
+        #expect(repository.find(id: .default)?.notification.isMuted == true)
+        // Один переход на нажатие, а не по записи на каждый вид уведомления.
+        #expect(repository.saveCount == 1)
+
+        store.toggleNotifications()
+
+        #expect(store.notification.allows(type: .stageFinished))
+        #expect(store.notification.allows(type: .reviewNeeded))
+    }
+
+    @Test("Выбранный агент уходит в хранилище")
+    func chosenAgentIsPersisted() {
+        let repository = InMemoryPreferenceRepository()
+        let store = makeStore(repository: repository)
+        #expect(store.agent.selected == nil)
+
+        store.change(agent: .claudeCode)
+
+        #expect(store.agent.selected == ToolId.claudeCode)
+        #expect(repository.find(id: .default)?.agent.selected == ToolId.claudeCode)
+    }
+
     @Test("Интент уходит в хранилище и обновляет чтение стора")
     func intentPersistsAndRefreshes() {
         let repository = InMemoryPreferenceRepository()

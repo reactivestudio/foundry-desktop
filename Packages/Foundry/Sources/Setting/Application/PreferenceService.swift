@@ -110,6 +110,21 @@ public final class PreferenceService {
         }
     }
 
+    /// Погасить уведомления целиком — под единый тумблер «Notifications» (мастер, а
+    /// позже и окно настроек). Наборный интент отдельным методом, а не циклом по видам
+    /// на стороне вью: переход должен быть ОДНИМ, иначе на каждый вид ушла бы запись.
+    public func muteNotifications() {
+        apply { preference in
+            preference.muteNotifications()
+        }
+    }
+
+    public func unmuteNotifications() {
+        apply { preference in
+            preference.unmuteNotifications()
+        }
+    }
+
     // MARK: - Связка с инструментами
 
     /**
@@ -126,6 +141,15 @@ public final class PreferenceService {
 
         apply { preference in
             preference.toggleOpensSessionInViewer()
+        }
+    }
+
+    // MARK: - Выбор агента
+
+    /// Выбрать агента, который гоняет стадии.
+    public func change(agent: ToolId) {
+        apply { preference in
+            preference.change(agent: agent)
         }
     }
 

@@ -19,6 +19,7 @@ public final class Preference: AggregateRoot<PreferenceId> {
     public private(set) var general: General
     public private(set) var accessibility: Accessibility
     public private(set) var integration: Integration
+    public private(set) var agent: Agent
     public private(set) var setup: Setup
 
     private init(
@@ -29,6 +30,7 @@ public final class Preference: AggregateRoot<PreferenceId> {
         general: General,
         accessibility: Accessibility,
         integration: Integration,
+        agent: Agent,
         setup: Setup
     ) {
         self.profile = profile
@@ -37,6 +39,7 @@ public final class Preference: AggregateRoot<PreferenceId> {
         self.general = general
         self.accessibility = accessibility
         self.integration = integration
+        self.agent = agent
         self.setup = setup
         super.init(id: id)
     }
@@ -49,6 +52,7 @@ public final class Preference: AggregateRoot<PreferenceId> {
         general: General = .of(),
         accessibility: Accessibility = .of(),
         integration: Integration = .of(),
+        agent: Agent = .of(),
         setup: Setup = .of()
     ) -> Preference {
         Preference(
@@ -59,6 +63,7 @@ public final class Preference: AggregateRoot<PreferenceId> {
             general: general,
             accessibility: accessibility,
             integration: integration,
+            agent: agent,
             setup: setup
         )
     }
@@ -131,11 +136,36 @@ public final class Preference: AggregateRoot<PreferenceId> {
         }
     }
 
+    /// Молчать обо всём. Идемпотентно; не `toggle…`, потому что противоположность
+    /// молчания — не «один флаг наоборот», а включённый набор видов.
+    public func muteNotifications() {
+        mutate {
+            notification = notification.mute()
+        }
+    }
+
+    /// Уведомлять обо всех видах. Идемпотентно.
+    public func unmuteNotifications() {
+        mutate {
+            notification = notification.unmute()
+        }
+    }
+
     // MARK: - Integration
 
     public func toggleOpensSessionInViewer() {
         mutate {
             integration = integration.toggleOpensSessionInViewer()
+        }
+    }
+
+    // MARK: - Agent
+
+    /// Выбрать агента, который гоняет стадии. Настройка, а не факт о системе: выбор
+    /// переживает удаление CLI (установленность живёт в агрегате `Tool`).
+    public func change(agent: ToolId) {
+        mutate {
+            self.agent = self.agent.change(selected: agent)
         }
     }
 

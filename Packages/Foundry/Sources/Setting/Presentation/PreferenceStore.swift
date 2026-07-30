@@ -43,6 +43,7 @@ public final class PreferenceStore {
     public var general: General { preference.general }
     public var accessibility: Accessibility { preference.accessibility }
     public var integration: Integration { preference.integration }
+    public var agent: Agent { preference.agent }
     public var setup: Setup { preference.setup }
 
     // MARK: - Интенты вью
@@ -94,6 +95,36 @@ public final class PreferenceStore {
 
     public func disableNotification(for type: NotificationType) {
         service.disableNotification(for: type)
+        reload()
+    }
+
+    public func muteNotifications() {
+        service.muteNotifications()
+        reload()
+    }
+
+    public func unmuteNotifications() {
+        service.unmuteNotifications()
+        reload()
+    }
+
+    /**
+     Единый тумблер уведомлений: молчим — включить все виды, включён хоть один — погасить
+     все. Ветвление живёт ЗДЕСЬ, в презентации, а не в домене: «один переключатель на
+     группу» — это форма экрана (у мастера места на пять галочек нет), домен же знает два
+     ясных намерения — молчать и уведомлять. Экран с per-type галочками позовёт
+     `enableNotification(for:)`/`disableNotification(for:)` и в этот метод не заглянет.
+     */
+    public func toggleNotifications() {
+        if notification.isMuted {
+            unmuteNotifications()
+        } else {
+            muteNotifications()
+        }
+    }
+
+    public func change(agent: ToolId) {
+        service.change(agent: agent)
         reload()
     }
 
