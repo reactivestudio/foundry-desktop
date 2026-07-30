@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 import Setting
-import SwiftContext
+import SparkIoC
 
 /// Стор одного рана: MV-паттерн, @Observable без ViewModel'ей (practices 03).
 /// Тонкий: держит наблюдаемое состояние экрана (фаза + проекция транскрипта),

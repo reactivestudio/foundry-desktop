@@ -1,6 +1,6 @@
 import Foundation
 @testable import Setting
-import SwiftContext
+import SparkIoC
 import Testing
 
 @Suite("SettingConfiguration")

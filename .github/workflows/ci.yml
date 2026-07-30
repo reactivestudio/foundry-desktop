@@ -47,6 +47,11 @@ jobs:
 
       # Приложение собирается без подписи: проверяем, что xcodeproj + пакет
       # сходятся, а не готовим дистрибутив (этим занят release.yml).
+      #
+      # skip-флаги — цена внешнего пакета: макросы и build-плагины из ЧУЖОГО
+      # репозитория Xcode держит недоверенными, пока человек не нажмёт «Trust» в
+      # диалоге. В CI нажимать некому, а Spark — наш же пакет с пиннутой версией:
+      # доверие тут решается ревью Package.resolved, а не модалкой.
       - name: Собрать приложение
         run: |
           set -o pipefail
@@ -56,5 +61,7 @@ jobs:
             -configuration Release \
             -destination 'platform=macOS,arch=arm64' \
             -derivedDataPath .build/DerivedData \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
             CODE_SIGN_IDENTITY=- \
             | xcbeautify

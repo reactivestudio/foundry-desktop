@@ -1,5 +1,5 @@
 import AppKit
-import SwiftContext
+import SparkIoC
 
 /// Продакшн-адаптер порта `AgentSessionOpening` над `ClaudeDesktopLink` —
 /// реальное открытие сессии в CCD за портом. Публичен: его конструирует

@@ -1,5 +1,5 @@
 import Foundation
-import SwiftContext
+import SparkIoC
 
 /**
  `@Configuration` контекста Setting — методы-фабрики `@Bean` для бинов, которым не подходит
