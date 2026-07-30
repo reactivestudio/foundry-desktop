@@ -14,7 +14,7 @@ struct SwiftContextAotTests {
         let beans = ClassPathBeanDefinitionScanner().scan(sources: [(module: "Setting", text: source)])
 
         #expect(beans == [
-            ScannedBeanDefinition(
+            ScannedGenericBeanDefinition(
                 module: "Setting",
                 concreteType: "PreferencePlistRepository",
                 name: "preferencePlistRepository",
@@ -140,13 +140,14 @@ struct SwiftContextAotTests {
 
     @Test("definitions(): имя, скоуп, targetTypes и supplier с внедрением")
     func generatesDefinitionsWithSupplier() {
-        let beans = [ScannedBeanDefinition(
+        let beans = [ScannedGenericBeanDefinition(
             module: "Setting", concreteType: "Car", name: "car",
             targetTypes: ["Car", "Vehicle"],
             dependencies: [DependencyDescriptor(label: "engine", type: "Engine")]
         )]
 
-        let code = BeanRegistrationsCodeGenerator().generateCode(for: beans, typeModules: [:])
+        let code = BeanRegistrationsAotContribution()
+            .generateCode(for: beans, configurations: [], typeModules: [:])
 
         #expect(code.contains("static func definitions() -> [BeanDefinitionHolder]"))
         #expect(code.contains("BeanDefinitionHolder(name: \"car\", definition: BeanDefinition("))
@@ -157,29 +158,129 @@ struct SwiftContextAotTests {
 
     @Test("definitions(): бин без зависимостей — supplier без контекста")
     func generatesDependencyFreeSupplier() {
-        let beans = [ScannedBeanDefinition(
+        let beans = [ScannedGenericBeanDefinition(
             module: "Run", concreteType: "ClaudeRunner", name: "claudeRunner",
             targetTypes: ["ClaudeRunner", "AgentRunner"]
         )]
 
-        let code = BeanRegistrationsCodeGenerator().generateCode(for: beans, typeModules: [:])
+        let code = BeanRegistrationsAotContribution()
+            .generateCode(for: beans, configurations: [], typeModules: [:])
 
         #expect(code.contains("instanceSupplier: { _ in ClaudeRunner() }"))
     }
 
+    @Test("Скан находит @Configuration; генерат подмешивает его definitions() и импортит модуль")
+    func scanFoldsConfiguration() {
+        let source = """
+        @Configuration
+        public struct SettingConfiguration {}
+        """
+
+        let scanner = ClassPathBeanDefinitionScanner()
+        let beans = scanner.scan(sources: [(module: "Setting", text: source)])
+        let code = BeanRegistrationsAotContribution().generateCode(
+            for: beans,
+            configurations: scanner.configurations,
+            typeModules: scanner.moduleForType
+        )
+
+        #expect(scanner.configurations == [
+            ScannedConfiguration(module: "Setting", concreteType: "SettingConfiguration"),
+        ])
+        #expect(beans.isEmpty) // сам конфиг бином не регистрируется — только его @Bean-фабрики
+        #expect(code.contains("definitions += Setting.SettingConfiguration().definitions()"))
+        #expect(code.contains("import Setting"))
+    }
+
     @Test("Импорт модуля типа, помянутого в targetTypes из чужого контекста")
     func importsModulesOfMentionedTypes() {
-        let beans = [ScannedBeanDefinition(
+        let beans = [ScannedGenericBeanDefinition(
             module: "Setting", concreteType: "Repo", name: "repo",
             targetTypes: ["Repo", "PlistRepository<PreferenceSnapshot>"]
         )]
 
-        let code = BeanRegistrationsCodeGenerator().generateCode(
+        let code = BeanRegistrationsAotContribution().generateCode(
             for: beans,
+            configurations: [],
             typeModules: ["PlistRepository": "Core", "PreferenceSnapshot": "Setting", "Repo": "Setting"]
         )
 
         #expect(code.contains("import Core"))
         #expect(code.contains("import Setting"))
+    }
+
+    // MARK: - Стереотипы и @MainActor
+
+    @Test("Скан подхватывает все специализации @Component наравне с ним самим")
+    func scanRecognizesStereotypes() {
+        let source = """
+        @DomainService struct PricingPolicy {}
+        @ApplicationService final class ToolService {}
+        @UseCase final class FinishOnboarding {}
+        @Repository struct PreferencePlistRepository {}
+        @Store final class RunStore {}
+        """
+
+        let beans = ClassPathBeanDefinitionScanner().scan(sources: [(module: "Run", text: source)])
+
+        // Стереотип для читателя (слой и роль), контейнеру они равны — все пять стали бинами.
+        #expect(Set(beans.map(\.name)) == [
+            "pricingPolicy", "toolService", "finishOnboarding", "preferencePlistRepository", "runStore",
+        ])
+    }
+
+    @Test("@MainActor-бин: помечен isMainActor, генерат исключает из жадной сборки и зовёт assumeIsolated")
+    func scanAndGenerateMainActorBean() {
+        let source = """
+        @MainActor @Store final class RunStore {
+            init(service: RunService) {}
+        }
+        """
+
+        let beans = ClassPathBeanDefinitionScanner().scan(sources: [(module: "Run", text: source)])
+        #expect(beans.first?.isMainActor == true)
+
+        let code = BeanRegistrationsAotContribution()
+            .generateCode(for: beans, configurations: [], typeModules: [:])
+
+        #expect(code.contains("scope: .singleton, isMainActorConfined: true, "))
+        #expect(code.contains("{ context in nonisolated(unsafe) let context = context; "
+            + "return try MainActor.assumeIsolated { RunStore(service: "
+            + "try context.getBean(ofType: RunService.self)) } }"))
+    }
+
+    @Test("@MainActor-бин без зависимостей: assumeIsolated без контекста, без unsafe")
+    func generatesMainActorDependencyFreeSupplier() {
+        let beans = [ScannedGenericBeanDefinition(
+            module: "Run", concreteType: "Clock", name: "clock",
+            isMainActor: true, targetTypes: ["Clock"]
+        )]
+
+        let code = BeanRegistrationsAotContribution()
+            .generateCode(for: beans, configurations: [], typeModules: [:])
+
+        #expect(code.contains("instanceSupplier: { _ in MainActor.assumeIsolated { Clock() } }"))
+    }
+
+    // MARK: - Квалификация типов модулем
+
+    @Test("Типы в генерате квалифицированы модулем объявления, включая дженерик-аргументы")
+    func qualifiesEmittedTypesWithModule() {
+        let beans = [ScannedGenericBeanDefinition(
+            module: "Setting", concreteType: "Repo", name: "repo",
+            targetTypes: ["Repo", "PlistRepository<PreferenceSnapshot>"],
+            dependencies: [DependencyDescriptor(label: "encoder", type: "PropertyListEncoder")]
+        )]
+
+        let code = BeanRegistrationsAotContribution().generateCode(
+            for: beans,
+            configurations: [],
+            typeModules: ["Repo": "Setting", "PlistRepository": "Core", "PreferenceSnapshot": "Setting"]
+        )
+
+        #expect(code.contains("beanType: Setting.Repo.self"))
+        #expect(code.contains("targetTypes: [Setting.Repo.self, Core.PlistRepository<Setting.PreferenceSnapshot>.self]"))
+        // Незнакомый скану тип (Foundation) остаётся как написан.
+        #expect(code.contains("try context.getBean(ofType: PropertyListEncoder.self)"))
     }
 }

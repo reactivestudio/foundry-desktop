@@ -9,9 +9,15 @@ import SwiftContextAot
 
 let arguments = Array(CommandLine.arguments.dropFirst())
 
-guard let outputPath = arguments.first else {
-    FileHandle.standardError.write(Data("SwiftContextAotProcessor: не задан путь вывода\n".utf8))
+/// Сказать в stderr и уронить сборку. Тихо продолжать нельзя: пропущенный исходник или незамеченная
+/// проблема скана превращаются в отсутствующий бин и `noSuchBeanDefinition` в другом конце графа.
+func fail(reason: String) -> Never {
+    FileHandle.standardError.write(Data("SwiftContextAotProcessor: \(reason)\n".utf8))
     exit(1)
+}
+
+guard let outputPath = arguments.first else {
+    fail(reason: "не задан путь вывода")
 }
 
 // Дальше — пары «Модуль» «путь-к-.swift». Идём по две. Транзитивное замыкание супертипов
@@ -23,19 +29,32 @@ while index + 1 < pairs.count {
     let module = pairs[index]
     let path = pairs[index + 1]
     index += 2
-    guard let contents = try? String(contentsOfFile: path, encoding: .utf8) else { continue }
+    guard let contents = try? String(contentsOfFile: path, encoding: .utf8) else {
+        fail(reason: "не прочитал исходник \(path) — скан был бы неполным, бины из этого файла пропали бы молча")
+    }
     sources.append((module: module, text: contents))
 }
 
 let scanner = ClassPathBeanDefinitionScanner()
 let beans = scanner.scan(sources: sources)
-let generated = BeanRegistrationsCodeGenerator()
-    .generateCode(for: beans, typeModules: scanner.moduleForType) + "\n"
+
+// Диагностика скана — ошибки СБОРКИ: аннотация, которая не станет бином, обязана быть видна здесь,
+// а не всплыть на старте приложения отсутствующим бином.
+if !scanner.problems.isEmpty {
+    for problem in scanner.problems {
+        FileHandle.standardError.write(Data("SwiftContextAotProcessor: \(problem.message)\n".utf8))
+    }
+    fail(reason: "проблем скана: \(scanner.problems.count) — BeanScan не сгенерирован")
+}
+
+let generated = BeanRegistrationsAotContribution().generateCode(
+    for: beans,
+    configurations: scanner.configurations,
+    typeModules: scanner.moduleForType
+) + "\n"
 
 do {
     try generated.write(toFile: outputPath, atomically: true, encoding: .utf8)
 } catch {
-    let message = "SwiftContextAotProcessor: не записал \(outputPath): \(error)\n"
-    FileHandle.standardError.write(Data(message.utf8))
-    exit(1)
+    fail(reason: "не записал \(outputPath): \(error)")
 }

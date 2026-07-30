@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import Setting
+import SwiftContext
 
 /// Стор одного рана: MV-паттерн, @Observable без ViewModel'ей (practices 03).
 /// Тонкий: держит наблюдаемое состояние экрана (фаза + проекция транскрипта),
@@ -9,7 +10,13 @@ import Setting
 /// стор — это сток `RunOutput`: сценарий толкает сюда события и терминалы, а стор
 /// применяет их к транскрипту, коалессируя токен-дельты с кадровой каденцией
 /// (~16 мс — одна SwiftUI-инвалидация на кадр, practices 06, пункт 2.5).
-@MainActor @Observable
+///
+/// `@Store` — стереотип бина слоя Presentation (наш аналог `@Controller`): контейнер собирает стор
+/// сам, внедряя `RunService` и `ToolService`. Singleton (одно окно на процесс). Как `@MainActor` —
+/// ленив и строится через `MainActor.assumeIsolated` при resolve на главном акторе (в `FoundryApplication`).
+@MainActor
+@Observable
+@Store
 public final class RunStore: RunOutput {
 
     enum Phase: Equatable {

@@ -8,12 +8,6 @@ import Metal
 //
 // Офскрин, без окна: показывать нечего, а показ добавил бы к замеру композитор.
 
-struct BenchmarkCase {
-    let label: String
-    let preset: OrbSwarmConfig.Preset
-    let size: Float
-}
-
 let scale: Float = 2.0  // Retina
 let warmup = 20
 let frames = 200

@@ -12,13 +12,13 @@ import SwiftContext
  декод базовый класс уже отсеял и залогировал): наружу это «набор не сохранён», дефолт
  подставит use-case. `save` небросающий (сбой записи логирует база) — так требует порт.
 
- `@Component` — скан выведет контракты из цепочки наследования сам (`PreferenceRepository` и
- конкретную базу `PlistRepository<PreferenceSnapshot>`). Все три зависимости — бины: каталог
- (`StorageLocation` из `Environment`) и кодеры приходят инъекцией. Один собственный
- designated-init — базовый `init(directory:…)` не наследуется, неоднозначности нет; тест
- подставляет свой `StorageLocation` с временным каталогом.
+ `@Repository` — стереотип бина слоя Infrastructure (адаптер-хранилище); скан выведет контракты из
+ цепочки наследования сам (`PreferenceRepository` и конкретную базу `PlistRepository<PreferenceSnapshot>`).
+ Все три зависимости — бины: каталог (`StorageLocation` из `Environment`) и кодеры приходят инъекцией.
+ Один собственный designated-init — базовый `init(directory:…)` не наследуется, неоднозначности нет;
+ тест подставляет свой `StorageLocation` с временным каталогом.
  */
-@Component
+@Repository
 public final class PreferencePlistRepository: PlistRepository<PreferenceSnapshot>, PreferenceRepository {
     public init(
         location: StorageLocation,

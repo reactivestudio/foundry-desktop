@@ -1,8 +1,8 @@
 import Run
 import Testing
 
-@Suite("Domain")
-struct DomainTests {
+@Suite("PermissionMode")
+struct PermissionModeTests {
     @Test("PermissionMode передаётся в CLI своим rawValue")
     func permissionModeRawValues() {
         #expect(PermissionMode.acceptEdits.rawValue == "acceptEdits")
