@@ -35,12 +35,19 @@ private final class SpySessionOpener: AgentSessionOpening {
     func openSessionNow(sessionID: String) { openedNowID = sessionID }
 }
 
-/// In-memory фейк репозитория настроек: тесты не трогают глобальный
-/// `UserDefaults.standard` — сущность живёт только в этом поле.
-private final class InMemoryToolRepository: ToolRepository {
-    private var tool = Tool()
-    func load() -> Tool { tool }
-    func save(tool: Tool) { self.tool = tool }
+/// In-memory фейк репозитория настроек соседнего контекста: тесты не трогают ни диск,
+/// ни каталог настроек пользователя — агрегат живёт только в этом поле.
+private final class InMemoryPreferenceRepository: PreferenceRepository {
+    private var stored: Preference?
+
+    func find(id: PreferenceId) -> Preference? { stored }
+
+    @discardableResult
+    func save(entity: Preference) -> Preference {
+        stored = entity
+
+        return entity
+    }
 }
 
 @MainActor
@@ -59,7 +66,7 @@ struct RunStoreTests {
                 ]),
                 sessionOpener: opener
             ),
-            toolSetting: ToolService(repository: InMemoryToolRepository())
+            preferenceService: PreferenceService(repository: InMemoryPreferenceRepository())
         )
         store.opensSessionInViewer = true
         store.prompt = "промпт"
@@ -84,7 +91,7 @@ struct RunStoreTests {
                 ]),
                 sessionOpener: opener
             ),
-            toolSetting: ToolService(repository: InMemoryToolRepository())
+            preferenceService: PreferenceService(repository: InMemoryPreferenceRepository())
         )
         store.opensSessionInViewer = false
         store.prompt = "промпт"
@@ -107,7 +114,7 @@ struct RunStoreTests {
                 ]),
                 sessionOpener: opener
             ),
-            toolSetting: ToolService(repository: InMemoryToolRepository())
+            preferenceService: PreferenceService(repository: InMemoryPreferenceRepository())
         )
         store.opensSessionInViewer = false  // отсекаем автоимпорт — проверяем ручной
         store.prompt = "промпт"
@@ -129,7 +136,7 @@ struct RunStoreTests {
                 runner: ScriptedRunner(events: events, error: error),
                 sessionOpener: SpySessionOpener()
             ),
-            toolSetting: ToolService(repository: InMemoryToolRepository()))
+            preferenceService: PreferenceService(repository: InMemoryPreferenceRepository()))
         store.opensSessionInViewer = false  // без побочного открытия сессии в CCD
         store.prompt = "промпт"
         store.start(projectDirectory: "/tmp/project")
@@ -209,7 +216,7 @@ struct RunStoreTests {
                 runner: ScriptedRunner(events: []),
                 sessionOpener: SpySessionOpener()
             ),
-            toolSetting: ToolService(repository: InMemoryToolRepository()))
+            preferenceService: PreferenceService(repository: InMemoryPreferenceRepository()))
         store.prompt = "   "
         store.start(projectDirectory: "/tmp/project")
         #expect(store.phase == .idle)
@@ -222,7 +229,7 @@ struct RunStoreTests {
                 runner: ScriptedRunner(events: []),
                 sessionOpener: SpySessionOpener()
             ),
-            toolSetting: ToolService(repository: InMemoryToolRepository()))
+            preferenceService: PreferenceService(repository: InMemoryPreferenceRepository()))
         store.prompt = "промпт"
         store.start(projectDirectory: "")
         #expect(store.phase == .idle)

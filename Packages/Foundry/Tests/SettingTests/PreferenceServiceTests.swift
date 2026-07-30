@@ -49,6 +49,34 @@ struct PreferenceServiceTests {
         #expect(preference.notification.allows(type: .stageFinished))
     }
 
+    @Test("Значение импорта сессии применяется идемпотентно: то же значение не пишется")
+    func settingSameValueDoesNotWrite() {
+        let repository = InMemoryPreferenceRepository()
+        let service = PreferenceService(repository: repository)
+
+        service.setOpensSessionInViewer(enabled: false)
+        #expect(!service.current().integration.opensSessionInViewer)
+
+        service.setOpensSessionInViewer(enabled: false)
+        #expect(!service.current().integration.opensSessionInViewer)
+        #expect(repository.saveCount == 1)
+
+        service.setOpensSessionInViewer(enabled: true)
+        #expect(service.current().integration.opensSessionInViewer)
+    }
+
+    @Test("Пройденная первичная настройка переживает перезапуск — она в хранилище")
+    func finishedSetupIsPersisted() {
+        let repository = InMemoryPreferenceRepository()
+        let service = PreferenceService(repository: repository)
+        #expect(!service.current().setup.isFinished)
+
+        service.finishSetup()
+
+        // Новый сценарий поверх того же хранилища — как после перезапуска приложения.
+        #expect(PreferenceService(repository: repository).current().setup.isFinished)
+    }
+
     @Test("Падающий интент не доходит до сохранения — полусостояния в хранилище нет")
     func failingIntentSavesNothing() throws {
         let repository = InMemoryPreferenceRepository()

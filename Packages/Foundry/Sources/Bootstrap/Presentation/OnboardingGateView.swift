@@ -3,24 +3,29 @@ import SwiftUI
 
 /**
  Гейт первого запуска — сшивка контекстов, а не часть мастера: решает, что показать
- поверх контента приложения, пока не пройден `didFinishOnboarding`, и каким сделать
- окно (`WindowConfigurator`). Потому и живёт в корне композиции: мастер (`OnboardingView`
- из презентационного слоя BC `Setting`) про Run-консоль и про окно не знает вовсе, а
+ поверх контента приложения, пока не пройдена первичная настройка, и каким сделать окно
+ (`WindowConfigurator`). Потому и живёт в корне композиции: мастер (`OnboardingView` из
+ презентационного слоя BC `Setting`) про Run-консоль и про окно не знает вовсе, а
  контент-под-мастером инъектируется сюда сверху (`@ViewBuilder mainContent`).
 
- Признак «мастер пройден» пока читается из `@AppStorage` — это временно: он переедет
- в агрегат `Preference` (группа `Setup`) вместе с остальными durable-настройками.
+ Признак «мастер пройден» — обычная durable-настройка (`Preference`, группа `Setup`),
+ читается из стора настроек. Прежний `@AppStorage("didFinishOnboarding")` жил прямо во
+ вью, то есть хранилище пробивало слои; теперь путь один и тот же для всех настроек.
  */
 struct OnboardingGateView<MainContent: View>: View {
-    @AppStorage("didFinishOnboarding") private var didFinishOnboarding = false
     @State private var windowOpacity: Double = 1
     @State private var windowScale: CGFloat = 1
 
+    private let preferenceStore: PreferenceStore
     private let mainContent: MainContent
 
-    init(@ViewBuilder mainContent: () -> MainContent) {
+    init(preferenceStore: PreferenceStore, @ViewBuilder mainContent: () -> MainContent) {
+        self.preferenceStore = preferenceStore
         self.mainContent = mainContent()
     }
+
+    /// Пройдена ли первичная настройка — гейт спрашивает это у настроек, а не у себя.
+    private var didFinishOnboarding: Bool { preferenceStore.setup.isFinished }
 
     var body: some View {
         ZStack {
@@ -43,8 +48,8 @@ struct OnboardingGateView<MainContent: View>: View {
                             windowScale = 0.985
                         }
                     },
-                    onFinished: { didFinishOnboarding = true },
-                    onSkip: { didFinishOnboarding = true }
+                    onFinished: { preferenceStore.finishSetup() },
+                    onSkip: { preferenceStore.finishSetup() }
                 )
                 .opacity(windowOpacity)
                 .scaleEffect(windowScale)

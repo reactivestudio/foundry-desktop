@@ -11,7 +11,7 @@ import Testing
 /// `AnnotationConfigApplicationContext` (без Swinject). Сборку инкапсулирует сам контекст (окружение
 /// + заливка определений + жадная преинстанциация в `refresh`), как в bootstrap. Так проверяем и
 /// транзитивное замыкание типов, и supplier'ы с внедрением (`PreferencePlistRepository`,
-/// `ToolService`), и цепочку через `@Bean`, подмешанную сканом.
+/// `PreferenceService`), и цепочку через `@Bean`, подмешанную сканом.
 @Suite("BeanScan → ApplicationContext (реальный граф приложения)")
 struct BeanScanApplicationContextTests {
     private func assembledContext() throws -> AnnotationConfigApplicationContext {
@@ -31,7 +31,7 @@ struct BeanScanApplicationContextTests {
 
         #expect(try context.getBean(ofType: AgentRunner.self) is ClaudeRunner)
         #expect(try context.getBean(ofType: AgentSessionOpening.self) is ClaudeDesktopSessionOpener)
-        _ = try context.getBean(ofType: ToolService.self)
+        _ = try context.getBean(ofType: PreferenceService.self)
         _ = try context.getBean(ofType: PreferencePlistRepository.self)
     }
 

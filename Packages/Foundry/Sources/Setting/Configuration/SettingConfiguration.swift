@@ -10,13 +10,12 @@ import SparkIoC
 
  - xml-кодеры plist — типы Foundation, на чужой тип аннотацию не повесить, да и настройка
    (`.outputFormat = .xml`) ручная; это неустранимое ядро `@Configuration`;
- - `ToolRepository` ← `ToolUserDefaultsRepository`: в init'е `UserDefaults` — это КОНСТАНТА,
-   а скан-автоваринг резолвил бы её как бин;
  - `StorageLocation` — каталог снимков из `Environment` (`@Value`-семантика): дефолт
    `~/Library/Application Support/Foundry`, переопределяется ключом `foundry.storage.dir`.
 
- `PreferenceRepository` и `ToolService` закрыты `@Component`-адаптерами (эти бины отсюда
- они и заберут). Порты запуска (`AgentRunner`, `AgentSessionOpening`) — тоже `@Component` Run.
+ Остальные бины контекста закрыты стереотипами: `PreferenceRepository` ←
+ `PreferencePlistRepository` (`@Repository`), сценарий и стор настроек — `@ApplicationService`
+ и `@Store`. Порты запуска (`AgentRunner`, `AgentSessionOpening`) — `@Component` контекста Run.
  */
 @Configuration
 public struct SettingConfiguration {
@@ -33,11 +32,6 @@ public struct SettingConfiguration {
     @Bean
     public func plistDecoder() -> PropertyListDecoder {
         PropertyListDecoder()
-    }
-
-    @Bean
-    public func toolRepository() -> ToolRepository {
-        ToolUserDefaultsRepository()
     }
 
     @Bean

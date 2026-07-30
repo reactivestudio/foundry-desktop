@@ -8,28 +8,40 @@ import Foundation
  перечни `Theme`/`NotificationType` кодируются именами кейсов (маппинг строк — здесь, не
  в домене).
 
+ ВСЕ поля опциональны, и это не небрежность, а правило эволюции: снимок на диске всегда
+ старше кода. Отсутствующий ключ значит «настройка не задавалась» → берём ДОМЕННЫЙ дефолт
+ из фабрики группы (чтобы дефолт не раздваивался между слоями), а не роняем весь набор.
+ Иначе первое же новое поле объявляло бы все сохранённые настройки битыми и молча сбрасывало
+ их целиком — ровно это случилось бы сейчас, когда к снимку прибавились `opensSessionInViewer`
+ и `setupFinished`.
+
  Обратный маппинг `toPreference(id:)` собирает агрегат через доменные фабрики, поэтому
  битые данные с диска (слишком длинное имя, неизвестная тема) не рождают невалидный
  агрегат, а бросают ошибку — репозиторий трактует её как «валидного снимка нет».
  */
 public struct PreferenceSnapshot: Codable {
     // Профиль.
-    var firstName: String
-    var lastName: String
+    var firstName: String?
+    var lastName: String?
     var avatarReference: String?
     // Оформление.
-    var theme: String
-    var notchEnabled: Bool
+    var theme: String?
+    var notchEnabled: Bool?
     // Общие.
-    var launchAtLogin: Bool
-    var tokensInKeychain: Bool
-    var mergeReview: Bool
+    var launchAtLogin: Bool?
+    var tokensInKeychain: Bool?
+    var mergeReview: Bool?
     // Доступность.
-    var reduceMotion: Bool
-    var largerText: Bool
-    var higherContrast: Bool
-    // Уведомления — имена включённых видов.
-    var enabledNotificationTypes: [String]
+    var reduceMotion: Bool?
+    var largerText: Bool?
+    var higherContrast: Bool?
+    // Уведомления — имена включённых видов. Пустой массив (все виды выключены) и отсутствие
+    // ключа (не задавалось) — РАЗНЫЕ вещи, потому именно опциональный массив.
+    var enabledNotificationTypes: [String]?
+    // Связка с внешними инструментами.
+    var opensSessionInViewer: Bool?
+    // Первичная настройка.
+    var setupFinished: Bool?
 
     /// Снять снимок с агрегата для сохранения (маппинг домен → хранилище).
     public init(from preference: Preference) {
@@ -45,6 +57,8 @@ public struct PreferenceSnapshot: Codable {
         largerText = preference.accessibility.largerText
         higherContrast = preference.accessibility.higherContrast
         enabledNotificationTypes = preference.notification.enabledTypes.map(Self.name(of:))
+        opensSessionInViewer = preference.integration.opensSessionInViewer
+        setupFinished = preference.setup.isFinished
     }
 
     /**
@@ -53,30 +67,80 @@ public struct PreferenceSnapshot: Codable {
      или содержит неизвестное имя перечня, — тогда это не валидный набор настроек.
      */
     public func toPreference(id: PreferenceId) throws -> Preference {
-        let avatar = try avatarReference.map { reference in try Avatar.of(reference: reference) }
-        let profile = try Profile.of(firstName: firstName, lastName: lastName, avatar: avatar)
-        let appearance = try Appearance.of(theme: Self.theme(named: theme), notchEnabled: notchEnabled)
-        let general = General.of(
-            launchAtLogin: launchAtLogin,
-            tokensInKeychain: tokensInKeychain,
-            mergeReview: mergeReview
-        )
-        let accessibility = Accessibility.of(
-            reduceMotion: reduceMotion,
-            largerText: largerText,
-            higherContrast: higherContrast
-        )
-        let types = try enabledNotificationTypes.map { name in try Self.notificationType(named: name) }
-        let notification = Notification.of(enabledTypes: Set(types))
-
-        return Preference.of(
+        Preference.of(
             id: id,
-            profile: profile,
-            appearance: appearance,
-            notification: notification,
-            general: general,
-            accessibility: accessibility
+            profile: try profile(),
+            appearance: try appearance(),
+            notification: try notification(),
+            general: general(),
+            accessibility: accessibility(),
+            integration: integration(),
+            setup: setup()
         )
+    }
+
+    // MARK: - Сборка групп (недостающее поле = доменный дефолт группы)
+
+    private func profile() throws -> Profile {
+        let defaults = Profile.empty
+        let avatar = try avatarReference.map { reference in try Avatar.of(reference: reference) }
+
+        return try Profile.of(
+            firstName: firstName ?? defaults.firstName,
+            lastName: lastName ?? defaults.lastName,
+            avatar: avatar
+        )
+    }
+
+    private func appearance() throws -> Appearance {
+        let defaults = Appearance.of()
+        let storedTheme = try theme.map { name in try Self.theme(named: name) }
+
+        return Appearance.of(
+            theme: storedTheme ?? defaults.theme,
+            notchEnabled: notchEnabled ?? defaults.notchEnabled
+        )
+    }
+
+    private func notification() throws -> Notification {
+        guard let names = enabledNotificationTypes else {
+            return Notification.of()
+        }
+        let types = try names.map { name in try Self.notificationType(named: name) }
+
+        return Notification.of(enabledTypes: Set(types))
+    }
+
+    private func general() -> General {
+        let defaults = General.of()
+
+        return General.of(
+            launchAtLogin: launchAtLogin ?? defaults.launchAtLogin,
+            tokensInKeychain: tokensInKeychain ?? defaults.tokensInKeychain,
+            mergeReview: mergeReview ?? defaults.mergeReview
+        )
+    }
+
+    private func accessibility() -> Accessibility {
+        let defaults = Accessibility.of()
+
+        return Accessibility.of(
+            reduceMotion: reduceMotion ?? defaults.reduceMotion,
+            largerText: largerText ?? defaults.largerText,
+            higherContrast: higherContrast ?? defaults.higherContrast
+        )
+    }
+
+    private func integration() -> Integration {
+        let defaults = Integration.of()
+
+        return Integration.of(opensSessionInViewer: opensSessionInViewer ?? defaults.opensSessionInViewer)
+    }
+
+    private func setup() -> Setup {
+        let defaults = Setup.of()
+
+        return Setup.of(isFinished: setupFinished ?? defaults.isFinished)
     }
 
     // MARK: - Маппинг перечней (имена кейсов — контракт хранения)

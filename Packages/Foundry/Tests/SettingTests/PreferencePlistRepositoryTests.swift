@@ -57,6 +57,44 @@ struct PreferencePlistRepositoryTests {
         #expect(loaded.profile.avatar?.reference == "me.png")
     }
 
+    @Test("Снимок старого формата читается: недостающие ключи берут доменный дефолт")
+    func olderSnapshotKeepsWhatItHas() throws {
+        let directory = uniqueDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        // Снимок, записанный кодом БЕЗ групп `Integration` и `Setup` (ключей просто нет).
+        let stored: [String: Any] = ["theme": "dark", "launchAtLogin": true]
+        let data = try PropertyListSerialization.data(
+            fromPropertyList: stored, format: .xml, options: 0)
+        try data.write(to: directory.appendingPathComponent("default.plist"))
+
+        let loaded = try #require(makeRepository(in: directory).find(id: .default))
+
+        // Что было в файле — сохранилось; чего не было — доменный дефолт, а не сброс набора.
+        #expect(loaded.appearance.theme == .dark)
+        #expect(loaded.general.launchAtLogin)
+        #expect(loaded.integration.opensSessionInViewer)
+        #expect(loaded.setup.isFinished == false)
+        #expect(loaded.general.tokensInKeychain)
+        #expect(loaded.notification.allows(type: .stageFinished))
+    }
+
+    @Test("Связка с инструментами и первичная настройка переживают round-trip")
+    func integrationAndSetupRoundTrip() throws {
+        let directory = uniqueDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let repository = makeRepository(in: directory)
+
+        let preference = Preference.of()
+        preference.toggleOpensSessionInViewer()
+        preference.finishSetup()
+        repository.save(entity: preference)
+
+        let loaded = try #require(repository.find(id: .default))
+        #expect(loaded.integration.opensSessionInViewer == false)
+        #expect(loaded.setup.isFinished)
+    }
+
     @Test("Отсутствующий снимок — nil")
     func missingIsNil() {
         let repository = makeRepository(in: uniqueDirectory())

@@ -43,6 +43,25 @@ struct PreferenceTests {
         #expect(preference.notification.allows(type: .reviewNeeded))
     }
 
+    @Test("Импорт сессии в просмотрщик включён по умолчанию и переключается флипом")
+    func integrationCommands() {
+        let preference = Preference.of()
+        #expect(preference.integration.opensSessionInViewer)
+
+        preference.toggleOpensSessionInViewer()
+        #expect(preference.integration.opensSessionInViewer == false)
+    }
+
+    @Test("Первичная настройка отмечается пройденной и повторный вызов ничего не меняет")
+    func setupIsFinishedIdempotently() {
+        let preference = Preference.of()
+        #expect(preference.setup.isFinished == false)
+
+        preference.finishSetup()
+        preference.finishSetup()
+        #expect(preference.setup.isFinished)
+    }
+
     @Test("Переименование меняет профиль, слишком длинное имя — ошибка")
     func renameCommand() throws {
         let preference = Preference.of()

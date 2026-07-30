@@ -10,8 +10,7 @@ import Core
  (tell-don't-ask); после каждого изменения корень проверяет свои инварианты.
 
  Создаётся фабрикой `of` (каждая группа с доменным дефолтом, поэтому агрегат валиден
- без единого заданного поля). `Tool` вольётся сюда полем при миграции существующего
- агрегата `Tool`. `Permission` в агрегат НЕ входит — это статусы ОС за Gateway.
+ без единого заданного поля). `Permission` в агрегат НЕ входит — это статусы ОС за Gateway.
  */
 public final class Preference: AggregateRoot<PreferenceId> {
     public private(set) var profile: Profile
@@ -19,6 +18,8 @@ public final class Preference: AggregateRoot<PreferenceId> {
     public private(set) var notification: Notification
     public private(set) var general: General
     public private(set) var accessibility: Accessibility
+    public private(set) var integration: Integration
+    public private(set) var setup: Setup
 
     private init(
         id: PreferenceId,
@@ -26,13 +27,17 @@ public final class Preference: AggregateRoot<PreferenceId> {
         appearance: Appearance,
         notification: Notification,
         general: General,
-        accessibility: Accessibility
+        accessibility: Accessibility,
+        integration: Integration,
+        setup: Setup
     ) {
         self.profile = profile
         self.appearance = appearance
         self.notification = notification
         self.general = general
         self.accessibility = accessibility
+        self.integration = integration
+        self.setup = setup
         super.init(id: id)
     }
 
@@ -42,7 +47,9 @@ public final class Preference: AggregateRoot<PreferenceId> {
         appearance: Appearance = .of(),
         notification: Notification = .of(),
         general: General = .of(),
-        accessibility: Accessibility = .of()
+        accessibility: Accessibility = .of(),
+        integration: Integration = .of(),
+        setup: Setup = .of()
     ) -> Preference {
         Preference(
             id: id,
@@ -50,7 +57,9 @@ public final class Preference: AggregateRoot<PreferenceId> {
             appearance: appearance,
             notification: notification,
             general: general,
-            accessibility: accessibility
+            accessibility: accessibility,
+            integration: integration,
+            setup: setup
         )
     }
 
@@ -119,6 +128,23 @@ public final class Preference: AggregateRoot<PreferenceId> {
     public func disableNotification(for type: NotificationType) {
         mutate {
             notification = notification.disable(for: type)
+        }
+    }
+
+    // MARK: - Integration
+
+    public func toggleOpensSessionInViewer() {
+        mutate {
+            integration = integration.toggleOpensSessionInViewer()
+        }
+    }
+
+    // MARK: - Setup
+
+    /// Отметить мастер первого запуска пройденным. Идемпотентно.
+    public func finishSetup() {
+        mutate {
+            setup = setup.finish()
         }
     }
 

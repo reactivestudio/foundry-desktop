@@ -110,6 +110,34 @@ public final class PreferenceService {
         }
     }
 
+    // MARK: - Связка с инструментами
+
+    /**
+     Импортировать сессию рана во внешний просмотрщик — вкл/выкл. Единственный интент, что
+     принимает ЗНАЧЕНИЕ, а не флип: его зовёт `Toggle` из консоли рана, а биндинг SwiftUI
+     даёт именно новое значение. Домен при этом остаётся при своём языке (булев флаг меняют
+     флипом), а служба делает переход идемпотентным: значение совпало — выходим, не трогая
+     ни агрегат, ни хранилище (иначе повторный биндинг писал бы файл впустую).
+     */
+    public func setOpensSessionInViewer(enabled: Bool) {
+        guard current().integration.opensSessionInViewer != enabled else {
+            return
+        }
+
+        apply { preference in
+            preference.toggleOpensSessionInViewer()
+        }
+    }
+
+    // MARK: - Первичная настройка
+
+    /// Отметить мастер первого запуска пройденным (дошли до конца или вышли досрочно).
+    public func finishSetup() {
+        apply { preference in
+            preference.finishSetup()
+        }
+    }
+
     // MARK: - Профиль
 
     /// Переименовать пользователя. Бросает доменную ошибку, если имя не проходит

@@ -35,6 +35,18 @@ struct PreferenceStoreTests {
         #expect(store.general.tokensInKeychain)
     }
 
+    @Test("Гейт первого запуска: стор отдаёт признак настройки и закрывает её интентом")
+    func setupIsReadableAndFinishable() {
+        let repository = InMemoryPreferenceRepository()
+        let store = makeStore(repository: repository)
+        #expect(store.setup.isFinished == false)
+
+        store.finishSetup()
+
+        #expect(store.setup.isFinished)
+        #expect(repository.find(id: .default)?.setup.isFinished == true)
+    }
+
     @Test("Интент уходит в хранилище и обновляет чтение стора")
     func intentPersistsAndRefreshes() {
         let repository = InMemoryPreferenceRepository()

@@ -42,6 +42,8 @@ public final class PreferenceStore {
     public var notification: Notification { preference.notification }
     public var general: General { preference.general }
     public var accessibility: Accessibility { preference.accessibility }
+    public var integration: Integration { preference.integration }
+    public var setup: Setup { preference.setup }
 
     // MARK: - Интенты вью
 
@@ -92,6 +94,13 @@ public final class PreferenceStore {
 
     public func disableNotification(for type: NotificationType) {
         service.disableNotification(for: type)
+        reload()
+    }
+
+    /// Мастер первого запуска пройден — гейт в корне композиции уступает место
+    /// главному окну, и при следующем запуске мастера уже не будет.
+    public func finishSetup() {
+        service.finishSetup()
         reload()
     }
 
