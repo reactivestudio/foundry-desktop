@@ -1,10 +1,10 @@
 import Run
-import SwiftContext
+import SparkIoC
 import SwiftUI
 
 /**
  Прикладной класс приложения — аналог `@SpringBootApplication`-класса `FooApplication` из
- `SpringApplication.run(FooApplication.self)`. Фреймворковый раннер `SwiftApplication.run` (наш
+ `SpringApplication.run(FooApplication.self)`. Фреймворковый раннер `SparkApplication.run` (наш
  `SpringApplication.run`) generic и о продукте не знает; знание про ЭТО приложение — свои пакеты,
  свой корневой вид — живёт здесь. Единственное место, которому позволено касаться контейнера: держит
  контекст приватно и отдаёт App-слою ГОТОВЫЙ корневой вид (IoC, а не Service Locator — App знает лишь
@@ -28,7 +28,7 @@ import SwiftUI
  */
 @MainActor
 public enum FoundryApplication {
-    /// Контекст, поднятый `SwiftApplication.run` — один на процесс, строится при первом `rootView()`.
+    /// Контекст, поднятый `SparkApplication.run` — один на процесс, строится при первом `rootView()`.
     /// Тип — `ConfigurableApplicationContext`: этот корень контекст поднял, значит он же им и владеет
     /// (`refresh`/`close`). Наружу не течёт ни в каком виде.
     private static let context: ConfigurableApplicationContext = build()
@@ -39,11 +39,11 @@ public enum FoundryApplication {
         FoundryApplicationView(store: bean(ofType: RunStore.self))
     }
 
-    /// Поднять контекст из `BeanScan.definitions()` через `SwiftApplication.run`. Fail-fast:
+    /// Поднять контекст из `BeanScan.definitions()` через `SparkApplication.run`. Fail-fast:
     /// несобравшийся граф — ошибка старта, падаем громко.
     private static func build() -> ConfigurableApplicationContext {
         do {
-            return try SwiftApplication.run(definitions: BeanScan.definitions())
+            return try SparkApplication.run(definitions: BeanScan.definitions())
         } catch {
             fatalError("DI: контейнер не собрался: \(error)")
         }

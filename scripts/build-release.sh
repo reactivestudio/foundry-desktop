@@ -51,6 +51,8 @@ xcodebuild archive \
     -destination 'generic/platform=macOS' \
     -archivePath "$ARCHIVE_PATH" \
     -derivedDataPath .build/DerivedData \
+    -skipPackagePluginValidation \
+    -skipMacroValidation \
     MARKETING_VERSION="$VERSION" \
     CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
     CODE_SIGN_IDENTITY=- \

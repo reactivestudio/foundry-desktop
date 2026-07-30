@@ -1,6 +1,6 @@
 import Core
 import Foundation
-import SwiftContext
+import SparkIoC
 
 /**
  Адаптер порта `PreferenceRepository` на файловое хранилище: один набор настроек — один

@@ -1,4 +1,4 @@
-import SwiftContext
+import SparkIoC
 
 /// Прикладная служба настроек инструментов (слой Application) —
 /// граница согласованности их изменений. Presentation не грузит-меняет-сохраняет

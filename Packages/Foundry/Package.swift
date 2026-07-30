@@ -1,12 +1,11 @@
 // swift-tools-version: 6.1
-import CompilerPluginSupport
 import PackageDescription
 
 let package = Package(
     name: "Foundry",
     platforms: [.macOS(.v15)],
     products: [
-        // Bootstrap — bootstrap приложения (SwiftContext-контейнер + корневой вид). Это
+        // Bootstrap — bootstrap приложения (Spark-контейнер + корневой вид). Это
         // единственный продукт, что линкует приложение: он один знает конкретные
         // детали и сшивает контексты между собой.
         .library(name: "Bootstrap", targets: ["Bootstrap"]),
@@ -16,8 +15,10 @@ let package = Package(
     dependencies: [
         // Пре-1.0 — пиновать версию (practices 06, пункт 1.1).
         .package(url: "https://github.com/swiftlang/swift-subprocess", exact: "0.5.0"),
-        // SwiftSyntax — на нём стоят макросы-маркеры (@Component/@Bean/@Configuration) и скан-движок.
-        .package(url: "https://github.com/swiftlang/swift-syntax", "600.0.0"..<"602.0.0"),
+        // Spark — DI-контейнер, выросший из здешнего SwiftContext и вынесенный отдельной либой:
+        // фреймворк общего назначения в репозитории продукта — чужой дом. Даёт и стереотипы
+        // (@Component/@Configuration/@Bean), и скан-плагин; пре-1.0 — пиновать точно.
+        .package(url: "https://github.com/reactivestudio/spark", exact: "0.1.0"),
     ],
     targets: [
         // Верхний уровень модульности — bounded context (фича), а не технический
@@ -26,39 +27,6 @@ let package = Package(
         // (фича↔фича) сторожится компилятором через таргеты, граница слоёв внутри —
         // дисциплина контекста. Растёт число контекстов — растёт число таргетов
         // линейно; разжиревший контекст повышается до пофичевых под-таргетов.
-
-        // SwiftContextMacros — реализация макросов (@Component). Компилятор гоняет её как
-        // плагин на этапе сборки; тут живёт кодоген через SwiftSyntax.
-        .macro(
-            name: "SwiftContextMacros",
-            dependencies: [
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftParser", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-            ]
-        ),
-
-        // SwiftContext — DI-ядро (Spring-верный, вместо Swinject): маркеры-макросы
-        // (@Component/@Bean/@Configuration) + Scope + контейнер (DefaultListableBeanFactory /
-        // AnnotationConfigApplicationContext) + Environment. Ниже контекстов, но НЕ в Core (Core про
-        // DI не знает). Пакет самодостаточен — задел на вынос в отдельную либу.
-        .target(
-            name: "SwiftContext",
-            dependencies: ["SwiftContextMacros"]
-        ),
-
-        // SwiftContextAot — движок «classpath-scan»: парсит исходники на атрибут @Component
-        // (SwiftSyntax), строит граф наследования и генерит BeanScan (определения бинов как данные),
-        // считая targetTypes = транзитивное замыкание супертипов. Чистые типы (scan/generate) —
-        // отсюда и юнит-тесты; плагин лишь скормит ему файлы.
-        .target(
-            name: "SwiftContextAot",
-            dependencies: [
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftParser", package: "swift-syntax"),
-            ]
-        ),
 
         // Core — ядро, справедливое для ВСЕХ контекстов: дизайн-система (токены,
         // движение, брендовый рой) и платформенные хелперы (AppKit, лог). Не знает
@@ -82,8 +50,8 @@ let package = Package(
             dependencies: [
                 "Core",
                 // Вся DI-поверхность контекста (@Component/@Configuration/@Bean) — маркеры из
-                // SwiftContext; сборку по ним делает скан-плагин, самому контексту хватает SwiftContext.
-                "SwiftContext",
+                // Spark; сборку по ним делает скан-плагин, самому контексту хватает SparkIoC.
+                .product(name: "SparkIoC", package: "spark"),
             ]
         ),
 
@@ -95,8 +63,8 @@ let package = Package(
                 "Core",
                 "Setting",
                 .product(name: "Subprocess", package: "swift-subprocess"),
-                // Адаптеры запуска сессии помечены @Component (маркер) — им нужен только SwiftContext.
-                "SwiftContext",
+                // Адаптеры запуска сессии помечены @Component (маркер) — им нужен только SparkIoC.
+                .product(name: "SparkIoC", package: "spark"),
             ]
         ),
 
@@ -118,27 +86,15 @@ let package = Package(
                 "Setting",
                 "Run",
                 "Onboarding",
-                // Контекст/Environment живут в SwiftContext; bootstrap собирает контейнер.
-                "SwiftContext",
+                // Контекст/Environment живут в SparkIoC; bootstrap собирает контейнер.
+                .product(name: "SparkIoC", package: "spark"),
             ],
-            // Реестр бинов не пишем руками: плагин просканит @Component на этапе сборки.
-            plugins: ["ComponentScanPlugin"]
+            // Реестр бинов не пишем руками: плагин Spark просканит @Component всех таргетов пакета
+            // на этапе сборки и сгенерит BeanScan сюда, в корень композиции. Аналог @ComponentScan.
+            plugins: [.plugin(name: "ComponentScanPlugin", package: "spark")]
         ),
 
         .executableTarget(name: "OrbBench", dependencies: ["Core"]),
-
-        // Кодоген-исполняемый: гоняет SwiftContextAot по скормленным плагином исходникам и
-        // пишет BeanScan (определения бинов как данные). Дискаверинг файлов — за плагином (граф пакета).
-        .executableTarget(name: "SwiftContextAotProcessor", dependencies: ["SwiftContextAot"]),
-
-        // Build-плагин: скармливает генератору исходники всех контекстов, тот ищет
-        // @Component и генерит BeanScan для bootstrap'а. Аналог @ComponentScan Spring, но
-        // на компиляции — безопасной рантайм-рефлексии по типам в Swift нет.
-        .plugin(
-            name: "ComponentScanPlugin",
-            capability: .buildTool(),
-            dependencies: ["SwiftContextAotProcessor"]
-        ),
 
         // Тесты — по контексту.
         .testTarget(
@@ -147,20 +103,16 @@ let package = Package(
                 "Setting",
                 "Core",
                 // Тест сборки контейнера: резолв бинов из SettingConfiguration + Environment.
-                "SwiftContext",
+                .product(name: "SparkIoC", package: "spark"),
             ]
         ),
-        // Тесты DI-ядра: @Configuration → definitions() через SwiftContext + Environment/Scope.
-        .testTarget(
-            name: "SwiftContextTests",
-            dependencies: ["SwiftContext"]
-        ),
-        .testTarget(name: "SwiftContextAotTests", dependencies: ["SwiftContextAot"]),
-        // Доказательство нового пути: реальный граф приложения (BeanScan.definitions +
-        // SettingConfiguration().definitions) собирается и резолвится через SwiftContext.
+        // Реальный граф приложения (BeanScan.definitions + SettingConfiguration().definitions)
+        // собирается и резолвится. Сам контейнер тестируется у себя, в Spark; здесь — наш граф.
         .testTarget(
             name: "BootstrapTests",
-            dependencies: ["Bootstrap", "SwiftContext", "Run", "Setting"]
+            dependencies: [
+                "Bootstrap", "Run", "Setting", .product(name: "SparkIoC", package: "spark"),
+            ]
         ),
         .testTarget(name: "RunTests", dependencies: ["Run", "Setting"]),
         // Core в зависимостях — ради теста-паритета физики роёв, что сверяет

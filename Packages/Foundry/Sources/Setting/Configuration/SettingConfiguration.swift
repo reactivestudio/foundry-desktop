@@ -1,5 +1,5 @@
 import Foundation
-import SwiftContext
+import SparkIoC
 
 /**
  `@Configuration` контекста Setting — методы-фабрики `@Bean` для бинов, которым не подходит
@@ -42,18 +42,20 @@ public struct SettingConfiguration {
 
     @Bean
     public func storageLocation(environment: Environment) -> StorageLocation {
-        StorageLocation(url: environment.getProperty(name: "foundry.storage.dir", default: Self.defaultDirectory))
+        StorageLocation(
+            url: environment.getProperty(name: "foundry.storage.dir", default: Self.defaultDirectory))
     }
 
     /// `~/Library/Application Support/Foundry` — дефолт хранилища снимков (репозиторий создаёт
     /// каталог при первой записи). Не вычислился — временный каталог.
     private static var defaultDirectory: URL {
-        let base = (try? FileManager.default.url(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: false
-        )) ?? FileManager.default.temporaryDirectory
+        let base =
+            (try? FileManager.default.url(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: false
+            )) ?? FileManager.default.temporaryDirectory
 
         return base.appendingPathComponent("Foundry", isDirectory: true)
     }

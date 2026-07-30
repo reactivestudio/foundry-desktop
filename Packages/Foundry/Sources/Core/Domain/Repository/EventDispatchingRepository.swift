@@ -13,7 +13,7 @@
  композиции: `EventDispatchingRepository(wrapping: plistRepository, publisher: ...)`.
  */
 public final class EventDispatchingRepository<Wrapped: Repository>: Repository
-    where Wrapped.Aggregate: Dispatchable {
+where Wrapped.Aggregate: Dispatchable {
     private let wrapped: Wrapped
     private let publisher: DomainEventPublisher
 

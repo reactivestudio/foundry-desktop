@@ -51,9 +51,9 @@ struct EventDispatchingRepositoryTests {
 
         let saved = repository.save(entity: thing)
 
-        #expect(inner.saveCount == 1) // делегировал во wrapped
-        #expect(publisher.published.count == 2) // выпустил оба события
-        #expect(saved.domainEvents.isEmpty) // releaseEvents очистил очередь
+        #expect(inner.saveCount == 1)  // делегировал во wrapped
+        #expect(publisher.published.count == 2)  // выпустил оба события
+        #expect(saved.domainEvents.isEmpty)  // releaseEvents очистил очередь
     }
 
     @Test("Без событий публикатор зовётся вхолостую, персистентность идёт")

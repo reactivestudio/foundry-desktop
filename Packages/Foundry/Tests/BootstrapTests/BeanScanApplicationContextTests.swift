@@ -1,6 +1,6 @@
 import Run
 import Setting
-import SwiftContext
+import SparkIoC
 import Testing
 
 @testable import Bootstrap
@@ -35,7 +35,9 @@ struct BeanScanApplicationContextTests {
         _ = try context.getBean(ofType: PreferencePlistRepository.self)
     }
 
-    @Test("@MainActor-бины RunService/RunStore резолвятся контейнером на главном акторе (ленивый + assumeIsolated)")
+    @Test(
+        "@MainActor-бины RunService/RunStore резолвятся контейнером на главном акторе (ленивый + assumeIsolated)"
+    )
     @MainActor
     func resolvesMainActorBeans() throws {
         let context = try assembledContext()

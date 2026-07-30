@@ -1,6 +1,15 @@
 {
-  "originHash" : "0a7a91195fc5ce93f14afb064b583575a898c63f8320a4c85ba14e5c4c505843",
+  "originHash" : "d0aa84e6e924a4417ba5a2c5b74efc6683eadbdcf3bc9036ca4d5ddce9aacfc0",
   "pins" : [
+    {
+      "identity" : "spark",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/reactivestudio/spark",
+      "state" : {
+        "revision" : "71ecf17d2b7d24f42c313173ec1e6d498be8952e",
+        "version" : "0.1.0"
+      }
+    },
     {
       "identity" : "swift-subprocess",
       "kind" : "remoteSourceControl",

@@ -1,6 +1,6 @@
 import Foundation
+import SparkIoC
 import Subprocess
-import SwiftContext
 
 #if canImport(System)
     import System

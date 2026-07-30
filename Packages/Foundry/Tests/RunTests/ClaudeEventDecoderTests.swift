@@ -89,7 +89,8 @@ struct ClaudeEventDecoderTests {
         #expect(ClaudeEventDecoder.decode(line: "не json") == [.unknown(type: "unparsable")])
         // Служебные события стрима молча пропускаются
         #expect(
-            ClaudeEventDecoder.decode(line: #"{"type":"stream_event","event":{"type":"message_start"}}"#).isEmpty)
+            ClaudeEventDecoder.decode(line: #"{"type":"stream_event","event":{"type":"message_start"}}"#)
+                .isEmpty)
     }
 
     @Test("init без session_id не подсовывает фейковую сессию, а помечает неизвестным")

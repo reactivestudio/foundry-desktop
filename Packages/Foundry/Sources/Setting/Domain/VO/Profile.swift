@@ -23,11 +23,17 @@ public struct Profile: ValueObject {
     /// Пустой профиль по умолчанию — известно-валиден (пустые имя и фамилия).
     public static let empty = Profile(firstName: "", lastName: "", avatar: nil)
 
-    public static func of(firstName: String = "", lastName: String = "", avatar: Avatar? = nil) throws -> Profile {
+    public static func of(
+        firstName: String = "",
+        lastName: String = "",
+        avatar: Avatar? = nil
+    ) throws -> Profile {
         let cleanFirstName = firstName.trimmed()
         let cleanLastName = lastName.trimmed()
         let longest = max(cleanFirstName.count, cleanLastName.count)
-        try require(correct: longest <= maxNameLength, orThrow: NameTooLongError(length: longest, limit: maxNameLength))
+        try require(
+            correct: longest <= maxNameLength,
+            orThrow: NameTooLongError(length: longest, limit: maxNameLength))
 
         return Profile(firstName: cleanFirstName, lastName: cleanLastName, avatar: avatar)
     }
