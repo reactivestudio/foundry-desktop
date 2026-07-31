@@ -1,4 +1,5 @@
 import Run
+import Setting
 import SparkIoC
 import SwiftUI
 
@@ -33,10 +34,16 @@ public enum FoundryApplication {
     /// (`refresh`/`close`). Наружу не течёт ни в каком виде.
     private static let context: ConfigurableApplicationContext = build()
 
-    /// Корневой вид с резолвнутым из контейнера стором: контейнер собрал `RunStore` (`@Store`) со
-    /// всеми зависимостями, bootstrap лишь втыкает его в вид. App-слой зовёт только это.
+    /// Корневой вид с резолвнутыми из контейнера сторами: контейнер собрал `RunStore` и
+    /// `PreferenceStore` (`@Store`) со всеми зависимостями, bootstrap лишь втыкает их в вид.
+    /// App-слой зовёт только это.
     public static func rootView() -> some View {
-        FoundryApplicationView(store: bean(ofType: RunStore.self))
+        FoundryApplicationView(
+            runStore: bean(ofType: RunStore.self),
+            preferenceStore: bean(ofType: PreferenceStore.self),
+            permissionStore: bean(ofType: PermissionStore.self),
+            toolStore: bean(ofType: ToolStore.self)
+        )
     }
 
     /// Поднять контекст из `BeanScan.definitions()` через `SparkApplication.run`. Fail-fast:

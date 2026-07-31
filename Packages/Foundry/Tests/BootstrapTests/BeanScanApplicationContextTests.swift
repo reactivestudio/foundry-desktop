@@ -11,7 +11,7 @@ import Testing
 /// `AnnotationConfigApplicationContext` (без Swinject). Сборку инкапсулирует сам контекст (окружение
 /// + заливка определений + жадная преинстанциация в `refresh`), как в bootstrap. Так проверяем и
 /// транзитивное замыкание типов, и supplier'ы с внедрением (`PreferencePlistRepository`,
-/// `ToolService`), и цепочку через `@Bean`, подмешанную сканом.
+/// `PreferenceService`), и цепочку через `@Bean`, подмешанную сканом.
 @Suite("BeanScan → ApplicationContext (реальный граф приложения)")
 struct BeanScanApplicationContextTests {
     private func assembledContext() throws -> AnnotationConfigApplicationContext {
@@ -31,7 +31,9 @@ struct BeanScanApplicationContextTests {
 
         #expect(try context.getBean(ofType: AgentRunner.self) is ClaudeRunner)
         #expect(try context.getBean(ofType: AgentSessionOpening.self) is ClaudeDesktopSessionOpener)
-        _ = try context.getBean(ofType: ToolService.self)
+        #expect(try context.getBean(ofType: PermissionGateway.self) is SystemPermissionGateway)
+        #expect(try context.getBean(ofType: ToolGateway.self) is CommandLineToolGateway)
+        #expect(try context.getBean(ofType: InstallInstructionOpening.self) is WebInstallInstructions)
         _ = try context.getBean(ofType: PreferencePlistRepository.self)
     }
 
@@ -43,6 +45,11 @@ struct BeanScanApplicationContextTests {
         let context = try assembledContext()
 
         _ = try context.getBean(ofType: RunService.self)
+        // Сторы BC Setting — тоже @MainActor-бины: мастер получает их из корня композиции.
+        _ = try context.getBean(ofType: PreferenceService.self)
+        _ = try context.getBean(ofType: PreferenceStore.self)
+        _ = try context.getBean(ofType: PermissionStore.self)
+        _ = try context.getBean(ofType: ToolStore.self)
         let store = try context.getBean(ofType: RunStore.self)
         // Singleton: повторный резолв — тот же инстанс.
         #expect(try store === context.getBean(ofType: RunStore.self))

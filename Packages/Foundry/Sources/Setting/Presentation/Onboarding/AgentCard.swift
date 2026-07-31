@@ -2,8 +2,6 @@ import SwiftUI
 
 struct AgentCard: View {
     let card: InstallCardModel
-    let isInstalled: Bool
-    let isInstalling: Bool
     let isSelected: Bool
     let onTap: () -> Void
 
@@ -26,18 +24,12 @@ struct AgentCard: View {
                     .padding(.top, 10)
                     .padding(.bottom, 6)
 
-                if isInstalled {
-                    // installedDetail — план/версия у агентов; у частей (plugin/cli) его
-                    // нет, поэтому оставляем исходное требование-описание, иначе строка
-                    // под именем исчезала при установке.
-                    factLine(card.installedDetail ?? card.requirement)
-                    Spacer(minLength: 0)
-                    signedInRow
-                } else {
-                    factLine(card.requirement)
-                    Spacer(minLength: 0)
-                    if card.showsInstall { installButton }
-                }
+                // Строка-требование одна на оба состояния: у установленного она
+                // остаётся верной («что нужно, чтобы этим пользоваться»), а факт
+                // установки говорит нижний ряд.
+                factLine(card.requirement)
+                Spacer(minLength: 0)
+                if card.isInstalled { installedRow } else { installButton }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding(16)
@@ -100,25 +92,27 @@ struct AgentCard: View {
             .fixedSize(horizontal: false, vertical: true)
     }
 
-    private var signedInRow: some View {
+    private var installedRow: some View {
         HStack(spacing: 4) {
             CheckTick(size: 11)
-            Text(card.signedInLabel)
+            Text(card.installedLabel)
         }
         .font(.system(size: 10))
         .foregroundStyle(OB.success)
     }
 
+    /// Кнопка ведёт к инструкции вендора, а не ставит инструмент, — поэтому у неё нет
+    /// состояния ожидания: клик открывает страницу, окно уходит на задний план, и по
+    /// возвращении экран уже спросит систему заново.
     private var installButton: some View {
-        Text(isInstalling ? "Installing…" : "Install")
+        Text("Install")
             // кнопка целиком меньше при исходных пропорциях контейнера (h/кегль=2,
             // отступ/кегль=10/12): кегль 12→11, высота 24→22, отступ 10→9; радиус 7.
             .font(.system(size: 11, weight: .medium))
             .foregroundStyle(.white)
             .frame(height: 22)
             .padding(.horizontal, 9)
-            .background(OB.squircle(7).fill(isHovering && !isInstalling ? OB.ultraHover : OB.ultramarine))
-            .opacity(isInstalling ? 0.6 : 1)
+            .background(OB.squircle(7).fill(isHovering ? OB.ultraHover : OB.ultramarine))
             .animation(OB.hoverAnim(isHovering), value: isHovering)
     }
 

@@ -11,15 +11,6 @@ struct SettingConfigurationTests {
         try AnnotationConfigApplicationContext(definitions: SettingConfiguration().definitions())
     }
 
-    @Test("@Bean-метод даёт репозиторий настроек по возвращаемому типу-порту")
-    func resolvesToolRepository() throws {
-        let context = try assembledContext()
-
-        #expect(throws: Never.self) {
-            _ = try context.getBean(ofType: ToolRepository.self)
-        }
-    }
-
     @Test("Кодеры и каталог из Environment резолвятся и кормят @Component-репозиторий")
     func codecsFeedComponentRepository() throws {
         let context = try assembledContext()
