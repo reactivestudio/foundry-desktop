@@ -11,7 +11,13 @@ import Core
 
  Создаётся фабрикой `of` (каждая группа с доменным дефолтом, поэтому агрегат валиден
  без единого заданного поля). `Permission` в агрегат НЕ входит — это статусы ОС за Gateway.
+
+ `@Invariants` на классе — проверка инвариантов на весь корень: аннотация дописывает вызов
+ `checkInvariants` в каждую команду и инициализатор, поэтому команды пишутся плоско, без
+ обёртки вокруг изменения, а на новой команде проверку не забыть. Отдельной команде можно
+ назначить свою проверку — `@Invariant(check:)` прямо на ней, она старше классовой.
  */
+@Invariants
 public final class Preference: AggregateRoot<PreferenceId> {
     public private(set) var profile: Profile
     public private(set) var appearance: Appearance
@@ -71,92 +77,66 @@ public final class Preference: AggregateRoot<PreferenceId> {
     // MARK: - Appearance
 
     public func change(theme: Theme) {
-        mutate {
-            appearance = appearance.change(theme: theme)
-        }
+        appearance = appearance.change(theme: theme)
     }
 
     public func toggleNotch() {
-        mutate {
-            appearance = appearance.toggleNotch()
-        }
+        appearance = appearance.toggleNotch()
     }
 
     // MARK: - General
 
     public func toggleLaunchAtLogin() {
-        mutate {
-            general = general.toggleLaunchAtLogin()
-        }
+        general = general.toggleLaunchAtLogin()
     }
 
     public func toggleTokensInKeychain() {
-        mutate {
-            general = general.toggleTokensInKeychain()
-        }
+        general = general.toggleTokensInKeychain()
     }
 
     public func toggleMergeReview() {
-        mutate {
-            general = general.toggleMergeReview()
-        }
+        general = general.toggleMergeReview()
     }
 
     // MARK: - Accessibility
 
     public func toggleReduceMotion() {
-        mutate {
-            accessibility = accessibility.toggleReduceMotion()
-        }
+        accessibility = accessibility.toggleReduceMotion()
     }
 
     public func toggleLargerText() {
-        mutate {
-            accessibility = accessibility.toggleLargerText()
-        }
+        accessibility = accessibility.toggleLargerText()
     }
 
     public func toggleHigherContrast() {
-        mutate {
-            accessibility = accessibility.toggleHigherContrast()
-        }
+        accessibility = accessibility.toggleHigherContrast()
     }
 
     // MARK: - Notification
 
     public func enableNotification(for type: NotificationType) {
-        mutate {
-            notification = notification.enable(for: type)
-        }
+        notification = notification.enable(for: type)
     }
 
     public func disableNotification(for type: NotificationType) {
-        mutate {
-            notification = notification.disable(for: type)
-        }
+        notification = notification.disable(for: type)
     }
 
     /// Молчать обо всём. Идемпотентно; не `toggle…`, потому что противоположность
     /// молчания — не «один флаг наоборот», а включённый набор видов.
     public func muteNotifications() {
-        mutate {
-            notification = notification.mute()
-        }
+        notification = notification.mute()
     }
 
     /// Уведомлять обо всех видах. Идемпотентно.
     public func unmuteNotifications() {
-        mutate {
-            notification = notification.unmute()
-        }
+        notification = notification.unmute()
     }
 
     // MARK: - Integration
 
     public func toggleOpensSessionInViewer() {
-        mutate {
-            integration = integration.toggleOpensSessionInViewer()
-        }
+        integration = integration.toggleOpensSessionInViewer()
     }
 
     // MARK: - Agent
@@ -164,44 +144,35 @@ public final class Preference: AggregateRoot<PreferenceId> {
     /// Выбрать агента, который гоняет стадии. Настройка, а не факт о системе: выбор
     /// переживает удаление CLI (установленность живёт в агрегате `Tool`).
     public func change(agent: ToolId) {
-        mutate {
-            self.agent = self.agent.change(selected: agent)
-        }
+        self.agent = self.agent.change(selected: agent)
     }
 
     // MARK: - Setup
 
     /// Отметить мастер первого запуска пройденным. Идемпотентно.
     public func finishSetup() {
-        mutate {
-            setup = setup.finish()
-        }
+        setup = setup.finish()
     }
 
     // MARK: - Profile
 
     public func rename(firstName: String, lastName: String) throws {
-        let renamed = try profile.rename(firstName: firstName, lastName: lastName)
-        mutate {
-            profile = renamed
-        }
+        profile = try profile.rename(firstName: firstName, lastName: lastName)
     }
 
     public func change(avatar: Avatar?) {
-        mutate {
-            profile = profile.change(avatar: avatar)
-        }
+        profile = profile.change(avatar: avatar)
     }
 
     // MARK: - Инварианты
 
     /**
-     Кросс-групповые инварианты агрегата; зовётся автоматически из `mutate` после каждого
-     изменения (в Swift нет AOP, но `mutate` — единая точка, где проверку не забыть).
-     Здесь только инварианты класса «этого не может быть = баг кода» → `precondition`
+     Кросс-групповые инварианты агрегата; зовётся на выходе из каждой команды и
+     инициализатора — вызовы расставляет классовая аннотация `@Invariants`.
+     Здесь только инварианты класса «этого не может быть = баг кода» → `check(correct:)`
      (аналог Kotlin `check()`); восстановимую валидацию входа делают фабрики VO через
      `require` (аналог Kotlin `require()`). Пример правила, когда появится:
-     `precondition(!general.launchAtLogin || general.tokensInKeychain)`. Пока
+     `check(correct: !general.launchAtLogin || general.tokensInKeychain)`. Пока
      кросс-групповых правил нет — это защищённая точка, куда они лягут, а не «проверим
      где-нибудь потом».
      */

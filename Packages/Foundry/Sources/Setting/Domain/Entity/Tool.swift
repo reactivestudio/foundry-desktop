@@ -12,7 +12,11 @@ import Core
  `Preference` (группа `Agent`), потому что это настройка, а не факт о системе.
 
  Оттого и команда ровно одна: принять свежий ответ системы.
+
+ `@Invariants` на классе — проверку инвариантов в команды дописывает аннотация, поэтому
+ команда пишется плоско, без обёртки вокруг изменения.
  */
+@Invariants
 public final class Tool: AggregateRoot<ToolId> {
     public let kind: ToolKind
     public private(set) var installation: Installation
@@ -48,9 +52,7 @@ public final class Tool: AggregateRoot<ToolId> {
 
     /// Принять свежий ответ системы об установленности.
     public func change(installation: Installation) {
-        mutate {
-            self.installation = installation
-        }
+        self.installation = installation
     }
 
     public var isInstalled: Bool {

@@ -1,4 +1,5 @@
 // swift-tools-version: 6.1
+import CompilerPluginSupport
 import PackageDescription
 
 let package = Package(
@@ -19,6 +20,13 @@ let package = Package(
         // фреймворк общего назначения в репозитории продукта — чужой дом. Даёт и стереотипы
         // (@Component/@Configuration/@Bean), и скан-плагин; пре-1.0 — пиновать точно.
         .package(url: "https://github.com/reactivestudio/spark", exact: "0.1.1"),
+        // swift-syntax — ради macro-таргета CoreMacros. Новой ветки в графе он не
+        // добавляет: ровно эта версия уже пришла транзитивно со скан-плагином Spark,
+        // поэтому пин ТОЧНО совпадает с его пином — расхождение развело бы две копии
+        // swift-syntax. Заодно 601.x тулчейн Swift 6.2 отдаёт prebuilt-бинарём (чистая
+        // сборка пакета 7 с против 38 с на 603.x, где он собирается из исходников).
+        // Поднимать версию — только вместе со Spark и с проверкой, что prebuilt подхватился.
+        .package(url: "https://github.com/swiftlang/swift-syntax", exact: "601.0.1"),
     ],
     targets: [
         // Верхний уровень модульности — bounded context (фича), а не технический
@@ -33,7 +41,20 @@ let package = Package(
         // ни одного контекста.
         .target(
             name: "Core",
+            dependencies: ["CoreMacros"],
             resources: [.process("DesignSystem/OrbSwarm.metal")]
+        ),
+
+        // CoreMacros — compiler-плагин тактического ядра: реализация `@Invariants`/`@Invariant`,
+        // что дописывают в команды агрегата проверку инвариантов. Это единственное место пакета,
+        // где живёт swift-syntax; само объявление макроса — в Core/Domain/Entity, рядом с
+        // `AggregateRoot`, потому что макрос — часть его контракта, а не отдельная тема.
+        .macro(
+            name: "CoreMacros",
+            dependencies: [
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+            ]
         ),
 
         // Setting — supporting-субдомен пользовательских настроек (имя в
