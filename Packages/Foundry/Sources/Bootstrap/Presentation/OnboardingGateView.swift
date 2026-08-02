@@ -77,6 +77,14 @@ struct OnboardingGateView<MainContent: View>: View {
                 .transition(.opacity)
             }
         }
-        .background(WindowConfigurator(isOnboarding: !didFinishOnboarding))
+        // Второй аргумент — не дубль первого: `isOnboarding` это состояние ЭТОГО
+        // обновления вида, а замыкание спрашивает настройку в момент вызова. Долгие
+        // наблюдатели окна живут дольше обновлений и обязаны знать факт, а не снимок.
+        .background(
+            WindowConfigurator(
+                isOnboarding: !didFinishOnboarding,
+                isOnboardingNow: { !preferenceStore.setup.isFinished }
+            )
+        )
     }
 }

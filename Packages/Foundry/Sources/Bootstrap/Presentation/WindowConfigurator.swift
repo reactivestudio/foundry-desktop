@@ -9,6 +9,12 @@ import SwiftUI
 /// изменяемое окно «Foundry».
 struct WindowConfigurator: NSViewRepresentable {
     let isOnboarding: Bool
+    /// Идёт ли мастер ПРЯМО СЕЙЧАС — спрашивается у настроек в момент вызова, а не
+    /// берётся из `isOnboarding`. Разница принципиальная для наблюдателей окна
+    /// (`installFrameLock`): они переживают конец мастера, а замкнутый в них
+    /// `isOnboarding` навсегда остался бы `true` — и главное окно осталось бы
+    /// намертво 720×880. Замыкание же держит стор и всегда отвечает по факту.
+    let isOnboardingNow: @MainActor () -> Bool
 
     final class Coordinator {
         var didPositionWindow = false
@@ -26,8 +32,20 @@ struct WindowConfigurator: NSViewRepresentable {
         // macOS восстанавливает старый кадр ПОСЛЕ центрирования) — возвращаем при
         // выходе, чтобы главное окно снова помнило позицию.
         var savedAutosaveName: NSWindow.FrameAutosaveName?
+        // Наблюдатели за попытками изменить размер (см. installFrameLock). Список
+        // отдельный от chromeObservers: снимаются они вместе, но живут по разным
+        // причинам, и путать их значит однажды снять не те.
+        var frameObservers: [NSObjectProtocol] = []
+        // Пределы кадра и поведение в наборах окон ДО мастера: мастер зажимает
+        // размер намертво (lockFrameSize), а главное окно обязано получить свои
+        // прежние значения обратно — оно тот же самый NSWindow.
+        var savedMinSize: NSSize?
+        var savedMaxSize: NSSize?
+        var savedCollectionBehavior: NSWindow.CollectionBehavior?
         deinit {
-            for observer in chromeObservers { NotificationCenter.default.removeObserver(observer) }
+            for observer in chromeObservers + frameObservers {
+                NotificationCenter.default.removeObserver(observer)
+            }
         }
     }
     func makeCoordinator() -> Coordinator { Coordinator() }
@@ -162,8 +180,8 @@ struct WindowConfigurator: NSViewRepresentable {
         // refHeight роя, значит KFIT ровно 1.0 — рой попадает в масштаб макета
         // (при 920 канвас 876 давал KFIT 0.954, рой выходил мельче).
         let size = NSSize(width: 720, height: 880)
-        window.styleMask.remove(.resizable)
-        window.standardWindowButton(.zoomButton)?.isEnabled = false
+        Self.lockFrameSize(window, to: size, coordinator: coordinator)
+        installFrameLock(window, to: size, coordinator: coordinator)
         if !coordinator.didPositionWindow {
             coordinator.didPositionWindow = true
             Self.centerTop(window, size: size)
@@ -183,6 +201,102 @@ struct WindowConfigurator: NSViewRepresentable {
         }
     }
 
+    /// Запирает размер кадра — по ширине И по высоте, всеми замками сразу, потому что
+    /// каждый путь ресайза спрашивает своё:
+    ///   - тяга за кромку и «зум» (двойной клик по титлбару, зелёная кнопка) —
+    ///     `.resizable` в стиле окна;
+    ///   - полный экран (View → Enter Full Screen, Full Screen Tile) —
+    ///     `collectionBehavior`, стиль окна ему безразличен: окно уезжало в 1728×1080;
+    ///   - плитка macOS (Window → Move & Resize), Accessibility и сторонние оконные
+    ///     менеджеры двигают кадр напрямую и упираются ТОЛЬКО в `minSize`/`maxSize`:
+    ///     окно становилось 852×1004.
+    /// Мастер сверстан под ровно 720×880 (рабочая зона = refHeight роя, KFIT 1.0) —
+    /// любой другой кадр ломает раскладку.
+    @MainActor private static func lockFrameSize(
+        _ window: NSWindow, to size: NSSize, coordinator: Coordinator
+    ) {
+        if coordinator.savedMinSize == nil {
+            coordinator.savedMinSize = window.minSize
+            coordinator.savedMaxSize = window.maxSize
+            coordinator.savedCollectionBehavior = window.collectionBehavior
+        }
+        window.styleMask.remove(.resizable)
+        window.standardWindowButton(.zoomButton)?.isEnabled = false
+        window.minSize = size
+        window.maxSize = size
+        var behavior = window.collectionBehavior
+        behavior.remove(.fullScreenPrimary)
+        behavior.remove(.fullScreenAuxiliary)
+        behavior.insert(.fullScreenNone)
+        window.collectionBehavior = behavior
+    }
+
+    /// Переустанавливает замок на каждую попытку ресайза — ровно как `enforceChrome`
+    /// на каждую смену фокуса, и по той же причине: одного вызова не хватает. Окно
+    /// принадлежит SwiftUI, и тот на своих обновлениях сцены возвращает СВОИ пределы
+    /// и `.resizable` обратно — в момент тяги в окне стояли его `min 640×508` и
+    /// `max ∞` (пределы главного контента под мастером), и кромка снова тянулась:
+    /// 720 превращалось в 870.
+    ///
+    /// Два события, разные роли:
+    ///   - `willStartLiveResize` — ДО того, как AppKit поведёт тягу: по ходу драга он
+    ///     сверяется с min/max, и при равных пределах кромка просто не двигается;
+    ///   - `didResize` — сеть для путей без живой тяги. Кадр возвращается СЛЕДУЮЩИМ
+    ///     тактом, а не прямо в обработчике: `setFrame` внутри `didResize` — это
+    ///     рекурсия по тому же уведомлению.
+    private func installFrameLock(_ window: NSWindow, to size: NSSize, coordinator: Coordinator) {
+        guard coordinator.frameObservers.isEmpty else { return }
+        let names: [Notification.Name] = [
+            NSWindow.willStartLiveResizeNotification, NSWindow.didResizeNotification,
+        ]
+        for name in names {
+            let observer = NotificationCenter.default.addObserver(
+                forName: name, object: window, queue: .main
+            ) { [weak window, weak coordinator] _ in
+                MainActor.assumeIsolated {
+                    guard let window, let coordinator else { return }
+                    // Мастер кончился, а наблюдатель ещё жив (SwiftUI не обязан
+                    // прислать обновление вида, на котором держится restoreNormal-
+                    // Window) — снимаем замок сами и уходим навсегда.
+                    guard isOnboardingNow() else {
+                        restoreFrameFreedom(window, coordinator: coordinator)
+                        return
+                    }
+                    Self.lockFrameSize(window, to: size, coordinator: coordinator)
+                    guard window.frame.size != size else { return }
+                    DispatchQueue.main.async {
+                        window.setFrame(
+                            NSRect(origin: window.frame.origin, size: size), display: true
+                        )
+                    }
+                }
+            }
+            coordinator.frameObservers.append(observer)
+        }
+    }
+
+    /// Зеркало `lockFrameSize` и `installFrameLock`: снимает наблюдателей и возвращает
+    /// пределы кадра, какими они были до мастера. Идемпотентно — зовётся и из обычной
+    /// ветки `apply`, и из самих наблюдателей.
+    @MainActor private func restoreFrameFreedom(_ window: NSWindow, coordinator: Coordinator) {
+        for observer in coordinator.frameObservers {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        coordinator.frameObservers.removeAll()
+        window.styleMask.insert(.resizable)
+        window.standardWindowButton(.zoomButton)?.isEnabled = true
+        if let minSize = coordinator.savedMinSize, let maxSize = coordinator.savedMaxSize {
+            window.minSize = minSize
+            window.maxSize = maxSize
+            coordinator.savedMinSize = nil
+            coordinator.savedMaxSize = nil
+        }
+        if let behavior = coordinator.savedCollectionBehavior {
+            window.collectionBehavior = behavior
+            coordinator.savedCollectionBehavior = nil
+        }
+    }
+
     /// Обычная ветка `apply`: снять наблюдателей, развернуть весь безрамочный вид
     /// обратно (`restoreChrome`), вернуть автосейв, заголовок и изменяемый размер.
     private func restoreNormalWindow(_ window: NSWindow, coordinator: Coordinator) {
@@ -192,14 +306,15 @@ struct WindowConfigurator: NSViewRepresentable {
             NotificationCenter.default.removeObserver(observer)
         }
         coordinator.chromeObservers.removeAll()
+        restoreFrameFreedom(window, coordinator: coordinator)
         Self.restoreChrome(window)
         if let saved = coordinator.savedAutosaveName {
             window.setFrameAutosaveName(saved)
             coordinator.savedAutosaveName = nil
         }
+        // Изменяемый размер, «зум» и пределы кадра вернул restoreFrameFreedom выше —
+        // здесь остаётся только заголовок.
         window.title = "Foundry"
-        window.styleMask.insert(.resizable)
-        window.standardWindowButton(.zoomButton)?.isEnabled = true
     }
 
     /// Переустанавливаемый безрамочный вид окна онбординга. Зовётся при первичной
