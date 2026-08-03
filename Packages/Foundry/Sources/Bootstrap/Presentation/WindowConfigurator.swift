@@ -16,6 +16,14 @@ struct WindowConfigurator: NSViewRepresentable {
     /// намертво 720×880. Замыкание же держит стор и всегда отвечает по факту.
     let isSetupActiveNow: @MainActor () -> Bool
 
+    /// Живёт ТОЛЬКО на главном акторе: его создаёт `makeCoordinator()` (а он у
+    /// `NSViewRepresentable` уже `@MainActor`), а трогают — наблюдатели окна, все до
+    /// одного повешенные на `queue: .main`. Изоляция сказана вслух не ради формальности:
+    /// без неё тип не `Sendable`, и слабый захват в `@Sendable`-замыкание наблюдателя
+    /// компилятор считает пересечением изоляции («sending 'coordinator' risks causing
+    /// data races»). Замыкания и так ныряют в `MainActor.assumeIsolated` — аннотация
+    /// лишь делает это правдой на уровне типа, а не обещанием в рантайме.
+    @MainActor
     final class Coordinator {
         var didPositionWindow = false
         // Наблюдатели за сменой фокуса окна: AppKit на resign-key перекрашивает
@@ -42,7 +50,10 @@ struct WindowConfigurator: NSViewRepresentable {
         var savedMinSize: NSSize?
         var savedMaxSize: NSSize?
         var savedCollectionBehavior: NSWindow.CollectionBehavior?
-        deinit {
+        /// `isolated` — плата за `@MainActor` на типе: обычный `deinit` нонизолирован и
+        /// до списков наблюдателей уже не дотянется. Снимать их всё равно положено на
+        /// главном, там же, где вешали.
+        isolated deinit {
             for observer in chromeObservers + frameObservers {
                 NotificationCenter.default.removeObserver(observer)
             }
