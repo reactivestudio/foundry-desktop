@@ -35,10 +35,10 @@ public struct TypeToken: Sendable {
         .system(size: size, weight: weight, design: family == .mono ? .monospaced : .default)
     }
 
-    /// Насколько развести строки, чтобы получить интерлиньяж канона.
-    public var lineSpacing: CGFloat {
-        max(0, leading - size)
-    }
+    /// Насколько развести строки, чтобы вышел интерлиньяж канона, и сколько
+    /// добавить полем сверху и снизу, — не здесь: высота строки у SwiftUI
+    /// не выводится из кегля и метрик шрифта, её приходится СНИМАТЬ.
+    /// Смотри `TypeMetrics`, снимающий её у самого текста.
 }
 
 /// Токен движения. duration == nil — непрерывное состояние, а не переход.

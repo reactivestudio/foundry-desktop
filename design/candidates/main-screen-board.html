@@ -1537,7 +1537,15 @@
   .win { padding: 0 var(--s2) var(--s2); }
   .titlebar { box-shadow: none; background: none; }
   .two, .two.short { gap: var(--s2); grid-template-columns: 56px 222px minmax(0,1fr); background: none; }
-  .pane, .rail { border: none; border-radius: var(--r-xl); overflow: hidden; }
+  /* Три плиты окна — рейл, сайдбар, канвас — сиблинги одного ранга, и радиус
+     у них обязан быть один. Правило ниже так и задумано, но до сайдбара
+     и канваса не доезжало: поздний групповой блок макета перечисляет
+     `.pane.sidebar` и `.pane.list` (а `.rail` — нет) и сажает их на r-l.
+     Выходило 14 у рейла против 10 у соседей — разница, которую глаз не
+     назовёт, но почувствует как неровный ряд. Селектор поднят до той же
+     специфичности, что и у блока-виновника. */
+  .pane, .rail, .pane.sidebar, .pane.list, .pane.inspector {
+    border: none; border-radius: var(--r-xl); overflow: hidden; }
   .rail { background: var(--bg-surface); padding: var(--s3) 0; gap: var(--s1); align-items: center; }
   .pane.sidebar { background: var(--bg-surface); border-right: none; }
   .pane.list { background: var(--bg-surface); }
@@ -1705,7 +1713,6 @@
   .spec-lab { font-size: 11px; color: var(--t-tertiary); margin-top: var(--s3); line-height: 1.45; }
   .spec-lab b { color: var(--t-primary); font-weight: 600; display: block; margin-bottom: 2px; }
 
-  .kb-card.hov { background: #24242A; box-shadow: inset 0 1px 0 rgba(255,255,255,0.09); }
   .kb-card.foc { box-shadow: 0 0 0 2px rgba(47,92,255,0.95), 0 0 0 5px rgba(47,92,255,0.20); }
   .kb-card.drag { background: #2A2A31; transform: rotate(-1.6deg);
                   box-shadow: 0 18px 40px rgba(0,0,0,0.72), inset 0 1px 0 rgba(255,255,255,0.11); }
@@ -2146,7 +2153,7 @@
                   padding: 0 10px 0 8px; height: 24px; border-radius: 7px;
                   font-size: 12px; color: var(--t-secondary); }
   .tb-btn.named .ic { width: 13px; height: 13px; }
-  .tb-btn.named:hover, .tb-btn.named.hov { background: #1C1C21; color: var(--t-primary); }
+  .tb-btn.named:hover, .tb-btn.named.hov { background: var(--bg-raised); color: var(--t-primary); }
   /* 38. Карточка ростом по содержимому. Высота стояла жёсткой (126 px) ради
      того, чтобы ряды шли сквозь колонки, — но ряды на канбане ничего не
      значат: вторая карточка Questions и вторая карточка PR не связаны ничем.
@@ -2223,8 +2230,8 @@
   .in-pos { font-size: 12px; color: var(--t-tertiary); }
   .in-b, .in-x { display: inline-flex; align-items: center; justify-content: center;
                  gap: 5px; height: 20px; min-width: 22px; padding: 0 5px; border-radius: 6px;
-                 font-size: 11px; color: var(--t-tertiary); background: #1C1C21; }
-  .in-b:hover, .in-x:hover { background: #24242A; color: var(--t-secondary); }
+                 font-size: 11px; color: var(--t-tertiary); background: var(--bg-raised); }
+  .in-b:hover, .in-x:hover { background: var(--bg-overlay); color: var(--t-secondary); }
 
   /* 43. Тред вопросов. Вопросы пронумерованы: отвечают на них по одному,
      и номер — единственный способ сослаться на конкретный. */
@@ -2538,7 +2545,7 @@
      слишком много, чтобы не мешать. Светофор занимает ровно ширину рейла,
      и заголовок встаёт на флаг сайдбара. */
   .titlebar .lights { width: 76px; }
-  .titlebar .win-title { margin-left: var(--s4); }
+  /* поле заголовка — в корректировке 76: здесь оно было посчитано неверно */
   /* 71. Подпись кадра стояла на 17 = старое поле окна 16 плюс кромка — число
      не пересчитали, когда поле подняли до 24. Считается из той же величины. */
   .pipe-case-cap { margin-left: calc(var(--s5) + 1px); }
@@ -2546,8 +2553,13 @@
   /* 72. Вкладка: имя → счётчик → «8 стадий» стояли с одинаковым шагом 8, и
      два числа оказывались в 8 px друг от друга — «18 8» читалось одной
      величиной или опечаткой. Внутри вкладки шаги разведены: 4 и 16 при 24
-     между вкладками. */
-  .pipe-tab { gap: var(--s1); }
+     между вкладками.
+     ПОПРАВКА (77): правило написали одним классом, а выше по слою зазор 8
+     стоял на паре `.pipe-tab, .pipe-tab.sel` — и на выбранной вкладке,
+     ЕДИНСТВЕННОЙ, что носит и счётчик, и «8 стадий», побеждала она. Ряд
+     жил в двух шагах разом: 4 у соседей, 8 у выбранной, — то есть ровно
+     там, где корректировка и затевалась, она не выполнялась. */
+  .pipe-tab, .pipe-tab.sel { gap: var(--s1); }
   .pipe-tab .pipe-meta { margin-left: var(--s3); }
   .pipe-tab.more { opacity: 1; }
   .pipe-tab.more .pipe-name { color: var(--t-tertiary); }
@@ -2611,6 +2623,21 @@
   .tk.live .tk-t { color: var(--t-primary); }
   .win .tk-t, .win .tk { font-size: 13px; line-height: 18px; }
   .win .tk-n { font-size: 11px; line-height: 14px; }
+
+  /* 76. ТИТЛБАР ВСТАЛ НА ПОЛЕ ОКНА. Корректировка 70 обещала: светофор
+     занимает ровно ширину рейла, заголовок встаёт на флаг сайдбара, — но
+     считала от кромки окна, а у титлбара было СВОЁ поле 0 16 поверх поля
+     окна. Светофор уезжал на 16 правее кромки рейла, заголовок — на 28
+     правее флага сайдбара, обещанное совпадение не выполнялось ни разу.
+     Замер поймал то, чего не поймал глаз: 145 против 117. Поле снято, и
+     теперь светофор занимает РОВНО плиту рейла, а действия справа встали
+     на правую кромку канваса.
+     Второй промах той же корректировки: отступ заголовка считали от кромки
+     светофора, забыв, что флекс титлбара уже даёт свой зазор. Нужное поле —
+     зазор между плитами (16), и своего у заголовка ровно столько, сколько
+     флекс не дал: 16 − 12. Тогда заголовок стоит на кромке сайдбара. */
+  .titlebar { padding: 0; }
+  .titlebar .win-title { margin-left: calc(var(--s4) - var(--s3)); }
 
 </style><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="i-inbox" viewBox="0 0 16 16"><path d="M2.2 9.8h3l.9 1.7h3.8l.9-1.7h3M2.2 9.8 3.7 3.9a1 1 0 0 1 1-.7h6.6a1 1 0 0 1 1 .7l1.5 5.9v2.5a1 1 0 0 1-1 1H3.2a1 1 0 0 1-1-1Z"/></symbol>

@@ -1,4 +1,5 @@
 import AppKit
+import Board
 import Core
 import SwiftUI
 
@@ -42,6 +43,9 @@ struct WindowConfigurator: NSViewRepresentable {
         var savedMinSize: NSSize?
         var savedMaxSize: NSSize?
         var savedCollectionBehavior: NSWindow.CollectionBehavior?
+        // Первый кадр главного окна ставится РОВНО один раз: дальше кадр
+        // принадлежит пользователю, и окно помнит его между запусками.
+        var didSizeMainWindow = false
         deinit {
             for observer in chromeObservers + frameObservers {
                 NotificationCenter.default.removeObserver(observer)
@@ -102,6 +106,22 @@ struct WindowConfigurator: NSViewRepresentable {
         window.isRestorable = !isOnboarding
     }
 
+    /// Системной плашки титлбара нет НИ В ОДНОМ из двух окон, и по одной
+    /// причине: обоим экранам она вторая. Мастер безрамочен целиком, а
+    /// главный экран рисует титлбар сам — там имя проекта, поиск и создание
+    /// change'а. Системная подпись встала бы над ними второй строкой, и окно
+    /// получило бы два заголовка: серый чужой и свой.
+    ///
+    /// Держится это переустановкой, а не одним вызовом: на resign-key AppKit
+    /// возвращает и подпись, и серый материал (см. `installChromeEnforcement`).
+    @MainActor private static func hideTitlebarChrome(_ window: NSWindow) {
+        window.titleVisibility = .hidden
+        window.titlebarSeparatorStyle = .none
+        if let frameView = window.frameView {
+            setTitlebarChromeHidden(in: frameView)
+        }
+    }
+
     /// Онбординговая ветка `apply`: заголовок, безрамочный хром с догоняющими
     /// тактами, отвязка автосейва и фиксированный кадр 720×880 top-center.
     private func configureOnboardingWindow(
@@ -113,17 +133,31 @@ struct WindowConfigurator: NSViewRepresentable {
         resizeAndPosition(window, coordinator: coordinator, generation: generation)
     }
 
-    /// Ставит безрамочный вид сейчас, догоняет его отложенными тактами (подвиды
+    /// Хром, которого требует ТЕКУЩИЙ режим. Мастер безрамочен целиком; главное
+    /// окно обычное — с тенью, рамкой и непрозрачным фоном, — но плашку
+    /// титлбара прячут оба.
+    @MainActor private static func enforceChrome(_ window: NSWindow, borderless: Bool) {
+        if borderless {
+            enforceBorderlessChrome(window)
+        } else {
+            enforceOpaqueChrome(window)
+        }
+    }
+
+    /// Ставит нужный вид сейчас, догоняет его отложенными тактами (подвиды
     /// титлбара достраиваются не за кадр) и подписывается на смены фокуса окна.
+    ///
+    /// Наблюдатели живут ВСЮ жизнь окна и не разбирают, какой сейчас режим:
+    /// они спрашивают об этом настройки в момент события. Мастер и главный
+    /// экран — один и тот же NSWindow, и замкнуть в наблюдателе режим значит
+    /// однажды вернуть главному окну хром мастера.
     private func installChromeEnforcement(
         _ window: NSWindow, coordinator: Coordinator, generation: Int
     ) {
-        // Безрамочный вид держим ПОСТОЯННО (см. enforceChrome): фон окна
-        // прозрачный + скруглённый и клиппированный рамочный вид (NSThemeFrame),
-        // чтобы срезать системную рамку и её углы. Один вызов не держится:
+        // Вид держим ПОСТОЯННО (см. enforceChrome). Один вызов не держится:
         // на resign-key AppKit перекрашивает титлбар серым и возвращает
-        // непрозрачный фон — потому переустанавливаем на каждую смену фокуса.
-        Self.enforceChrome(window)
+        // подпись — потому переустанавливаем на каждую смену фокуса.
+        Self.enforceChrome(window, borderless: isOnboarding)
         // Первый enforceChrome часто отрабатывает ДО того, как SwiftUI/AppKit
         // достроят подвиды титлбара (серый материал, `_NSTitlebarDecorationView`,
         // сам заголовок) — тогда прятать нечего, и «серая плашка с подписью и
@@ -133,13 +167,16 @@ struct WindowConfigurator: NSViewRepresentable {
         for delay in [0.05, 0.15, 0.35, 0.6, 1.0] {
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 guard coordinator.generation == generation else { return }
-                Self.enforceChrome(window)
+                Self.enforceChrome(window, borderless: isOnboardingNow())
             }
         }
         if coordinator.chromeObservers.isEmpty {
             let names: [Notification.Name] = [
                 NSWindow.didBecomeKeyNotification, NSWindow.didResignKeyNotification,
                 NSWindow.didBecomeMainNotification, NSWindow.didResignMainNotification,
+                // Ресайз тоже возвращает системную раскладку титлбара: сдвинутый
+                // светофор после тяги за кромку прыгает обратно под потолок.
+                NSWindow.didResizeNotification,
             ]
             for name in names {
                 let observer = NotificationCenter.default.addObserver(
@@ -147,7 +184,7 @@ struct WindowConfigurator: NSViewRepresentable {
                 ) { [weak window] _ in
                     MainActor.assumeIsolated {
                         guard let window else { return }
-                        Self.enforceChrome(window)
+                        Self.enforceChrome(window, borderless: isOnboardingNow())
                     }
                 }
                 coordinator.chromeObservers.append(observer)
@@ -331,30 +368,56 @@ struct WindowConfigurator: NSViewRepresentable {
         }
     }
 
-    /// Обычная ветка `apply`: снять наблюдателей, развернуть весь безрамочный вид
-    /// обратно (`restoreChrome`), вернуть автосейв, заголовок и изменяемый размер.
+    /// Обычная ветка `apply`: развернуть безрамочный вид обратно, вернуть
+    /// автосейв, заголовок и изменяемый размер, задать первый кадр.
+    ///
+    /// Наблюдатели хрома НЕ снимаются: плашку титлбара прячут оба окна, и
+    /// AppKit возвращает её на каждый resign-key одинаково — что мастеру,
+    /// что главному экрану. Снимать их значило бы через одну смену фокуса
+    /// получить серую плашку с подписью над собственным титлбаром доски.
     private func restoreNormalWindow(_ window: NSWindow, coordinator: Coordinator) {
-        // обычное окно: снимаем наблюдателей и разворачиваем ВЕСЬ безрамочный
-        // вид обратно (см. restoreChrome — зеркало enforceChrome).
-        for observer in coordinator.chromeObservers {
-            NotificationCenter.default.removeObserver(observer)
-        }
-        coordinator.chromeObservers.removeAll()
         restoreFrameFreedom(window, coordinator: coordinator)
-        Self.restoreChrome(window)
+        installChromeEnforcement(
+            window, coordinator: coordinator,
+            generation: coordinator.generation)
         if let saved = coordinator.savedAutosaveName {
             window.setFrameAutosaveName(saved)
             coordinator.savedAutosaveName = nil
         }
         // Изменяемый размер, «зум» и пределы кадра вернул restoreFrameFreedom выше —
-        // здесь остаётся только заголовок.
+        // здесь остаётся заголовок (он не виден, но им зовётся окно в меню
+        // «Окно» и в Mission Control) и первый кадр.
         window.title = "Foundry"
+        sizeMainWindowOnce(window, coordinator: coordinator)
+    }
+
+    /// Первый кадр главного окна — эталонный: вся доска пайплайна из восьми
+    /// стадий видна разом, без горизонтальной прокрутки. Дальше кадром
+    /// распоряжается пользователь, и окно его запоминает — потому «однажды».
+    ///
+    /// Ставится он и на первом запуске, и сразу после мастера: мастер оставляет
+    /// после себя окно 720×880, в которое доска не помещается вовсе.
+    @MainActor private func sizeMainWindowOnce(_ window: NSWindow, coordinator: Coordinator) {
+        guard !coordinator.didSizeMainWindow else { return }
+        coordinator.didSizeMainWindow = true
+        guard let screen = window.screen ?? NSScreen.main else { return }
+        let visible = screen.visibleFrame
+        let size = NSSize(
+            width: min(BoardWindowFrame.preferred.width, visible.width),
+            height: min(BoardWindowFrame.preferred.height, visible.height)
+        )
+        guard window.frame.size != size else { return }
+        let origin = NSPoint(
+            x: visible.minX + (visible.width - size.width) / 2,
+            y: visible.maxY - size.height - (visible.height - size.height) / 3
+        )
+        window.setFrame(NSRect(origin: origin, size: size), display: true)
     }
 
     /// Переустанавливаемый безрамочный вид окна онбординга. Зовётся при первичной
     /// настройке и на каждую смену фокуса — иначе AppKit на resign-key вернёт
     /// системный серый титлбар и непрозрачный фон, а рамка проступит обратно.
-    @MainActor private static func enforceChrome(_ window: NSWindow) {
+    @MainActor private static func enforceBorderlessChrome(_ window: NSWindow) {
         window.appearance = NSAppearance(named: .darkAqua)
         // БЕЗ БОРДЕРА: на этой macOS родной 1px-бордер titled-окна снимается только
         // вместе с тенью — они один механизм. Делаем окно прозрачным и выключаем
@@ -364,52 +427,77 @@ struct WindowConfigurator: NSViewRepresentable {
         window.backgroundColor = .clear
         window.hasShadow = false
         window.titlebarAppearsTransparent = true
-        window.titleVisibility = .hidden
-        window.titlebarSeparatorStyle = .none
-        // NSThemeFrame не клиппируем (даёт кант-артефакт). Гасим хром титлбара:
-        // серый материал и линию-накладку — «светофор» (NSButton) остаётся.
+        // NSThemeFrame не клиппируем (даёт кант-артефакт).
         if let frameView = window.frameView {
             frameView.layer?.cornerRadius = 0
             frameView.layer?.masksToBounds = false
             frameView.layer?.borderWidth = 0
-            setTitlebarChromeHidden(true, in: frameView)
         }
+        // Гасим хром титлбара: серый материал, подпись и линию-накладку —
+        // «светофор» (NSButton) остаётся.
+        hideTitlebarChrome(window)
     }
 
-    /// Возврат обычного вида — ЗЕРКАЛО `enforceChrome`. Мастер и главное окно это
-    /// один и тот же NSWindow (`WindowConfigurator` висит на корне, `isOnboarding`
-    /// переключается на ходу), поэтому всё выключенное надо включить обратно: иначе
-    /// после Skip или финала главное окно до перезапуска оставалось без тени, без
-    /// заголовка и с погашенным хромом титлбара. Правило: любое поле, которое трогает
-    /// `enforceChrome`, обязано иметь строку здесь — кроме `appearance` и
-    /// `titlebarAppearsTransparent`, они одинаковы для ОБОИХ режимов и ставятся выше,
-    /// в общей части `apply`; возвращать тут нечего.
-    @MainActor private static func restoreChrome(_ window: NSWindow) {
+    /// Обычный вид главного окна — ЗЕРКАЛО `enforceBorderlessChrome` во всём,
+    /// что касается рамки. Мастер и главное окно это один и тот же NSWindow
+    /// (`WindowConfigurator` висит на корне, `isOnboarding` переключается
+    /// на ходу), поэтому всё выключенное надо включить обратно: иначе после
+    /// Skip или финала главное окно до перезапуска оставалось без тени и рамки.
+    /// Правило: любое поле, которое трогает `enforceBorderlessChrome`, обязано
+    /// иметь строку здесь — кроме `appearance` и `titlebarAppearsTransparent`
+    /// (одинаковы для обоих режимов, ставятся в общей части `apply`) и кроме
+    /// плашки титлбара: её прячут ОБА окна, и зеркалить тут нечего.
+    @MainActor private static func enforceOpaqueChrome(_ window: NSWindow) {
         window.isOpaque = true
-        window.backgroundColor = NSColor(srgbRed: 14 / 255, green: 11 / 255, blue: 20 / 255, alpha: 1)
+        // Фон окна — база лестницы поверхностей: он виден краем кадра в те
+        // такты, когда SwiftUI ещё не нарисовал свой.
+        window.backgroundColor = NSColor(srgbRed: 5 / 255, green: 3 / 255, blue: 13 / 255, alpha: 1)
         window.hasShadow = true
-        window.titleVisibility = .visible
-        window.titlebarSeparatorStyle = .automatic
         for view in [window.contentView, window.frameView] {
             view?.layer?.cornerRadius = 0
             view?.layer?.masksToBounds = false
         }
-        if let frameView = window.frameView {
-            setTitlebarChromeHidden(false, in: frameView)
+        hideTitlebarChrome(window)
+        placeTrafficLights(window)
+    }
+
+    /// Ставит светофор туда, где его ждёт эталон: на левое поле окна и по
+    /// центру СВОЕЙ полосы.
+    ///
+    /// Системный трафарет считает титлбар в 28 пунктов и от левой кромки:
+    /// кнопки выходят на 8 пунктов выше середины сорокачетырёхпунктовой
+    /// полосы экрана и на 16 левее флага рейла. Кнопки при этом остаются
+    /// системными — их не рисуют заново, их двигают: своё «закрыть» это
+    /// то же действие под другим именем, без наведения, меню и Accessibility.
+    ///
+    /// Ряд двигается ЦЕЛИКОМ, одним сдвигом по первой кнопке: шаг между
+    /// кнопками принадлежит системе, и раскладывать их поодиночке значит
+    /// заводить свой светофор рядом с настоящим.
+    @MainActor private static func placeTrafficLights(_ window: NSWindow) {
+        let buttons = [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton]
+            .compactMap { window.standardWindowButton($0) }
+        guard let first = buttons.first, let container = first.superview else { return }
+        let shift = BoardWindowFrame.titlebarLeading - first.frame.minX
+        // Контейнер титлбара не перевёрнут: отсчёт снизу. Отступ сверху —
+        // половина того, что осталось от полосы за вычетом самой кнопки.
+        let topInset = (BoardWindowFrame.titlebarHeight - first.frame.height) / 2
+        let bottom = container.bounds.height - topInset - first.frame.height
+        for button in buttons {
+            let target = NSPoint(x: button.frame.minX + shift, y: bottom)
+            if button.frame.origin != target { button.setFrameOrigin(target) }
         }
     }
 
-    /// Гасит или возвращает хром титлбара: системный материал (`NSVisualEffectView`,
-    /// серый на неактивном окне) и декоративную накладку (`_NSTitlebarDecorationView` —
+    /// Гасит хром титлбара: системный материал (`NSVisualEffectView`, серый на
+    /// неактивном окне) и декоративную накладку (`_NSTitlebarDecorationView` —
     /// это линия-разделитель под баром). Кнопки-«светофор» (`NSButton` в
-    /// `NSTitlebarView`) не трогаем — остаются видимыми и рабочими. Один обход на оба
-    /// направления: так набор классов не разъедется между «спрятать» и «вернуть».
-    @MainActor private static func setTitlebarChromeHidden(_ hidden: Bool, in frameView: NSView) {
+    /// `NSTitlebarView`) не трогаем — остаются видимыми и рабочими.
+    @MainActor private static func setTitlebarChromeHidden(in frameView: NSView) {
         func walk(_ view: NSView, underTitlebar: Bool) {
             let className = String(describing: type(of: view))
             let isTitlebar = underTitlebar || className == "NSTitlebarContainerView"
             if isTitlebar, view is NSVisualEffectView || className == "_NSTitlebarDecorationView" {
-                view.isHidden = hidden
+                view.isHidden = true
             }
             for sub in view.subviews { walk(sub, underTitlebar: isTitlebar) }
         }

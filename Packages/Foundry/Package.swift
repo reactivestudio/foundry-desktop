@@ -78,6 +78,14 @@ let package = Package(
             resources: [.process("Presentation/Onboarding/OnboardingSwarm.metal")]
         ),
 
+        // Board — core-контекст главного экрана: доска change'ей и каркас окна
+        // (рейл · сайдбар · канвас · инспектор по требованию). Домена у него
+        // пока НЕТ вовсе: экран принят эталоном (design/candidates/main-screen-board.md)
+        // раньше, чем появились сущности, и весь мир берёт из фикстур
+        // презентационного слоя — они для того и лежат отдельным каталогом
+        // `Presentation/Fixture`, чтобы умереть целиком, когда придёт `Change`.
+        .target(name: "Board", dependencies: ["Core"]),
+
         // Run — core-контекст: запуск агент-сессии и лента транскрипта. Читает
         // настройки через публичный контракт Setting; общее берёт из Core.
         .target(
@@ -102,6 +110,7 @@ let package = Package(
                 "Core",
                 "Setting",
                 "Run",
+                "Board",
                 // Контекст/Environment живут в SparkIoC; bootstrap собирает контейнер.
                 .product(name: "SparkIoC", package: "spark"),
             ],
