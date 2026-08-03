@@ -59,7 +59,7 @@ let package = Package(
 
         // Setting — supporting-субдомен пользовательских настроек (имя в
         // единственном числе): агрегат `Preference` с группами-VO, порт репозитория
-        // и plist-адаптер. Презентация контекста — папкой `Presentation/Onboarding`:
+        // и plist-адаптер. Презентация контекста — папкой `Presentation/Setup`:
         // мастер первого запуска это НЕ отдельный контекст, а пошаговый вид тех же
         // настроек (экран в экран: агенты/расширения — будущий `Tool`, настройки —
         // `Preference`, разрешения — порт-gateway к ОС). Позже рядом ляжет второй
@@ -75,7 +75,7 @@ let package = Package(
                 // Spark; сборку по ним делает скан-плагин, самому контексту хватает SparkIoC.
                 .product(name: "SparkIoC", package: "spark"),
             ],
-            resources: [.process("Presentation/Onboarding/OnboardingSwarm.metal")]
+            resources: [.process("Presentation/Setup/SetupSwarm.metal")]
         ),
 
         // Board — core-контекст главного экрана: доска change'ей и каркас окна
@@ -127,7 +127,7 @@ let package = Package(
             dependencies: [
                 "Setting",
                 // Core — и ради тактического ядра домена, и ради теста-паритета физики роёв:
-                // он сверяет внутренности онбординг-роя (презентация Setting) и орб-лоадера
+                // он сверяет внутренности роя мастера настройки (презентация Setting) и орб-лоадера
                 // (Core) разом, через @testable обоих.
                 "Core",
                 // Тест сборки контейнера: резолв бинов из SettingConfiguration + Environment.

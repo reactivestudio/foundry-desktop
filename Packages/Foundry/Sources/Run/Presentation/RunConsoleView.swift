@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Главный экран прототипа D0: проект → промпт → live-лента → результат.
 /// Публичный контракт контекста Run — его вставляет корень композиции под гейт
-/// онбординга.
+/// мастера настройки.
 public struct RunConsoleView: View {
     @Environment(RunStore.self) private var store
     @AppStorage("projectDirectory") private var projectDirectory = ""

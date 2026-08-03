@@ -3,7 +3,7 @@ name: Тень-объём под кнопкой
 slug: button-drop-shadow
 status: отвергнут
 date: 2026-07 (четыре захода), финал 2026-07-17
-lineage: Сессия f31899ad (memory/dark-shadow-is-spilled-light.md); канон docs/design/09-surfaces.md и docs/design/06-color.md §5.2; долг записан в design/candidates/onboarding.html §«Долг перед каноном»
+lineage: Сессия f31899ad (memory/dark-shadow-is-spilled-light.md); канон docs/design/09-surfaces.md и docs/design/06-color.md §5.2; долг записан в design/candidates/setup.html §«Долг перед каноном»
 ---
 
 ## Что предлагалось
@@ -53,7 +53,7 @@ memory/dark-shadow-is-spilled-light.md, четыре позиции (все, к�
 - `shadow.soft` — четырёхслойная чёрная тень (1/2/6/12px, альфа 0.48→0.24) с
   ролью **отделение кромки от фона, не объём**. Это не возврат тени-высоты:
   она не изображает объём и не обязана его изображать. Токена в каноне пока
-  нет — долг назван в design/candidates/onboarding.html.
+  нет — долг назван в design/candidates/setup.html.
 - Микрорельеф по явной просьбе пользователя («прям минимально почти
   незаметно»): inset-блик 1px сверху (белый 9%) + inset-тень 1px снизу
   (чёрный 26%). Это кромки, не объём; в состояниях не дышит.
