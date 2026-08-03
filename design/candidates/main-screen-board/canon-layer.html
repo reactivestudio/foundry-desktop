@@ -9,12 +9,13 @@
    чип, полоса, число, точка.
    ===================================================================== */
 
+  /* Шкала поверхностей переопределялась здесь трижды подряд — слой писался
+     ревизия за ревизией, и каждая оставляла свой `:root`. Последняя из них
+     уехала в канон (tokens.json, 06-color.md §5.2, 09-surfaces.md §1.1), и
+     макет объявляет её сам; держать копию в слое — значит завести второе
+     место, где живёт то же число. Осталось только то, чего в каноне нет. */
   :root { --sem-info: var(--brand-purple);
-          --glow-live: 0 0 10px rgba(139,92,246,0.45), 0 0 28px rgba(139,92,246,0.14);
-          /* ПОПРАВКА К 09-surfaces: шаг ΔL 0.03 между base и surface на практике неразличим —
-             поверхность не читается, а хрома, растущая с высотой, топит семантические акценты.
-             Тон удержан (фиолетовая зона), но шаг светлоты увеличен, а хрома придержана. */
-          --bg-surface: #0F0B1A; --bg-raised: #171126; --bg-overlay: #1E1633; }
+          --glow-live: 0 0 10px rgba(139,92,246,0.45), 0 0 28px rgba(139,92,246,0.14); }
 
   .wrap, .block.wide { max-width: 1700px; }
   .block.wide { margin-left: 0; }
@@ -107,7 +108,11 @@
   .fold-note { border: none; color: var(--t-tertiary); text-align: left; padding: 2px 1px; font-size: 10px; }
 
   /* ——— сайдбар: белая масса нужна и здесь ——— */
-  .side-item { color: var(--t-secondary); }
+  /* Скругление подложки заводилось состоянием, а не объектом: у выбранного
+     пункта и у ховера ЛИСТА оно было, а у ховера ЖИВОГО сайдбара — нет, и
+     наведение красило строку прямоугольником с острыми углами. Форма
+     принадлежит объекту, состояние меняет только заливку. */
+  .side-item { color: var(--t-secondary); border-radius: var(--r-m); }
   .side-item.sel { color: var(--t-primary); }
 
   /* скрим обязан гасить доску, иначе инспектор не читается как слой поверх */
@@ -120,7 +125,11 @@
   .titlebar { box-shadow: inset 0 -1px 0 rgba(255,255,255,0.045); }
   .win-title { color: var(--t-secondary); }
   .rl { color: var(--t-secondary); }
-  .rl.sel { color: #A9BEFF; }
+  /* `.rl.sel { color: #A9BEFF }` отсюда снят: он не красил НИЧЕГО. Знак
+     выбранного раздела перекрыт правилом `.rl.sel .ic` (белый), подпись —
+     правилом `.rl.sel .rl-tx` (тоже белый), а больше текста в значке нет.
+     Правило, которое ничего не красит, читается как «здесь есть голубой
+     акцент» — и следующая правка на него сошлётся. */
   .side-head { color: var(--t-primary); letter-spacing: -0.01em; }
   .side-item .count { font-variant-numeric: tabular-nums; }
 
@@ -152,13 +161,19 @@
       и слово, значит средство одно, а не два.
    ===================================================================== */
 
-  :root { --bg-surface: #141417; --bg-raised: #1C1C21; --bg-overlay: #24242A; }
-
   /* плиты */
   .win { padding: 0 var(--s2) var(--s2); }
   .titlebar { box-shadow: none; background: none; }
   .two, .two.short { gap: var(--s2); grid-template-columns: 56px 222px minmax(0,1fr); background: none; }
-  .pane, .rail { border: none; border-radius: var(--r-xl); overflow: hidden; }
+  /* Три плиты окна — рейл, сайдбар, канвас — сиблинги одного ранга, и радиус
+     у них обязан быть один. Правило ниже так и задумано, но до сайдбара
+     и канваса не доезжало: поздний групповой блок макета перечисляет
+     `.pane.sidebar` и `.pane.list` (а `.rail` — нет) и сажает их на r-l.
+     Выходило 14 у рейла против 10 у соседей — разница, которую глаз не
+     назовёт, но почувствует как неровный ряд. Селектор поднят до той же
+     специфичности, что и у блока-виновника. */
+  .pane, .rail, .pane.sidebar, .pane.list, .pane.inspector {
+    border: none; border-radius: var(--r-xl); overflow: hidden; }
   .rail { background: var(--bg-surface); padding: var(--s3) 0; gap: var(--s1); align-items: center; }
   .pane.sidebar { background: var(--bg-surface); border-right: none; }
   .pane.list { background: var(--bg-surface); }
@@ -190,7 +205,7 @@
   .overlay-insp { top: var(--s4); bottom: var(--s4); right: var(--s4); border-radius: var(--r-xl);
                   box-shadow: 0 24px 64px rgba(0,0,0,0.62), inset 0 1px 0 rgba(255,255,255,0.06); }
   .board-scrim { border-radius: var(--r-xl); }
-  .side-item.sel { background: rgba(255,255,255,0.06); border-radius: var(--r-m); }
+  .side-item.sel { background: rgba(255,255,255,0.06); }
   .rl.sel { background: rgba(255,255,255,0.07); border-radius: var(--r-m); }
 
   /* ветка обязана помещаться целиком: «research/liquid-gla…» — не имя ветки */
@@ -326,26 +341,24 @@
   .spec-lab { font-size: 11px; color: var(--t-tertiary); margin-top: var(--s3); line-height: 1.45; }
   .spec-lab b { color: var(--t-primary); font-weight: 600; display: block; margin-bottom: 2px; }
 
-  .kb-card.hov { background: #24242A; box-shadow: inset 0 1px 0 rgba(255,255,255,0.09); }
   .kb-card.foc { box-shadow: 0 0 0 2px rgba(47,92,255,0.95), 0 0 0 5px rgba(47,92,255,0.20); }
   .kb-card.drag { background: #2A2A31; transform: rotate(-1.6deg);
                   box-shadow: 0 18px 40px rgba(0,0,0,0.72), inset 0 1px 0 rgba(255,255,255,0.11); }
   .kb-slot { height: 96px; border-radius: var(--r-l); background: rgba(0,0,0,0.26);
              box-shadow: inset 0 2px 4px rgba(0,0,0,0.55), inset 0 -1px 0 rgba(255,255,255,0.055); }
 
-  .spec .side-item.hov { background: rgba(255,255,255,0.035); border-radius: var(--r-m);
-                         color: var(--t-primary); }
-  /* 61. Лист состояний показывал значок рейла НЕ ТЕМ, что стоит в рейле:
-     правило раскладки висело на `.rail .rl`, а на листе предка `.rail` нет —
-     пять чипов вставали строкой «значок справа от слова», не влезали в свои
-     60 px и наезжали друг на друга. Спека, показывающая элемент не таким,
-     каков он на экране, — та же рукописная калька, что и число, написанное
-     рукой: расходится молча и врёт первой. Пять чипов по 60 с зазором 12
-     не помещаются в дорожку листа (250) — ячейка занимает две, и ряд как раз
-     складывается в шесть колонок. */
-  .spec .rl-set { display: flex; gap: var(--s3); }
-  .spec-cell.rail2 { grid-column: span 2; }
-  .spec .rl.hov { background: rgba(255,255,255,0.055); border-radius: var(--r-m); }
+  /* 61. Лист состояний показывал пульты НЕ ТЕМИ, что стоят на экране, причём
+     двумя способами сразу. Заливки: наведение на пункт сайдбара он красил
+     0.035, на значок рейла — 0.055, тогда как живой пульт красит оба 0.05,
+     — три числа на одно состояние, и ни одно нельзя проверить глазом.
+     Раскладка: правило колонки висело на `.rail .rl`, а предка `.rail` на
+     листе нет, и значок рейла вставал строкой «слово справа от знака»
+     шириной 32 вместо колонки 60 — лист документировал объект, снятый
+     с экрана. Спека, показывающая элемент не таким, каков он в деле, — та
+     же рукописная калька, что и число, написанное рукой: расходится молча
+     и врёт первой. Поэтому у листа больше нет СВОИХ значений состояний
+     вовсе: он берёт их оттуда же, откуда экран, и разойтись физически
+     нечему. */
 
   .spec .btn.hov.primary { background: #4570FF; }
   .spec .btn.act.primary { background: #2145C4; }
@@ -380,12 +393,14 @@
   /* 1. Поверхности. Было семь ступеней над базой, две из них неразличимы
         (ΔL* 0.44), а «принятая» карточка оказалась СВЕТЛЕЕ обычной. Канон
         09-surfaces требует ровно четыре слоя и монотонный рост. Шаг ≈5 L*. */
-  :root { --bg-surface: #141417; --bg-raised: #1E1E23; --bg-overlay: #2A2A31;
-          --t-tertiary: rgba(255,255,255,0.56); --t-disabled: rgba(255,255,255,0.44);
-          --b-default: rgba(255,255,255,0.24); --b-strong: rgba(255,255,255,0.38); }
-  .pane, .rail, .pane.sidebar, .pane.list { background: #141417; }
-  .kb-card, .kb-col.done .kb-card { background: #1E1E23; box-shadow: none; }
-  .toast { background: #2A2A31; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12); }
+  :root { --b-default: rgba(255,255,255,0.24); --b-strong: rgba(255,255,255,0.38); }
+  .pane, .rail, .pane.sidebar, .pane.list { background: var(--bg-surface); }
+  .kb-card, .kb-col.done .kb-card { background: var(--bg-raised); box-shadow: none; }
+  /* Тост стоял на #2A2A31 — а это не ступень поверхности, а ПОДЪЁМ карточки
+     под курсором (L* 17.3). Ступеней над базой ровно четыре, и «поверх всего»
+     — одна из них: инспектор и тост живут на одной, друг над другом
+     не бывают. Иначе на экране пять уровней при трёх разрешённых. */
+  .toast { background: var(--bg-overlay); box-shadow: inset 0 1px 0 rgba(255,255,255,0.12); }
 
   /* 2. Плиты и сетка. Поле канваса было 24 при зазоре плит 8 — внутреннее
         втрое больше внешнего, и три плиты читались одной разрезанной
@@ -442,8 +457,8 @@
   .st.warn { background: #FBBF24; color: #17130A; }
   .st.live { background: #2E2E36; color: #C9C9CC; }
   .st.err  { background: #FF8A73; color: #2B0C05; }
-  .st.done { background: #26262C; color: #9A9AA0; }
-  .st.mute { background: #26262C; color: #9A9AA0; }
+  .st.done { background: var(--bg-overlay); color: #9A9AA0; }
+  .st.mute { background: var(--bg-overlay); color: #9A9AA0; }
   .st.live .dot { width: 5px; height: 5px; border-radius: 999px;
                   background: currentColor; opacity: .8; flex: none; }
   .kb-call { min-width: 0; padding: 2px 7px; font-size: 10px; line-height: 13px; }
@@ -459,7 +474,7 @@
   .side-item.sel .ic, .rl.sel .ic { color: var(--t-primary); }
   /* Канон 08-controls 7.3: кольцо 2 px на полной непрозрачности с офсетом 2 px,
      а не свечение. Внутренний слой цветом плиты даёт офсет на любом фоне. */
-  .kb-card.foc, .spec .btn.foc.primary { box-shadow: 0 0 0 2px #141417, 0 0 0 4px #2F5CFF; }
+  .kb-card.foc, .spec .btn.foc.primary { box-shadow: 0 0 0 2px var(--bg-surface), 0 0 0 4px #2F5CFF; }
   .kb-card.drag { background: #33333A; transform: rotate(-1.6deg);
                   box-shadow: 0 18px 40px rgba(0,0,0,0.72), inset 0 1px 0 rgba(255,255,255,0.11); }
   .kb-slot { border: none; height: 126px; background: rgba(0,0,0,0.34);
@@ -478,7 +493,7 @@
 
   /* 7. Рейл. Бейдж стоял в 2 px от ЧУЖОЙ плитки и в 6 px от своего глифа —
         по закону близости он принадлежал соседу. Возвращён в габарит. */
-  .rl-b { top: 2px; right: 2px; box-shadow: 0 0 0 1.5px #141417;
+  .rl-b { top: 2px; right: 2px; box-shadow: 0 0 0 1.5px var(--bg-surface);
           background: rgba(255,255,255,0.20); color: var(--t-primary); }
   .rl-b.warn { background: #FBBF24; color: #17130A; }
   .tb-btn.icon { height: 28px; width: 28px; }
@@ -491,7 +506,7 @@
   /* 9. Инспектор. Артефакт упирался в панель действий на 5 px при внутренних
         просветах 8–17 — внешнее меньше внутреннего. */
   .overlay-insp { top: var(--s4); bottom: var(--s4); right: var(--s4); width: 424px;
-                  background: #26262C; padding: var(--s4);
+                  background: var(--bg-overlay); padding: var(--s4);
                   box-shadow: 0 24px 64px rgba(0,0,0,0.62), inset 0 1px 0 rgba(255,255,255,0.08); }
   .insp-name { font-size: 16px; font-weight: 600; color: var(--t-primary); }
   .insp-head .sub .mono { font-family: var(--font-mono); font-size: 11px; color: var(--t-tertiary); }
@@ -515,7 +530,7 @@
          Янтарь снят: недоступное ядро и оборванный стрим — одна поломка. */
   .win:not(.ovl) .degrade ~ .board .kb-card { opacity: 1; }
   .degrade { margin: var(--s4) var(--s4) 0; padding: var(--s3) var(--s4);
-             border-radius: var(--r-l); background: #1E1E23; box-shadow: none;
+             border-radius: var(--r-l); background: var(--bg-raised); box-shadow: none;
              display: flex; align-items: center; gap: var(--s3); }
   .degrade .dg-ic { color: var(--t-secondary); display: flex; }
   .degrade .dg-tx { flex: 1; font-size: 12px; color: var(--t-primary); line-height: 1.45; }
@@ -633,17 +648,27 @@
   .no-badge { position: absolute; right: -8px; bottom: -8px; width: 24px; height: 24px;
               border-radius: 999px; background: #FF8A73; color: #2B0C05;
               display: flex; align-items: center; justify-content: center;
-              box-shadow: 0 0 0 3px #141417; }
+              box-shadow: 0 0 0 3px var(--bg-surface); }
   .no-badge .ic { width: 14px; height: 14px; }
 
   .btn.load { position: relative; opacity: 1; pointer-events: none;
               display: inline-flex; align-items: center; gap: 7px; }
+  /* Кадр обязан быть один и тот же при каждой сборке. Крутилка кнопки —
+     единственная живая анимация на листе, и она отдавала свою фазу по
+     таймеру: две сборки подряд БЕЗ ЕДИНОЙ ПРАВКИ расходились на 122 пикселя
+     ровно в её квадрате 14×14. Пиксельное сравнение «до и после» — главный
+     способ доказать, что правка ничего не сдвинула; пока в кадре есть шум,
+     доказывать нечем. Пауза с отрицательной задержкой останавливает
+     анимацию НА ЗАДАННОЙ фазе, а не на нулевой: крутилка нарисована
+     повёрнутой (видно, что это крутилка), но всегда одинаково. Живой
+     анимации это не касается — правило живёт в слое листа, не в продукте. */
+  .btn.load .spin { animation-play-state: paused; animation-delay: -0.245s; }
   .btn.load .spin { width: 12px; height: 12px; border-radius: 999px; flex: none;
               border: 2px solid rgba(255,255,255,0.30); border-top-color: #FFF; }
   .btn.primary.dis { background: #23232A; color: var(--t-disabled); box-shadow: none; }
 
   .comment-field.foc { box-shadow: inset 0 1px 3px rgba(0,0,0,0.45),
-                       0 0 0 2px #141417, 0 0 0 4px #2F5CFF; color: var(--t-primary); }
+                       0 0 0 2px var(--bg-surface), 0 0 0 4px #2F5CFF; color: var(--t-primary); }
   .comment-field.err { box-shadow: inset 0 1px 3px rgba(0,0,0,0.45),
                        inset 0 0 0 1.5px #FF8A73; }
   .comment-field .caret { display: inline-block; width: 1.5px; height: 14px;
@@ -756,7 +781,7 @@
                   padding: 0 10px 0 8px; height: 24px; border-radius: 7px;
                   font-size: 12px; color: var(--t-secondary); }
   .tb-btn.named .ic { width: 13px; height: 13px; }
-  .tb-btn.named:hover, .tb-btn.named.hov { background: #1C1C21; color: var(--t-primary); }
+  .tb-btn.named:hover, .tb-btn.named.hov { background: var(--bg-raised); color: var(--t-primary); }
   /* 38. Карточка ростом по содержимому. Высота стояла жёсткой (126 px) ради
      того, чтобы ряды шли сквозь колонки, — но ряды на канбане ничего не
      значат: вторая карточка Questions и вторая карточка PR не связаны ничем.
@@ -818,12 +843,12 @@
      продукта («Скиллы», «Ревью»), которые угадать нельзя. Подсказка по
      наведению называет раздел тому, кто уже знает, куда наводить. */
   .two { grid-template-columns: 76px 214px minmax(0,1fr); }
-  .rail .rl, .spec .rl-set .rl { flex-direction: column; gap: 3px; width: 60px;
+  .rail .rl, .spec .rl { flex-direction: column; gap: 3px; width: 60px;
               height: auto; padding: 7px 0 6px; border-radius: 9px; }
   .rl-tx { font-size: 10px; line-height: 13px; letter-spacing: 0.01em;
            color: var(--t-tertiary); text-align: center; }
-  .rail .rl.sel .rl-tx, .spec .rl-set .rl.sel .rl-tx { color: var(--t-primary); }
-  .rail .rl:hover .rl-tx { color: var(--t-secondary); }
+  .rail .rl.sel .rl-tx, .spec .rl.sel .rl-tx { color: var(--t-primary); }
+  .rail .rl:hover .rl-tx, .spec .rl.hov .rl-tx { color: var(--t-secondary); }
   /* 42. Шапка инспектора: выход и место в очереди. */
   .insp-top { display: flex; align-items: flex-start; gap: var(--s3); }
   .insp-top .insp-name { flex: 1; min-width: 0; }
@@ -833,15 +858,15 @@
   .in-pos { font-size: 12px; color: var(--t-tertiary); }
   .in-b, .in-x { display: inline-flex; align-items: center; justify-content: center;
                  gap: 5px; height: 20px; min-width: 22px; padding: 0 5px; border-radius: 6px;
-                 font-size: 11px; color: var(--t-tertiary); background: #1C1C21; }
-  .in-b:hover, .in-x:hover { background: #24242A; color: var(--t-secondary); }
+                 font-size: 11px; color: var(--t-tertiary); background: var(--bg-raised); }
+  .in-b:hover, .in-x:hover { background: var(--bg-overlay); color: var(--t-secondary); }
 
   /* 43. Тред вопросов. Вопросы пронумерованы: отвечают на них по одному,
      и номер — единственный способ сослаться на конкретный. */
   .thread .q { display: flex; gap: var(--s3); padding: 0; }
   .thread .q + .q { border-top: none; margin-top: var(--s4); }
   .thread .qn { flex: none; width: 18px; height: 18px; border-radius: 5px;
-                background: #26262C; color: var(--t-secondary);
+                background: var(--bg-overlay); color: var(--t-secondary);
                 font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; }
   .thread .q p { margin: 0; }
   .q-note { margin-top: var(--s3); padding-top: var(--s3);
@@ -890,7 +915,7 @@
                   padding: 10px 12px; border-radius: var(--r-m); background: #17171B;
                   font-size: 12px; line-height: 18px; color: var(--t-primary);
                   box-shadow: inset 0 1px 3px rgba(0,0,0,0.45),
-                              0 0 0 2px #26262C, 0 0 0 4px #2F5CFF; }
+                              0 0 0 2px var(--bg-overlay), 0 0 0 4px #2F5CFF; }
   /* Затухание нарисовано слоем, а не маской: маска элемента съедает и его
      кольцо фокуса вместе с ним. Градиент идёт от собственного фона поля —
      цвет известен, подмешивать нечего. */
@@ -1148,7 +1173,7 @@
      слишком много, чтобы не мешать. Светофор занимает ровно ширину рейла,
      и заголовок встаёт на флаг сайдбара. */
   .titlebar .lights { width: 76px; }
-  .titlebar .win-title { margin-left: var(--s4); }
+  /* поле заголовка — в корректировке 76: здесь оно было посчитано неверно */
   /* 71. Подпись кадра стояла на 17 = старое поле окна 16 плюс кромка — число
      не пересчитали, когда поле подняли до 24. Считается из той же величины. */
   .pipe-case-cap { margin-left: calc(var(--s5) + 1px); }
@@ -1156,8 +1181,13 @@
   /* 72. Вкладка: имя → счётчик → «8 стадий» стояли с одинаковым шагом 8, и
      два числа оказывались в 8 px друг от друга — «18 8» читалось одной
      величиной или опечаткой. Внутри вкладки шаги разведены: 4 и 16 при 24
-     между вкладками. */
-  .pipe-tab { gap: var(--s1); }
+     между вкладками.
+     ПОПРАВКА (77): правило написали одним классом, а выше по слою зазор 8
+     стоял на паре `.pipe-tab, .pipe-tab.sel` — и на выбранной вкладке,
+     ЕДИНСТВЕННОЙ, что носит и счётчик, и «8 стадий», побеждала она. Ряд
+     жил в двух шагах разом: 4 у соседей, 8 у выбранной, — то есть ровно
+     там, где корректировка и затевалась, она не выполнялась. */
+  .pipe-tab, .pipe-tab.sel { gap: var(--s1); }
   .pipe-tab .pipe-meta { margin-left: var(--s3); }
   .pipe-tab.more { opacity: 1; }
   .pipe-tab.more .pipe-name { color: var(--t-tertiary); }
@@ -1214,12 +1244,27 @@
   .tk { display: flex; align-items: flex-start; gap: var(--s2); }
   .tk-n, .thread .qn { display: inline-flex; align-items: center; justify-content: center;
           flex: none; width: 18px; height: 18px; border-radius: 5px;
-          background: #26262C; color: var(--t-tertiary); font-weight: 700; }
+          background: var(--bg-overlay); color: var(--t-tertiary); font-weight: 700; }
   .tk-t { color: var(--t-secondary); }
   .tk.done .tk-t { color: var(--t-tertiary); }
   .tk.live .tk-n { background: rgba(255,255,255,0.22); color: var(--t-primary); }
   .tk.live .tk-t { color: var(--t-primary); }
   .win .tk-t, .win .tk { font-size: 13px; line-height: 18px; }
   .win .tk-n { font-size: 11px; line-height: 14px; }
+
+  /* 76. ТИТЛБАР ВСТАЛ НА ПОЛЕ ОКНА. Корректировка 70 обещала: светофор
+     занимает ровно ширину рейла, заголовок встаёт на флаг сайдбара, — но
+     считала от кромки окна, а у титлбара было СВОЁ поле 0 16 поверх поля
+     окна. Светофор уезжал на 16 правее кромки рейла, заголовок — на 28
+     правее флага сайдбара, обещанное совпадение не выполнялось ни разу.
+     Замер поймал то, чего не поймал глаз: 145 против 117. Поле снято, и
+     теперь светофор занимает РОВНО плиту рейла, а действия справа встали
+     на правую кромку канваса.
+     Второй промах той же корректировки: отступ заголовка считали от кромки
+     светофора, забыв, что флекс титлбара уже даёт свой зазор. Нужное поле —
+     зазор между плитами (16), и своего у заголовка ровно столько, сколько
+     флекс не дал: 16 − 12. Тогда заголовок стоит на кромке сайдбара. */
+  .titlebar { padding: 0; }
+  .titlebar .win-title { margin-left: calc(var(--s4) - var(--s3)); }
 
 </style>

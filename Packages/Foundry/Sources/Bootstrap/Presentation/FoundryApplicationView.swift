@@ -1,3 +1,4 @@
+import Board
 import Run
 import Setting
 import SwiftUI
@@ -36,7 +37,15 @@ struct FoundryApplicationView: View {
             permissionStore: permissionStore,
             toolStore: toolStore
         ) {
-            RunConsoleView()
+            // Главный экран — доска change'ей (эталон
+            // `design/candidates/main-screen-board.md`). Консоль рана сшита
+            // сюда ГОСТЕМ: в рейле эталона своего раздела у неё нет, а
+            // выкинуть единственную работающую функцию приложения нельзя.
+            // ДОЛГ: место консоли в разделах — вопрос, который эталон не решал,
+            // и «Инбокс» здесь временный приют, а не ответ.
+            BoardScreenView(guestSection: .inbox) {
+                RunConsoleView()
+            }
         }
         .environment(runStore)
     }

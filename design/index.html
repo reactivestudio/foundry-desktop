@@ -38,7 +38,7 @@
     <div class="cover-fact"><b style="color: rgb(47, 92, 255)">90</b><span>дизайн-токенов в источнике</span></div>
     <div class="cover-fact"><b style="color: rgb(93, 92, 250)">6</b><span>принятых компонентов</span></div>
     <div class="cover-fact"><b style="color: rgb(139, 92, 246)">5</b><span>на утверждении</span></div>
-    <div class="cover-fact"><b style="color: rgb(176, 92, 250)">1</b><span>в приёмной</span></div>
+    <div class="cover-fact"><b style="color: rgb(176, 92, 250)">2</b><span>в приёмной</span></div>
     <div class="cover-fact"><b style="color: rgb(214, 92, 255)">17</b><span>отклонено, с причиной</span></div>
   </div>
 </section>
@@ -46,48 +46,48 @@
   <div class="section-head"><span class="num" style="color: rgb(47, 92, 255)">01</span><h2>Цвета</h2></div>
   <p class="section-lede">Это значения, а не картинки: каждая ступень, состояние и контраст нарисованы из tokens.json — поменяется хекс в источнике, поменяется эта секция. Контраст доска считает при читателе.</p>
   <div class="block" id="ramp-bg">
-    <div class="block-head"><h3>Поверхности — лестница светлоты</h3><span class="hint">четыре ступени, а не четыре цвета: у каждой своя работа, и шаг между ними обязан быть равным</span></div>
+    <div class="block-head"><h3>Поверхности — лестница светлоты</h3><span class="hint">четыре ступени, а не четыре цвета: у каждой своя работа, и от базы до первой полки шаг вдвое больше прочих</span></div>
     <div class="ramp-band" style="grid-template-columns: repeat(4, 1fr)">
       <div class="ramp-cell " style="background: var(--bg-base)" data-token="bg.base" data-hex="#05030D">
         <b>bg.base</b>
         <span class="v">#05030D</span>
         <span class="v">L 0.111 · C 0.028 · H 294.0°</span>
       </div>
-      <div class="ramp-cell " style="background: var(--bg-surface)" data-token="bg.surface" data-hex="#0B0717">
+      <div class="ramp-cell " style="background: var(--bg-surface)" data-token="bg.surface" data-hex="#141417">
         <b>bg.surface</b>
-        <span class="v">#0B0717</span>
-        <span class="v">L 0.145 · C 0.035 · H 293.8°</span>
+        <span class="v">#141417</span>
+        <span class="v">L 0.193 · C 0.006 · H 285.8°</span>
       </div>
-      <div class="ramp-cell " style="background: var(--bg-raised)" data-token="bg.raised" data-hex="#120B23">
+      <div class="ramp-cell " style="background: var(--bg-raised)" data-token="bg.raised" data-hex="#1E1E23">
         <b>bg.raised</b>
-        <span class="v">#120B23</span>
-        <span class="v">L 0.174 · C 0.048 · H 294.3°</span>
+        <span class="v">#1E1E23</span>
+        <span class="v">L 0.237 · C 0.009 · H 285.7°</span>
       </div>
-      <div class="ramp-cell " style="background: var(--bg-overlay)" data-token="bg.overlay" data-hex="#1A1030">
+      <div class="ramp-cell " style="background: var(--bg-overlay)" data-token="bg.overlay" data-hex="#26262C">
         <b>bg.overlay</b>
-        <span class="v">#1A1030</span>
-        <span class="v">L 0.206 · C 0.061 · H 294.9°</span>
+        <span class="v">#26262C</span>
+        <span class="v">L 0.271 · C 0.011 · H 285.6°</span>
       </div>
     </div>
-    <div class="ramp-deltas" style="grid-template-columns: repeat(4, 1fr)">
+    <div class="ramp-deltas" style="grid-template-columns: repeat(4, minmax(0, 1fr))">
       <span class="ramp-delta" style="grid-column: 2">
-        <i style="width: calc(var(--space-10) * 1.0671)"></i>
-        <span>ΔL +0.034</span>
+        <i style="width: 100.0%"></i>
+        <span>ΔL +0.082</span>
       </span>
       <span class="ramp-delta" style="grid-column: 3">
-        <i style="width: calc(var(--space-10) * 0.9209)"></i>
-        <span>ΔL +0.029</span>
+        <i style="width: 54.5%"></i>
+        <span>ΔL +0.045</span>
       </span>
       <span class="ramp-delta" style="grid-column: 4">
-        <i style="width: calc(var(--space-10) * 0.9995)"></i>
-        <span>ΔL +0.032</span>
+        <i style="width: 41.5%"></i>
+        <span>ΔL +0.034</span>
       </span>
     </div>
     <ul class="roles">
       <li><i class="swatch" style="background: var(--bg-base)"></i><span class="t">bg.base</span><span class="r">фон окна, фон контентной зоны</span></li>
-      <li><i class="swatch" style="background: var(--bg-surface)"></i><span class="t">bg.surface</span><span class="r">карточки канбана, строки-контейнеры, панель кода/диффа/лога</span></li>
-      <li><i class="swatch" style="background: var(--bg-raised)"></i><span class="t">bg.raised</span><span class="r">поповеры, меню, тултипы, sticky-заголовки</span></li>
-      <li><i class="swatch" style="background: var(--bg-overlay)"></i><span class="t">bg.overlay</span><span class="r">модалки/шиты (плюс скрим под ними)</span></li>
+      <li><i class="swatch" style="background: var(--bg-surface)"></i><span class="t">bg.surface</span><span class="r">плита канваса, рейл, сайдбар, панель кода/диффа/лога</span></li>
+      <li><i class="swatch" style="background: var(--bg-raised)"></i><span class="t">bg.raised</span><span class="r">карточки канбана, строки-контейнеры, поповеры, меню, тултипы, sticky-заголовки</span></li>
+      <li><i class="swatch" style="background: var(--bg-overlay)"></i><span class="t">bg.overlay</span><span class="r">плавающий инспектор, модалки/шиты, тосты (плюс скрим под ними)</span></li>
     </ul>
   </div>
   <div class="block" id="ramp-states">
@@ -196,7 +196,7 @@
       <h3>Можно — правило группы</h3>
       <ul>
         <li><span><code>brand</code> — Фирменная гамма: аналоговый ход ультрамарин → пурпур → маджента (OKLCH hue 266 → 293 → 316).</span></li>
-        <li><span><code>bg</code> — Elevation через светлоту, не через тень: равные шаги ΔL ≈ 0.03 в OKLCH, hue удержан в фиолетовой зоне 294±1, хрома растёт с высотой.</span></li>
+        <li><span><code>bg</code> — Elevation через светлоту, не через тень.</span></li>
         <li><span><code>border</code> — Дефолт — вообще без линейки: сначала воздух и выравнивание, линейка — осознанное исключение.</span></li>
         <li><span><code>text</code> — Альфа-белый, не серые хардкоды.</span></li>
         <li><span><code>sem</code> — Осветлённые и слегка десатурированные под тёмный фон; заливки — тот же цвет с альфой, не отдельные тёмные оттенки.</span></li>
@@ -1320,18 +1320,42 @@
         </details>
       </article>
     </div>
+    <div class="col-12">
+      <article class="part" id="part-main-screen-board">
+        <div class="part-stage">
+          <iframe src="candidates/main-screen-board.html" height="14753" loading="lazy" title="Главный экран — доска change&#x27;ей (один чип на карточку, цвет только на значимом)"></iframe>
+        </div>
+        <div class="part-meta">
+          <h4>Главный экран — доска change&#x27;ей (один чип на карточку, цвет только на значимом)</h4>
+          <span class="slug">main-screen-board</span>
+          <span class="chip chip-candidate">эталон</span>
+          <span class="spacer"></span>
+          <span class="refs"><a href="../docs/design/02-composition.md">02-composition.md</a> · <a href="../docs/design/03-spacing.md">03-spacing.md</a> · <a href="../docs/design/06-color.md">06-color.md</a> · <a href="../docs/design/08-controls.md">08-controls.md</a> · <a href="../docs/design/09-surfaces.md">09-surfaces.md</a> · <a href="../docs/design/14-checklist.md">14-checklist.md</a></span>
+        </div>
+        <details class="debt">
+          <summary>долг</summary>
+          <p>Поправка о поверхностях записана в канон 2026-08-04 (tokens.json, 06-color.md 5.2, 09-surfaces.md 1.1) — слой больше не держит своей шкалы и берёт её по именам. `--sem-info` и подложка под точкой стадии починены в самом макете. Остаётся поправка о плашках (08-controls) и разбор экрана на части по правилу двух: плита, рейл, сайдбар, карточка доски, чип состояния встречаются и здесь, и в макете.</p>
+        </details>
+        <details>
+          <summary>родословная</summary>
+          <p>Развивает раздел 06 макета `docs/design/mockups/foundry-mockups.html` (канбан) и закрывает вопрос о панелях, оставленный открытым в [main-screen-sketch.md](main-screen-sketch.md). Прошёл через четыре отказа пользователя подряд — «всё монохромно синее», «не уровень бюро», «цвета грязные», «много мусора»; текущая сборка — ответ на четвёртый плюс сплошная ревизия по чек-листу бюро.</p>
+        </details>
+      </article>
+    </div>
   </div>
   <div class="verdict">
     <div class="can">
       <h3>Зачем это спасали</h3>
       <ul>
         <li><span><a href="#part-logo">Логотип «Foundry AI»</a> — Эталон знака продукта — вордмарк «Foundry» + лейбл «AI» на янтарной плашке; при работе со знаком копировать отсюда, а не пересобирать по памяти.</span></li>
+        <li><span><a href="#part-main-screen-board">Главный экран — доска change&#x27;ей (один чип на карточку, цвет только на значимом)</a> — Полезное действие взято из канона дословно: «понять состояние пайплайна за один взгляд; сдвинуть change».<details class="more"><summary>+1</summary><p>Экран отвечает на ОДИН вопрос — чей ход, — и всё остальное либо подчинено ему, либо снято.</p></details></span></li>
       </ul>
     </div>
     <div class="cant">
       <h3>Чего с этим делать нельзя</h3>
       <ul>
         <li><span><a href="#part-logo">Логотип «Foundry AI»</a> — Знак неделим — вордмарк отдельно от лейбла не живёт, разбирать на части нельзя.<details class="more"><summary>+3</summary><p>Не форсировать SF Pro Display явно и не подменять сторонним веб-шрифтом — сломается ровно то, за что похвалили. Не тянуть трекинг в минус на мелких кеглях. Не пересобирать знак по памяти — только копировать из файла.</p></details></span></li>
+        <li><span><a href="#part-main-screen-board">Главный экран — доска change&#x27;ей (один чип на карточку, цвет только на значимом)</a> — Не возвращать полупрозрачную цветную заливку на большую площадь — именно она даёт грязь.<details class="more"><summary>+4</summary><p>Не возвращать хрому в поверхности выше базы. Не ставить два средства на одну задачу (полоса И чип). Не ставить на карточку второй чип. Не писать на экране число, которое нельзя пересчитать глазами по этому же экрану.</p></details></span></li>
       </ul>
     </div>
   </div>
@@ -1430,7 +1454,7 @@
 <footer class="foot">Собрана из компонентов и из <a href="tokens/tokens.json">tokens.json</a> скриптом <code>design/build.py</code>. Своего содержимого не имеет: правка руками теряется при следующей сборке. Договор о формате компонента — <a href="parts/README.md">design/parts/README.md</a>.</footer>
 </div>
 </div>
-<script type="application/json" id="canvas-data">{"surfaces": [{"path": "bg.base", "rgb": [5, 3, 13]}, {"path": "bg.surface", "rgb": [11, 7, 23]}, {"path": "bg.raised", "rgb": [18, 11, 35]}, {"path": "bg.overlay", "rgb": [26, 16, 48]}], "inks": [{"path": "text.primary", "rgb": [255, 255, 255], "alpha": 1.0, "role": "основной текст, заголовки; длинное чтение — 85–90%", "exempt": false}, {"path": "text.secondary", "rgb": [255, 255, 255], "alpha": 0.7, "role": "вторичные строки, описания, подписи, иконки в покое", "exempt": false}, {"path": "text.tertiary", "rgb": [255, 255, 255], "alpha": 0.5, "role": "мета: время, счётчики, номера строк", "exempt": false}, {"path": "text.disabled", "rgb": [255, 255, 255], "alpha": 0.38, "role": "недоступное", "exempt": true}, {"path": "text.accent", "rgb": [124, 154, 255], "alpha": 1.0, "role": "ссылки, интерактивный текст, акценты", "exempt": false}, {"path": "text.accent-muted", "rgb": [107, 140, 255], "alpha": 1.0, "role": "второстепенные акценты, активные иконки в плотных списках", "exempt": false}, {"path": "sem.success", "rgb": [74, 222, 128], "alpha": 1.0, "role": "approve/принято, зелёный диффа, пройденная стадия", "exempt": false}, {"path": "sem.warning", "rgb": [251, 191, 36], "alpha": 1.0, "role": "request changes, зависший луп, устаревший снапшот", "exempt": false}, {"path": "sem.error", "rgb": [248, 113, 113], "alpha": 1.0, "role": "fail стадии, красный диффа, деструктивные действия", "exempt": false}, {"path": "sem.info", "rgb": [139, 92, 246], "alpha": 1.0, "role": "live/стрим, работа агента, нейтральные уведомления", "exempt": false}, {"path": "brand.ultramarine", "rgb": [47, 92, 255], "alpha": 1.0, "role": "главный акцент: primary-действия, активные состояния, выделение", "exempt": false}], "accents": [{"path": "brand.ultramarine", "rgb": [47, 92, 255]}, {"path": "brand.purple", "rgb": [139, 92, 246]}, {"path": "brand.magenta", "rgb": [214, 92, 255]}, {"path": "brand.amber", "rgb": [255, 176, 32]}], "onAccent": {"path": "text.on-accent", "rgb": [255, 255, 255], "alpha": 1.0}, "threshold": 4.5, "error": [248, 113, 113], "base": [5, 3, 13]}</script>
+<script type="application/json" id="canvas-data">{"surfaces": [{"path": "bg.base", "rgb": [5, 3, 13]}, {"path": "bg.surface", "rgb": [20, 20, 23]}, {"path": "bg.raised", "rgb": [30, 30, 35]}, {"path": "bg.overlay", "rgb": [38, 38, 44]}], "inks": [{"path": "text.primary", "rgb": [255, 255, 255], "alpha": 0.96, "role": "основной текст, заголовки. Не чистый белый: на почти чёрном он звенит и тянет строку на себя. Оба принятых эталона — онбординг и главный экран — набраны на 0.96, и токен приведён к практике, а не наоборот. Чистый белый остался там, где он не текст на фоне, а надпись на заливке: text.on-accent", "exempt": false}, {"path": "text.secondary", "rgb": [255, 255, 255], "alpha": 0.7, "role": "вторичные строки, описания, подписи, иконки в покое", "exempt": false}, {"path": "text.tertiary", "rgb": [255, 255, 255], "alpha": 0.5, "role": "мета: время, счётчики, номера строк", "exempt": false}, {"path": "text.disabled", "rgb": [255, 255, 255], "alpha": 0.38, "role": "недоступное", "exempt": true}, {"path": "text.accent", "rgb": [124, 154, 255], "alpha": 1.0, "role": "ссылки, интерактивный текст, акценты", "exempt": false}, {"path": "text.accent-muted", "rgb": [107, 140, 255], "alpha": 1.0, "role": "второстепенные акценты, активные иконки в плотных списках", "exempt": false}, {"path": "sem.success", "rgb": [74, 222, 128], "alpha": 1.0, "role": "approve/принято, зелёный диффа, пройденная стадия", "exempt": false}, {"path": "sem.warning", "rgb": [251, 191, 36], "alpha": 1.0, "role": "request changes, зависший луп, устаревший снапшот", "exempt": false}, {"path": "sem.error", "rgb": [248, 113, 113], "alpha": 1.0, "role": "fail стадии, красный диффа, деструктивные действия", "exempt": false}, {"path": "sem.info", "rgb": [139, 92, 246], "alpha": 1.0, "role": "live/стрим, работа агента, нейтральные уведомления", "exempt": false}, {"path": "brand.ultramarine", "rgb": [47, 92, 255], "alpha": 1.0, "role": "главный акцент: primary-действия, активные состояния, выделение", "exempt": false}], "accents": [{"path": "brand.ultramarine", "rgb": [47, 92, 255]}, {"path": "brand.purple", "rgb": [139, 92, 246]}, {"path": "brand.magenta", "rgb": [214, 92, 255]}, {"path": "brand.amber", "rgb": [255, 176, 32]}], "onAccent": {"path": "text.on-accent", "rgb": [255, 255, 255], "alpha": 1.0}, "threshold": 4.5, "error": [248, 113, 113], "base": [5, 3, 13]}</script>
 <script>
 (function () {
   var data = JSON.parse(document.getElementById("canvas-data").textContent);

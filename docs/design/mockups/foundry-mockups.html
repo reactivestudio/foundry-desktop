@@ -10,9 +10,11 @@
 
     /* поверхности: elevation светлотой */
     --bg-base: #05030D;
-    --bg-surface: #0B0717;
-    --bg-raised: #120B23;
-    --bg-overlay: #1A1030;
+    /* Полки обесцвечены поправкой эталона главного экрана (06-color.md §5.2):
+       хрома на площади в пол-экрана даёт грязь, а не высоту. */
+    --bg-surface: #141417;
+    --bg-raised: #1E1E23;
+    --bg-overlay: #26262C;
 
     /* текст: альфа-белый */
     --t-primary: rgba(255,255,255,0.96);
@@ -31,7 +33,9 @@
     --sem-success: #4ADE80;
     --sem-warning: #FBBF24;
     --sem-error: #F87171;
-    --sem-info: var(--brand-cyan);
+    /* Циан отвергнут (design/rejected/cyan-accent.md), а sem.info оставался
+       на нём: канон (tokens.json) давно указывает на пурпур. */
+    --sem-info: var(--brand-purple);
 
     /* дифф */
     --diff-add-bg: rgba(74,222,128,0.12);
@@ -1289,6 +1293,11 @@
   .comp-card, .kpi, .small-mult, .runhist, .dcard, .apanel, .kcard {
     background: var(--bg-raised);
   }
+  /* `.pp` носят два разных объекта: строка разрешения в панели и точка стадии
+     шириной 12 px в имени пайплайна. Групповое правило выше метит по классу,
+     а не по объекту, и сажало подложку под точку — паразитная плашка там,
+     где рисуется знак. Точке подложка не нужна ни в одном состоянии. */
+  .pipe-name .pp { background: none; }
   .dg-fix, .plan-list, .hero-chart, .field-demo { background: rgba(255,255,255,0.03); }
   /* ховер больше не подсвечивает обводку — её нет; работает заливка */
   .kb-card:hover { background: var(--bg-overlay); }
