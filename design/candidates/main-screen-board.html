@@ -1497,7 +1497,11 @@
   .titlebar { box-shadow: inset 0 -1px 0 rgba(255,255,255,0.045); }
   .win-title { color: var(--t-secondary); }
   .rl { color: var(--t-secondary); }
-  .rl.sel { color: #A9BEFF; }
+  /* `.rl.sel { color: #A9BEFF }` отсюда снят: он не красил НИЧЕГО. Знак
+     выбранного раздела перекрыт правилом `.rl.sel .ic` (белый), подпись —
+     правилом `.rl.sel .rl-tx` (тоже белый), а больше текста в значке нет.
+     Правило, которое ничего не красит, читается как «здесь есть голубой
+     акцент» — и следующая правка на него сошлётся. */
   .side-head { color: var(--t-primary); letter-spacing: -0.01em; }
   .side-item .count { font-variant-numeric: tabular-nums; }
 
@@ -2014,6 +2018,16 @@
 
   .btn.load { position: relative; opacity: 1; pointer-events: none;
               display: inline-flex; align-items: center; gap: 7px; }
+  /* Кадр обязан быть один и тот же при каждой сборке. Крутилка кнопки —
+     единственная живая анимация на листе, и она отдавала свою фазу по
+     таймеру: две сборки подряд БЕЗ ЕДИНОЙ ПРАВКИ расходились на 122 пикселя
+     ровно в её квадрате 14×14. Пиксельное сравнение «до и после» — главный
+     способ доказать, что правка ничего не сдвинула; пока в кадре есть шум,
+     доказывать нечем. Пауза с отрицательной задержкой останавливает
+     анимацию НА ЗАДАННОЙ фазе, а не на нулевой: крутилка нарисована
+     повёрнутой (видно, что это крутилка), но всегда одинаково. Живой
+     анимации это не касается — правило живёт в слое листа, не в продукте. */
+  .btn.load .spin { animation-play-state: paused; animation-delay: -0.245s; }
   .btn.load .spin { width: 12px; height: 12px; border-radius: 999px; flex: none;
               border: 2px solid rgba(255,255,255,0.30); border-top-color: #FFF; }
   .btn.primary.dis { background: #23232A; color: var(--t-disabled); box-shadow: none; }

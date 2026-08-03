@@ -2,6 +2,7 @@
 .DS_Store
 .build/
 .build-dd/
+.build-wt/
 dist/
 DerivedData/
 scratchpad/
