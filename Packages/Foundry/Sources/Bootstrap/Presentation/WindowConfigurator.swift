@@ -4,17 +4,17 @@ import SwiftUI
 
 // MARK: - Конфигуратор окна
 
-/// Приводит NSWindow к нужному виду: на онбординге — фиксированное портретное
+/// Приводит NSWindow к нужному виду: в мастере настройки — фиксированное портретное
 /// окно 720×880 с прозрачным титлбаром «Foundry — Setup»; после — обычное
 /// изменяемое окно «Foundry».
 struct WindowConfigurator: NSViewRepresentable {
-    let isOnboarding: Bool
+    let isSetupActive: Bool
     /// Идёт ли мастер ПРЯМО СЕЙЧАС — спрашивается у настроек в момент вызова, а не
-    /// берётся из `isOnboarding`. Разница принципиальная для наблюдателей окна
+    /// берётся из `isSetupActive`. Разница принципиальная для наблюдателей окна
     /// (`installFrameLock`): они переживают конец мастера, а замкнутый в них
-    /// `isOnboarding` навсегда остался бы `true` — и главное окно осталось бы
+    /// `isSetupActive` навсегда остался бы `true` — и главное окно осталось бы
     /// намертво 720×880. Замыкание же держит стор и всегда отвечает по факту.
-    let isOnboardingNow: @MainActor () -> Bool
+    let isSetupActiveNow: @MainActor () -> Bool
 
     final class Coordinator {
         var didPositionWindow = false
@@ -74,37 +74,37 @@ struct WindowConfigurator: NSViewRepresentable {
     }
 
     /// Диспетчер: обновляет поколение, ставит общий тёмный хром и разводит на
-    /// онбординговую и обычную ветки. Тело каждой ветки — в отдельном методе.
+    /// мастерскую и обычную ветки. Тело каждой ветки — в отдельном методе.
     private func apply(to window: NSWindow?, coordinator: Coordinator) {
         guard let window else { return }
         // Новая конфигурация обесценивает все отложенные такты прежней.
         coordinator.generation &+= 1
         let generation = coordinator.generation
         applyCommonChrome(to: window)
-        if isOnboarding {
-            configureOnboardingWindow(window, coordinator: coordinator, generation: generation)
+        if isSetupActive {
+            configureSetupWindow(window, coordinator: coordinator, generation: generation)
         } else {
             restoreNormalWindow(window, coordinator: coordinator)
         }
     }
 
     /// Общая часть обеих веток: тёмный прозрачный титлбар, полноразмерный контент,
-    /// перетаскивание за фон. Восстановление кадра — только вне онбординга.
+    /// перетаскивание за фон. Восстановление кадра — только вне мастера настройки.
     private func applyCommonChrome(to window: NSWindow) {
         // тёмный титлбар как в макете (а не светло-серый материал системы)
         window.appearance = NSAppearance(named: .darkAqua)
         window.titlebarAppearsTransparent = true
         window.styleMask.insert(.fullSizeContentView)
         window.isMovableByWindowBackground = true
-        // на онбординге не даём macOS восстанавливать сохранённый кадр —
+        // в мастере настройки не даём macOS восстанавливать сохранённый кадр —
         // окно всегда стартует top-center; после мастера главное окно снова
         // помнит свою позицию между запусками.
-        window.isRestorable = !isOnboarding
+        window.isRestorable = !isSetupActive
     }
 
     /// Онбординговая ветка `apply`: заголовок, безрамочный хром с догоняющими
     /// тактами, отвязка автосейва и фиксированный кадр 720×880 top-center.
-    private func configureOnboardingWindow(
+    private func configureSetupWindow(
         _ window: NSWindow, coordinator: Coordinator, generation: Int
     ) {
         window.title = "Foundry — Setup"
@@ -301,7 +301,7 @@ struct WindowConfigurator: NSViewRepresentable {
     @MainActor private func reassertLock(
         _ window: NSWindow, to size: NSSize, coordinator: Coordinator
     ) -> Bool {
-        guard isOnboardingNow() else {
+        guard isSetupActiveNow() else {
             restoreFrameFreedom(window, coordinator: coordinator)
             return false
         }
@@ -351,7 +351,7 @@ struct WindowConfigurator: NSViewRepresentable {
         window.title = "Foundry"
     }
 
-    /// Переустанавливаемый безрамочный вид окна онбординга. Зовётся при первичной
+    /// Переустанавливаемый безрамочный вид окна мастера настройки. Зовётся при первичной
     /// настройке и на каждую смену фокуса — иначе AppKit на resign-key вернёт
     /// системный серый титлбар и непрозрачный фон, а рамка проступит обратно.
     @MainActor private static func enforceChrome(_ window: NSWindow) {
@@ -377,7 +377,7 @@ struct WindowConfigurator: NSViewRepresentable {
     }
 
     /// Возврат обычного вида — ЗЕРКАЛО `enforceChrome`. Мастер и главное окно это
-    /// один и тот же NSWindow (`WindowConfigurator` висит на корне, `isOnboarding`
+    /// один и тот же NSWindow (`WindowConfigurator` висит на корне, `isSetupActive`
     /// переключается на ходу), поэтому всё выключенное надо включить обратно: иначе
     /// после Skip или финала главное окно до перезапуска оставалось без тени, без
     /// заголовка и с погашенным хромом титлбара. Правило: любое поле, которое трогает

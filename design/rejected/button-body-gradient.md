@@ -3,7 +3,7 @@ name: Градиент-форма по телу кнопки
 slug: button-body-gradient
 status: отвергнут
 date: 2026-07-17
-lineage: memory/dark-shadow-is-spilled-light.md («Финал эволюции», 2026-07-17); подтверждено кодом design/candidates/onboarding.html (`.btn` — плоская заливка)
+lineage: memory/dark-shadow-is-spilled-light.md («Финал эволюции», 2026-07-17); подтверждено кодом design/candidates/setup.html (`.btn` — плоская заливка)
 ---
 
 ## Что предлагалось
@@ -35,7 +35,7 @@ inset сверху/снизу) и градиент по телу — и боль
 > **ни градиента-формы**.
 
 Заодно это возврат к букве канона: docs/design/08-controls.md §5 задаёт
-плоскую заливку акцентом. Комментарий в design/candidates/onboarding.html
+плоскую заливку акцентом. Комментарий в design/candidates/setup.html
 формулирует итог честнее всего:
 
 > Плоская заливка акцентом — канон 08 §5 как написан, **и к нему пришли по
@@ -44,7 +44,7 @@ inset сверху/снизу) и градиент по телу — и боль
 ⚠️ **Эта запись отменяет более раннюю формулировку.** Промежуточное состояние
 («форму держат кромки + градиент по телу») ещё встречается в пересказах и в
 чужих конспектах — оно **устарело**. Токены `edge.*` заводить не нужно:
-из design/candidates/onboarding.html §«Долг перед каноном» —
+из design/candidates/setup.html §«Долг перед каноном» —
 
 > Токены `edge.*` заводить больше не нужно — кромки ушли вместе с объёмом
 > кнопки.
@@ -59,7 +59,7 @@ inset-тень чёрный 26% снизу), который **в состоян�
 (в пурпур), pressed −8.5% L / +10° H; вход 150ms, выход 450ms, кривая
 `cubic-bezier(0.2, 0, 0, 1)`. Причина — «на почти чёрном светлеющий hover
 кричит: единственной CTA прибавлять света некуда, отклик читается затемнением
-с тоном» (design/candidates/onboarding.html).
+с тоном» (design/candidates/setup.html).
 
-Эталон — экран `data-step="0"` в design/candidates/onboarding.html, принят
-целиком (memory/onboarding-welcome-etalon.md).
+Эталон — экран `data-step="0"` в design/candidates/setup.html, принят
+целиком (memory/setup-welcome-etalon.md).
