@@ -30,7 +30,7 @@ enum OB {
     /// читается `OB.Text.primary`. `Token.Text` (глобальный) остаётся доступен
     /// по полному имени.
     enum Text {
-        static let primary = Color(white: 1, opacity: 0.96)
+        static let primary = Token.Text.primary  // 0.96
         static let secondary = Token.Text.secondary  // 0.70
         static let tertiary = Token.Text.tertiary  // 0.50
     }
