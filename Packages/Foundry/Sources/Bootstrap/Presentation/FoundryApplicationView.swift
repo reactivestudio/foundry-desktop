@@ -31,7 +31,7 @@ struct FoundryApplicationView: View {
     }
 
     var body: some View {
-        OnboardingGateView(
+        SetupGateView(
             preferenceStore: preferenceStore,
             permissionStore: permissionStore,
             toolStore: toolStore

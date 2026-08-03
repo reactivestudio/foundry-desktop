@@ -3,7 +3,7 @@ import Testing
 @testable import Core
 @testable import Setting
 
-/// Тест-паритет двух роёв: онбординг-рой (презентация BC `Setting`) держит
+/// Тест-паритет двух роёв: рой мастера настройки (презентация BC `Setting`) держит
 /// СОБСТВЕННЫЕ копии чисел прототипа — он заморожен пиксельно, а орб-лоадер
 /// (`Core`) ещё тюнится, поэтому связывать константы напрямую нельзя. Но сегодня
 /// физика у них общая и разъехаться может молча. Этот тест — единый источник истины
@@ -12,19 +12,19 @@ import Testing
 @Suite("Паритет физики роёв")
 struct SwarmPhysicsParityTests {
 
-    @Test("Физика онбординг-роя совпадает с OrbSwarmConfig (иначе рои разъедутся молча)")
-    func onboardingSwarmMatchesOrbPhysics() {
-        #expect(OnboardingSwarmView.orbBodyFraction == OrbSwarmConfig.orbBodyFraction)
-        #expect(OnboardingSwarmView.zoom == OrbSwarmConfig.zoom)
-        #expect(OnboardingSwarmView.taper == OrbSwarmConfig.taper)
-        #expect(OnboardingSwarmView.loaderGrain == OrbSwarmConfig.loaderGrain)
-        #expect(OnboardingSwarmView.coverage == OrbSwarmConfig.coverage)
-        #expect(OnboardingSwarmView.minPointSize == OrbSwarmConfig.minPointSize)
-        #expect(OnboardingSwarmView.maxSupersample == OrbSwarmConfig.maxSupersample)
-        // Зерно онбординга — это зерно пресета fine; число частиц из него же.
-        #expect(OnboardingSwarmView.grain == OrbSwarmConfig.Preset.fine.grain)
+    @Test("Физика роя мастера настройки совпадает с OrbSwarmConfig (иначе рои разъедутся молча)")
+    func setupSwarmMatchesOrbPhysics() {
+        #expect(SetupSwarmView.orbBodyFraction == OrbSwarmConfig.orbBodyFraction)
+        #expect(SetupSwarmView.zoom == OrbSwarmConfig.zoom)
+        #expect(SetupSwarmView.taper == OrbSwarmConfig.taper)
+        #expect(SetupSwarmView.loaderGrain == OrbSwarmConfig.loaderGrain)
+        #expect(SetupSwarmView.coverage == OrbSwarmConfig.coverage)
+        #expect(SetupSwarmView.minPointSize == OrbSwarmConfig.minPointSize)
+        #expect(SetupSwarmView.maxSupersample == OrbSwarmConfig.maxSupersample)
+        // Зерно мастера настройки — это зерно пресета fine; число частиц из него же.
+        #expect(SetupSwarmView.grain == OrbSwarmConfig.Preset.fine.grain)
         #expect(
-            OnboardingSwarmView.particleCount
+            SetupSwarmView.particleCount
                 == OrbSwarmConfig(preset: .fine, size: 512, scale: 1).particleCount)
     }
 }

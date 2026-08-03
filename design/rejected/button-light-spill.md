@@ -3,7 +3,7 @@ name: Световой пролив под кнопкой (тень как пр�
 slug: button-light-spill
 status: отвергнут
 date: 2026-07-17
-lineage: Сессия f31899ad (memory/dark-shadow-is-spilled-light.md), позиция 4; долг записан в design/candidates/onboarding.html §«Долг перед каноном»
+lineage: Сессия f31899ad (memory/dark-shadow-is-spilled-light.md), позиция 4; долг записан в design/candidates/setup.html §«Долг перед каноном»
 ---
 
 ## Что предлагалось
