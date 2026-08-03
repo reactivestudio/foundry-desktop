@@ -163,8 +163,14 @@ struct WindowConfigurator: NSViewRepresentable {
         // окно уезжало из центра туда, где стояло в прошлый раз (isRestorable
         // это не отменяет, это другой механизм). Пустое имя отключает автосейв,
         // и центрирование ниже держится.
-        if coordinator.savedAutosaveName == nil {
-            coordinator.savedAutosaveName = window.frameAutosaveName
+        // Запоминаем ТОЛЬКО непустое имя: SwiftUI вешает его не в первый такт, и в
+        // части запусков первый `apply` видит окно ещё безымянным. Снимок пустышки
+        // намертво: возвращать было бы нечего, и главное окно после мастера до
+        // перезапуска не помнило бы свой кадр. Пустое имя — не «нет автосейва», а
+        // «ещё не поставили»: следующий такт запомнит настоящее.
+        let currentName = window.frameAutosaveName
+        if !currentName.isEmpty, coordinator.savedAutosaveName == nil {
+            coordinator.savedAutosaveName = currentName
         }
         window.setFrameAutosaveName("")
     }
@@ -238,31 +244,32 @@ struct WindowConfigurator: NSViewRepresentable {
     /// `max ∞` (пределы главного контента под мастером), и кромка снова тянулась:
     /// 720 превращалось в 870.
     ///
-    /// Два события, разные роли:
+    /// Три события, разные роли:
     ///   - `willStartLiveResize` — ДО того, как AppKit поведёт тягу: по ходу драга он
     ///     сверяется с min/max, и при равных пределах кромка просто не двигается;
     ///   - `didResize` — сеть для путей без живой тяги. Кадр возвращается СЛЕДУЮЩИМ
     ///     тактом, а не прямо в обработчике: `setFrame` внутри `didResize` — это
-    ///     рекурсия по тому же уведомлению.
+    ///     рекурсия по тому же уведомлению;
+    ///   - `NSApplication.willUpdate` — такт цикла событий, до обработки меню и
+    ///     горячих клавиш. Полный экран не даёт ни одного из двух первых событий: он
+    ///     спрашивает `collectionBehavior` НАПРЯМУЮ, а тот к моменту вопроса уже
+    ///     переставлен SwiftUI обратно в `.fullScreenPrimary` — пункт «Enter Full
+    ///     Screen» оживал, и мастер уезжал в отдельное пространство (окно при этом
+    ///     оставалось 720×880 — размер-то заперт, но сидело оно уже в чужом
+    ///     полноэкранном пространстве). Переустановка на каждом такте закрывает и этот
+    ///     путь, и любой другой, спрашивающий пределы без уведомления.
     private func installFrameLock(_ window: NSWindow, to size: NSSize, coordinator: Coordinator) {
         guard coordinator.frameObservers.isEmpty else { return }
-        let names: [Notification.Name] = [
+        let windowEvents: [Notification.Name] = [
             NSWindow.willStartLiveResizeNotification, NSWindow.didResizeNotification,
         ]
-        for name in names {
+        for name in windowEvents {
             let observer = NotificationCenter.default.addObserver(
                 forName: name, object: window, queue: .main
             ) { [weak window, weak coordinator] _ in
                 MainActor.assumeIsolated {
                     guard let window, let coordinator else { return }
-                    // Мастер кончился, а наблюдатель ещё жив (SwiftUI не обязан
-                    // прислать обновление вида, на котором держится restoreNormal-
-                    // Window) — снимаем замок сами и уходим навсегда.
-                    guard isOnboardingNow() else {
-                        restoreFrameFreedom(window, coordinator: coordinator)
-                        return
-                    }
-                    Self.lockFrameSize(window, to: size, coordinator: coordinator)
+                    guard reassertLock(window, to: size, coordinator: coordinator) else { return }
                     guard window.frame.size != size else { return }
                     DispatchQueue.main.async {
                         window.setFrame(
@@ -273,6 +280,33 @@ struct WindowConfigurator: NSViewRepresentable {
             }
             coordinator.frameObservers.append(observer)
         }
+        let tick = NotificationCenter.default.addObserver(
+            forName: NSApplication.willUpdateNotification, object: nil, queue: .main
+        ) { [weak window, weak coordinator] _ in
+            MainActor.assumeIsolated {
+                guard let window, let coordinator else { return }
+                _ = reassertLock(window, to: size, coordinator: coordinator)
+            }
+        }
+        coordinator.frameObservers.append(tick)
+    }
+
+    /// Общее тело наблюдателей замка: переустановить замок, если мастер ещё идёт, и
+    /// снять его насовсем, если уже кончился. Возвращает, заперто ли окно сейчас, —
+    /// звонящему это нужно, чтобы решать, возвращать ли кадр.
+    ///
+    /// Мастер мог кончиться, а наблюдатель ещё жить (SwiftUI не обязан прислать
+    /// обновление вида, на котором держится `restoreNormalWindow`) — тогда снимаем
+    /// замок сами и уходим навсегда.
+    @MainActor private func reassertLock(
+        _ window: NSWindow, to size: NSSize, coordinator: Coordinator
+    ) -> Bool {
+        guard isOnboardingNow() else {
+            restoreFrameFreedom(window, coordinator: coordinator)
+            return false
+        }
+        Self.lockFrameSize(window, to: size, coordinator: coordinator)
+        return true
     }
 
     /// Зеркало `lockFrameSize` и `installFrameLock`: снимает наблюдателей и возвращает

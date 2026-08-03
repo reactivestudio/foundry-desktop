@@ -33,8 +33,27 @@ struct OnboardingGateView<MainContent: View>: View {
         self.mainContent = mainContent()
     }
 
-    /// Пройдена ли первичная настройка — гейт спрашивает это у настроек, а не у себя.
-    private var didFinishOnboarding: Bool { preferenceStore.setup.isFinished }
+    /// Мастер кончился в ЭТОМ сеансе. Durable-истина живёт в настройке (`Preference`,
+    /// группа `Setup`) и её достаточно на следующем запуске — но SwiftUI она не будит:
+    /// наблюдение за стором тут не срабатывает (проверено — `withObservationTracking`
+    /// не зовёт `onChange` на `finishSetup`), и до перезапуска гейт оставался бы с
+    /// мастером на экране, а окно — мастерским: 720×880, без полного экрана, с
+    /// заголовком «Foundry — Setup». Поэтому исход мастера гейт запоминает и у себя.
+    @State private var didFinishInSession = false
+
+    /// Пройдена ли первичная настройка. Двумя источниками: свежий исход этого сеанса
+    /// и durable-настройка — гейт спрашивает её у настроек, а не заводит своё
+    /// хранилище.
+    private var didFinishOnboarding: Bool {
+        didFinishInSession || preferenceStore.setup.isFinished
+    }
+
+    /// Оба исхода мастера — конец и досрочный выход — ведут к одному: настройка
+    /// помечается пройденной, и гейт уходит с экрана вместе с мастерским окном.
+    private func finishOnboarding() {
+        preferenceStore.finishSetup()
+        didFinishInSession = true
+    }
 
     var body: some View {
         ZStack {
@@ -60,8 +79,8 @@ struct OnboardingGateView<MainContent: View>: View {
                             windowScale = 0.985
                         }
                     },
-                    onFinished: { preferenceStore.finishSetup() },
-                    onSkip: { preferenceStore.finishSetup() }
+                    onFinished: { finishOnboarding() },
+                    onSkip: { finishOnboarding() }
                 )
                 .opacity(windowOpacity)
                 .scaleEffect(windowScale)
