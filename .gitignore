@@ -10,3 +10,6 @@ xcuserdata/
 *.xcuserstate
 .swiftpm/
 __pycache__/
+
+# сборка одностраничного вида модели данных — генерится из md и img
+docs/data-model/data-model.html
